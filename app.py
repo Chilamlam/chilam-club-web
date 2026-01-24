@@ -124,7 +124,7 @@ def render_strong_page():
 # ... (前面的代码不变) ...
 
 def render_stock_content(df):
-    """封装个股显示逻辑 (基本面增强版)"""
+    """封装个股显示逻辑 (三线红·紧凑版)"""
     if df is None or df.empty:
         st.info("📊 股票数据初始化中...")
         return
@@ -132,9 +132,8 @@ def render_stock_content(df):
     c1, c2, c3 = st.columns(3)
     c1.metric("入选数量", f"{len(df)} 只")
     
-    # 简单的估值透视：统计多少只股票 PE < 30 (低估/合理)
+    # 估值透视
     if 'pe_ttm' in df.columns:
-        # pe_ttm > 0 且 < 30
         value_count = len(df[(df['pe_ttm'] > 0) & (df['pe_ttm'] < 30)])
         c2.metric("低估值(PE<30)", f"{value_count} 只")
     else:
@@ -147,54 +146,63 @@ def render_stock_content(df):
         sc1, sc2, sc3 = st.columns([1, 1, 1])
         min_d = sc1.slider("至少连续上榜(天)", 1, 30, 1)
         
-        # 新增：市值筛选
+        # 市值筛选
         min_mv = 0
         if 'mv_亿' in df.columns:
             min_mv = sc2.number_input("最小市值(亿)", min_value=0, value=0)
             
-        kw = sc3.text_input("搜索代码/名称/行业")
+        kw = sc3.text_input("搜索代码/名称")
         
-    # 复合筛选
+    # === 复合筛选 ===
     mask = df['连续天数'] >= min_d
     if 'mv_亿' in df.columns:
         mask = mask & (df['mv_亿'] >= min_mv)
         
     if kw: 
-        mask = mask & (df['ts_code'].astype(str).str.contains(kw) | df['name'].str.contains(kw) | df['industry'].str.contains(kw))
+        mask = mask & (df['ts_code'].astype(str).str.contains(kw) | df['name'].str.contains(kw))
     
-    # 排序：默认按 RPS_50，也可以让用户选按 PE 或 市值 排序
-    # 这里保持简单，按 RPS_50
+    # 排序：默认按 RPS_50
     show_df = df[mask].sort_values('RPS_50', ascending=False)
     
-    # 配置列显示
-    # 动态构建列配置，防止旧数据缺少列报错
+    # === 列配置 (极致紧凑) ===
     col_cfg = {
         "ts_code": st.column_config.TextColumn("代码", width="small"),
         "name": st.column_config.TextColumn("名称", width="small"),
-        "industry": st.column_config.TextColumn("行业", width="small"),
-        "price_now": st.column_config.NumberColumn("现价", format="¥%.2f"),
-        "RPS_50": st.column_config.ProgressColumn("RPS 50", min_value=80, max_value=100, format="%.1f"),
-        "eastmoney_url": st.column_config.LinkColumn("详情", display_text="K线➡️"),
-        "连续天数": st.column_config.NumberColumn("在榜", format="%d天"),
+        "price_now": st.column_config.NumberColumn("现价", format="%.2f"),
+        
+        # 基本面 (紧凑格式)
+        "pe_ttm": st.column_config.NumberColumn("PE", format="%.0f"), # 去掉小数，更紧凑
+        "mv_亿": st.column_config.NumberColumn("市值", format="%.0f亿"), # 去掉小数
+        "turnover_rate": st.column_config.NumberColumn("换手", format="%.1f%%"),
+        
+        # ★ 三线红 RPS 核心区 (纯数字对比，一眼定强弱)
+        "RPS_50": st.column_config.NumberColumn("RPS 50", format="%.1f", help="中期强度"),
+        "RPS_120": st.column_config.NumberColumn("RPS 120", format="%.1f", help="半年强度"),
+        "RPS_250": st.column_config.NumberColumn("RPS 250", format="%.1f", help="年线强度"),
+        
+        "连续天数": st.column_config.NumberColumn("天数", format="%d"),
+        "eastmoney_url": st.column_config.LinkColumn("K线", display_text="📈"), # 极简图标
     }
     
-    # 如果有基本面数据，添加配置
-    if 'pe_ttm' in show_df.columns:
-        col_cfg["pe_ttm"] = st.column_config.NumberColumn("PE(TTM)", format="%.1f", help="滚动市盈率，负值代表亏损")
-    if 'mv_亿' in show_df.columns:
-        col_cfg["mv_亿"] = st.column_config.NumberColumn("市值(亿)", format="%.1f亿")
-    if 'turnover_rate' in show_df.columns:
-        col_cfg["turnover_rate"] = st.column_config.NumberColumn("换手%", format="%.1f%%", help="换手率越高越活跃")
-
-    # 选择展示的列
-    display_cols = ['ts_code', 'name', 'industry', 'price_now', 'RPS_50', '连续天数']
-    # 插入基本面列
-    if 'mv_亿' in show_df.columns: display_cols.insert(3, 'mv_亿')
-    if 'pe_ttm' in show_df.columns: display_cols.insert(4, 'pe_ttm')
-    if 'turnover_rate' in show_df.columns: display_cols.insert(5, 'turnover_rate')
+    # === 选择展示的列 (去除行业，加入三线RPS) ===
+    # 基础列
+    display_cols = ['ts_code', 'name', 'price_now']
     
+    # 插入基本面 (如果有)
+    if 'mv_亿' in show_df.columns: display_cols.append('mv_亿')
+    if 'pe_ttm' in show_df.columns: display_cols.append('pe_ttm')
+    if 'turnover_rate' in show_df.columns: display_cols.append('turnover_rate')
+    
+    # 插入 RPS 三线 (如果有)
+    # 确保 CSV 里有这些列才显示
+    if 'RPS_50' in show_df.columns: display_cols.append('RPS_50')
+    if 'RPS_120' in show_df.columns: display_cols.append('RPS_120')
+    if 'RPS_250' in show_df.columns: display_cols.append('RPS_250')
+    
+    display_cols.append('连续天数')
     display_cols.append('eastmoney_url')
 
+    # 渲染表格
     st.dataframe(
         show_df[display_cols],
         column_config=col_cfg,
@@ -242,4 +250,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
