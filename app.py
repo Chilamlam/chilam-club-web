@@ -30,8 +30,8 @@ def get_news_data():
         })
 
 def render_news_page():
-    st.header("📰 实时新闻挖掘")
-    st.caption("Powered by Chilam Club & GLM-4")
+    st.header("📰 实时新闻挖掘【免费服务每5分钟更新一次】")
+    st.caption("Powered by 全天候攻略")
     
     # 获取 API Key (请确保你在 Streamlit Cloud 的 Secrets 里配置了 ZHIPU_API_KEY)
     if "ZHIPU_API_KEY" in st.secrets:
@@ -69,7 +69,7 @@ def render_news_page():
             st.caption(f"时间：{current['发布日期']} {current['发布时间']}")
             st.info(current['内容'])
 
-            st.markdown("### 🧠 AI 深度分析")
+            st.markdown("### 🧠 简单分析")
             if st.button("✨ 挖掘概念与龙头", type="primary"):
                 with st.spinner("AI 正在分析核心逻辑..."):
                     try:
@@ -81,7 +81,7 @@ def render_news_page():
                             temperature=0.3
                         )
                         prompt = ChatPromptTemplate.from_messages([
-                            ("system", "你是专业分析师。请提取新闻中的核心产业链概念，并挖掘3只最相关的A股龙头股。请用Markdown格式输出，包含：【核心逻辑】、【受益板块】、【相关个股】。"),
+                            ("system", "你是专业分析师。请提取新闻中的核心产业链概念，并挖掘3只最相关的A股龙头股。请用Markdown格式输出，包含：【情绪判断：到底是利好还是利空或者是中性】【核心逻辑】、【受益板块】、【相关个股】。"),
                             ("user", "标题：{title}\n内容：{content}")
                         ])
                         chain = prompt | llm | StrOutputParser()
@@ -99,7 +99,7 @@ def load_data(path):
 
 def render_strong_page():
     st.header("🔥 市场强势信号池 (RPS)")
-    st.caption("策略：陶博士 RPS 三线红 (>87) | 数据源：Tushare Pro | 更新时间：每日 17:00")
+    st.caption("策略： RPS 三线红 (>87) | 数据源：Tushare Pro | 更新时间：每日 17:00")
 
     # 读取数据
     df = load_data("data/strong_stocks.csv")
@@ -156,7 +156,7 @@ def render_strong_page():
 def main():
     with st.sidebar:
         st.title("Chilam.Club")
-        st.markdown("“不得贪胜，步步登高”")
+        st.markdown("公众号全天候攻略提供")
         
         # 侧边栏导航
         page = st.radio(
@@ -174,3 +174,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
