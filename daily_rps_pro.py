@@ -4,8 +4,7 @@ import datetime
 import os
 
 # ================= 配置区 =================
-# 🛡️ 优先读取环境变量，没有则使用本地 Token
-# 请在下方填入你的 2100 积分 Token
+# 🛡️ 优先读取环境变量
 LOCAL_TOKEN = '' 
 MY_TOKEN = os.getenv('TUSHARE_TOKEN', LOCAL_TOKEN)
 
@@ -35,7 +34,6 @@ def get_trading_dates(end_date):
         df = df.sort_values('cal_date', ascending=False).reset_index(drop=True)
         if df.empty: return None
         
-        # 返回前 2 个交易日，用于基本面回溯
         dates = {
             'now': df.loc[0, 'cal_date'], 
             'prev': df.loc[1, 'cal_date'] if len(df) > 1 else None
@@ -49,7 +47,7 @@ def get_trading_dates(end_date):
         return None
 
 def get_snapshot(date_str):
-    """获取个股行情（价格）"""
+    """获取个股行情"""
     print(f"   正在获取 {date_str} 的价格数据...")
     try:
         df_daily = pro.daily(trade_date=date_str, fields='ts_code,close')
@@ -66,43 +64,30 @@ def get_snapshot(date_str):
         return pd.DataFrame()
 
 def get_fundamental_smart(date_str, backup_date_str=None):
-    """
-    ★ 智能基本面获取
-    策略：优先取 date_str (今天)，如果取不到（数据未更新），自动降级取 backup_date_str (昨天)
-    """
-    print(f"📊 正在尝试获取基本面数据 (PE/PB/市值)...")
-    
+    """智能基本面获取 (带回溯)"""
+    print(f"📊 正在尝试获取基本面数据...")
     fields = 'ts_code,turnover_rate,pe_ttm,pb,circ_mv'
     
-    # 1. 尝试今天
     df = pro.daily_basic(trade_date=date_str, fields=fields)
     
-    # 2. 如果今天没数据，且有备选日期，尝试昨天
     if df.empty and backup_date_str:
-        print(f"   ⚠️ 今日({date_str})基本面数据尚未更新，切换至昨日({backup_date_str})...")
+        print(f"   ⚠️ 今日({date_str})无数据，切换至昨日({backup_date_str})...")
         df = pro.daily_basic(trade_date=backup_date_str, fields=fields)
         
     if df.empty:
-        print("   ❌ 彻底获取失败：无法获取基本面数据")
+        print("   ❌ 无法获取基本面数据")
         return pd.DataFrame()
     
     print(f"   ✅ 成功获取基本面数据，共 {len(df)} 条")
-    
-    # 数据清洗
-    # circ_mv 单位是万，转换为亿，保留2位小数
     df['mv_亿'] = (df['circ_mv'] / 10000).round(2)
-    
-    # 确保没有空值干扰合并
     return df[['ts_code', 'pe_ttm', 'pb', 'turnover_rate', 'mv_亿']]
 
 def calculate_rps_logic(dates):
-    """核心 RPS 计算逻辑"""
-    # 1. 获取今日数据
+    """核心 RPS 计算"""
     df_now = get_snapshot(dates['now'])
     if df_now.empty: return None
     df_now.rename(columns={'close_val': 'base_now', 'display_val': 'price_now'}, inplace=True)
     
-    # 2. 循环计算涨幅
     final_df = df_now.copy()
     for n in RPS_N:
         if n not in dates: continue
@@ -118,7 +103,7 @@ def calculate_rps_logic(dates):
     return final_df
 
 def process_history(new_df, file_path, date_str):
-    """处理连续上榜历史"""
+    """处理历史记录"""
     history_map = {}
     if os.path.exists(file_path):
         try:
@@ -161,12 +146,11 @@ def process_history(new_df, file_path, date_str):
     return pd.DataFrame(res)
 
 def main_job():
-    print("🚀 启动 A股 RPS + 基本面深度扫描...")
+    print("🚀 启动 A股 RPS + 基本面深度扫描 (V3 修正版)...")
     today_str = datetime.datetime.now().strftime('%Y%m%d')
     today_fmt = datetime.datetime.now().strftime('%Y-%m-%d')
     
-    # 周末测试用 (如果今天是周末，手动取消注释下面这行)
-    # today_str = '20260123' 
+    # today_str = '20260123' # 测试用
 
     dates = get_trading_dates(today_str)
     if not dates: return
@@ -178,37 +162,32 @@ def main_job():
     
     if df_stock is not None:
         try:
-            # 2. 获取基础信息 (名称、行业)
             print("   正在合并股票名称与行业...")
             basic = pro.stock_basic(exchange='', list_status='L', fields='ts_code,name,industry')
             df_stock = pd.merge(df_stock, basic, on='ts_code', how='left')
             
-            # 3. ★ 获取基本面数据 (带回溯功能)
-            # 传入今天和昨天，如果今天没数据，它会自动取昨天的
+            # 2. 获取基本面
             fina_df = get_fundamental_smart(dates['now'], dates.get('prev'))
-            
             if not fina_df.empty:
                 df_stock = pd.merge(df_stock, fina_df, on='ts_code', how='left')
-            else:
-                print("⚠️ 警告：本次运行将缺失基本面数据")
             
-            # 4. 筛选强势股
+            # 3. 筛选
             mask = (df_stock['RPS_50'] > THRESHOLD) & (df_stock['RPS_120'] > THRESHOLD) & (df_stock['RPS_250'] > THRESHOLD)
             strong_stock = df_stock[mask].copy()
             strong_stock['更新日期'] = today_fmt
             
-            # 5. 处理历史
+            # 4. 历史处理
             final_stock = process_history(strong_stock, STOCK_PATH, today_fmt)
             
-            # 6. 保存 (动态识别列)
-            base_cols = ['ts_code', 'name', 'industry', 'price_now', 'RPS_50', 'RPS_120', '连续天数']
+            # 5. 保存 (★ 关键修改：加入了 RPS_250)
+            base_cols = ['ts_code', 'name', 'industry', 'price_now', 'RPS_50', 'RPS_120', 'RPS_250', '连续天数']
             extra_cols = ['pe_ttm', 'mv_亿', 'turnover_rate', 'eastmoney_url', '更新日期']
             
-            # 只保存存在的列
+            # 动态检查存在的列
             save_cols = [c for c in base_cols + extra_cols if c in final_stock.columns]
             
             final_stock[save_cols].round(2).to_csv(STOCK_PATH, index=False)
-            print(f"✅ 成功！已更新 {len(final_stock)} 只强势股 (基本面数据已注入)")
+            print(f"✅ 成功！已更新 {len(final_stock)} 只强势股 (包含 RPS 250)")
             
         except Exception as e:
             print(f"❌ 处理出错: {e}")
