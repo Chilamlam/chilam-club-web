@@ -1,0 +1,35 @@
+name: Daily RPS Update
+
+on:
+  schedule:
+    # UTC 时间 9:00 = 北京时间 17:00
+    - cron: '0 9 * * *'
+  workflow_dispatch: # 允许你手动点击按钮触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install pandas tushare
+
+    - name: Run daily script
+      env:
+        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+      run: python daily_rps_pro.py
+
+    - name: Commit and push changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "Auto-update data by GitHub Actions"
+        file_pattern: data/*.csv
