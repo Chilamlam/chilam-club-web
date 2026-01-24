@@ -30,8 +30,8 @@ def get_news_data():
         })
 
 def render_news_page():
-    st.header("📰 实时新闻挖掘")
-    st.caption("Powered by Chilam Club & GLM-4")
+    st.header("📰 实时新闻【免费服务每五分钟更新】")
+    st.caption("Powered by 全天候攻略")
     
     # 检查 API Key
     if "ZHIPU_API_KEY" in st.secrets:
@@ -71,7 +71,7 @@ def render_news_page():
             st.caption(f"发布时间: {current['发布日期']} {current['发布时间']}")
             st.info(current['内容'])
 
-            st.markdown("### 🧠 AI 深度分析")
+            st.markdown("### 🧠 AI 分析")
             if st.button("✨ 挖掘概念与龙头", type="primary"):
                 with st.spinner("AI 正在分析核心逻辑..."):
                     try:
@@ -184,21 +184,22 @@ def render_stock_content(df):
 def main():
     with st.sidebar:
         st.title("Chilam.Club")
-        st.markdown("“不得贪胜，步步登高”")
+        st.markdown("公众号全天候攻略提供服务")
         
         # 侧边栏导航
         page = st.radio(
             "功能导航", 
-            ["📰 实时新闻挖掘", "🔥 市场强势股 (VIP)"],
+            ["📰 实时新闻", "🔥 市场强势股 (VIP)"],
             index=1
         )
         st.markdown("---")
         st.caption("数据支持：Akshare & Tushare")
 
-    if page == "📰 实时新闻挖掘":
+    if page == "📰 实时新闻":
         render_news_page()
     elif page == "🔥 市场强势股 (VIP)":
         render_strong_page()
 
 if __name__ == "__main__":
     main()
+
