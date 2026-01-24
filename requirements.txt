@@ -2,4 +2,6 @@ streamlit
 pandas
 akshare
 langchain
+langchain-core
+langchain-community
 langchain-openai
