@@ -121,35 +121,83 @@ def render_strong_page():
     else:
         render_stock_content(df_stock)
 
+# ... (前面的代码不变) ...
+
 def render_stock_content(df):
+    """封装个股显示逻辑 (基本面增强版)"""
     if df is None or df.empty:
-        st.info("📊 股票数据初始化中，请等待自动更新...")
+        st.info("📊 股票数据初始化中...")
         return
         
     c1, c2, c3 = st.columns(3)
     c1.metric("入选数量", f"{len(df)} 只")
-    c2.metric("妖股(>10天)", f"{len(df[df['连续天数']>=10])} 只")
+    
+    # 简单的估值透视：统计多少只股票 PE < 30 (低估/合理)
+    if 'pe_ttm' in df.columns:
+        # pe_ttm > 0 且 < 30
+        value_count = len(df[(df['pe_ttm'] > 0) & (df['pe_ttm'] < 30)])
+        c2.metric("低估值(PE<30)", f"{value_count} 只")
+    else:
+        c2.metric("妖股(>10天)", f"{len(df[df['连续天数']>=10])} 只")
+        
     date_label = df['更新日期'].iloc[0] if '更新日期' in df.columns else "未知"
     c3.markdown(f"**日期**: {date_label}")
     
-    with st.expander("🔍 个股筛选", expanded=True):
-        sc1, sc2 = st.columns([1,2])
-        min_d = sc1.slider("至少连续上榜", 1, 30, 1)
-        kw = sc2.text_input("搜索股票代码/名称/行业")
+    with st.expander("🔍 深度筛选", expanded=True):
+        sc1, sc2, sc3 = st.columns([1, 1, 1])
+        min_d = sc1.slider("至少连续上榜(天)", 1, 30, 1)
         
+        # 新增：市值筛选
+        min_mv = 0
+        if 'mv_亿' in df.columns:
+            min_mv = sc2.number_input("最小市值(亿)", min_value=0, value=0)
+            
+        kw = sc3.text_input("搜索代码/名称/行业")
+        
+    # 复合筛选
     mask = df['连续天数'] >= min_d
+    if 'mv_亿' in df.columns:
+        mask = mask & (df['mv_亿'] >= min_mv)
+        
     if kw: 
         mask = mask & (df['ts_code'].astype(str).str.contains(kw) | df['name'].str.contains(kw) | df['industry'].str.contains(kw))
     
+    # 排序：默认按 RPS_50，也可以让用户选按 PE 或 市值 排序
+    # 这里保持简单，按 RPS_50
+    show_df = df[mask].sort_values('RPS_50', ascending=False)
+    
+    # 配置列显示
+    # 动态构建列配置，防止旧数据缺少列报错
+    col_cfg = {
+        "ts_code": st.column_config.TextColumn("代码", width="small"),
+        "name": st.column_config.TextColumn("名称", width="small"),
+        "industry": st.column_config.TextColumn("行业", width="small"),
+        "price_now": st.column_config.NumberColumn("现价", format="¥%.2f"),
+        "RPS_50": st.column_config.ProgressColumn("RPS 50", min_value=80, max_value=100, format="%.1f"),
+        "eastmoney_url": st.column_config.LinkColumn("详情", display_text="K线➡️"),
+        "连续天数": st.column_config.NumberColumn("在榜", format="%d天"),
+    }
+    
+    # 如果有基本面数据，添加配置
+    if 'pe_ttm' in show_df.columns:
+        col_cfg["pe_ttm"] = st.column_config.NumberColumn("PE(TTM)", format="%.1f", help="滚动市盈率，负值代表亏损")
+    if 'mv_亿' in show_df.columns:
+        col_cfg["mv_亿"] = st.column_config.NumberColumn("市值(亿)", format="%.1f亿")
+    if 'turnover_rate' in show_df.columns:
+        col_cfg["turnover_rate"] = st.column_config.NumberColumn("换手%", format="%.1f%%", help="换手率越高越活跃")
+
+    # 选择展示的列
+    display_cols = ['ts_code', 'name', 'industry', 'price_now', 'RPS_50', '连续天数']
+    # 插入基本面列
+    if 'mv_亿' in show_df.columns: display_cols.insert(3, 'mv_亿')
+    if 'pe_ttm' in show_df.columns: display_cols.insert(4, 'pe_ttm')
+    if 'turnover_rate' in show_df.columns: display_cols.insert(5, 'turnover_rate')
+    
+    display_cols.append('eastmoney_url')
+
     st.dataframe(
-        df[mask].sort_values('RPS_50', ascending=False)[['ts_code', 'name', 'industry', 'price_now', 'RPS_50', 'RPS_120', '连续天数', 'eastmoney_url']],
-        column_config={
-            "ts_code": st.column_config.TextColumn("代码"),
-            "eastmoney_url": st.column_config.LinkColumn("详情", display_text="K线➡️"),
-            "price_now": st.column_config.NumberColumn("现价", format="¥ %.2f"),
-            "RPS_50": st.column_config.ProgressColumn("RPS 50", min_value=80, max_value=100, format="%.1f"),
-            "连续天数": st.column_config.NumberColumn("在榜", format="%d天"),
-        },
+        show_df[display_cols],
+        column_config=col_cfg,
         use_container_width=True,
         hide_index=True,
         height=800
@@ -194,3 +242,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
