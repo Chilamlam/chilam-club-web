@@ -33,8 +33,8 @@ def get_news_data():
 
 def app():
     # ================= 界面布局 =================
-    st.title("🤖 AI 新闻概念与个股挖掘")
-    st.caption("Powered by Chilam Club & GLM-4-Flash")
+    st.title("🤖 新闻概念挖掘[免费服务5分钟更新一次]")
+    st.caption("Powered by Chilam Club")
 
     # ================= 安全获取 API Key =================
     # 从 Streamlit Secrets 获取 Key，不再硬编码
@@ -105,6 +105,7 @@ def app():
                         # 构建 Prompt
                         prompt = ChatPromptTemplate.from_messages([
                             ("system", "你是一位专业的财经证券分析师。请阅读用户提供的财经新闻，完成以下任务：\n"
+                                     "0. **情绪识别**：分析该新闻的内容到底是利好还是利空。\n"
                                      "1. **概念识别**：分析该新闻涉及的核心产业链概念（例如：Robotaxi, CPO, 创新药等）。\n"
                                      "2. **个股挖掘**：根据概念，列出3-5只A股或港股中最相关的龙头个股名称，并用一句话解释关联理由。\n\n"
                                      "输出格式请使用 Markdown，清晰分级。"),
@@ -130,4 +131,5 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
