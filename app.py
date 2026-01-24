@@ -1,10 +1,10 @@
 import streamlit as st
 import pandas as pd
-# 引入 LangChain 相关库
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+# 👇 修改了下面这行，改用 langchain_core
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-import akshare as st_ak  # 重命名避免冲突
+import akshare as st_ak
 
 # ================= 配置部分 =================
 st.set_page_config(
@@ -130,3 +130,4 @@ def app():
 
 if __name__ == "__main__":
     app()
+
