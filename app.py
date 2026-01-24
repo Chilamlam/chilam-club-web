@@ -8,7 +8,7 @@ import akshare as st_ak
 
 # ================= 配置部分 =================
 st.set_page_config(
-    page_title="Chilam Club - AI 财经终端",
+    page_title="全天候攻略消息服务",
     page_icon="📰",
     layout="wide"
 )
@@ -90,7 +90,7 @@ def app():
             st.info(current_news['内容'])
 
             # 2. AI 分析按钮
-            st.markdown("### 🧠 AI 深度分析")
+            st.markdown("### 🧠 AI 快速分析")
             if st.button("✨ 开始分析：提取概念 & 挖掘个股", type="primary"):
                 with st.spinner("AI 分析师正在阅读新闻并进行逻辑推理..."):
                     try:
@@ -131,5 +131,6 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
