@@ -198,7 +198,7 @@ def render_stock_content(df):
         "RPS_120": st.column_config.NumberColumn("RPS 120", format="%.1f"),
         "RPS_250": st.column_config.NumberColumn("RPS 250", format="%.1f"),
         "连续天数": st.column_config.NumberColumn("天数", format="%d"),
-        "eastmoney_url": st.column_config.LinkColumn("K线", display_text="📈"),
+        "xueqiu_url": st.column_config.LinkColumn("雪球", display_text="❄️"),
     }
     
     # 展示列顺序
@@ -213,7 +213,7 @@ def render_stock_content(df):
     if 'RPS_120' in show_df.columns: display_cols.append('RPS_120')
     if 'RPS_250' in show_df.columns: display_cols.append('RPS_250')
     display_cols.append('连续天数')
-    display_cols.append('eastmoney_url')
+    display_cols.append('xueqiu_url')
 
     st.dataframe(
         show_df[display_cols],
@@ -262,6 +262,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
