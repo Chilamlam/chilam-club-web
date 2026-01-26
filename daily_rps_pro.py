@@ -143,15 +143,20 @@ def process_history_and_change(new_df, file_path, date_str):
             # 如果昨天不在榜单里，说明是新晋级的，变化值设为空或特殊标记
             row['rps_50_chg'] = 999 # 用 999 标记为 NEW
             
-        # 链接生成
+        # ... (前面的代码保持不变)
+
+        # ★ 修改部分：将链接改为雪球 (Xueqiu)
         if '.' in code:
             num, suffix = code.split('.')
-            link_code = suffix.lower() + num
-            row['eastmoney_url'] = f"https://quote.eastmoney.com/{link_code}.html"
+            # 雪球的格式是：大写市场代码 + 数字，例如 SZ000001
+            link_code = suffix.upper() + num 
+            row['xueqiu_url'] = f"https://xueqiu.com/S/{link_code}"
         else:
-            row['eastmoney_url'] = ""
+            row['xueqiu_url'] = ""
             
         res.append(row)
+
+# ... (后面的代码保持不变)
     return pd.DataFrame(res)
 
 def main_job():
@@ -185,9 +190,9 @@ def main_job():
             # 3. ★ 处理历史和变化 (传入旧文件路径)
             final_stock = process_history_and_change(strong_stock, STOCK_PATH, today_fmt)
             
-            # 4. 保存 (增加 rps_50_chg 列)
+            # 4. 保存 (注意把 eastmoney_url 改成了 xueqiu_url)
             base_cols = ['ts_code', 'name', 'industry', 'price_now', 'RPS_50', 'rps_50_chg', 'RPS_120', 'RPS_250', '连续天数']
-            extra_cols = ['pe_ttm', 'mv_亿', 'turnover_rate', 'eastmoney_url', '更新日期']
+            extra_cols = ['pe_ttm', 'mv_亿', 'turnover_rate', 'xueqiu_url', '更新日期']
             
             save_cols = [c for c in base_cols + extra_cols if c in final_stock.columns]
             
@@ -203,3 +208,4 @@ def main_job():
 
 if __name__ == "__main__":
     main_job()
+
