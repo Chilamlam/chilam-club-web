@@ -89,7 +89,7 @@ def render_news_page():
 # ================= 强势股 & ETF 页面 =================
 def render_strong_page():
     st.header("🔥 市场强势信号池 (RPS)")
-    st.caption("数据源：Tushare Pro | 每日 17:00 更新")
+    st.caption("数据源：Tushare Pro | 每日 18:00 更新")
 
     df_stock = load_data("data/strong_stocks.csv")
     df_etf = load_data("data/strong_etfs.csv")
@@ -262,6 +262,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
