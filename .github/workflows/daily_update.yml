@@ -2,8 +2,11 @@ name: Daily RPS Update
 
 on:
   schedule:
-    # 修改为 UTC 9:05 (北京时间 17:05)，避开整点高峰期，更容易触发
-    - cron: '5 9 * * *' 
+    # 原来是 '0 9 * * *' (拥堵)
+    # 👇 改为：UTC 9:35 (北京时间 17:35)
+    # 选择一个随机的分钟数，成功率会暴增
+    - cron: '17 9 * * *'
+  
   workflow_dispatch:
 
 jobs:
