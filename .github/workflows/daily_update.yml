@@ -2,8 +2,8 @@ name: Daily RPS Update
 
 on:
   schedule:
-    # 北京时间 17:00 (UTC 9:00)
-    - cron: '0 9 * * *'
+    # 修改为 UTC 9:05 (北京时间 17:05)，避开整点高峰期，更容易触发
+    - cron: '5 9 * * *' 
   workflow_dispatch:
 
 jobs:
