@@ -16,15 +16,9 @@ def load_data(path):
         return pd.read_csv(path)
     except: return None
 
-# ★ 新增：RPS 美化逻辑 (用于生成带箭头的字符串)
+# 美化 RPS (生成带箭头的列)
 def format_rps_show(df, rps_col='RPS_50', chg_col='rps_50_chg'):
-    """
-    输入：DataFrame
-    输出：增加了 RPS_50_Show 列的 DataFrame
-    """
     if df is None or df.empty: return df
-    
-    # 如果后端脚本还没生成 change 列，就只显示数值
     if chg_col not in df.columns:
         df[f'{rps_col}_Show'] = df[rps_col].map(lambda x: f"{x:.1f}")
         return df
@@ -32,261 +26,128 @@ def format_rps_show(df, rps_col='RPS_50', chg_col='rps_50_chg'):
     def _fmt(row):
         val = row[rps_col]
         chg = row[chg_col]
-        
-        # 999 是后端定义的 "New" 标记
-        if chg == 999:
-            return f"{val:.1f} 🆕"
-        elif chg > 0:
-            return f"{val:.1f} 🔺{abs(chg):.1f}"
-        elif chg < 0:
-            return f"{val:.1f} 🔻{abs(chg):.1f}"
-        else:
-            return f"{val:.1f} -"
-            
+        if chg == 999: return f"{val:.1f} 🆕"
+        elif chg > 0: return f"{val:.1f} 🔺{abs(chg):.1f}"
+        elif chg < 0: return f"{val:.1f} 🔻{abs(chg):.1f}"
+        return f"{val:.1f} -"
+    
     df[f'{rps_col}_Show'] = df.apply(_fmt, axis=1)
     return df
 
-# ================= 新闻模块 (保持原样) =================
+# ================= 新闻模块 =================
 @st.cache_data(ttl=300)
 def get_news_data():
     try:
         return st_ak.stock_info_global_cls()
-    except Exception:
-        return pd.DataFrame({
-            "标题": ["接口繁忙"], 
-            "发布日期": ["-"], 
-            "发布时间": ["-"], 
-            "内容": ["无法获取数据，请稍后重试..."]
-        })
+    except: return pd.DataFrame({"标题": ["接口繁忙"], "发布日期": ["-"], "内容": ["请稍后..."]})
 
 def render_news_page():
-    st.header("📰 实时新闻挖掘【免费服务每五分钟更新】")
-    st.caption("Powered by 全天候攻略")
+    st.header("📰 实时新闻挖掘")
+    if "ZHIPU_API_KEY" in st.secrets: api_key = st.secrets["ZHIPU_API_KEY"]
+    else: api_key = os.getenv("ZHIPU_API_KEY", "")
+
+    with st.spinner('加载中...'): news_df = get_news_data()
+    if 'selected_idx' not in st.session_state: st.session_state.selected_idx = 0
     
-    if "ZHIPU_API_KEY" in st.secrets:
-        api_key = st.secrets["ZHIPU_API_KEY"]
-    else:
-        # 兼容本地环境变量读取
-        api_key = os.getenv("ZHIPU_API_KEY", "")
-        if not api_key:
-            st.error("请在 Streamlit 后台或环境变量配置 ZHIPU_API_KEY")
-            return
-
-    with st.spinner('正在连接全球财经资讯...'):
-        news_df = get_news_data()
-
-    if 'selected_idx' not in st.session_state:
-        st.session_state.selected_idx = 0
-
-    col_list, col_detail = st.columns([3, 7])
-
-    with col_list:
+    c1, c2 = st.columns([3, 7])
+    with c1:
         st.subheader("实时流")
         for idx, row in news_df.head(30).iterrows():
-            with st.container():
-                status = "primary" if idx == st.session_state.selected_idx else "secondary"
-                title_text = str(row['标题'])
-                btn_label = f"📄 {title_text[:18]}..."
-                if st.button(btn_label, key=f"news_{idx}", type=status, use_container_width=True):
-                    st.session_state.selected_idx = idx
-                    st.rerun()
-
-    with col_detail:
+            if st.button(f"📄 {str(row['标题'])[:18]}...", key=f"n_{idx}", use_container_width=True, type="primary" if idx==st.session_state.selected_idx else "secondary"):
+                st.session_state.selected_idx = idx
+                st.rerun()
+    with c2:
         if not news_df.empty:
-            current = news_df.iloc[st.session_state.selected_idx]
-            
-            st.markdown("---")
-            st.subheader(current['标题'])
-            st.caption(f"发布时间: {current['发布日期']} {current['发布时间']}")
-            st.info(current['内容'])
+            cur = news_df.iloc[st.session_state.selected_idx]
+            st.markdown(f"### {cur['标题']}")
+            st.caption(f"{cur['发布日期']}")
+            st.info(cur['内容'])
+            if st.button("✨ AI 分析", type="primary"):
+                if not api_key: st.error("缺 API Key"); return
+                with st.spinner("分析中..."):
+                    llm = ChatOpenAI(api_key=api_key, base_url="https://open.bigmodel.cn/api/paas/v4/", model="glm-4-flash")
+                    chain = ChatPromptTemplate.from_messages([("user", "分析新闻：{t}\n{c}\n给出利好/利空及相关A股龙头。")]) | llm | StrOutputParser()
+                    st.markdown(chain.invoke({"t": cur['标题'], "c": cur['内容']}))
 
-            st.markdown("### 🧠 AI分析")
-            if st.button("✨ 挖掘概念与龙头", type="primary"):
-                with st.spinner("AI 正在分析核心逻辑..."):
-                    try:
-                        llm = ChatOpenAI(
-                            api_key=api_key,
-                            base_url="https://open.bigmodel.cn/api/paas/v4/",
-                            model="glm-4-flash",
-                            temperature=0.3
-                        )
-                        prompt = ChatPromptTemplate.from_messages([
-                            ("system", "你是一位专业的财经证券分析师。请阅读用户提供的财经新闻，完成以下任务：判断利好或者利空，提取核心概念，并挖掘相关A股龙头。请用Markdown输出。"),
-                            ("user", "标题：{title}\n内容：{content}")
-                        ])
-                        chain = prompt | llm | StrOutputParser()
-                        res = chain.invoke({"title": current['标题'], "content": current['内容']})
-                        st.success("分析完成")
-                        st.markdown(res)
-                    except Exception as e:
-                        st.error(f"AI 分析服务暂时不可用: {e}")
-
-# ================= 强势股 & ETF 页面 (升级版) =================
-
+# ================= 个股页面 (修复展示) =================
 def render_stock_content(df):
-    """封装个股显示逻辑 (含细分行业 + RPS变化对比 + 雪球跳转)"""
-    if df is None or df.empty:
-        st.info("📊 股票数据初始化中...")
-        return
-        
+    if df is None or df.empty: st.info("暂无数据"); return
+    
     c1, c2, c3 = st.columns(3)
-    c1.metric("入选数量", f"{len(df)} 只")
+    c1.metric("入选", f"{len(df)} 只")
+    c3.markdown(f"**更新**: {df['更新日期'].iloc[0] if '更新日期' in df.columns else '-'}")
     
-    if 'pe_ttm' in df.columns:
-        value_count = len(df[(df['pe_ttm'] > 0) & (df['pe_ttm'] < 30)])
-        c2.metric("低估值(PE<30)", f"{value_count} 只")
-    else:
-        c2.metric("妖股(>10天)", f"{len(df[df['连续天数']>=10])} 只")
-        
-    date_label = df['更新日期'].iloc[0] if '更新日期' in df.columns else "未知"
-    c3.markdown(f"**日期**: {date_label}")
-    
-    with st.expander("🔍 深度筛选", expanded=True):
-        sc1, sc2, sc3 = st.columns([1, 1.2, 1])
-        # 1. 连板
-        min_d = sc1.slider("至少连续上榜(天)", 1, 30, 1)
-        
-        # 2. ★ 新增：细分行业筛选
-        selected_industry = "全部"
-        if '细分行业' in df.columns:
-            # 过滤空值并排序
-            industries = ["全部"] + sorted([x for x in df['细分行业'].dropna().unique() if x != '-'])
-            selected_industry = sc2.selectbox("按细分题材筛选", industries)
-            
-        # 3. 搜索
-        kw = sc3.text_input("搜索代码/名称/行业")
-        
-    # 筛选逻辑
-    mask = df['连续天数'] >= min_d
-    
-    if selected_industry != "全部":
-        mask = mask & (df['细分行业'] == selected_industry)
+    with st.expander("🔍 筛选", expanded=True):
+        sc1, sc2, sc3 = st.columns([1, 1, 1])
+        min_d = sc1.slider("连榜天数", 1, 30, 1)
+        # 题材筛选
+        opts = ["全部"] + sorted([x for x in df['细分行业'].dropna().unique() if x != '-']) if '细分行业' in df.columns else ["全部"]
+        ind = sc2.selectbox("题材", opts)
+        kw = sc3.text_input("搜索")
 
-    if kw: 
-        # 同时匹配代码、名称、行业
-        search_mask = (
-            df['ts_code'].astype(str).str.contains(kw, case=False) | 
-            df['name'].str.contains(kw, case=False)
-        )
-        if '细分行业' in df.columns:
-            search_mask = search_mask | df['细分行业'].str.contains(kw, case=False)
-        mask = mask & search_mask
+    mask = df['连续天数'] >= min_d
+    if ind != "全部": mask &= (df['细分行业'] == ind)
+    if kw: mask &= (df['ts_code'].astype(str).str.contains(kw) | df['name'].str.contains(kw))
     
     show_df = df[mask].sort_values('RPS_50', ascending=False).copy()
-    
-    # ★ 核心修改：生成 RPS 箭头列
     show_df = format_rps_show(show_df, 'RPS_50', 'rps_50_chg')
 
-    # === 列配置 ===
-    col_cfg = {
-        "ts_code": st.column_config.TextColumn("代码", width="small"),
-        "name": st.column_config.TextColumn("名称", width="small"),
-        # ★ 新增：细分行业
-        "细分行业": st.column_config.TextColumn("细分题材", width="medium", help="来源：东方财富细分行业"),
-        "price_now": st.column_config.NumberColumn("现价", format="%.2f"),
-        "pe_ttm": st.column_config.NumberColumn("PE", format="%.0f"),
-        "mv_亿": st.column_config.NumberColumn("市值", format="%.0f亿"),
-        "turnover_rate": st.column_config.NumberColumn("换手", format="%.1f%%"),
-        
-        # ★ 修改：显示 RPS 箭头
-        "RPS_50_Show": st.column_config.TextColumn("RPS 50 (变化)", help="相对于昨日排名的变化"),
-        
-        "RPS_120": st.column_config.NumberColumn("RPS 120", format="%.1f"),
-        "RPS_250": st.column_config.NumberColumn("RPS 250", format="%.1f"),
-        "连续天数": st.column_config.NumberColumn("天数", format="%d"),
-        
-        # ★ 修改：雪球链接
-        "xueqiu_url": st.column_config.LinkColumn("雪球", display_text="❄️"),
-    }
-    
-    # 动态构建显示列
-    base_cols = ['ts_code', 'name', '细分行业', 'price_now', 'RPS_50_Show']
-    extra_cols = ['mv_亿', 'pe_ttm', 'turnover_rate', 'RPS_120', 'RPS_250', '连续天数', 'xueqiu_url']
-    
-    final_cols = [c for c in base_cols + extra_cols if c in show_df.columns]
+    # ★ 强制指定显示列 (排除 rps_50_chg)
+    cols = ['ts_code', 'name', '细分行业', 'price_now', 'RPS_50_Show', 'RPS_120', 'RPS_250', '连续天数', 'xueqiu_url']
+    final_cols = [c for c in cols if c in show_df.columns]
 
     st.dataframe(
         show_df[final_cols],
-        column_config=col_cfg,
-        use_container_width=True,
-        hide_index=True,
-        height=800
+        column_config={
+            "ts_code": st.column_config.TextColumn("代码"),
+            "xueqiu_url": st.column_config.LinkColumn("雪球", display_text="❄️"),
+            "RPS_50_Show": st.column_config.TextColumn("RPS 50 (变化)"),
+            "细分行业": st.column_config.TextColumn("题材"),
+            "price_now": st.column_config.NumberColumn("现价", format="%.2f"),
+        },
+        use_container_width=True, hide_index=True, height=800
     )
 
-def render_strong_page():
-    st.header("🔥 市场强势信号池 (RPS)")
-    st.caption("数据源：Tushare Pro | 每日 18:00 更新")
-
-    df_stock = load_data("data/strong_stocks.csv")
-    df_etf = load_data("data/strong_etfs.csv")
-
-    tab1, tab2 = st.tabs(["🐉 个股龙虎榜", "💰 热门 ETF (Top100)"])
+# ================= ETF 页面 (修复冗余列) =================
+def render_etf_content(df):
+    if df is None or df.empty: st.info("暂无数据"); return
     
-    with tab1:
-        render_stock_content(df_stock)
-        
-    with tab2:
-        if df_etf is not None and not df_etf.empty:
-            st.success("📈 捕捉到强势 ETF 信号")
-            kw_etf = st.text_input("🔍 搜 ETF (如: 半导体, 纳指)", "")
-            show_etf = df_etf.copy()
-            if kw_etf:
-                show_etf = show_etf[show_etf['name'].str.contains(kw_etf) | show_etf['ts_code'].str.contains(kw_etf)]
-            
-            # ★ 核心修改：生成 RPS 箭头列
-            show_etf = format_rps_show(show_etf, 'RPS_50', 'rps_50_chg')
-            
-            st.dataframe(
-                show_etf.sort_values('RPS_50', ascending=False),
-                column_config={
-                    "ts_code": st.column_config.TextColumn("代码"),
-                    "name": st.column_config.TextColumn("名称"),
-                    "price_now": st.column_config.NumberColumn("现价", format="¥ %.3f"),
-                    # ★ 修改：显示箭头
-                    "RPS_50_Show": st.column_config.TextColumn("RPS 50 (变化)"),
-                    "RPS_120": st.column_config.NumberColumn("RPS 120", format="%.1f"),
-                    # ★ 修改：雪球链接
-                    "xueqiu_url": st.column_config.LinkColumn("雪球", display_text="❄️"),
-                },
-                use_container_width=True,
-                hide_index=True,
-                height=800
-            )
-        else:
-            st.info("暂无 ETF 数据")
+    st.success(f"📈 捕捉到 {len(df)} 只强势 ETF")
+    kw = st.text_input("🔍 搜 ETF")
+    show_df = df.copy()
+    if kw: show_df = show_df[show_df['name'].str.contains(kw) | show_df['ts_code'].str.contains(kw)]
+    
+    show_df = format_rps_show(show_df, 'RPS_50', 'rps_50_chg')
+    
+    # ★ 强制指定显示列 (去掉 rps_50_chg, RPS_50 等中间变量)
+    target_cols = ['ts_code', 'name', 'price_now', 'RPS_50_Show', 'RPS_120', 'RPS_250', 'xueqiu_url']
+    final_cols = [c for c in target_cols if c in show_df.columns]
 
-# ================= 主程序导航 =================
+    st.dataframe(
+        show_df[final_cols],
+        column_config={
+            "ts_code": st.column_config.TextColumn("代码"),
+            "xueqiu_url": st.column_config.LinkColumn("雪球", display_text="❄️"),
+            "RPS_50_Show": st.column_config.TextColumn("RPS 50 (变化)"),
+            "price_now": st.column_config.NumberColumn("现价", format="%.3f"),
+        },
+        use_container_width=True, hide_index=True, height=800
+    )
+
 def main():
     with st.sidebar:
         st.title("Chilam.Club")
-        st.markdown("公众号全天候攻略提供服务")
-        
-        page = st.radio(
-            "功能导航", 
-            ["📰 实时新闻挖掘", "🔥 市场强势股 (VIP)"],
-            index=1
-        )
-        st.markdown("---")
-        st.caption("数据支持：Akshare & Tushare")
-        
-        # 打赏区域
-        st.markdown("---")
-        st.markdown("#### ☕ 支持开发者")
-        donate_img = "donate.jpg" 
-        if os.path.exists(donate_img):
-            st.image(
-                donate_img, 
-                caption="扫码请喝杯咖啡 ☕", 
-                use_container_width=True
-            )
-        else:
-            # 兼容原版逻辑，无图则提示，或者你可以删掉这行
-            pass
+        page = st.radio("导航", ["📰 新闻挖掘", "🔥 强势股 (VIP)"], index=1)
+        st.divider()
+        st.image("donate.jpg", caption="请喝咖啡 ☕") if os.path.exists("donate.jpg") else None
 
-    if page == "📰 实时新闻挖掘":
-        render_news_page()
-    elif page == "🔥 市场强势股 (VIP)":
-        render_strong_page()
+    if page == "📰 新闻挖掘": render_news_page()
+    else:
+        df_stock = load_data("data/strong_stocks.csv")
+        df_etf = load_data("data/strong_etfs.csv")
+        t1, t2 = st.tabs(["个股", "ETF"])
+        with t1: render_stock_content(df_stock)
+        with t2: render_etf_content(df_etf)
 
 if __name__ == "__main__":
     main()
