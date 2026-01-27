@@ -4,7 +4,7 @@ import datetime
 import os
 import time
 import akshare as ak
-import concurrent.futures # 👈 新增：多线程库
+import concurrent.futures
 
 # ================= 配置区 =================
 LOCAL_TOKEN = '' 
@@ -27,7 +27,6 @@ except Exception as e:
 # ================= 工具函数 =================
 
 def get_trading_dates(end_date):
-    """获取交易日期锚点"""
     print("📅 [个股] 正在获取交易日历...")
     start_date = (datetime.datetime.now() - datetime.timedelta(days=400)).strftime('%Y%m%d')
     try:
@@ -48,7 +47,6 @@ def get_trading_dates(end_date):
         return None
 
 def get_snapshot(date_str):
-    """获取个股收盘价 (复权)"""
     print(f"   正在获取 {date_str} 的行情...")
     try:
         df_daily = pro.daily(trade_date=date_str, fields='ts_code,close')
@@ -66,7 +64,6 @@ def get_snapshot(date_str):
         return pd.DataFrame()
 
 def get_fundamental_smart(date_str, backup_date_str=None):
-    """获取基本面数据 (PE, 市值等)"""
     print(f"📊 正在获取基本面数据...")
     fields = 'ts_code,turnover_rate,pe_ttm,pb,circ_mv'
     df = pro.daily_basic(trade_date=date_str, fields=fields)
@@ -81,7 +78,6 @@ def get_fundamental_smart(date_str, backup_date_str=None):
     return df[['ts_code', 'pe_ttm', 'pb', 'turnover_rate', 'mv_亿']]
 
 def calculate_rps_logic(dates):
-    """RPS 计算核心逻辑"""
     df_now = get_snapshot(dates['now'])
     if df_now.empty: return None
     
@@ -103,18 +99,12 @@ def calculate_rps_logic(dates):
         
     return final_df
 
-# ============================================
-# ★ 核心升级：多线程获取细分行业
-# ============================================
+# ================= 行业获取 (含备选方案) =================
 
 def get_industry_worker(code):
-    """单个股票的获取任务"""
     try:
-        # Tushare (000001.SZ) -> Akshare (000001)
         symbol = code.split('.')[0] 
-        # 获取个股资料
         df = ak.stock_individual_info_em(symbol=symbol)
-        # 提取行业
         row = df[df['item'] == '行业']
         if not row.empty:
             return code, row['value'].values[0]
@@ -123,34 +113,24 @@ def get_industry_worker(code):
     return code, "-"
 
 def fetch_detailed_industries(ts_codes):
-    """
-    多线程并发获取行业
-    """
     total = len(ts_codes)
     print(f"🏭 [Akshare] 启动多线程加速，正在抓取 {total} 只个股的细分题材...")
     
     industry_map = {}
     
-    # max_workers=8 表示同时开8个窗口办事，速度提升8倍
-    # 不要设太大，否则容易被东财封IP，8-10是安全范围
     with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
-        # 提交任务
         future_to_code = {executor.submit(get_industry_worker, code): code for code in ts_codes}
         
-        # 获取结果 (as_completed 会在任务完成时立即返回)
         count = 0
         for future in concurrent.futures.as_completed(future_to_code):
             code, industry = future.result()
             industry_map[code] = industry
-            
             count += 1
-            if count % 50 == 0:
-                print(f"   🚀 进度: {count}/{total}...")
+            if count % 50 == 0: print(f"   🚀 进度: {count}/{total}...")
                 
     return industry_map
 
 def process_history_and_change(new_df, file_path, date_str):
-    """处理连板历史 + 雪球链接 + RPS变动"""
     history_map = {}
     rps_prev_map = {}
     
@@ -201,7 +181,7 @@ def process_history_and_change(new_df, file_path, date_str):
     return pd.DataFrame(res)
 
 def main_job():
-    print("🚀 启动 A股 RPS + 细分题材更新 (多线程版)...")
+    print("🚀 启动 A股 RPS + 细分题材更新 (V3.0 增强版)...")
     today_str = datetime.datetime.now().strftime('%Y%m%d')
     today_fmt = datetime.datetime.now().strftime('%Y-%m-%d')
     
@@ -216,37 +196,48 @@ def main_job():
     if df_stock is not None:
         try:
             print("   合并基础数据...")
-            basic = pro.stock_basic(exchange='', list_status='L', fields='ts_code,name')
+            # ★ 注意：这里我们多获取一个 'industry' 字段作为备用！
+            basic = pro.stock_basic(exchange='', list_status='L', fields='ts_code,name,industry')
             df_stock = pd.merge(df_stock, basic, on='ts_code', how='left')
             
             fina_df = get_fundamental_smart(dates['now'], dates.get('prev'))
             if not fina_df.empty:
                 df_stock = pd.merge(df_stock, fina_df, on='ts_code', how='left')
             
-            # 2. 筛选强势股
+            # 2. 筛选
             mask = (df_stock['RPS_50'] > THRESHOLD) & (df_stock['RPS_120'] > THRESHOLD) & (df_stock['RPS_250'] > THRESHOLD)
             strong_stock = df_stock[mask].copy()
             strong_stock['更新日期'] = today_fmt
             
-            # ★ 3. 多线程获取细分行业 (速度起飞)
+            # 3. 细分行业获取
             codes_list = strong_stock['ts_code'].tolist()
             if codes_list:
                 industry_map = fetch_detailed_industries(codes_list)
                 strong_stock['细分行业'] = strong_stock['ts_code'].map(industry_map)
+                
+                # ★★★ 核心修复：如果细分行业是 '-' 或 空，用 Tushare 的 industry 填充 ★★★
+                print("🔧 正在修补缺失的题材数据...")
+                # 填充 NaN
+                strong_stock['细分行业'] = strong_stock['细分行业'].fillna('-')
+                # 找出还是 '-' 的行
+                mask_missing = strong_stock['细分行业'] == '-'
+                # 用 industry 列的值去填
+                if 'industry' in strong_stock.columns:
+                    strong_stock.loc[mask_missing, '细分行业'] = strong_stock.loc[mask_missing, 'industry']
             else:
-                print("⚠️ 无强势股，跳过行业获取")
+                strong_stock['细分行业'] = '-'
             
             # 4. 处理历史
             final_stock = process_history_and_change(strong_stock, STOCK_PATH, today_fmt)
             
-            # 5. 保存
+            # 5. 保存 (去掉中间列 industry，保留细分行业)
             base_cols = ['ts_code', 'name', '细分行业', 'price_now', 'RPS_50', 'rps_50_chg', 'RPS_120', 'RPS_250', '连续天数']
             extra_cols = ['pe_ttm', 'mv_亿', 'turnover_rate', 'xueqiu_url', '更新日期', '初次入选']
             
             save_cols = [c for c in base_cols + extra_cols if c in final_stock.columns]
             
             final_stock[save_cols].round(2).to_csv(STOCK_PATH, index=False)
-            print(f"✅ 个股更新完成！包含细分行业数据，已保存至 {STOCK_PATH}")
+            print(f"✅ 更新完成！已尝试自动修复缺失题材。")
             
         except Exception as e:
             print(f"❌ 处理出错: {e}")
