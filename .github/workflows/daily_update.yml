@@ -22,9 +22,10 @@ jobs:
       with:
         python-version: '3.9'
 
-    - name: Install dependencies
+   - name: Install dependencies
       run: |
-        pip install pandas tushare lxml
+        python -m pip install --upgrade pip
+        pip install pandas tushare requests akshare
 
     - name: Run daily scripts
       env:
