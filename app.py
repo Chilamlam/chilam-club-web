@@ -139,7 +139,9 @@ def main():
         st.title("Chilam.Club")
         page = st.radio("导航", ["📰 新闻挖掘", "🔥 强势股 (VIP)"], index=1)
         st.divider()
-        st.image("donate.jpg", caption="请喝咖啡 ☕") if os.path.exists("donate.jpg") else None
+        # ★★★ 修复乱码：改回标准 if 语句 ★★★
+        if os.path.exists("donate.jpg"):
+            st.image("donate.jpg", caption="请喝咖啡 ☕")
 
     if page == "📰 新闻挖掘": render_news_page()
     else:
