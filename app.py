@@ -69,31 +69,61 @@ def render_news_page():
                     chain = ChatPromptTemplate.from_messages([("user", "分析新闻：{t}\n{c}\n给出利好/利空及相关A股龙头。")]) | llm | StrOutputParser()
                     st.markdown(chain.invoke({"t": cur['标题'], "c": cur['内容']}))
 
-# ================= 个股页面 (修复展示) =================
+# ================= 个股页面 (修复 PE 和筛选) =================
 def render_stock_content(df):
     if df is None or df.empty: st.info("暂无数据"); return
     
     c1, c2, c3 = st.columns(3)
     c1.metric("入选", f"{len(df)} 只")
+    
+    # PE 统计
+    if 'pe_ttm' in df.columns:
+        low_pe_count = len(df[df['pe_ttm'] < 30])
+        c2.metric("低估值 (PE<30)", f"{low_pe_count} 只")
+    else:
+        c2.metric("数据状态", "PE数据缺失")
+        
     c3.markdown(f"**更新**: {df['更新日期'].iloc[0] if '更新日期' in df.columns else '-'}")
     
-    with st.expander("🔍 筛选", expanded=True):
-        sc1, sc2, sc3 = st.columns([1, 1, 1])
+    # ★★★ 修复：找回 PE 和 RPS 筛选器 ★★★
+    with st.expander("🔍 深度筛选", expanded=True):
+        sc1, sc2, sc3, sc4 = st.columns([1, 1, 1, 1.2])
+        
+        # 1. 基础筛选
         min_d = sc1.slider("连榜天数", 1, 30, 1)
-        # 题材筛选
+        min_rps = sc2.slider("最低 RPS", 50, 99, 87)
+        
+        # 2. 估值筛选 (如果有 PE 数据)
+        max_pe = 1000
+        if 'pe_ttm' in df.columns:
+            max_pe = sc3.slider("最大 PE(TTM)", 0, 200, 100)
+            
+        # 3. 题材 & 搜索
         opts = ["全部"] + sorted([x for x in df['细分行业'].dropna().unique() if x != '-']) if '细分行业' in df.columns else ["全部"]
-        ind = sc2.selectbox("题材", opts)
-        kw = sc3.text_input("搜索")
+        ind = sc4.selectbox("题材/行业", opts)
+        kw = st.text_input("搜索代码/名称", placeholder="输入代码或名称...")
 
-    mask = df['连续天数'] >= min_d
-    if ind != "全部": mask &= (df['细分行业'] == ind)
-    if kw: mask &= (df['ts_code'].astype(str).str.contains(kw) | df['name'].str.contains(kw))
+    # ★★★ 修复：筛选逻辑 ★★★
+    mask = (df['连续天数'] >= min_d) & (df['RPS_50'] >= min_rps)
+    
+    if 'pe_ttm' in df.columns:
+        mask &= (df['pe_ttm'] <= max_pe) & (df['pe_ttm'] > 0) # 过滤掉亏损或PE过高的
+        
+    if ind != "全部": 
+        mask &= (df['细分行业'] == ind)
+        
+    if kw: 
+        mask &= (df['ts_code'].astype(str).str.contains(kw) | df['name'].str.contains(kw))
     
     show_df = df[mask].sort_values('RPS_50', ascending=False).copy()
     show_df = format_rps_show(show_df, 'RPS_50', 'rps_50_chg')
 
-    # ★ 强制指定显示列 (排除 rps_50_chg)
-    cols = ['ts_code', 'name', '细分行业', 'price_now', 'RPS_50_Show', 'RPS_120', 'RPS_250', '连续天数', 'xueqiu_url']
+    # ★★★ 修复：把 PE、市值、换手率 加回显示列表 ★★★
+    cols = [
+        'ts_code', 'name', '细分行业', 'price_now', 
+        'pe_ttm', 'mv_亿', 'turnover_rate', # 👈 找回来了
+        'RPS_50_Show', 'RPS_120', 'RPS_250', '连续天数', 'xueqiu_url'
+    ]
     final_cols = [c for c in cols if c in show_df.columns]
 
     st.dataframe(
@@ -104,11 +134,14 @@ def render_stock_content(df):
             "RPS_50_Show": st.column_config.TextColumn("RPS 50 (变化)"),
             "细分行业": st.column_config.TextColumn("题材"),
             "price_now": st.column_config.NumberColumn("现价", format="%.2f"),
+            "pe_ttm": st.column_config.NumberColumn("PE(TTM)", format="%.1f"),
+            "mv_亿": st.column_config.NumberColumn("市值(亿)", format="%.1f"),
+            "turnover_rate": st.column_config.NumberColumn("换手%", format="%.1f"),
         },
         use_container_width=True, hide_index=True, height=800
     )
 
-# ================= ETF 页面 (修复冗余列) =================
+# ================= ETF 页面 (保持简洁) =================
 def render_etf_content(df):
     if df is None or df.empty: st.info("暂无数据"); return
     
@@ -119,7 +152,6 @@ def render_etf_content(df):
     
     show_df = format_rps_show(show_df, 'RPS_50', 'rps_50_chg')
     
-    # ★ 强制指定显示列 (去掉 rps_50_chg, RPS_50 等中间变量)
     target_cols = ['ts_code', 'name', 'price_now', 'RPS_50_Show', 'RPS_120', 'RPS_250', 'xueqiu_url']
     final_cols = [c for c in target_cols if c in show_df.columns]
 
@@ -139,7 +171,6 @@ def main():
         st.title("Chilam.Club")
         page = st.radio("导航", ["📰 新闻挖掘", "🔥 强势股 (VIP)"], index=1)
         st.divider()
-        # ★★★ 修复乱码：改回标准 if 语句 ★★★
         if os.path.exists("donate.jpg"):
             st.image("donate.jpg", caption="请喝咖啡 ☕")
 
