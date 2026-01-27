@@ -69,7 +69,7 @@ def render_news_page():
                     chain = ChatPromptTemplate.from_messages([("user", "分析新闻：{t}\n{c}\n给出利好/利空及相关A股龙头。")]) | llm | StrOutputParser()
                     st.markdown(chain.invoke({"t": cur['标题'], "c": cur['内容']}))
 
-# ================= 个股页面 (修复 PE 和筛选) =================
+# ================= 个股页面 =================
 def render_stock_content(df):
     if df is None or df.empty: st.info("暂无数据"); return
     
@@ -85,29 +85,25 @@ def render_stock_content(df):
         
     c3.markdown(f"**更新**: {df['更新日期'].iloc[0] if '更新日期' in df.columns else '-'}")
     
-    # ★★★ 修复：找回 PE 和 RPS 筛选器 ★★★
     with st.expander("🔍 深度筛选", expanded=True):
         sc1, sc2, sc3, sc4 = st.columns([1, 1, 1, 1.2])
         
-        # 1. 基础筛选
+        # 筛选器
         min_d = sc1.slider("连榜天数", 1, 30, 1)
         min_rps = sc2.slider("最低 RPS", 50, 99, 87)
         
-        # 2. 估值筛选 (如果有 PE 数据)
         max_pe = 1000
         if 'pe_ttm' in df.columns:
             max_pe = sc3.slider("最大 PE(TTM)", 0, 200, 100)
             
-        # 3. 题材 & 搜索
         opts = ["全部"] + sorted([x for x in df['细分行业'].dropna().unique() if x != '-']) if '细分行业' in df.columns else ["全部"]
         ind = sc4.selectbox("题材/行业", opts)
         kw = st.text_input("搜索代码/名称", placeholder="输入代码或名称...")
 
-    # ★★★ 修复：筛选逻辑 ★★★
     mask = (df['连续天数'] >= min_d) & (df['RPS_50'] >= min_rps)
     
     if 'pe_ttm' in df.columns:
-        mask &= (df['pe_ttm'] <= max_pe) & (df['pe_ttm'] > 0) # 过滤掉亏损或PE过高的
+        mask &= (df['pe_ttm'] <= max_pe) & (df['pe_ttm'] > 0)
         
     if ind != "全部": 
         mask &= (df['细分行业'] == ind)
@@ -118,10 +114,10 @@ def render_stock_content(df):
     show_df = df[mask].sort_values('RPS_50', ascending=False).copy()
     show_df = format_rps_show(show_df, 'RPS_50', 'rps_50_chg')
 
-    # ★★★ 修复：把 PE、市值、换手率 加回显示列表 ★★★
+    # 显示列
     cols = [
         'ts_code', 'name', '细分行业', 'price_now', 
-        'pe_ttm', 'mv_亿', 'turnover_rate', # 👈 找回来了
+        'pe_ttm', 'mv_亿', 'turnover_rate', 
         'RPS_50_Show', 'RPS_120', 'RPS_250', '连续天数', 'xueqiu_url'
     ]
     final_cols = [c for c in cols if c in show_df.columns]
@@ -141,7 +137,7 @@ def render_stock_content(df):
         use_container_width=True, hide_index=True, height=800
     )
 
-# ================= ETF 页面 (保持简洁) =================
+# ================= ETF 页面 =================
 def render_etf_content(df):
     if df is None or df.empty: st.info("暂无数据"); return
     
@@ -170,7 +166,12 @@ def main():
     with st.sidebar:
         st.title("Chilam.Club")
         page = st.radio("导航", ["📰 新闻挖掘", "🔥 强势股 (VIP)"], index=1)
-        st.divider()
+        
+        # ★★★ 修复需求 2：侧边栏提示 ★★★
+        st.markdown("---")
+        st.markdown("💡 **公众号全天候攻略提供免费服务**")
+        st.markdown("---")
+        
         if os.path.exists("donate.jpg"):
             st.image("donate.jpg", caption="请喝咖啡 ☕")
 
@@ -178,7 +179,10 @@ def main():
     else:
         df_stock = load_data("data/strong_stocks.csv")
         df_etf = load_data("data/strong_etfs.csv")
-        t1, t2 = st.tabs(["个股", "ETF"])
+        
+        # ★★★ 修复需求 1：Tab 标签注明时间 ★★★
+        t1, t2 = st.tabs(["🐉 个股 (每天18:00更新)", "💰 ETF"])
+        
         with t1: render_stock_content(df_stock)
         with t2: render_etf_content(df_etf)
 
