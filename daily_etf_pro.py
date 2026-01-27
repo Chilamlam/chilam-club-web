@@ -5,38 +5,48 @@ import os
 import time
 
 # ================= 配置区 =================
-# 👇👇👇 本地运行时，请务必在这里填入 Token 👇👇👇
+# 优先读取环境变量，本地测试时可填写 LOCAL_TOKEN
 LOCAL_TOKEN = '' 
-
-# 优先读取环境变量
 MY_TOKEN = os.getenv('TUSHARE_TOKEN', LOCAL_TOKEN)
 
+# RPS 时间窗口
 RPS_N = [50, 120, 250] 
+# 强势 ETF 阈值 (RPS 50 大于此值才保留)
+THRESHOLD = 87
+# 结果保存路径
 ETF_PATH = "data/strong_etfs.csv"
 
-# 初始化
+# 排除关键词：过滤掉债券、货币、理财以及部分跨境ETF，聚焦A股资产
+EXCLUDE_WORDS = ['债', '货币', '理财', '黄金', '石油', '标普', '纳指', '道琼斯', '德国', '法国', '日经', '恒生']
+
+# 初始化 Tushare
 try:
-    if MY_TOKEN and len(MY_TOKEN) > 10:
+    if MY_TOKEN:
         ts.set_token(MY_TOKEN)
         pro = ts.pro_api()
-        print("✅ Token 配置成功")
     else:
-        print("⚠️ 警告：Token 未配置！")
-        pro = ts.pro_api('') 
+        # 尝试匿名初始化 (通常会失败，需配置 Token)
+        pro = ts.pro_api('')
 except Exception as e:
     print(f"❌ Token 设置异常: {e}")
 
-# ================= 核心工具函数 =================
+# ================= 核心逻辑 =================
 
 def get_trading_dates(end_date):
-    """获取交易日历"""
-    print("📅 正在获取交易日历...")
+    """获取必要的交易日期锚点 (今天, 昨天, N天前)"""
+    print("📅 [ETF] 正在获取交易日历...")
+    # 向前多取一些日子以防假期
+    start_date = (datetime.datetime.now() - datetime.timedelta(days=400)).strftime('%Y%m%d')
     try:
-        start_date = (datetime.datetime.now() - datetime.timedelta(days=400)).strftime('%Y%m%d')
         df = pro.trade_cal(exchange='', is_open='1', end_date=end_date, start_date=start_date)
         df = df.sort_values('cal_date', ascending=False).reset_index(drop=True)
         if df.empty: return None
-        dates = {'now': df.loc[0, 'cal_date']}
+        
+        dates = {
+            'now': df.loc[0, 'cal_date'], 
+            'prev': df.loc[1, 'cal_date'] if len(df) > 1 else None # 昨天 (用于计算变动)
+        }
+        # 获取 N 天前的日期
         for n in RPS_N:
             if len(df) > n:
                 dates[n] = df.loc[n, 'cal_date']
@@ -45,135 +55,145 @@ def get_trading_dates(end_date):
         print(f"❌ 获取日历失败: {e}")
         return None
 
-def get_snapshot_by_date(target_codes, date_str):
-    """
-    获取历史行情 (V4 暴力版)
-    ★ 策略：直接拉取该日期【全市场】所有基金的行情，然后在本地过滤。
-    ★ 优势：避开了 Tushare 对 ts_code 列表长度的限制，极度稳定。
-    """
-    print(f"   -> 正在拉取 {date_str} 全市场基金行情...")
-    
+def get_etf_snapshot(date_str):
+    """获取某日全市场场内基金行情"""
+    print(f"   正在获取 {date_str} 的 ETF 行情...")
     try:
-        # 不传 ts_code，直接拿全量 (2100积分支持此操作)
-        df = pro.fund_daily(trade_date=date_str, fields='ts_code,close')
+        # Tushare 接口：fund_daily 获取场内基金日线
+        df = pro.fund_daily(trade_date=date_str)
+        if df.empty: return pd.DataFrame()
         
-        if df.empty:
-            print(f"      ⚠️ Tushare 返回空数据 (可能是非交易日或权限波动)")
-            return pd.DataFrame()
-            
-        # 本地过滤：只保留我们要的那 100 个
-        # 这一步在本地做，速度极快
-        df_target = df[df['ts_code'].isin(target_codes)].copy()
-        
-        if df_target.empty:
-            print(f"      ⚠️ 数据拉取成功但未匹配到目标 ETF (异常情况)")
-            return pd.DataFrame()
-            
-        df_target['close_val'] = df_target['close']
-        return df_target[['ts_code', 'close_val']]
-
+        # 仅保留代码和收盘价
+        return df[['ts_code', 'close']].rename(columns={'close': 'close_val'})
     except Exception as e:
-        print(f"      ⚠️ 获取失败: {e}")
+        print(f"Error fetching ETF data: {e}")
         return pd.DataFrame()
 
-def calculate_rps(top100_df, dates):
-    """计算 RPS"""
-    print(f"🧮 正在计算 RPS...")
+def process_etf_history_and_links(new_df, file_path):
+    """
+    1. 读取旧文件，计算 RPS 50 的变动值
+    2. 生成雪球 (Xueqiu) 跳转链接
+    """
+    rps_prev_map = {}
     
-    # 1. 准备今日数据
-    df_now = top100_df[['ts_code', 'close']].copy()
-    df_now.rename(columns={'close': 'base_now'}, inplace=True)
-    
-    final_df = df_now.copy()
-    target_codes = final_df['ts_code'].tolist()
-    
-    # 2. 回溯历史
-    for n in RPS_N:
-        if n not in dates: continue
-        
-        # 这里的 dates[n] 已经是 trade_cal 确认过的交易日，所以直接查
-        df_past = get_snapshot_by_date(target_codes, dates[n])
-        
-        if df_past.empty: 
-            print(f"   ⚠️ 依然无法获取 {n} 日前数据，该列将为空")
-            continue
-            
-        df_past = df_past.rename(columns={'close_val': 'base_past'})
-        
-        # 合并计算
-        temp = pd.merge(final_df, df_past, on='ts_code', how='left')
-        
-        # 避免除以0
-        temp['base_past'] = temp['base_past'].replace(0, pd.NA)
-        
-        temp[f'pct_{n}'] = (temp['base_now'] - temp['base_past']) / temp['base_past']
-        temp[f'RPS_{n}'] = temp[f'pct_{n}'].rank(pct=True) * 100
-        final_df = temp.drop(columns=['base_past'])
-        
-        # 休息一下，防止接口频率过快
-        time.sleep(0.3)
-        
-    return final_df
+    # --- 1. 读取旧数据 (如果存在) ---
+    if os.path.exists(file_path):
+        try:
+            old_df = pd.read_csv(file_path)
+            for _, row in old_df.iterrows():
+                # 记录昨天的 RPS_50
+                if 'RPS_50' in row:
+                    rps_prev_map[row['ts_code']] = row['RPS_50']
+        except Exception as e:
+            print(f"⚠️ 读取旧文件失败，跳过对比: {e}")
 
-def get_top100_etfs(date_str):
-    """筛选 Top 100"""
-    print("🔍 正在筛选 Top 100 ETF...")
-    try:
-        # 1. 获取今日全市场行情
-        df_daily = pro.fund_daily(trade_date=date_str, fields='ts_code,amount,close')
-        if df_daily.empty:
-            print("❌ 今日无行情 (可能今日数据尚未更新或Token限制)")
-            return pd.DataFrame()
+    # --- 2. 处理新数据 ---
+    res = []
+    for _, row in new_df.iterrows():
+        code = row['ts_code']
+        
+        # ★ 计算 RPS 变动 (今天 - 昨天)
+        if code in rps_prev_map:
+            change = row['RPS_50'] - rps_prev_map[code]
+            row['rps_50_chg'] = change
+        else:
+            # 999 代表新上榜 (New)
+            row['rps_50_chg'] = 999 
             
-        # 2. 获取基础信息
-        df_basic = pro.fund_basic(market='E', status='L', fields='ts_code,name,fund_type')
+        # ★ 生成雪球链接
+        # Tushare 格式: 510050.SH -> 雪球格式: SH510050
+        if '.' in code:
+            num, suffix = code.split('.')
+            link_code = suffix.upper() + num 
+            row['xueqiu_url'] = f"https://xueqiu.com/S/{link_code}"
+        else:
+            row['xueqiu_url'] = ""
+            
+        res.append(row)
         
-        # 3. 过滤 & 排序
-        valid_etfs = df_basic[~df_basic['fund_type'].str.contains('货币')]
-        merged = pd.merge(df_daily, valid_etfs, on='ts_code', how='inner')
-        
-        top100 = merged.sort_values('amount', ascending=False).head(100)
-        top100['amount_亿'] = top100['amount'] / 10000 / 10000 * 1000
-        
-        print(f"✅ 筛选完成！门槛: {top100['amount_亿'].iloc[-1]:.2f} 亿")
-        return top100[['ts_code', 'name', 'fund_type', 'amount_亿', 'close']]
-        
-    except Exception as e:
-        print(f"❌ 筛选失败: {e}")
-        return pd.DataFrame()
+    return pd.DataFrame(res)
 
 def main_job():
-    print("🚀 启动 ETF 专项扫描 (V4 暴力全量版)...")
+    print("🚀 启动 ETF 策略更新 (V2.0)...")
     today_str = datetime.datetime.now().strftime('%Y%m%d')
     today_fmt = datetime.datetime.now().strftime('%Y-%m-%d')
     
-    # 调试用：如果今天是周末，请改成周五
-    # today_str = '20260123' 
-
+    # 1. 准备日期
     dates = get_trading_dates(today_str)
     if not dates: return
     
+    # 确保 data 目录存在
     os.makedirs("data", exist_ok=True)
 
-    # 1. 拿名单
-    top100_df = get_top100_etfs(dates['now'])
-    if top100_df.empty: return
+    # 2. 获取今日行情作为基准
+    df_now = get_etf_snapshot(dates['now'])
+    if df_now.empty: 
+        print("⚠️ 今日无行情数据，停止运行")
+        return
 
-    # 2. 算 RPS
-    rps_df = calculate_rps(top100_df, dates)
-    
-    if rps_df is not None:
-        # 3. 合并
-        final = pd.merge(rps_df, top100_df[['ts_code', 'name', 'fund_type', 'amount_亿']], on='ts_code', how='inner')
-        final['更新日期'] = today_fmt
-        final['price_now'] = final['base_now']
-        final['eastmoney_url'] = final['ts_code'].apply(lambda x: f"https://quote.eastmoney.com/{x.split('.')[1].lower()}{x.split('.')[0]}.html")
+    final_df = df_now.copy()
+    final_df.rename(columns={'close_val': 'price_now'}, inplace=True)
+    # ETF 这里简单处理，暂不复权 (ETF复权数据较难获取，且短期影响小)
+    final_df['base_now'] = final_df['price_now']
+
+    # 3. 循环计算 RPS (50, 120, 250)
+    for n in RPS_N:
+        if n not in dates: continue
+        # 获取 N 天前的行情
+        df_past = get_etf_snapshot(dates[n])
+        if df_past.empty: continue
         
-        # 容错保存
-        save_cols = [c for c in ['ts_code', 'name', 'fund_type', 'amount_亿', 'price_now', 'RPS_50', 'RPS_120', 'RPS_250', 'eastmoney_url', '更新日期'] if c in final.columns]
+        # 合并数据
+        temp = pd.merge(final_df, df_past, on='ts_code', how='left', suffixes=('', '_past'))
         
-        final[save_cols].round(3).to_csv(ETF_PATH, index=False)
-        print(f"🎉 成功！Top 100 ETF 数据已保存至 {ETF_PATH}")
+        # 计算 N 日涨幅
+        temp[f'pct_{n}'] = (temp['base_now'] - temp['close_val']) / temp['close_val']
+        
+        # 计算 RPS (排名)
+        # pct=True 表示返回百分比排名 (0.0~1.0)，乘以 100 变成 0~100 分
+        temp[f'RPS_{n}'] = temp[f'pct_{n}'].rank(pct=True) * 100
+        
+        # 清理临时列，保留 final_df
+        final_df = temp.drop(columns=['close_val'])
+
+    # 4. 获取 ETF 基础信息 (用于筛选名称)
+    try:
+        print("   获取 ETF 基础信息并过滤...")
+        # market='E' 代表交易所基金
+        basic = pro.fund_basic(market='E') 
+        basic = basic[['ts_code', 'name']]
+        
+        # 合并名称
+        df_merged = pd.merge(final_df, basic, on='ts_code', how='inner')
+        
+        # ★ 过滤逻辑：排除不需要的类型
+        mask_name = df_merged['name'].apply(lambda x: not any(w in x for w in EXCLUDE_WORDS))
+        df_stock_etf = df_merged[mask_name].copy()
+        
+        # 5. 筛选强势品种
+        # 规则：RPS_50 > 87 且 RPS_120 > 80 (确保中期也够强)
+        strong_etf = df_stock_etf[
+            (df_stock_etf['RPS_50'] > THRESHOLD) & 
+            (df_stock_etf['RPS_120'] > 80)
+        ].copy()
+        
+        strong_etf['更新日期'] = today_fmt
+
+        # 6. ★ 处理历史变动和链接 (新功能核心)
+        final_etf = process_etf_history_and_links(strong_etf, ETF_PATH)
+
+        # 7. 保存结果
+        # 指定列顺序，保持 CSV 整洁
+        cols = ['ts_code', 'name', 'price_now', 'RPS_50', 'rps_50_chg', 'RPS_120', 'RPS_250', 'xueqiu_url', '更新日期']
+        save_cols = [c for c in cols if c in final_etf.columns]
+        
+        final_etf[save_cols].round(2).to_csv(ETF_PATH, index=False)
+        print(f"✅ ETF 更新成功！共筛选出 {len(final_etf)} 只，文件已保存至 {ETF_PATH}")
+
+    except Exception as e:
+        print(f"❌ 处理 ETF 数据出错: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     main_job()
