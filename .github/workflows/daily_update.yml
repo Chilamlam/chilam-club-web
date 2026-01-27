@@ -1,13 +1,10 @@
-name: Daily RPS Update
+name: Daily Update
 
 on:
   schedule:
-    # 原来是 '0 9 * * *' (拥堵)
-    # 👇 改为：UTC 9:35 (北京时间 17:35)
-    # 选择一个随机的分钟数，成功率会暴增
-    - cron: '17 9 * * *'
-  
-  workflow_dispatch:
+    # 北京时间 17:28 (UTC 09:28) 自动运行
+    - cron: '28 9 * * *'
+  workflow_dispatch:  # 允许手动点击运行
 
 jobs:
   build:
@@ -22,21 +19,30 @@ jobs:
       with:
         python-version: '3.9'
 
-   - name: Install dependencies
+    # ★★★ 关键修改：直接在这里写死所有需要的库，强制安装 ★★★
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pandas tushare requests akshare
+        pip install pandas tushare akshare requests
 
-    - name: Run daily scripts
+    # 运行个股策略 (生成 strong_stocks.csv)
+    - name: Run RPS Strategy
       env:
+        # 确保你在 GitHub Settings -> Secrets 里配置了 TUSHARE_TOKEN
         TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
-      # 👇 这里改了：用 && 连接，依次运行两个脚本
       run: |
         python daily_rps_pro.py
+
+    # 运行 ETF 策略 (生成 strong_etfs.csv)
+    - name: Run ETF Strategy
+      env:
+        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+      run: |
         python daily_etf_pro.py
 
+    # 提交数据更新回仓库
     - name: Commit and push changes
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
-        commit_message: "Auto-update Stocks & ETFs"
+        commit_message: "Auto update daily data [skip ci]"
         file_pattern: data/*.csv
