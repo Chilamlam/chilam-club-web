@@ -99,7 +99,7 @@ def calculate_rps_logic(dates):
         
     return final_df
 
-# ================= 行业获取 (含备选方案) =================
+# ================= 行业获取 =================
 
 def get_industry_worker(code):
     try:
@@ -131,21 +131,45 @@ def fetch_detailed_industries(ts_codes):
     return industry_map
 
 def process_history_and_change(new_df, file_path, date_str):
+    """
+    处理历史逻辑 (智能防覆盖版)
+    """
     history_map = {}
-    rps_prev_map = {}
+    
+    # 两个 Map 用于处理不同的情况
+    yesterday_rps_map = {}  # 存昨天的 RPS (正常情况)
+    today_change_map = {}   # 存今天已经算好的 Change (防止重跑变0)
     
     if os.path.exists(file_path):
         try:
             old_df = pd.read_csv(file_path)
+            # 确保日期列是字符串，防止格式问题
+            old_df['更新日期'] = old_df['更新日期'].astype(str)
+            
             for _, row in old_df.iterrows():
-                history_map[row['ts_code']] = {
+                code = row['ts_code']
+                last_update = row.get('更新日期', '')
+                
+                # 1. 连板历史
+                history_map[code] = {
                     'first': row.get('初次入选', date_str),
                     'days': row.get('连续天数', 0),
-                    'last_update': row.get('更新日期', '')
+                    'last_update': last_update
                 }
-                if 'RPS_50' in row:
-                    rps_prev_map[row['ts_code']] = row['RPS_50']
-        except: pass
+
+                # 2. 变动值逻辑 (关键修复)
+                if last_update == date_str:
+                    # 如果文件里的日期已经是今天，说明今天跑过了
+                    # 我们要保留当时算出来的 change，而不是拿现在的 RPS 减去文件里的 RPS (那是 0)
+                    if 'rps_50_chg' in row:
+                        today_change_map[code] = row['rps_50_chg']
+                else:
+                    # 如果文件里是昨天的，正常记录昨天的 RPS
+                    if 'RPS_50' in row:
+                        yesterday_rps_map[code] = row['RPS_50']
+                        
+        except Exception as e:
+            print(f"⚠️ 读取历史文件微瑕: {e}")
 
     res = []
     for _, row in new_df.iterrows():
@@ -153,23 +177,35 @@ def process_history_and_change(new_df, file_path, date_str):
         first_date = date_str
         days_count = 1
         
+        # --- 连板天数逻辑 ---
         if code in history_map:
             hist = history_map[code]
             if hist['last_update'] == date_str:
+                # 同一天重跑，天数保持不变
                 days_count = hist['days']
                 first_date = hist['first']
             else:
+                # 新的一天，+1
                 days_count = hist['days'] + 1
                 first_date = hist['first']
         
         row['初次入选'] = first_date
         row['连续天数'] = days_count
         
-        if code in rps_prev_map:
-            row['rps_50_chg'] = row['RPS_50'] - rps_prev_map[code]
+        # --- ★★★ 变动值计算 (智能继承) ★★★ ---
+        # 优先级 1: 如果今天已经算过变动值了，直接沿用 (防止变成 0)
+        if code in today_change_map:
+            row['rps_50_chg'] = today_change_map[code]
+            
+        # 优先级 2: 如果是第一次跑，就跟昨天比
+        elif code in yesterday_rps_map:
+            row['rps_50_chg'] = row['RPS_50'] - yesterday_rps_map[code]
+            
+        # 优先级 3: 既没昨天记录，今天也没跑过 -> 新上榜
         else:
             row['rps_50_chg'] = 999 
             
+        # 生成雪球链接
         if '.' in code:
             num, suffix = code.split('.')
             link_code = suffix.upper() + num 
@@ -181,7 +217,7 @@ def process_history_and_change(new_df, file_path, date_str):
     return pd.DataFrame(res)
 
 def main_job():
-    print("🚀 启动 A股 RPS + 细分题材更新 (V3.0 增强版)...")
+    print("🚀 启动 A股 RPS + 细分题材更新 (V4.0 防覆盖版)...")
     today_str = datetime.datetime.now().strftime('%Y%m%d')
     today_fmt = datetime.datetime.now().strftime('%Y-%m-%d')
     
@@ -196,7 +232,6 @@ def main_job():
     if df_stock is not None:
         try:
             print("   合并基础数据...")
-            # ★ 注意：这里我们多获取一个 'industry' 字段作为备用！
             basic = pro.stock_basic(exchange='', list_status='L', fields='ts_code,name,industry')
             df_stock = pd.merge(df_stock, basic, on='ts_code', how='left')
             
@@ -215,13 +250,9 @@ def main_job():
                 industry_map = fetch_detailed_industries(codes_list)
                 strong_stock['细分行业'] = strong_stock['ts_code'].map(industry_map)
                 
-                # ★★★ 核心修复：如果细分行业是 '-' 或 空，用 Tushare 的 industry 填充 ★★★
                 print("🔧 正在修补缺失的题材数据...")
-                # 填充 NaN
                 strong_stock['细分行业'] = strong_stock['细分行业'].fillna('-')
-                # 找出还是 '-' 的行
                 mask_missing = strong_stock['细分行业'] == '-'
-                # 用 industry 列的值去填
                 if 'industry' in strong_stock.columns:
                     strong_stock.loc[mask_missing, '细分行业'] = strong_stock.loc[mask_missing, 'industry']
             else:
@@ -230,14 +261,14 @@ def main_job():
             # 4. 处理历史
             final_stock = process_history_and_change(strong_stock, STOCK_PATH, today_fmt)
             
-            # 5. 保存 (去掉中间列 industry，保留细分行业)
+            # 5. 保存
             base_cols = ['ts_code', 'name', '细分行业', 'price_now', 'RPS_50', 'rps_50_chg', 'RPS_120', 'RPS_250', '连续天数']
             extra_cols = ['pe_ttm', 'mv_亿', 'turnover_rate', 'xueqiu_url', '更新日期', '初次入选']
             
             save_cols = [c for c in base_cols + extra_cols if c in final_stock.columns]
             
             final_stock[save_cols].round(2).to_csv(STOCK_PATH, index=False)
-            print(f"✅ 更新完成！已尝试自动修复缺失题材。")
+            print(f"✅ 更新完成！现在可以放心地重复运行了。")
             
         except Exception as e:
             print(f"❌ 处理出错: {e}")
