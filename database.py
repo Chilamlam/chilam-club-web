@@ -211,6 +211,34 @@ def manual_create_subscription(user_id: int, plan_name: str, months: int) -> Opt
     """管理员手动开通 VIP"""
     return create_subscription(user_id, plan_name, months)
 
+
+# ==================== 用户自选股 Watchlist CRUD ====================
+
+def get_user_watchlist(user_id: int) -> List[str]:
+    """获取用户自选股代码列表 (从 Supabase users.watchlist 或独立表读取)"""
+    user = get_user_by_id(user_id)
+    if user and "watchlist" in user and user["watchlist"]:
+        if isinstance(user["watchlist"], list):
+            return user["watchlist"]
+        if isinstance(user["watchlist"], str):
+            try:
+                return json.loads(user["watchlist"])
+            except Exception:
+                return [c.strip() for c in user["watchlist"].split(",") if c.strip()]
+    return []
+
+def update_user_watchlist(user_id: int, watchlist: List[str]) -> bool:
+    """更新保存用户自选股"""
+    # 查重并规范化
+    cleaned = list(dict.fromkeys([c.strip().upper() for c in watchlist if c.strip()]))
+    
+    # 尝试更新 users 表
+    res = _supabase_request("PATCH", f"users?id=eq.{user_id}", json_data={"watchlist": cleaned})
+    if res is not None:
+        return True
+    return False
+
+
 def initialize():
     """兼容旧接口"""
     pass

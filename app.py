@@ -8,6 +8,8 @@ from page_fibonacci import render_fibonacci_chart
 import streamlit.components.v1 as components
 from config_gurus import GURUS
 from page_core_driver import render_core_driver_page
+from page_macro_erp import render_macro_erp_page
+from page_watchlist import render_watchlist_page
 import auth
 
 # ================= 1. 基础配置 (必须放在最前面) =================
@@ -106,6 +108,32 @@ def render_market_dashboard():
 
     if ai_data:
         st.markdown("### 🤖 AI 首席策略官复盘")
+        
+        # 一键导出 Markdown / 研报卡片
+        report_md = f"""# Chilam Club 投资日记复盘 ({ai_data.get('date', '今日')})
+
+## 一、 主线与盘口逻辑
+{ai_data.get('main_logic', '')}
+
+## 二、 核心涨停龙头研判
+"""
+        if 'limit_reasons' in ai_data:
+            for r in ai_data['limit_reasons']:
+                report_md += f"- **{r.get('name')}**: {r.get('reason')}\n"
+
+        if os.path.exists("data/market_sentiment.csv"):
+            df_s = pd.read_csv("data/market_sentiment.csv")
+            if not df_s.empty:
+                last_s = df_s.iloc[-1]
+                report_md += f"\n## 三、 市场多空情绪\n- 上涨家数: {int(last_s.get('up_count', 0))} | 下跌家数: {int(last_s.get('down_count', 0))}\n- 全市场成交额: {last_s.get('total_amount_yi', 0)} 亿元\n"
+
+        st.download_button(
+            label="📄 一键导出今日复盘研报 (Markdown)",
+            data=report_md.encode('utf-8'),
+            file_name=f"chilam_market_daily_{ai_data.get('date', 'today')}.md",
+            mime="text/markdown"
+        )
+
         col_summary, col_divergence = st.columns([1.2, 1])
         
         with col_summary:
@@ -585,6 +613,8 @@ def main():
         menu_items = [
             "🛸 全市场看板",
             "🔥 强势股",
+            "⭐ 自选股雷达",
+            "🌐 宏观与股债性价比",
             "⚡ 投机与套利",
             "🚨 核心龙头雷达",  
             "📚 投资作业本",
@@ -610,6 +640,13 @@ def main():
             with t1: render_stock_content(df_stock)
             with t2: render_breakout_content(df_breakout)
             with t3: render_etf_content(df_etf)
+    elif page == "⭐ 自选股雷达":
+        if not auth.is_logged_in():
+            render_vip_lock("⭐ 个人自选股雷达 (云端持久化)")
+        else:
+            render_watchlist_page()
+    elif page == "🌐 宏观与股债性价比":
+        render_macro_erp_page()
     elif page == "⚡ 投机与套利":
         if not auth.is_vip():
             render_vip_lock("⚡ 投机与套利 (可转债双低/溢价套利)")
