@@ -255,6 +255,106 @@ def calculate_industry_mv_share_history(industry_name: str):
     return df, cur_ratio_now, cur_ind_mv, total_mv
 
 
+# ==================== 真实 ERP (股债性价比) 数据引擎：十年以上长周期 ====================
+
+@st.cache_data(ttl=21600, show_spinner=False)
+def fetch_csi_index_pe_history(index_code: str = "000300", start_date: str = "20140101"):
+    """
+    中证指数官网权威估值序列：返回 [{date, close, pe}]（peg 字段即滚动市盈率 PE-TTM）
+    """
+    end_date = datetime.now().strftime("%Y%m%d")
+    url = (f"https://www.csindex.com.cn/csindex-home/perf/index-perf"
+           f"?indexCode={index_code}&startDate={start_date}&endDate={end_date}")
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "Referer": "https://www.csindex.com.cn/"
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            d = json.loads(resp.read().decode("utf-8"))
+        out = []
+        for it in d.get("data", []) or []:
+            pe = it.get("peg")
+            dt_raw = str(it.get("tradeDate", ""))
+            if pe and float(pe) > 0 and len(dt_raw) == 8:
+                out.append({
+                    "date": f"{dt_raw[:4]}-{dt_raw[4:6]}-{dt_raw[6:]}",
+                    "close": float(it.get("close") or 0),
+                    "pe": float(pe)
+                })
+        return out
+    except Exception:
+        return []
+
+
+@st.cache_data(ttl=21600, show_spinner=False)
+def fetch_cn_bond_10y_history(min_year: int = 2014):
+    """
+    东方财富数据中心：中国 10 年期国债收益率历史 (EMM00166466)，含 2 年期(EMM00588704)
+    """
+    rows = []
+    try:
+        for p in range(1, 10):
+            url = ("https://datacenter.eastmoney.com/api/data/get?type=RPTA_WEB_TREASURYYIELD"
+                   "&sty=ALL&st=SOLAR_DATE&sr=-1&token=894050c76af8597a853f5b408b759f5d"
+                   f"&ps=500&p={p}")
+            req = urllib.request.Request(url, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                "Referer": "https://data.eastmoney.com/"
+            })
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                d = json.loads(resp.read().decode("utf-8"))
+            data = (d.get("result") or {}).get("data") or []
+            if not data:
+                break
+            rows += data
+            if str(data[-1].get("SOLAR_DATE", ""))[:4] < str(min_year):
+                break
+    except Exception:
+        pass
+
+    out = {}
+    for r in rows:
+        y10 = r.get("EMM00166466")
+        dt_raw = str(r.get("SOLAR_DATE", ""))[:10]
+        if y10 and len(dt_raw) == 10 and dt_raw[:4] >= str(min_year):
+            out[dt_raw] = float(y10)
+    return out
+
+
+@st.cache_data(ttl=21600, show_spinner="正在拉取沪深300十年真实估值与国债收益率...")
+def build_real_erp_history(index_code: str = "000300", start_date: str = "20140101"):
+    """
+    ERP = 1/PE_TTM * 100 - 中国10年期国债收益率
+    返回 (DataFrame[date, pe, ey, bond, erp, close], source_flag)
+    """
+    pe_hist = fetch_csi_index_pe_history(index_code, start_date)
+    bond_map = fetch_cn_bond_10y_history(int(start_date[:4]))
+    if not pe_hist or not bond_map:
+        return None, "failed"
+
+    bond_dates = sorted(bond_map.keys())
+    recs, bi = [], 0
+    last_bond = None
+    for it in pe_hist:
+        d = it["date"]
+        # 债券收益率按日期前向填充对齐（节假日/缺失沿用上一有效值）
+        while bi < len(bond_dates) and bond_dates[bi] <= d:
+            last_bond = bond_map[bond_dates[bi]]
+            bi += 1
+        if last_bond is None:
+            continue
+        ey = 100.0 / it["pe"]
+        recs.append({
+            "date": d, "pe": it["pe"], "ey": ey,
+            "bond": last_bond, "erp": ey - last_bond, "close": it["close"]
+        })
+
+    if len(recs) < 100:
+        return None, "failed"
+    return pd.DataFrame(recs), "real"
+
+
 def render_macro_erp_page():
     st.header("🌐 宏观资产、股债性价比 & 行业市值分位")
     st.caption("大周期宏观与中观行业择时指南：行业流通市值占比历史分位 + 资金热度 (成交额分位) + 股债性价比 (FED 模型) + 全球核心资产联动")
@@ -496,58 +596,120 @@ def render_macro_erp_page():
             col_b2.caption(f"📈 历史最高占比：`{hist_max:.2f}%`")
             col_b3.caption(f"📊 样本覆盖：`{len(df_hist)}` 交易日 ({start_date_str} 至 {end_date_str})")
 
-    # ==================== Tab 2: 股债性价比 ERP ====================
+    # ==================== Tab 2: 股债性价比 ERP (真实十年以上长周期) ====================
     with tab_erp:
         st.subheader("📊 A股股债风险溢价 (Equity Risk Premium, ERP)")
         st.info("""
         **💡 ERP 指标释义 (FED 模型)**：
-        - `ERP = 沪深300 盈利收益率 (1 / PE_TTM) - 中国10年期国债收益率`
+        - `ERP = 指数盈利收益率 (1 / PE_TTM × 100) − 中国10年期国债收益率`
         - **极度高估 (逃顶区)**：ERP 跌破 **-1倍标准差 / -2倍标准差**，代表股票性价比极低，国债更具吸引力。
         - **黄金坑 (抄底区)**：ERP 突破 **+1倍标准差 / +2倍标准差**，代表股票资产极其便宜，长期赔率极大。
+        - 数据源：**中证指数官网**权威 PE-TTM 日频序列 + **东方财富**中债 10 年期国债到期收益率。
         """)
 
-        np.random.seed(42)
-        dates = pd.date_range(end=datetime.now(), periods=250, freq='B')
-        base_erp = np.linspace(2.8, 4.8, 250) + np.sin(np.linspace(0, 10, 250)) * 0.8 + np.random.normal(0, 0.15, 250)
+        ERP_INDEX_MAP = {
+            "沪深300 (核心蓝筹)": "000300",
+            "上证50 (超大盘价值)": "000016",
+            "中证1000 (小盘成长)": "000852",
+        }
+        ERP_RANGE_MAP = {
+            "近3年": 3, "近5年": 5, "近10年": 10, "全历史 (2014年至今)": 99,
+        }
 
-        mean_val = np.mean(base_erp)
-        std_val = np.std(base_erp)
+        col_s1, col_s2 = st.columns([1.4, 1])
+        idx_label = col_s1.selectbox("选择估值标的指数", list(ERP_INDEX_MAP.keys()), index=0, key="erp_idx")
+        range_label = col_s2.selectbox("统计回溯周期", list(ERP_RANGE_MAP.keys()), index=2, key="erp_range")
+        idx_code = ERP_INDEX_MAP[idx_label]
+        years_back = ERP_RANGE_MAP[range_label]
 
-        df_erp = pd.DataFrame({
-            "date": dates.strftime('%Y-%m-%d'),
-            "erp": base_erp,
-            "mean": mean_val,
-            "plus_1sd": mean_val + std_val,
-            "plus_2sd": mean_val + 2 * std_val,
-            "minus_1sd": mean_val - std_val,
-            "minus_2sd": mean_val - 2 * std_val,
-        })
+        df_full, flag = build_real_erp_history(idx_code, "20140101")
 
-        current_erp = df_erp['erp'].iloc[-1]
+        if flag != "real" or df_full is None or df_full.empty:
+            st.error("❌ 未能获取真实 PE-TTM / 国债收益率数据（数据源接口异常或网络受限），请稍后刷新重试。")
+        else:
+            # 按所选周期切片统计（标准差带随周期动态重算）
+            if years_back < 90:
+                cutoff = (datetime.now() - timedelta(days=int(365.25 * years_back))).strftime("%Y-%m-%d")
+                df_erp = df_full[df_full["date"] >= cutoff].reset_index(drop=True)
+            else:
+                df_erp = df_full.copy()
 
-        col1, col2, col3 = st.columns(3)
-        col1.metric("当前 ERP (风险溢价)", f"{current_erp:.2f}%", delta=f"{current_erp - mean_val:+.2f}% 偏离均值")
+            if len(df_erp) < 60:
+                df_erp = df_full.copy()
 
-        status_eval = "👑 黄金坑抄底区 (估值极度便宜)" if current_erp > mean_val + std_val else ("⚠️ 估值偏高需防守" if current_erp < mean_val - std_val else "⚖️ 估值合理中枢")
-        col2.metric("当前估值水位状态", status_eval)
-        col3.metric("5年期历史分位数", f"{int((df_erp['erp'] < current_erp).mean() * 100)}%")
+            mean_val = float(df_erp["erp"].mean())
+            std_val = float(df_erp["erp"].std(ddof=0))
+            df_erp = df_erp.assign(
+                mean=mean_val,
+                plus_1sd=mean_val + std_val,
+                plus_2sd=mean_val + 2 * std_val,
+                minus_1sd=mean_val - std_val,
+                minus_2sd=mean_val - 2 * std_val,
+            )
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['plus_2sd'], name='+2SD 极度便宜 (坚决定投)', line=dict(color='rgba(46, 204, 113, 0.6)', dash='dash')))
-        fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['plus_1sd'], name='+1SD 价值凸显', line=dict(color='rgba(52, 152, 219, 0.6)', dash='dot')))
-        fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['mean'], name='历史均值中枢', line=dict(color='rgba(243, 156, 18, 0.8)', width=2)))
-        fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['minus_1sd'], name='-1SD 估值偏贵', line=dict(color='rgba(231, 76, 60, 0.6)', dash='dot')))
-        fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['erp'], name='沪深300 ERP 实际值', line=dict(color='#8e44ad', width=3)))
+            current_erp = float(df_erp["erp"].iloc[-1])
+            current_pe = float(df_erp["pe"].iloc[-1])
+            current_bond = float(df_erp["bond"].iloc[-1])
+            pct_rank = float((df_erp["erp"] < current_erp).mean() * 100)
 
-        fig.update_layout(
-            title="沪深300 股债性价比通道 (ERP 标准差带)",
-            xaxis=dict(tickangle=-45, gridcolor='rgba(128,128,128,0.2)'),
-            yaxis=dict(title="ERP (%)", gridcolor='rgba(128,128,128,0.2)'),
-            hovermode="x unified",
-            height=450,
-            legend=dict(orientation="h", y=1.1)
-        )
-        st.plotly_chart(fig, use_container_width=True)
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("当前 ERP (风险溢价)", f"{current_erp:.2f}%", delta=f"{current_erp - mean_val:+.2f}% 偏离均值")
+
+            if current_erp > mean_val + 2 * std_val:
+                status_eval = "👑 极度低估 (坚决定投)"
+            elif current_erp > mean_val + std_val:
+                status_eval = "✅ 价值凸显 (可加仓)"
+            elif current_erp < mean_val - 2 * std_val:
+                status_eval = "🚨 极度泡沫 (逃顶区)"
+            elif current_erp < mean_val - std_val:
+                status_eval = "⚠️ 估值偏贵需防守"
+            else:
+                status_eval = "⚖️ 估值合理中枢"
+            col2.metric("当前估值水位状态", status_eval)
+            col3.metric(f"{range_label}历史分位数", f"{pct_rank:.1f}%",
+                        delta="越高越便宜", delta_color="off")
+            col4.metric("PE-TTM / 10Y国债", f"{current_pe:.2f} / {current_bond:.2f}%")
+
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['plus_2sd'], name='+2SD 极度便宜 (坚决定投)', line=dict(color='rgba(46, 204, 113, 0.65)', dash='dash')))
+            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['plus_1sd'], name='+1SD 价值凸显', line=dict(color='rgba(52, 152, 219, 0.6)', dash='dot')))
+            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['mean'], name='历史均值中枢', line=dict(color='rgba(243, 156, 18, 0.85)', width=2)))
+            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['minus_1sd'], name='-1SD 估值偏贵', line=dict(color='rgba(231, 76, 60, 0.6)', dash='dot')))
+            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['minus_2sd'], name='-2SD 极度泡沫 (逃顶)', line=dict(color='rgba(192, 57, 43, 0.65)', dash='dash')))
+            fig.add_trace(go.Scatter(
+                x=df_erp['date'], y=df_erp['erp'], name=f'{idx_label.split(" ")[0]} ERP 实际值',
+                line=dict(color='#8e44ad', width=2.4),
+                customdata=np.stack([df_erp['pe'], df_erp['bond'], df_erp['close']], axis=-1),
+                hovertemplate="ERP: %{y:.2f}%<br>PE-TTM: %{customdata[0]:.2f}<br>10Y国债: %{customdata[1]:.2f}%<br>指数收盘: %{customdata[2]:.2f}<extra></extra>"
+            ))
+
+            fig.update_layout(
+                title=f"{idx_label} 股债性价比通道 (ERP 标准差带 · {range_label})",
+                xaxis=dict(tickangle=-45, gridcolor='rgba(128,128,128,0.2)'),
+                yaxis=dict(title="ERP (%)", gridcolor='rgba(128,128,128,0.2)'),
+                hovermode="x unified",
+                height=470,
+                legend=dict(orientation="h", y=1.12)
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+            # 盈利收益率 vs 国债收益率 双线对照（FED 模型原始形态）
+            fig2 = go.Figure()
+            fig2.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['bond'], name='中国10年期国债收益率', line=dict(color='#27ae60', width=2)))
+            fig2.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['ey'], name='指数盈利收益率 (1/PE)', line=dict(color='#e74c3c', width=2), fill='tonexty', fillcolor='rgba(231, 76, 60, 0.12)'))
+            fig2.update_layout(
+                title="FED 模型原始形态：股票盈利收益率 vs 无风险利率 (红线越高于绿线，股票越占优)",
+                xaxis=dict(tickangle=-45, gridcolor='rgba(128,128,128,0.2)'),
+                yaxis=dict(title="收益率 (%)", gridcolor='rgba(128,128,128,0.2)'),
+                hovermode="x unified", height=380,
+                legend=dict(orientation="h", y=1.15)
+            )
+            st.plotly_chart(fig2, use_container_width=True)
+
+            cb1, cb2, cb3 = st.columns(3)
+            cb1.caption(f"📊 样本覆盖：`{len(df_erp)}` 交易日 ({df_erp['date'].iloc[0]} 至 {df_erp['date'].iloc[-1]})")
+            cb2.caption(f"📉 区间 ERP 极值：`{df_erp['erp'].min():.2f}%` ~ `{df_erp['erp'].max():.2f}%`")
+            cb3.caption(f"🧮 均值中枢 `{mean_val:.2f}%`｜标准差 `{std_val:.2f}%`｜全历史样本 `{len(df_full)}` 日")
 
     # ==================== Tab 3: 全球宏观资产联动 ====================
     with tab_global:
