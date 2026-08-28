@@ -1,0 +1,73 @@
+name: Daily Update
+
+on:
+  schedule:
+    - cron: '30 11 * * *' # 北京时间 19:30 自动触发，完美避开数据延迟
+  workflow_dispatch:      # 保留手动触发按钮，方便调试
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # ★★★ 必须增加：赋予 GitHub Actions 写入仓库的权限 ★★★
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip' # 自动缓存依赖，加快速度
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas tushare akshare requests plotly lxml beautifulsoup4 cloudscraper
+
+    - name: Run RPS Strategy
+      env:
+        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+      run: python daily_rps_pro.py
+
+    - name: Run ETF Strategy
+      env:
+        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+      run: python daily_etf_pro.py
+
+    - name: Run Market Monitor
+      env:
+        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: python daily_market_monitor.py
+
+    - name: Run Speculation Scan
+      env:
+        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+      run: python daily_speculation.py
+
+    - name: Run Guru Loader
+      run: python daily_guru_loader.py
+    
+    - name: Run Anomaly Radar
+      env:
+        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+      run: python daily_radar.py
+
+    - name: Run Market Snapshot
+      env:
+        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+      run: python daily_snapshot.py
+
+      
+    # ★★★ 终极防弹提交：先打包保存数据，再拉取远程更新，最后推送 ★★★
+    - name: Commit and push changes
+      run: |
+        git config --local user.name "GitHub Action"
+        git config --local user.email "action@github.com"
+        git add data/
+        git commit -m "Auto-update daily data [skip ci]" || echo "No changes to commit"
+        git pull origin main --rebase
+        git push
