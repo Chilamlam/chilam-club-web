@@ -187,3 +187,33 @@ def get_plan_display_name(plan_name: str) -> str:
     """获取套餐显示名称"""
     plan = VIP_PLANS.get(plan_name, {})
     return plan.get("name", plan_name)
+
+
+def get_vip_remaining_days() -> Optional[int]:
+    """当前登录用户 VIP 剩余天数 (None=无有效VIP)"""
+    user = get_current_user()
+    if not user:
+        return None
+    if user.get("is_admin", False):
+        return 999
+    return database.get_vip_remaining_days(user["user_id"])
+
+
+def get_vip_status() -> Dict[str, Any]:
+    """当前登录用户 VIP 完整状态"""
+    user = get_current_user()
+    if not user:
+        return {"is_active": False, "plan_name": None, "expires_at": None, "remaining_days": None, "is_admin": False}
+    if user.get("is_admin", False):
+        return {"is_active": True, "plan_name": "admin", "expires_at": None, "remaining_days": 999, "is_admin": True}
+    return database.get_vip_status_detail(user["user_id"])
+
+
+def get_plan_info(plan_key: str) -> Optional[Dict[str, Any]]:
+    """获取套餐配置信息"""
+    return VIP_PLANS.get(plan_key)
+
+
+def get_all_plans() -> Dict[str, Any]:
+    """获取全部套餐配置"""
+    return VIP_PLANS

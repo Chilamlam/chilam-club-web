@@ -242,3 +242,191 @@ def update_user_watchlist(user_id: int, watchlist: List[str]) -> bool:
 def initialize():
     """兼容旧接口"""
     pass
+
+
+# ==================== 订单 Payments CRUD ====================
+
+def generate_order_no() -> str:
+    """生成唯一订单号: CC + 年月日时分 + 6位随机"""
+    now = datetime.utcnow()
+    rand = os.urandom(3).hex().upper()
+    return f"CC{now.strftime('%Y%m%d%H%M')}{rand}"
+
+def create_payment(user_id: int, plan_name: str, months: int, amount: float,
+                   payment_method: str = "wechat") -> Optional[Dict[str, Any]]:
+    """创建待支付订单 (status=pending)"""
+    order_no = generate_order_no()
+    data = {
+        "user_id": user_id,
+        "order_no": order_no,
+        "plan_name": plan_name,
+        "months": months,
+        "amount": amount,
+        "currency": "CNY",
+        "payment_method": payment_method,
+        "status": "pending"
+    }
+    res = _supabase_request("POST", "payments", json_data=data)
+    if res and isinstance(res, list) and len(res) > 0:
+        return res[0]
+    return None
+
+def get_payment_by_id(payment_id: int) -> Optional[Dict[str, Any]]:
+    """按 ID 获取订单"""
+    params = {"id": f"eq.{payment_id}", "select": "*"}
+    res = _supabase_request("GET", "payments", params=params)
+    if res and isinstance(res, list) and len(res) > 0:
+        return res[0]
+    return None
+
+def get_pending_payments() -> List[Dict[str, Any]]:
+    """获取所有待处理订单 (管理员用)"""
+    params = {
+        "status": "eq.pending",
+        "order": "created_at.asc",
+        "select": "*"
+    }
+    res = _supabase_request("GET", "payments", params=params)
+    return res if isinstance(res, list) else []
+
+def get_user_payments(user_id: int) -> List[Dict[str, Any]]:
+    """获取用户订单历史"""
+    params = {
+        "user_id": f"eq.{user_id}",
+        "order": "created_at.desc",
+        "select": "*"
+    }
+    res = _supabase_request("GET", "payments", params=params)
+    return res if isinstance(res, list) else []
+
+def get_user_pending_payments(user_id: int) -> List[Dict[str, Any]]:
+    """获取用户待处理订单"""
+    params = {
+        "user_id": f"eq.{user_id}",
+        "status": "eq.pending",
+        "order": "created_at.desc",
+        "select": "*"
+    }
+    res = _supabase_request("GET", "payments", params=params)
+    return res if isinstance(res, list) else []
+
+def cancel_payment(payment_id: int) -> bool:
+    """取消订单"""
+    res = _supabase_request("PATCH", f"payments?id=eq.{payment_id}",
+                            json_data={"status": "cancelled"})
+    return res is not None
+
+
+def confirm_payment(payment_id: int, admin_id: int = None) -> Optional[Dict[str, Any]]:
+    """
+    确认收款 + 自动续期 VIP (累加逻辑)
+    优先调用 Supabase RPC 存储过程 (事务安全)，失败则用 REST fallback
+    """
+    payment = get_payment_by_id(payment_id)
+    if not payment:
+        return {"ok": False, "error": "订单不存在"}
+    if payment.get("status") != "pending":
+        return {"ok": False, "error": f"订单状态为 {payment.get('status')}，非 pending"}
+
+    user_id = payment["user_id"]
+    plan_name = payment["plan_name"]
+    months = payment["months"]
+
+    # 方案 1: 尝试调用 RPC 存储过程 (事务安全)
+    rpc_params = {"p_payment_id": payment_id}
+    if admin_id:
+        rpc_params["p_admin_id"] = admin_id
+    rpc_res = _supabase_request("POST", "rpc/confirm_payment_and_renew", json_data=rpc_params)
+    if rpc_res is not None and isinstance(rpc_res, (dict, list)):
+        result = rpc_res[0] if isinstance(rpc_res, list) and len(rpc_res) > 0 else rpc_res
+        if isinstance(result, dict) and result.get("ok"):
+            return result
+
+    # 方案 2: REST fallback (非事务，但功能完整)
+    now = datetime.utcnow()
+    now_iso = now.isoformat() + "Z"
+
+    # 查询当前有效订阅到期时间
+    params = {
+        "user_id": f"eq.{user_id}",
+        "status": "eq.active",
+        "expires_at": f"gt.{now_iso}",
+        "order": "expires_at.desc",
+        "limit": "1"
+    }
+    existing = _supabase_request("GET", "subscriptions", params=params)
+    current_expires = None
+    if existing and isinstance(existing, list) and len(existing) > 0:
+        try:
+            exp_str = existing[0]["expires_at"].replace("Z", "")
+            current_expires = datetime.fromisoformat(exp_str)
+        except Exception:
+            current_expires = None
+
+    # 计算新到期时间 (累加逻辑)
+    if current_expires and current_expires > now:
+        new_expires = current_expires + timedelta(days=30 * months)
+    else:
+        new_expires = now + timedelta(days=30 * months)
+
+    # 创建新订阅记录
+    sub_data = {
+        "user_id": user_id,
+        "plan_name": plan_name,
+        "status": "active",
+        "start_at": now_iso,
+        "expires_at": new_expires.isoformat() + "Z"
+    }
+    sub_res = _supabase_request("POST", "subscriptions", json_data=sub_data)
+    if not sub_res:
+        return {"ok": False, "error": "创建订阅失败"}
+
+    # 更新订单状态
+    update_data = {
+        "status": "completed",
+        "confirmed_at": now_iso
+    }
+    if admin_id:
+        update_data["confirmed_by"] = admin_id
+    _supabase_request("PATCH", f"payments?id=eq.{payment_id}", json_data=update_data)
+
+    return {
+        "ok": True,
+        "expires_at": new_expires.isoformat() + "Z",
+        "plan_name": plan_name
+    }
+
+
+def get_vip_remaining_days(user_id: int) -> Optional[int]:
+    """获取 VIP 剩余天数 (None 表示无有效 VIP)"""
+    sub = get_active_subscription(user_id)
+    if not sub:
+        return None
+    try:
+        exp_str = sub["expires_at"].replace("Z", "")
+        exp_dt = datetime.fromisoformat(exp_str)
+        delta = exp_dt - datetime.utcnow()
+        return max(delta.days, 0)
+    except Exception:
+        return None
+
+
+def get_vip_status_detail(user_id: int) -> Dict[str, Any]:
+    """获取 VIP 完整状态: is_active, plan_name, expires_at, remaining_days"""
+    sub = get_active_subscription(user_id)
+    if not sub:
+        return {"is_active": False, "plan_name": None, "expires_at": None, "remaining_days": None}
+    remaining = get_vip_remaining_days(user_id)
+    return {
+        "is_active": True,
+        "plan_name": sub.get("plan_name", ""),
+        "expires_at": sub.get("expires_at", ""),
+        "remaining_days": remaining
+    }
+
+
+def check_payments_table() -> bool:
+    """检测 payments 表是否已创建 (用于前端提示)"""
+    params = {"id": "eq.0", "select": "id", "limit": "1"}
+    res = _supabase_request("GET", "payments", params=params)
+    return isinstance(res, list)
