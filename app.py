@@ -10,6 +10,7 @@ from config_gurus import GURUS
 from page_core_driver import render_core_driver_page
 from page_macro_erp import render_macro_erp_page
 from page_watchlist import render_watchlist_page
+from page_live_quote import render_live_quote_page
 import auth
 
 # ================= 1. 基础配置 (必须放在最前面) =================
@@ -612,6 +613,7 @@ def main():
         st.markdown("---")
         menu_items = [
             "🛸 全市场看板",
+            "⚡ 实时行情 (分时/K线)",
             "🔥 强势股",
             "⭐ 自选股雷达",
             "🌐 宏观与股债性价比",
@@ -629,6 +631,8 @@ def main():
 
     if page == "🛸 全市场看板":
         render_market_dashboard()
+    elif page == "⚡ 实时行情 (分时/K线)":
+        render_live_quote_page()
     elif page == "🔥 强势股":
         if not auth.is_vip():
             render_vip_lock("🔥 强势股 (RPS 动量策略)")
