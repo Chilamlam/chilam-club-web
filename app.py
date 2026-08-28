@@ -317,6 +317,56 @@ def render_stock_content(df):
         mime="text/csv"
     )
 
+def render_breakout_content(df):
+    if df is None or df.empty: 
+        st.info("💡 暂无阶段新高突破标的数据，将在每日收盘后计算生成。")
+        return
+    
+    st.success(f"🚀 **Stage 2 突破动量捕捉器**：今日共捕获 **{len(df)}** 只突破关键阻力位标的")
+    
+    with st.expander("🔍 突破维度筛选", expanded=True):
+        b1, b2, b3 = st.columns([1.5, 1.5, 1])
+        level_opts = ["全部"] + sorted(df['level'].unique().tolist())
+        sel_level = b1.selectbox("突破周期级别", level_opts)
+        
+        min_vol_ratio = b2.slider("放量倍数 (相比5日均量)", 1.0, 5.0, 1.2, step=0.1)
+        kw_b = b3.text_input("搜代码/名称", placeholder="搜索...", key="kw_breakout")
+
+    mask = df['vol_ratio'] >= min_vol_ratio
+    if sel_level != "全部":
+        mask &= (df['level'] == sel_level)
+    if kw_b:
+        mask &= (df['ts_code'].astype(str).str.contains(kw_b) | df['name'].str.contains(kw_b))
+
+    show_df = df[mask].sort_values(by=['pct_chg', 'vol_ratio'], ascending=[False, False]).copy()
+    
+    # 统计卡片
+    c1, c2, c3 = st.columns(3)
+    c1.metric("筛选标的数", f"{len(show_df)} 只")
+    if not show_df.empty:
+        c2.metric("平均当日涨幅", f"+{show_df['pct_chg'].mean():.2f}%")
+        c3.metric("最高放量倍数", f"{show_df['vol_ratio'].max():.1f} 倍")
+
+    cols = ['ts_code', 'name', 'level', 'industry', 'close', 'pct_chg', 'vol_ratio', 'turnover_rate', 'mv_亿', 'pe_ttm', 'xueqiu_url']
+    final_cols = [c for c in cols if c in show_df.columns]
+    
+    st.dataframe(
+        show_df[final_cols], 
+        column_config={
+            "ts_code": st.column_config.TextColumn("代码"),
+            "xueqiu_url": st.column_config.LinkColumn("雪球", display_text="❄️"),
+            "level": st.column_config.TextColumn("突破级别"),
+            "name": st.column_config.TextColumn("名称"),
+            "industry": st.column_config.TextColumn("题材行业"),
+            "close": st.column_config.NumberColumn("现价", format="%.2f"),
+            "pct_chg": st.column_config.NumberColumn("涨幅%", format="%.2f %%"),
+            "vol_ratio": st.column_config.NumberColumn("放量(倍)", format="%.2f"),
+            "turnover_rate": st.column_config.NumberColumn("换手%", format="%.2f"),
+            "mv_亿": st.column_config.NumberColumn("市值(亿)", format="%.1f"),
+            "pe_ttm": st.column_config.TextColumn("PE(TTM)")
+        }, use_container_width=True, hide_index=True, height=700
+    )
+
 def render_etf_content(df):
     if df is None or df.empty: 
         st.info("暂无数据")
@@ -554,10 +604,12 @@ def main():
             render_vip_lock("🔥 强势股 (RPS 动量策略)")
         else:
             df_stock = load_data("data/strong_stocks.csv")
+            df_breakout = load_data("data/breakout_stocks.csv")
             df_etf = load_data("data/strong_etfs.csv")
-            t1, t2 = st.tabs(["🐉 个股", "💰 ETF"])
+            t1, t2, t3 = st.tabs(["🐉 RPS 个股", "🚀 阶段新高突破", "💰 强势 ETF"])
             with t1: render_stock_content(df_stock)
-            with t2: render_etf_content(df_etf)
+            with t2: render_breakout_content(df_breakout)
+            with t3: render_etf_content(df_etf)
     elif page == "⚡ 投机与套利":
         if not auth.is_vip():
             render_vip_lock("⚡ 投机与套利 (可转债双低/溢价套利)")
