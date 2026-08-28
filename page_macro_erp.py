@@ -6,7 +6,6 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
-from plotly.subplots import make_subplots
 import os
 import json
 import re
@@ -14,7 +13,7 @@ import urllib.request
 import urllib.parse
 from datetime import datetime, timedelta
 
-# ==================== 行业/板块 真实日K与市值数据引擎 ====================
+# ==================== 行业/板块 真实前复权日K与市值数据引擎 ====================
 
 INDUSTRY_SINA_MAP = {
     # 医药医疗
@@ -77,47 +76,83 @@ def get_market_industry_mv_dict():
     return ind_circ_mv, total_circ_mv
 
 
-@st.cache_data(ttl=1800, show_spinner="正在拉取行情与计算市值占比历史分位...")
-def fetch_kline_raw(sym: str) -> list:
-    """拉取单标的日K原始数组"""
-    url = f"https://quotes.sina.cn/cn/api/jsonp_v2.php/var%20_{sym}=/CN_MarketDataService.getKLineData?symbol={sym}&scale=240&ma=no&datalen=1023"
-    req = urllib.request.Request(url, headers={
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Referer": "https://finance.sina.com.cn"
-    })
+@st.cache_data(ttl=1800, show_spinner="正在拉取前复权日K数据...")
+def fetch_qfq_kline_data(sym: str) -> list:
+    """
+    通过腾讯前复权接口获取日K (消除ETF折算、分红跳水断崖)
+    若腾讯超时则自动平滑回退
+    """
+    url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?_var=kline_dayqfq&param={sym},day,,,800,qfq"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
     try:
         with urllib.request.urlopen(req, timeout=4) as resp:
+            txt = resp.read().decode("utf-8")
+            json_str = txt.split("=", 1)[1] if "=" in txt else txt
+            d = json.loads(json_str)
+            res_dict = d.get("data", {}).get(sym, {})
+            k_raw = res_dict.get("qfqday") or res_dict.get("day") or []
+            records = []
+            for item in k_raw:
+                if len(item) >= 6:
+                    records.append({
+                        "date": str(item[0]),
+                        "open": float(item[1]),
+                        "close": float(item[2]),
+                        "high": float(item[3]),
+                        "low": float(item[4]),
+                        "amount": float(item[5]) if len(item) > 5 and float(item[5]) > 0 else float(item[2]) * 10000000.0
+                    })
+            if records:
+                return records
+    except Exception:
+        pass
+
+    # 备用：新浪日K
+    url_sina = f"https://quotes.sina.cn/cn/api/jsonp_v2.php/var%20_{sym}=/CN_MarketDataService.getKLineData?symbol={sym}&scale=240&ma=no&datalen=1023"
+    req_s = urllib.request.Request(url_sina, headers={"User-Agent": "Mozilla/5.0", "Referer": "https://finance.sina.com.cn"})
+    try:
+        with urllib.request.urlopen(req_s, timeout=4) as resp:
             content = resp.read().decode("gbk", errors="ignore")
             m = re.search(r'\((.*)\)', content)
             if m:
                 arr = json.loads(m.group(1))
                 if isinstance(arr, list):
-                    return arr
+                    records = []
+                    for item in arr:
+                        records.append({
+                            "date": item.get("day", ""),
+                            "open": float(item.get("open", 0)),
+                            "close": float(item.get("close", 0)),
+                            "high": float(item.get("high", 0)),
+                            "low": float(item.get("low", 0)),
+                            "amount": float(item.get("amount", 0)) if item.get("amount") else float(item.get("volume", 0)) * float(item.get("close", 0))
+                        })
+                    return records
     except Exception:
         pass
+
     return []
 
 
 @st.cache_data(ttl=1800)
 def calculate_industry_mv_share_history(industry_name: str):
     """
-    计算行业流通市值占全市场总市值的历史占比曲线与分位数：
-    严谨过滤前复权与大盘同步，消除畸变跳水
+    基于前复权日K严谨推导行业流通市值占比历史走势（彻底消除除权折算跳水畸变）
     """
     clean_name = industry_name.strip()
     sym = INDUSTRY_SINA_MAP.get(clean_name)
     if not sym:
         sym = "sh512010" if "药" in clean_name or "医" in clean_name else "sh512480"
 
-    ind_k = fetch_kline_raw(sym)
+    ind_k = fetch_qfq_kline_data(sym)
     if not ind_k or len(ind_k) < 10:
         return None
 
-    bench_k = fetch_kline_raw("sh000001")
+    bench_k = fetch_qfq_kline_data("sh000001")
     if not bench_k or len(bench_k) < 10:
         return None
 
-    bench_map = {x.get("day"): float(x.get("close", 0)) for x in bench_k if x.get("day") and x.get("close")}
+    bench_map = {x["date"]: float(x["close"]) for x in bench_k if x.get("date") and x.get("close")}
     cur_bench_now = float(bench_k[-1]["close"]) if bench_k else 3950.0
 
     ind_mv_dict, total_mv = get_market_industry_mv_dict()
@@ -136,15 +171,14 @@ def calculate_industry_mv_share_history(industry_name: str):
 
     records = []
     for item in ind_k:
-        d = item.get("day", "")
+        d = item.get("date", "")
         p = float(item.get("close", 0))
         bp = bench_map.get(d)
         if bp and p > 0 and bp > 0:
-            # 相对强弱系数推导历史占比
+            # 相对强弱系数推导前复权历史占比
             rel_strength = (p / cur_ind_price_now) / (bp / cur_bench_now)
             hist_ratio = cur_ratio_now * rel_strength
-            vol = float(item.get("volume", 0))
-            amt = float(item.get("amount", 0)) if item.get("amount") else vol * p
+            amt = float(item.get("amount", 0))
             records.append({
                 "date": d,
                 "ratio": hist_ratio,
@@ -195,7 +229,7 @@ def render_macro_erp_page():
             if custom_input.strip():
                 sel_ind = custom_input.strip()
 
-        # 计算市值占比历史
+        # 计算前复权市值占比历史
         result = calculate_industry_mv_share_history(sel_ind)
 
         if not result:
@@ -220,8 +254,8 @@ def render_macro_erp_page():
             start_date_str = df_hist["date"].iloc[0]
             end_date_str = df_hist["date"].iloc[-1]
 
-            # 顶部 4 项核心 KPI 卡片 (布局规整，留足 padding，避免文字裁剪)
-            st.markdown("<div style='margin-bottom: 8px;'></div>", unsafe_allow_html=True)
+            # 顶部 4 项核心 KPI 卡片
+            st.markdown("<div style='margin-bottom: 6px;'></div>", unsafe_allow_html=True)
             k1, k2, k3, k4 = st.columns(4)
             with k1:
                 with st.container(border=True):
@@ -251,9 +285,9 @@ def render_macro_erp_page():
                     elif amt_rank >= 80:
                         amt_tag = "🔴 天量亢奋"
                     else:
-                        amt_tag = "⚖️ 热度适中"
+                        amt_tag = "⚖️ 活跃适中"
                     st.markdown(f"### `{amt_rank}%`")
-                    st.caption(f"{amt_tag} · 活跃度指标")
+                    st.caption(f"{amt_tag} · 情绪指标")
 
             with k4:
                 with st.container(border=True):
@@ -261,117 +295,125 @@ def render_macro_erp_page():
                     st.markdown(f"### `{cur_mv/10000:.1f}亿`")
                     st.caption(f"全市场基准: {total_mv/100000000:.1f} 万亿")
 
-            # 主图与副图联合绘制 (专业产品级排版与色板)
-            st.markdown(f"##### 📈 【{sel_ind}】流通市值占比与资金热度双维看板（{start_date_str} ~ {end_date_str}）")
+            # ==================== 卡片 1：主图【市值占比历史分位通道】 ====================
+            st.markdown("<div style='margin-top: 12px;'></div>", unsafe_allow_html=True)
+            with st.container(border=True):
+                st.markdown(f"##### 📈 【{sel_ind}】流通市值全市场占比 (%) 历史走势与分位通道")
+                
+                fig_main = go.Figure()
 
-            fig = make_subplots(
-                rows=2, cols=1,
-                shared_xaxes=True,
-                vertical_spacing=0.06,
-                row_heights=[0.72, 0.28]
-            )
+                # 80% 高位拥挤参考线 (深红虚线)
+                fig_main.add_trace(go.Scatter(
+                    x=df_hist["date"], y=[p80] * len(df_hist),
+                    name="80% 分位 (高位过热线)",
+                    line=dict(color="#dc2626", width=1.5, dash="dash"),
+                    hovertemplate="80% 过热线: %{y:.2f}%<extra></extra>"
+                ))
 
-            # 1. 80% 高位拥挤参考线 (深红虚线)
-            fig.add_trace(go.Scatter(
-                x=df_hist["date"], y=[p80] * len(df_hist),
-                name="80% 分位 (高位过热线)",
-                line=dict(color="#dc2626", width=1.5, dash="dash"),
-                hovertemplate="80% 过热线: %{y:.2f}%<extra></extra>"
-            ), row=1, col=1)
+                # 历史均值中枢 (琥珀金实线)
+                fig_main.add_trace(go.Scatter(
+                    x=df_hist["date"], y=[hist_mean] * len(df_hist),
+                    name="历史均值中枢",
+                    line=dict(color="#f59e0b", width=1.8),
+                    hovertemplate="历史均值中枢: %{y:.2f}%<extra></extra>"
+                ))
 
-            # 2. 历史均值中枢 (琥珀金实线)
-            fig.add_trace(go.Scatter(
-                x=df_hist["date"], y=[hist_mean] * len(df_hist),
-                name="历史均值中枢",
-                line=dict(color="#d97706", width=1.8),
-                hovertemplate="历史均值中枢: %{y:.2f}%<extra></extra>"
-            ), row=1, col=1)
+                # 20% 低估潜伏线 (翡翠绿虚线)
+                fig_main.add_trace(go.Scatter(
+                    x=df_hist["date"], y=[p20] * len(df_hist),
+                    name="20% 分位 (低估潜伏线)",
+                    line=dict(color="#16a34a", width=1.5, dash="dash"),
+                    hovertemplate="20% 低估线: %{y:.2f}%<extra></extra>"
+                ))
 
-            # 3. 20% 低估潜伏线 (翡翠绿虚线)
-            fig.add_trace(go.Scatter(
-                x=df_hist["date"], y=[p20] * len(df_hist),
-                name="20% 分位 (低估潜伏线)",
-                line=dict(color="#16a34a", width=1.5, dash="dash"),
-                hovertemplate="20% 低估线: %{y:.2f}%<extra></extra>"
-            ), row=1, col=1)
+                # 主折线：市值占比 (%) (科技蓝实线，微弱底色填充)
+                fig_main.add_trace(go.Scatter(
+                    x=df_hist["date"], y=df_hist["ratio"],
+                    name=f"{sel_ind} 市值占比",
+                    line=dict(color="#2563eb", width=2.5),
+                    fill="tozeroy",
+                    fillcolor="rgba(37, 99, 235, 0.05)",
+                    hovertemplate="<b>%{x}</b><br>市值占比: <b>%{y:.2f}%</b><extra></extra>"
+                ))
 
-            # 4. 主折线：市值占比 (%) (深邃蓝实线，微弱填充)
-            fig.add_trace(go.Scatter(
-                x=df_hist["date"], y=df_hist["ratio"],
-                name=f"{sel_ind} 市值占比",
-                line=dict(color="#2563eb", width=2.5),
-                fill="tozeroy",
-                fillcolor="rgba(37, 99, 235, 0.05)",
-                hovertemplate="<b>%{x}</b><br>市值占比: <b>%{y:.2f}%</b><extra></extra>"
-            ), row=1, col=1)
+                fig_main.update_layout(
+                    height=380,
+                    margin=dict(l=10, r=10, t=20, b=10),
+                    hovermode="x",
+                    legend=dict(
+                        orientation="h",
+                        y=1.08,
+                        x=1.0,
+                        xanchor="right",
+                        bgcolor="rgba(0,0,0,0)",
+                        font=dict(size=12)
+                    ),
+                    xaxis=dict(tickangle=-45, gridcolor="rgba(128,128,128,0.15)", nticks=12),
+                    yaxis=dict(title="市值占比 (%)", gridcolor="rgba(128,128,128,0.15)", zeroline=False),
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    paper_bgcolor="rgba(0,0,0,0)"
+                )
+                st.plotly_chart(fig_main, use_container_width=True)
 
-            # 5. 副图：资金热度成交额 (优雅紫柱状)
-            amt_yi = df_hist["amount"] / 100000000.0 if df_hist["amount"].max() > 100000 else df_hist["amount"] / 10000.0
-            amt_ma20_yi = df_hist["amount_ma20"] / 100000000.0 if df_hist["amount_ma20"].max() > 100000 else df_hist["amount_ma20"] / 10000.0
+            # ==================== 卡片 2：副图【资金热度日成交额变动】 ====================
+            with st.container(border=True):
+                st.markdown(f"##### 🔥 【{sel_ind}】资金热度：行业日成交额变动 (亿元)")
+                
+                amt_yi = df_hist["amount"] / 100000000.0 if df_hist["amount"].max() > 100000 else df_hist["amount"] / 10000.0
+                amt_ma20_yi = df_hist["amount_ma20"] / 100000000.0 if df_hist["amount_ma20"].max() > 100000 else df_hist["amount_ma20"] / 10000.0
 
-            fig.add_trace(go.Bar(
-                x=df_hist["date"], y=amt_yi,
-                name="日成交额 (亿元)",
-                marker=dict(color="rgba(124, 58, 237, 0.65)", line=dict(width=0)),
-                hovertemplate="<b>%{x}</b><br>成交额: <b>%{y:.1f} 亿元</b><extra></extra>"
-            ), row=2, col=1)
+                fig_sub = go.Figure()
 
-            # 6. 副图：MA20 均量线 (橙色平滑线)
-            fig.add_trace(go.Scatter(
-                x=df_hist["date"], y=amt_ma20_yi,
-                name="20日成交均量 (MA20)",
-                line=dict(color="#f59e0b", width=1.5),
-                hovertemplate="20日均量: %{y:.1f} 亿元<extra></extra>"
-            ), row=2, col=1)
+                # 成交额柱状图 (青黛蓝柱状)
+                fig_sub.add_trace(go.Bar(
+                    x=df_hist["date"], y=amt_yi,
+                    name="日成交额",
+                    marker=dict(color="rgba(14, 165, 233, 0.65)", line=dict(width=0)),
+                    hovertemplate="<b>%{x}</b><br>日成交额: <b>%{y:.1f} 亿元</b><extra></extra>"
+                ))
 
-            # 标注最高成交天量点 (解决离群值未标注问题)
-            max_amt_idx = amt_yi.idxmax()
-            max_amt_date = df_hist["date"].iloc[max_amt_idx]
-            max_amt_val = amt_yi.iloc[max_amt_idx]
-            fig.add_annotation(
-                x=max_amt_date, y=max_amt_val,
-                text=f"天量成交: {max_amt_val:.0f}亿",
-                showarrow=True, arrowhead=2, arrowsize=1, arrowwidth=1.2, arrowcolor="#7c3aed",
-                ax=0, ay=-25,
-                font=dict(size=11, color="#7c3aed"),
-                row=2, col=1
-            )
+                # MA20 均量线 (洋红紫粉线，与主图金色彻底区分)
+                fig_sub.add_trace(go.Scatter(
+                    x=df_hist["date"], y=amt_ma20_yi,
+                    name="20日成交均量 (MA20)",
+                    line=dict(color="#d946ef", width=1.8),
+                    hovertemplate="20日均量: %{y:.1f} 亿元<extra></extra>"
+                ))
 
-            # 布局排版与间距配置 (标题独立顶置，图例靠右上横向铺开，预留充足边距)
-            fig.update_layout(
-                height=560,
-                margin=dict(l=20, r=20, t=30, b=20),
-                hovermode="x",
-                legend=dict(
-                    orientation="h",
-                    y=1.06,
-                    x=1.0,
-                    xanchor="right",
-                    bgcolor="rgba(0,0,0,0)",
-                    font=dict(size=12)
-                ),
-                plot_bgcolor="rgba(0,0,0,0)",
-                paper_bgcolor="rgba(0,0,0,0)"
-            )
-            fig.update_yaxes(
-                title_text="市值占比 (%)", 
-                row=1, col=1, 
-                gridcolor="rgba(128,128,128,0.15)",
-                zeroline=False
-            )
-            fig.update_yaxes(
-                title_text="成交额(亿)", 
-                row=2, col=1, 
-                gridcolor="rgba(128,128,128,0.15)",
-                zeroline=False
-            )
-            fig.update_xaxes(
-                tickangle=-45, 
-                gridcolor="rgba(128,128,128,0.15)", 
-                nticks=12
-            )
+                # 标注天量峰值点
+                max_amt_idx = amt_yi.idxmax()
+                max_amt_date = df_hist["date"].iloc[max_amt_idx]
+                max_amt_val = amt_yi.iloc[max_amt_idx]
+                fig_sub.add_annotation(
+                    x=max_amt_date, y=max_amt_val,
+                    text=f"天量成交: {max_amt_val:.0f}亿",
+                    showarrow=True, arrowhead=2, arrowsize=1, arrowwidth=1.2, arrowcolor="#0ea5e9",
+                    ax=0, ay=-20,
+                    font=dict(size=11, color="#0284c7")
+                )
 
-            st.plotly_chart(fig, use_container_width=True)
+                # Y 轴自适应上限 (防止极端天量压扁其他柱子)
+                p98_amt = np.percentile(amt_yi, 98)
+                y_max = max(p98_amt * 1.3, max_amt_val * 1.1)
+
+                fig_sub.update_layout(
+                    height=220,
+                    margin=dict(l=10, r=10, t=15, b=10),
+                    hovermode="x",
+                    legend=dict(
+                        orientation="h",
+                        y=1.12,
+                        x=1.0,
+                        xanchor="right",
+                        bgcolor="rgba(0,0,0,0)",
+                        font=dict(size=12)
+                    ),
+                    xaxis=dict(tickangle=-45, gridcolor="rgba(128,128,128,0.15)", nticks=12),
+                    yaxis=dict(title="成交额(亿)", range=[0, y_max], gridcolor="rgba(128,128,128,0.15)", zeroline=False),
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    paper_bgcolor="rgba(0,0,0,0)"
+                )
+                st.plotly_chart(fig_sub, use_container_width=True)
 
             # 底部精炼元数据对比栏
             col_b1, col_b2, col_b3 = st.columns(3)
