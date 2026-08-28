@@ -1,5 +1,5 @@
 """
-全球宏观资产与 A 股股债性价比 (ERP / FED 估值模型)
+全球宏观资产与 A 股股债性价比 (ERP / FED 估值模型) & 行业市值/点位 10 年历史分位
 """
 import streamlit as st
 import pandas as pd
@@ -8,171 +8,231 @@ import plotly.graph_objects as go
 import plotly.express as px
 import os
 import json
+import urllib.request
+import urllib.parse
 from datetime import datetime, timedelta
 
-# ==================== 行业历史数据获取 (AkShare 真实数据) ====================
+# ==================== 行业 10 年历史数据引擎 (高速高可用多节点) ====================
 
-@st.cache_data(ttl=86400, show_spinner="正在获取行业板块列表...")
-def _fetch_industry_board_names():
-    """获取东方财富全部行业板块名称"""
-    try:
-        import akshare as ak
-        df = ak.stock_board_industry_name_em()
-        if "板块名称" in df.columns:
-            names = df["板块名称"].tolist()
-        else:
-            names = df.iloc[:, 1].tolist()
-        return sorted([str(n) for n in names if n])
-    except Exception:
-        return []
+INDUSTRY_CODE_MAP = {
+    "化学制药": "BK0465", "中药": "BK0467", "生物制品": "BK0466", "医疗器械": "BK0468", "医药商业": "BK0469",
+    "半导体": "BK1036", "消费电子": "BK0987", "电子元件": "BK0459", "光学光电子": "BK0460", "电子化学品": "BK1026",
+    "软件开发": "BK0737", "互联网服务": "BK0447", "计算机设备": "BK0485", "通信设备": "BK0448", "通信服务": "BK0738",
+    "光伏设备": "BK1031", "电池": "BK1033", "风电设备": "BK1028", "电网设备": "BK1029", "电力行业": "BK0428",
+    "白酒": "BK0896", "酿酒行业": "BK0477", "食品饮料": "BK0438", "家电行业": "BK0456", "农牧饲渔": "BK0433", "旅游酒店": "BK0485",
+    "汽车整车": "BK0481", "汽车零部件": "BK0481", "汽车服务": "BK1016",
+    "证券": "BK0473", "银行": "BK0475", "保险": "BK0474", "多元金融": "BK0733",
+    "有色金属": "BK0478", "钢铁行业": "BK0479", "煤炭行业": "BK0437", "石油行业": "BK0464", "贵金属": "BK0732", "小金属": "BK1025",
+    "化学原料": "BK1019", "化学制品": "BK0538", "化纤行业": "BK0440", "农化制品": "BK0731",
+    "通用设备": "BK0545", "专用设备": "BK0546", "自动化设备": "BK1027", "工程机械": "BK0736", "仪器仪表": "BK0458",
+    "航天航空": "BK0430", "船舶制造": "BK0729", "交运设备": "BK0429", "铁路公路": "BK0424", "航运港口": "BK0450",
+    "房地产开发": "BK0451", "房地产服务": "BK1045", "装修建材": "BK0476", "建筑装饰": "BK0476", "水泥建材": "BK0425",
+    "游戏": "BK1046", "文化传媒": "BK0486", "影视院线": "BK0486", "商业百货": "BK0453", "纺织服装": "BK0436", "造纸印刷": "BK0432"
+}
 
-@st.cache_data(ttl=3600, show_spinner="正在获取 10 年历史数据，请稍候...")
-def _fetch_industry_10y_hist(industry_name):
-    """获取指定行业板块 10 年日K数据"""
-    try:
-        import akshare as ak
-        end_date = datetime.now().strftime("%Y%m%d")
-        start_date = (datetime.now() - timedelta(days=365 * 10)).strftime("%Y%m%d")
-        df = ak.stock_board_industry_hist_em(
-            symbol=industry_name, period="日k",
-            start_date=start_date, end_date=end_date, adjust=""
-        )
-        return df
-    except Exception:
+@st.cache_data(ttl=86400)
+def get_available_industry_list():
+    """获取所有预置和市场可用的行业板块列表"""
+    base_list = sorted(list(INDUSTRY_CODE_MAP.keys()))
+    # 结合 market_snapshot 的行业
+    if os.path.exists("data/market_snapshot.csv"):
+        try:
+            df_snap = pd.read_csv("data/market_snapshot.csv")
+            if "industry" in df_snap.columns:
+                extra = [str(x) for x in df_snap["industry"].dropna().unique() if str(x) not in ('-', 'nan', '')]
+                base_list = sorted(list(set(base_list + extra)))
+        except Exception:
+            pass
+    return base_list
+
+
+@st.cache_data(ttl=1800, show_spinner="正在获取 10 年历史日K与分位数据...")
+def fetch_industry_10y_df(industry_name: str) -> pd.DataFrame:
+    """
+    通过原生 HTTP 高速多节点轮询获取行业板块 10 年日K (约2600条)
+    零第三方依赖，彻底规避 https 反爬断连
+    """
+    code = INDUSTRY_CODE_MAP.get(industry_name)
+    
+    # 动态 Suggest 解析
+    if not code:
+        try:
+            s_url = f"http://searchapi.eastmoney.com/api/suggest/get?input={urllib.parse.quote(industry_name)}&type=14"
+            req = urllib.request.Request(s_url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                s_data = json.loads(resp.read().decode("utf-8"))
+                items = s_data.get("QuotationCodeTable", {}).get("Data", [])
+                if items:
+                    for it in items:
+                        c_val = it.get("Code", "")
+                        if c_val.startswith("BK"):
+                            code = c_val
+                            break
+                    if not code and items:
+                        code = items[0].get("Code")
+        except Exception:
+            pass
+
+    if not code:
         return pd.DataFrame()
+
+    secid = f"90.{code}" if not code.startswith("90.") and not code.startswith("1.") and not code.startswith("0.") else code
+    if not any(secid.startswith(p) for p in ["90.", "1.", "0."]):
+        secid = f"90.{secid}"
+
+    # 多节点轮询容错
+    nodes = [
+        "push2his.eastmoney.com",
+        "95.push2his.eastmoney.com",
+        "19.push2his.eastmoney.com",
+        "push2.eastmoney.com"
+    ]
+
+    for node in nodes:
+        url = f"http://{node}/api/qt/stock/kline/get?secid={secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&end=20500101&lmt=2600"
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Referer": "http://quote.eastmoney.com/"})
+            with urllib.request.urlopen(req, timeout=4) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                klines = data.get("data", {}).get("klines", [])
+                if klines and len(klines) > 10:
+                    rows = [k.split(",") for k in klines]
+                    df = pd.DataFrame(rows, columns=[
+                        "date", "open", "close", "high", "low", "vol", "amount", "amplitude", "pct_chg", "chg", "turnover"
+                    ])
+                    df["close"] = pd.to_numeric(df["close"], errors="coerce")
+                    df["amount"] = pd.to_numeric(df["amount"], errors="coerce")
+                    df["turnover"] = pd.to_numeric(df["turnover"], errors="coerce")
+                    df["date_str"] = df["date"]
+                    df = df.dropna(subset=["close"]).sort_values("date").reset_index(drop=True)
+                    return df
+        except Exception:
+            continue
+
+    return pd.DataFrame()
 
 
 def render_macro_erp_page():
     st.header("🌐 宏观资产、股债性价比 & 行业市值分位")
-    st.caption("大周期宏观与中观行业择时指南：行业市值全市场占比分位 + 股权风险溢价 (FED 模型) + 全球核心资产联动")
+    st.caption("大周期宏观与中观行业择时指南：行业 10 年历史分位 + 股权风险溢价 (FED 模型) + 全球核心资产联动")
 
-    tab_sector_mv, tab_erp, tab_global = st.tabs(["🏛️ 行业流通市值历史分位", "⚖️ 股债性价比 (大盘周期抄底/逃顶)", "🌍 全球宏观资产联动"])
+    tab_sector_mv, tab_erp, tab_global = st.tabs(["🏛️ 行业板块 10 年历史分位", "⚖️ 股债性价比 (大盘周期抄底/逃顶)", "🌍 全球宏观资产联动"])
 
-    # ==================== Tab 1: 行业流通市值历史分位 (10年真实数据) ====================
+    # ==================== Tab 1: 行业流通市值/点位 10 年真实历史分位 ====================
     with tab_sector_mv:
-        st.subheader("🏛️ 行业板块 10 年历史分位走势")
+        st.subheader("🏛️ 行业板块 10 年历史周期与分位中枢")
         st.info("""
-        **💡 行业历史分位逻辑**：
-        - 基于东方财富行业板块 **10 年真实日K数据**，以板块指数收盘价反映该行业流通市值变化趋势。
-        - **历史分位 (Percentile)** 衡量该行业在过去 10 年中，体量处于"极度低估/被冷落"还是"极度拥挤/高位过热"。
-        - **分位 < 20%**：历史估值与体量底部（绝望/低吸关注区）；
-        - **分位 > 80%**：历史估值与体量过热（拥挤/冲顶获利区）。
-        - 数据来源：AkShare 东方财富行业板块接口，每日自动更新。
+        **💡 行业 10 年历史分位决策逻辑**：
+        - 覆盖过去 **10 年（2015 至今，约 2600 个交易日）** 的真实日K行情数据。
+        - **历史分位 (Percentile)** 衡量该行业当前在过去 10 年大周期中处于“极度低估/被冷落”还是“极度拥挤/冲顶过热”：
+          - **分位 ≤ 20%**：🟢 **历史极度低估/绝望潜伏区**（逆向定投、寻找长线赔率）；
+          - **20% ~ 80%**：⚖️ **合理波动中枢**；
+          - **分位 ≥ 80%**：🔴 **历史高位拥挤/过热风险区**（顺势持有但不盲目追高，警惕均值回归）。
         """)
 
-        # 获取真实行业板块名称列表
-        industry_names = _fetch_industry_board_names()
+        ind_options = get_available_industry_list()
+        
+        # 默认选中化学制药或半导体
+        default_idx = 0
+        if "化学制药" in ind_options:
+            default_idx = ind_options.index("化学制药")
+        elif "半导体" in ind_options:
+            default_idx = ind_options.index("半导体")
 
-        # fallback：如果 AkShare 获取失败，使用快照中的行业名
-        df_snap = pd.read_csv("data/market_snapshot.csv") if os.path.exists("data/market_snapshot.csv") else pd.DataFrame()
-        if not industry_names:
-            industry_options = ["半导体", "白酒", "生物制药", "光伏设备", "软件开发",
-                                "银行", "有色金属", "汽车零部件", "通用设备", "家电行业", "化学制药", "房地产"]
-            if not df_snap.empty and 'industry' in df_snap.columns:
-                real_inds = [str(x) for x in df_snap['industry'].dropna().unique() if str(x) not in ('-', 'nan', '')]
-                if len(real_inds) >= 5:
-                    industry_options = sorted(real_inds)
-        else:
-            industry_options = industry_names
+        c_sel, c_custom = st.columns([1.5, 1])
+        with c_sel:
+            sel_ind = st.selectbox("🎯 选择行业板块：", ind_options, index=default_idx)
+        with c_custom:
+            custom_input = st.text_input("🔍 或输入任意行业/概念搜索：", placeholder="如: 创新药, 算力, 固态电池")
+            if custom_input.strip():
+                sel_ind = custom_input.strip()
 
-        sel_ind = st.selectbox("🎯 选择要探查的行业板块：", industry_options, index=0)
-
-        # 获取该行业 10 年真实日K数据
-        df_hist = _fetch_industry_10y_hist(sel_ind)
+        # 获取 10 年真实日K
+        df_hist = fetch_industry_10y_df(sel_ind)
 
         if df_hist is None or df_hist.empty:
-            st.warning(f"⚠️ 未能获取【{sel_ind}】的 10 年历史数据，请稍后重试或更换行业。")
-            st.caption("可能原因：网络超时、AkShare 接口限流或该行业上市时间不足 10 年。")
+            st.warning(f"⚠️ 暂未匹配到【{sel_ind}】的 10 年历史行情数据，请尝试从下拉菜单选择标准行业。")
         else:
-            # 统一列名（AkShare 返回中文列名）
-            col_map = {}
-            for c in df_hist.columns:
-                cl = str(c).lower()
-                if "日期" in cl or "date" in cl:
-                    col_map[c] = "date"
-                elif "收盘" in cl or "close" in cl:
-                    col_map[c] = "close"
-                elif "成交额" in cl or "amount" in cl:
-                    col_map[c] = "amount"
-                elif "换手" in cl or "turnover" in cl:
-                    col_map[c] = "turnover"
-            df_hist = df_hist.rename(columns=col_map)
+            close_vals = df_hist["close"].values
+            cur_close = close_vals[-1]
+            pct_rank = int((close_vals < cur_close).mean() * 100)
+            hist_max = close_vals.max()
+            hist_min = close_vals.min()
+            hist_mean = close_vals.mean()
+            p80 = np.percentile(close_vals, 80)
+            p20 = np.percentile(close_vals, 20)
 
-            if "close" not in df_hist.columns:
-                st.error("数据格式异常：未找到收盘价列，请检查 AkShare 接口返回。")
-                st.dataframe(df_hist.head())
+            # 成交额与热度
+            amt_rank = None
+            if "amount" in df_hist.columns:
+                amt_vals = df_hist["amount"].dropna().values
+                if len(amt_vals) > 0:
+                    cur_amt = amt_vals[-1]
+                    amt_rank = int((amt_vals < cur_amt).mean() * 100)
+
+            start_date_str = df_hist["date_str"].iloc[0]
+            end_date_str = df_hist["date_str"].iloc[-1]
+
+            # 顶部 4 项核心 KPI
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric(
+                f"当前【{sel_ind}】点位",
+                f"{cur_close:.2f}",
+                delta=f"{cur_close - hist_mean:+.2f} (较10年均值)"
+            )
+
+            if pct_rank <= 20:
+                status_eval = "🟢 历史极度低估 (潜伏区)"
+            elif pct_rank >= 80:
+                status_eval = "🔴 历史高位拥挤 (防守区)"
             else:
-                df_hist["close"] = pd.to_numeric(df_hist["close"], errors="coerce")
-                df_hist = df_hist.dropna(subset=["close"]).sort_values("date").reset_index(drop=True)
-                df_hist["date_str"] = pd.to_datetime(df_hist["date"]).dt.strftime("%Y-%m-%d")
+                status_eval = "⚖️ 历史合理中枢"
+                
+            c2.metric("10 年历史分位数", f"{pct_rank}%", delta=status_eval)
 
-                close_vals = df_hist["close"].values
-                cur_close = close_vals[-1]
-                pct_rank = int((close_vals < cur_close).mean() * 100)
-                hist_max = close_vals.max()
-                hist_min = close_vals.min()
-                hist_mean = close_vals.mean()
-                p80 = np.percentile(close_vals, 80)
-                p20 = np.percentile(close_vals, 20)
+            if amt_rank is not None:
+                amt_eval = "🟢 极度冷清 (地量)" if amt_rank <= 20 else ("🔴 极度放量 (天量)" if amt_rank >= 80 else "⚖️ 活跃度适中")
+                c3.metric("资金热度 (成交额分位)", f"{amt_rank}%", delta=amt_eval)
+            else:
+                c3.metric("10 年波动区间", f"{hist_min:.1f} ~ {hist_max:.1f}")
 
-                # 成交额分位（资金关注度代理指标）
-                has_amount = "amount" in df_hist.columns
-                amt_rank = None
-                if has_amount:
-                    df_hist["amount"] = pd.to_numeric(df_hist["amount"], errors="coerce")
-                    amt_vals = df_hist["amount"].dropna().values
-                    if len(amt_vals) > 0:
-                        cur_amt = amt_vals[-1]
-                        amt_rank = int((amt_vals < cur_amt).mean() * 100)
+            c4.metric("10 年历史跨度", f"{len(df_hist)} 交易日", delta=f"{start_date_str[:4]} ~ 至今")
 
-                # 顶部 KPI 指标
-                c_i1, c_i2, c_i3, c_i4 = st.columns(4)
-                c_i1.metric(
-                    f"当前【{sel_ind}】指数点位",
-                    f"{cur_close:.1f}",
-                    delta=f"{cur_close - hist_mean:+.1f} 偏离10年均值"
-                )
+            # 绘制 10 年走势与分位通道
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=df_hist["date_str"], y=[p80] * len(df_hist),
+                name="80% 分位 (高位过热预警线)",
+                line=dict(color="rgba(231, 76, 60, 0.75)", width=1.5, dash="dash")
+            ))
+            fig.add_trace(go.Scatter(
+                x=df_hist["date_str"], y=[hist_mean] * len(df_hist),
+                name="10 年历史均值中枢",
+                line=dict(color="rgba(243, 156, 18, 0.85)", width=1.8)
+            ))
+            fig.add_trace(go.Scatter(
+                x=df_hist["date_str"], y=[p20] * len(df_hist),
+                name="20% 分位 (低估黄金坑支撑线)",
+                line=dict(color="rgba(46, 204, 113, 0.75)", width=1.5, dash="dash")
+            ))
+            fig.add_trace(go.Scatter(
+                x=df_hist["date_str"], y=df_hist["close"],
+                name=f"{sel_ind} 10年指数走势",
+                line=dict(color="#0984e3", width=2.2),
+                fill="tonexty",
+                fillcolor="rgba(9, 132, 227, 0.04)"
+            ))
 
-                status_color = "🟢 历史极度低估区" if pct_rank <= 20 else ("🔴 历史高位拥挤区" if pct_rank >= 80 else "⚖️ 历史合理中枢")
-                c_i2.metric("10年历史分位数", f"{pct_rank}%", delta=status_color)
-
-                if amt_rank is not None:
-                    amt_status = "🟢 资金极度冷清" if amt_rank <= 20 else ("🔴 资金极度活跃" if amt_rank >= 80 else "⚖️ 资金正常")
-                    c_i3.metric("成交额分位(资金热度)", f"{amt_rank}%", delta=amt_status)
-                else:
-                    c_i3.metric("10年区间(最低~最高)", f"{hist_min:.1f} ~ {hist_max:.1f}")
-
-                c_i4.metric("10年数据天数", f"{len(close_vals)} 天")
-
-                # 绘制 10 年历史走势与分位通道
-                fig_ind = go.Figure()
-                fig_ind.add_trace(go.Scatter(
-                    x=df_hist["date_str"], y=[p80] * len(df_hist),
-                    name="80% 分位 (高位过热线)", line=dict(color="rgba(231, 76, 60, 0.7)", dash="dash")
-                ))
-                fig_ind.add_trace(go.Scatter(
-                    x=df_hist["date_str"], y=[hist_mean] * len(df_hist),
-                    name="10年均值基准", line=dict(color="rgba(243, 156, 18, 0.8)", width=1.5)
-                ))
-                fig_ind.add_trace(go.Scatter(
-                    x=df_hist["date_str"], y=[p20] * len(df_hist),
-                    name="20% 分位 (低估潜伏线)", line=dict(color="rgba(46, 204, 113, 0.7)", dash="dash")
-                ))
-                fig_ind.add_trace(go.Scatter(
-                    x=df_hist["date_str"], y=df_hist["close"],
-                    name=f"{sel_ind} 指数点位", line=dict(color="#0984e3", width=2),
-                ))
-
-                fig_ind.update_layout(
-                    title=f"【{sel_ind}】板块 10 年历史走势与分位通道（{df_hist['date_str'].iloc[0]} ~ {df_hist['date_str'].iloc[-1]}）",
-                    xaxis=dict(tickangle=-45, gridcolor="rgba(128,128,128,0.2)", nticks=20),
-                    yaxis=dict(title="板块指数点位", gridcolor="rgba(128,128,128,0.2)"),
-                    hovermode="x unified", height=450,
-                    legend=dict(orientation="h", y=1.1)
-                )
-                st.plotly_chart(fig_ind, use_container_width=True)
-
-                st.caption(f"📊 数据范围：{df_hist['date_str'].iloc[0]} 至 {df_hist['date_str'].iloc[-1]}，共 {len(close_vals)} 个交易日 · 数据来源：AkShare 东方财富")
+            fig.update_layout(
+                title=f"【{sel_ind}】10 年完整历史周期与分位带（{start_date_str} 至 {end_date_str}）",
+                xaxis=dict(tickangle=-45, gridcolor="rgba(128,128,128,0.2)", nticks=15),
+                yaxis=dict(title="行业板块指数点位", gridcolor="rgba(128,128,128,0.2)"),
+                hovermode="x unified",
+                height=480,
+                legend=dict(orientation="h", y=1.08, x=0)
+            )
+            st.plotly_chart(fig, use_container_width=True)
+            st.caption(f"📊 数据覆盖：{start_date_str} ~ {end_date_str} · 交易日总数：{len(df_hist)} 天 · 高速原生引擎直连")
 
     # ==================== Tab 2: 股债性价比 ERP ====================
     with tab_erp:
