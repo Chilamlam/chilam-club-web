@@ -1,5 +1,6 @@
 """
 全市场毫秒级实时行情与多周期 K 线图引擎 (A股/指数/ETF/港股/美股/大宗商品)
+自适应不同市场的交易时间轴 (A股 4小时, 港股 5.5小时, 美股 6.5小时)
 """
 import streamlit as st
 import pandas as pd
@@ -9,45 +10,85 @@ import json
 import re
 from datetime import datetime
 
-def _format_symbol(raw_symbol: str) -> tuple[str, str]:
+def _format_symbol(raw_symbol: str) -> tuple[str, str, str]:
     """
     智能识别输入的代码并格式化为标准市场代码
-    返回: (tencent_code, asset_type)
+    返回: (tencent_code, asset_type, market_type)
+    market_type: "A_SHARE", "HK_SHARE", "US_SHARE", "FUTURES"
     """
     s = raw_symbol.strip().upper()
     
     # 纯数字
     if re.match(r'^\d{6}$', s):
         if s.startswith(('60', '68', '51', '58', '000', '999')):
-            return f"sh{s}", "A股/ETF"
+            return f"sh{s}", "A股/ETF", "A_SHARE"
         else:
-            return f"sz{s}", "A股/ETF"
+            return f"sz{s}", "A股/ETF", "A_SHARE"
             
     # 港股 5位纯数字
     if re.match(r'^\d{5}$', s):
-        return f"r_hk{s}", "港股"
+        return f"r_hk{s}", "港股", "HK_SHARE"
         
     # 带前缀的 A股/指数
     if s.startswith(('SH', 'SZ')):
-        return s.lower(), "A股/指数"
+        return s.lower(), "A股/指数", "A_SHARE"
         
     # 港股带 HK 前缀
     if s.startswith('HK'):
         code_num = s.replace('HK', '')
-        return f"r_hk{code_num.zfill(5)}", "港股"
+        return f"r_hk{code_num.zfill(5)}", "港股", "HK_SHARE"
         
     # 美股 (全英文字母)
     if re.match(r'^[A-Z\.]+$', s):
         # 常见商品期货简码
-        if s in ('GC', 'GOLD'): return "hf_GC", "商品期货(黄金)"
-        if s in ('CL', 'OIL'): return "hf_CL", "商品期货(原油)"
-        return f"us{s.replace('.', '')}", "美股"
+        if s in ('GC', 'GOLD'): return "hf_GC", "商品期货(黄金)", "FUTURES"
+        if s in ('CL', 'OIL'): return "hf_CL", "商品期货(原油)", "FUTURES"
+        return f"us{s.replace('.', '')}", "美股", "US_SHARE"
         
     # 大宗商品期货前缀
     if s.startswith('HF_'):
-        return s.lower(), "商品期货"
+        return s.lower(), "商品期货", "FUTURES"
 
-    return s.lower(), "通用标的"
+    return s.lower(), "通用标的", "A_SHARE"
+
+
+def _generate_market_timeline(market_type: str) -> list:
+    """生成各个市场完整的交易时间轴"""
+    timeline = []
+    if market_type == "A_SHARE":
+        # 早盘 09:30 - 11:30 (121分钟)
+        for h in (9, 10, 11):
+            for m in range(60):
+                if h == 9 and m < 30: continue
+                if h == 11 and m > 30: continue
+                timeline.append(f"{h:02d}:{m:02d}")
+        # 午盘 13:00 - 15:00 (121分钟)
+        for h in (13, 14, 15):
+            for m in range(60):
+                if h == 15 and m > 0: continue
+                timeline.append(f"{h:02d}:{m:02d}")
+    elif market_type == "HK_SHARE":
+        # 港股 09:30-12:00, 13:00-16:00
+        for h in (9, 10, 11, 12):
+            for m in range(60):
+                if h == 9 and m < 30: continue
+                if h == 12 and m > 0: continue
+                timeline.append(f"{h:02d}:{m:02d}")
+        for h in (13, 14, 15, 16):
+            for m in range(60):
+                if h == 16 and m > 0: continue
+                timeline.append(f"{h:02d}:{m:02d}")
+    elif market_type == "US_SHARE":
+        # 美股夏令时北京时间 21:30 - 04:00
+        for h in (21, 22, 23, 0, 1, 2, 3, 4):
+            for m in range(60):
+                if h == 21 and m < 30: continue
+                if h == 4 and m > 0: continue
+                timeline.append(f"{h:02d}:{m:02d}")
+    else:
+        # 通用 24 小时整点
+        timeline = [f"{h:02d}:00" for h in range(24)]
+    return list(dict.fromkeys(timeline))
 
 
 @st.cache_data(ttl=5)
@@ -136,7 +177,6 @@ def get_kline_data(code: str, period: str = "day") -> pd.DataFrame:
     """
     获取多周期 K 线数据 (m5, m15, m30, m60, day)
     """
-    # 转换周期参数
     period_map = {
         "5分钟": "m5",
         "15分钟": "m15",
@@ -160,10 +200,8 @@ def get_kline_data(code: str, period: str = "day") -> pd.DataFrame:
             if k_raw:
                 records = []
                 for item in k_raw:
-                    # 格式: [date, open, close, high, low, vol, ...]
                     if len(item) >= 6:
                         d_str = str(item[0])
-                        # 格式化日期时间
                         if len(d_str) == 12: # 202608281030
                             dt_fmt = f"{d_str[4:6]}-{d_str[6:8]} {d_str[8:10]}:{d_str[10:12]}"
                         elif len(d_str) == 8: # 20260828
@@ -187,7 +225,7 @@ def get_kline_data(code: str, period: str = "day") -> pd.DataFrame:
 
 def render_live_quote_page():
     st.header("⚡ 毫秒级全市场实时行情与 K 线看板")
-    st.caption("直连极速行情通道，支持 A股 / 港股 / 美股 / ETF / 指数 / 大宗商品 多周期切换")
+    st.caption("直连极速行情通道，支持 A股 / 港股 / 美股 / ETF / 指数 / 大宗商品 多周期与全交易时段完整自适应坐标")
 
     # 快捷热门预设
     st.markdown("**🔥 热门快速直达：**")
@@ -227,7 +265,7 @@ def render_live_quote_page():
         st.info("请输入标的代码。")
         return
 
-    code, asset_type = _format_symbol(user_input)
+    code, asset_type, market_type = _format_symbol(user_input)
 
     # 获取实时报价
     quote = get_realtime_quote(code)
@@ -266,13 +304,13 @@ def render_live_quote_page():
     if period == "分时走势":
         df_min = get_minute_line(code)
         if df_min.empty:
-            st.info("💡 该标的暂无当日分时明细，可切换至下方分钟 K 线查看。")
+            st.info("💡 该标的暂无当日分时明细，可切换至上方分钟 K 线查看。")
         else:
             last_close = quote.get("last_close", df_min['price'].iloc[0])
             min_p = df_min['price'].min()
             max_p = df_min['price'].max()
             
-            # 计算以昨收为基准的动态对称坐标范围，避免从0开始导致被压缩成一条直线
+            # Y 轴：以昨收为基准的动态对称坐标范围
             max_dev = max(abs(max_p - last_close), abs(min_p - last_close))
             if max_dev == 0:
                 max_dev = last_close * 0.01
@@ -284,24 +322,33 @@ def render_live_quote_page():
             df_min['cum_amt'] = (df_min['price'] * df_min['vol']).cumsum()
             df_min['avg_price'] = df_min['cum_amt'] / df_min['cum_vol'].replace(0, 1)
 
+            # X 轴：根据市场类型生成完整的一天交易时间轴模板
+            full_timeline = _generate_market_timeline(market_type)
+            
+            # 将当日产生的数据左连接到全天交易时间轴上，保留盘中剩余时间的完整横向跨度
+            df_full_min = pd.DataFrame({"time": full_timeline})
+            df_full_min = pd.merge(df_full_min, df_min, on="time", how="left")
+
             fig_min = go.Figure()
             
             # 分时现价蓝线
             fig_min.add_trace(go.Scatter(
-                x=df_min['time'], 
-                y=df_min['price'], 
+                x=df_full_min['time'], 
+                y=df_full_min['price'], 
                 mode='lines', 
                 name='实时现价', 
-                line=dict(color='#0984e3', width=2)
+                line=dict(color='#0984e3', width=2),
+                connectgaps=False
             ))
 
             # 分时均价黄线
             fig_min.add_trace(go.Scatter(
-                x=df_min['time'],
-                y=df_min['avg_price'],
+                x=df_full_min['time'],
+                y=df_full_min['avg_price'],
                 mode='lines',
                 name='分时均价',
-                line=dict(color='#f39c12', width=1.5, dash='dot')
+                line=dict(color='#f39c12', width=1.5, dash='dot'),
+                connectgaps=False
             ))
             
             # 昨收基准参考线 (中轴)
@@ -313,17 +360,35 @@ def render_live_quote_page():
                 annotation_position="bottom right"
             )
 
+            # 确定 X 轴主要关键刻度点 (如 09:30, 10:30, 11:30/13:00, 14:00, 15:00)
+            if market_type == "A_SHARE":
+                tick_vals = ["09:30", "10:30", "11:30", "14:00", "15:00"]
+                tick_texts = ["09:30", "10:30", "11:30/13:00", "14:00", "15:00"]
+            elif market_type == "HK_SHARE":
+                tick_vals = ["09:30", "10:30", "12:00", "14:30", "16:00"]
+                tick_texts = ["09:30", "10:30", "12:00/13:00", "14:30", "16:00"]
+            elif market_type == "US_SHARE":
+                tick_vals = ["21:30", "23:00", "01:00", "02:30", "04:00"]
+                tick_texts = ["21:30", "23:00", "01:00", "02:30", "04:00"]
+            else:
+                tick_vals = None
+                tick_texts = None
+
+            xaxis_cfg = dict(
+                type='category',
+                gridcolor='rgba(128,128,128,0.15)'
+            )
+            if tick_vals:
+                xaxis_cfg["tickmode"] = "array"
+                xaxis_cfg["tickvals"] = [v for v in tick_vals if v in full_timeline]
+                xaxis_cfg["ticktext"] = tick_texts
+
             fig_min.update_layout(
-                title=f"{name} ({user_input}) 今日实时分时走势",
-                xaxis=dict(
-                    type='category',
-                    tickangle=-45, 
-                    nticks=12,
-                    gridcolor='rgba(128,128,128,0.15)'
-                ),
+                title=f"{name} ({user_input}) 当日全天分时图 ({asset_type})",
+                xaxis=xaxis_cfg,
                 yaxis=dict(
                     title="价格", 
-                    range=[y_min, y_max],  # 强制自适应价格区间，拒绝从 0 开始被压缩成直线
+                    range=[y_min, y_max],
                     autorange=False,
                     gridcolor='rgba(128,128,128,0.15)'
                 ),
