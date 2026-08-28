@@ -29,45 +29,61 @@ jobs:
         pip install pandas tushare akshare requests plotly lxml beautifulsoup4 cloudscraper
 
     - name: Run RPS Strategy
+      continue-on-error: true
       env:
         TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
       run: python daily_rps_pro.py
 
     - name: Run ETF Strategy
+      continue-on-error: true
       env:
         TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
       run: python daily_etf_pro.py
 
     - name: Run Market Monitor
+      continue-on-error: true
       env:
         TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: python daily_market_monitor.py
 
     - name: Run Speculation Scan
+      continue-on-error: true
       env:
         TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
       run: python daily_speculation.py
 
     - name: Run Guru Loader
+      continue-on-error: true
       run: python daily_guru_loader.py
     
     - name: Run Anomaly Radar
+      continue-on-error: true
       env:
         TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
       run: python daily_radar.py
 
     - name: Run Market Snapshot
+      continue-on-error: true
       env:
         TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
       run: python daily_snapshot.py
 
-      
+    # 阶段新高突破池（此前漏配，导致 breakout_stocks.csv 长期停在 2026-08-24）
+    - name: Run Breakout Scan
+      continue-on-error: true
+      env:
+        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+      run: python daily_breakout.py
+
     - name: Show data freshness
       run: |
         echo "===== 数据新鲜度自检 ====="
-        tail -1 data/market_sentiment.csv || true
-        tail -1 data/index_history.csv || true
+        echo "-- 市场情绪:"    ; tail -1 data/market_sentiment.csv || true
+        echo "-- 指数历史:"    ; tail -1 data/index_history.csv || true
+        echo "-- RPS 强势股:"  ; tail -1 data/strong_stocks.csv | awk -F, '{print $NF}' || true
+        echo "-- 突破池:"      ; tail -1 data/breakout_stocks.csv | awk -F, '{print $NF}' || true
+        echo "-- 连板天梯:"    ; python -c "import json;d=json.load(open('data/limit_ladder.json'));print(d['date'],'涨停',d['total_count'],'家 最高',d['max_height'],'板')" || true
 
     # ★★★ 防弹提交：本地提交后 rebase 远程，冲突以本地新数据为准，并重试推送 ★★★
     - name: Commit and push changes
