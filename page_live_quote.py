@@ -269,28 +269,67 @@ def render_live_quote_page():
             st.info("💡 该标的暂无当日分时明细，可切换至下方分钟 K 线查看。")
         else:
             last_close = quote.get("last_close", df_min['price'].iloc[0])
+            min_p = df_min['price'].min()
+            max_p = df_min['price'].max()
+            
+            # 计算以昨收为基准的动态对称坐标范围，避免从0开始导致被压缩成一条直线
+            max_dev = max(abs(max_p - last_close), abs(min_p - last_close))
+            if max_dev == 0:
+                max_dev = last_close * 0.01
+            y_min = last_close - max_dev * 1.15
+            y_max = last_close + max_dev * 1.15
+
+            # 计算分时成交均价黄线
+            df_min['cum_vol'] = df_min['vol'].cumsum()
+            df_min['cum_amt'] = (df_min['price'] * df_min['vol']).cumsum()
+            df_min['avg_price'] = df_min['cum_amt'] / df_min['cum_vol'].replace(0, 1)
+
             fig_min = go.Figure()
             
-            # 分时均线
+            # 分时现价蓝线
             fig_min.add_trace(go.Scatter(
                 x=df_min['time'], 
                 y=df_min['price'], 
                 mode='lines', 
-                name='现价', 
-                line=dict(color='#00d2d3', width=2),
-                fill='tozeroy',
-                fillcolor='rgba(0, 210, 211, 0.08)'
+                name='实时现价', 
+                line=dict(color='#0984e3', width=2)
+            ))
+
+            # 分时均价黄线
+            fig_min.add_trace(go.Scatter(
+                x=df_min['time'],
+                y=df_min['avg_price'],
+                mode='lines',
+                name='分时均价',
+                line=dict(color='#f39c12', width=1.5, dash='dot')
             ))
             
-            # 昨收基准参考线
-            fig_min.add_hline(y=last_close, line_dash="dash", line_color="gray", annotation_text=f"昨收 {last_close:.2f}")
+            # 昨收基准参考线 (中轴)
+            fig_min.add_hline(
+                y=last_close, 
+                line_dash="dash", 
+                line_color="rgba(128,128,128,0.7)", 
+                annotation_text=f" 昨收基准 {last_close:.2f}",
+                annotation_position="bottom right"
+            )
 
             fig_min.update_layout(
-                title=f"{name} ({user_input}) 当日分时图",
-                xaxis=dict(tickangle=-45, gridcolor='rgba(128,128,128,0.2)'),
-                yaxis=dict(title="价格", gridcolor='rgba(128,128,128,0.2)'),
+                title=f"{name} ({user_input}) 今日实时分时走势",
+                xaxis=dict(
+                    type='category',
+                    tickangle=-45, 
+                    nticks=12,
+                    gridcolor='rgba(128,128,128,0.15)'
+                ),
+                yaxis=dict(
+                    title="价格", 
+                    range=[y_min, y_max],  # 强制自适应价格区间，拒绝从 0 开始被压缩成直线
+                    autorange=False,
+                    gridcolor='rgba(128,128,128,0.15)'
+                ),
                 hovermode="x unified",
-                height=450
+                height=480,
+                legend=dict(orientation="h", y=1.08, x=0)
             )
             st.plotly_chart(fig_min, use_container_width=True)
 
