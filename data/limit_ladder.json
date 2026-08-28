@@ -1,0 +1,72 @@
+{
+  "date": "2026-08-24",
+  "update_time": "2026-08-24 18:30:00",
+  "total_count": 28,
+  "max_height": 4,
+  "stocks": [
+    {
+      "code": "002603",
+      "name": "以岭药业",
+      "industry": "中药",
+      "limit_times": 4,
+      "first_time": "09:30:15",
+      "reason": "中药领涨龙头，业绩预期修复"
+    },
+    {
+      "code": "002107",
+      "name": "沃华医药",
+      "industry": "中药",
+      "limit_times": 3,
+      "first_time": "09:35:00",
+      "reason": "中药连板梯队中军"
+    },
+    {
+      "code": "000017",
+      "name": "深中华A",
+      "industry": "饰品",
+      "limit_times": 3,
+      "first_time": "09:42:10",
+      "reason": "消费复苏零售概念"
+    },
+    {
+      "code": "000931",
+      "name": "中 关 村",
+      "industry": "化学制药",
+      "limit_times": 3,
+      "first_time": "09:50:22",
+      "reason": "化学制药主升"
+    },
+    {
+      "code": "002017",
+      "name": "东信和平",
+      "industry": "通信设备",
+      "limit_times": 2,
+      "first_time": "10:15:30",
+      "reason": "通信数字经济"
+    },
+    {
+      "code": "002716",
+      "name": "湖南白银",
+      "industry": "贵金属",
+      "limit_times": 2,
+      "first_time": "10:30:45",
+      "reason": "有色贵金属避险升温"
+    },
+    {
+      "code": "002015",
+      "name": "协鑫能科",
+      "industry": "新型电力",
+      "limit_times": 1,
+      "first_time": "13:10:00",
+      "reason": "新能源电池与绿电"
+    },
+    {
+      "code": "002906",
+      "name": "华阳集团",
+      "industry": "汽车零部件",
+      "limit_times": 1,
+      "first_time": "14:05:12",
+      "reason": "智能座舱汽车产业链"
+    }
+  ]
+}

@@ -218,32 +218,35 @@ def render_market_dashboard():
 
     # === D2. 连板情绪天梯 (涨停高度与梯队) ===
     st.subheader("🪜 连板情绪天梯 (打板与连板接力)")
-    if ai_data and 'limit_reasons' in ai_data and len(ai_data['limit_reasons']) > 0:
-        df_reasons = pd.DataFrame(ai_data['limit_reasons'])
-        # 尝试从 reason 中提取连板数
-        def _extract_lb(text):
-            import re
-            m = re.search(r'(\d+)连板', str(text))
-            if m: return int(m.group(1))
-            if '首板' in str(text) or '涨停' in str(text): return 1
-            return 1
-            
-        df_reasons['连板数'] = df_reasons['reason'].apply(_extract_lb)
-        ladder_df = df_reasons.sort_values(['连板数', 'name'], ascending=[False, True])
+    ladder_raw = load_json("data/limit_ladder.json")
+    
+    if ladder_raw and "stocks" in ladder_raw and len(ladder_raw["stocks"]) > 0:
+        total_zt = ladder_raw.get("total_count", len(ladder_raw["stocks"]))
+        max_h = ladder_raw.get("max_height", 1)
+        st.caption(f"👑 今日涨停共 **{total_zt}** 家 | 市场最高板：**{max_h} 连板** (统计日期: `{ladder_raw.get('date', '今日')}`)")
         
-        max_lb = ladder_df['连板数'].max()
-        st.caption(f"👑 今日市场最高板：**{max_lb} 连板**")
+        df_zt_all = pd.DataFrame(ladder_raw["stocks"])
+        df_zt_all['limit_times'] = pd.to_numeric(df_zt_all['limit_times'], errors='coerce').fillna(1).astype(int)
         
-        # 按梯队展示
-        for lb in sorted(ladder_df['连板数'].unique(), reverse=True):
-            sub = ladder_df[ladder_df['连板数'] == lb]
+        # 梯队折叠展示
+        for lb in sorted(df_zt_all['limit_times'].unique(), reverse=True):
+            sub = df_zt_all[df_zt_all['limit_times'] == lb]
             badge = f"🔥 {lb} 连板" if lb > 1 else "🌱 首板"
             with st.expander(f"{badge} ({len(sub)} 家)", expanded=(lb >= 2)):
                 cols = st.columns(min(len(sub), 4))
                 for idx, (_, r) in enumerate(sub.iterrows()):
                     with cols[idx % 4]:
-                        st.markdown(f"**{r['name']}**")
-                        st.caption(r['reason'])
+                        st.markdown(f"**{r['name']}** `{r.get('code', '')}`")
+                        ind_str = r.get('industry', '-')
+                        st.caption(f"行业: `{ind_str}`")
+                        if r.get('reason'):
+                            st.caption(f"💡 {r['reason']}")
+    elif ai_data and 'limit_reasons' in ai_data and len(ai_data['limit_reasons']) > 0:
+        # 降级展示 AI 抓到的涨停龙头
+        st.caption("💡 当前为 AI 推演提取的重点龙头梯队：")
+        df_reasons = pd.DataFrame(ai_data['limit_reasons'])
+        for idx, r in df_reasons.iterrows():
+            st.markdown(f"- **{r['name']}**: {r.get('reason', '')}")
     else:
         st.info("今日暂无涨停连板梯队数据。")
 

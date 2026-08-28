@@ -19,6 +19,7 @@ INDEX_PATH = "data/index_history.csv"
 SENTIMENT_PATH = "data/market_sentiment.csv"
 SECTOR_PATH = "data/sector_hot.csv"
 AI_RESULT_PATH = "data/ai_market_analysis.json"
+LIMIT_LADDER_PATH = "data/limit_ladder.json"
 
 if MY_TOKEN:
     ts.set_token(MY_TOKEN)
@@ -154,24 +155,50 @@ def get_akshare_data(trade_date_str):
     else:
         news_stream = ["(数据源为空，请检查网络)"]
 
-    # 修改：强制使用刚才推算出的真实交易日
+    # 修改：强制使用刚才推算出的真实交易日，抓取并保存全量涨停梯队
+    all_zt_records = []
     try:
-        print(f"🔥 正在抓取 {trade_date_str} 涨停池...")
+        print(f"🔥 正在抓取 {trade_date_str} 全量涨停池...")
         df_zt = ak.stock_zt_pool_em(date=trade_date_str)
         if df_zt.empty: df_zt = ak.stock_zt_pool_em(date=None)
         if not df_zt.empty:
             cols = df_zt.columns.tolist()
             name_col = next((c for c in cols if '名称' in c), '名称')
+            code_col = next((c for c in cols if '代码' in c), '代码')
             ind_col = next((c for c in cols if '行业' in c), '所属行业')
             lb_col = next((c for c in cols if '连板' in c), '连板数')
-            if lb_col in cols:
-                df_zt = df_zt.sort_values(lb_col, ascending=False).head(15)
-                for _, row in df_zt.iterrows():
-                    top_limit_stocks.append({
-                        "name": row[name_col],
-                        "industry": row[ind_col],
-                        "limit_times": row[lb_col]
-                    })
+            time_col = next((c for c in cols if '最后封板时间' in c or '封板时间' in c), None)
+            reason_col = next((c for c in cols if '原因' in c or '题材' in c), None)
+            
+            # 排序后提取全量连板梯队
+            df_zt[lb_col] = pd.to_numeric(df_zt[lb_col], errors='coerce').fillna(1).astype(int)
+            df_zt_sorted = df_zt.sort_values(by=[lb_col, name_col], ascending=[False, True])
+            
+            for _, row in df_zt_sorted.iterrows():
+                rec = {
+                    "code": str(row[code_col]) if code_col in row else "",
+                    "name": str(row[name_col]),
+                    "industry": str(row[ind_col]) if ind_col in row else "-",
+                    "limit_times": int(row[lb_col]),
+                    "first_time": str(row[time_col]) if time_col and pd.notna(row[time_col]) else "",
+                    "reason": str(row[reason_col]) if reason_col and pd.notna(row[reason_col]) else ""
+                }
+                all_zt_records.append(rec)
+                
+            # 保存真实连板天梯数据供 Streamlit 直接读取
+            ladder_data = {
+                "date": trade_date_str,
+                "update_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "total_count": len(all_zt_records),
+                "max_height": int(df_zt_sorted[lb_col].max()) if not df_zt_sorted.empty else 1,
+                "stocks": all_zt_records
+            }
+            with open(LIMIT_LADDER_PATH, "w", encoding="utf-8") as f:
+                json.dump(ladder_data, f, ensure_ascii=False, indent=2)
+            print(f"✅ 涨停天梯数据已保存至 {LIMIT_LADDER_PATH}，共 {len(all_zt_records)} 只标的！")
+
+            # 供 AI prompt 使用的前 15 龙头
+            top_limit_stocks = all_zt_records[:15]
     except Exception as e:
         print(f"⚠️ 涨停池获取异常: {e}")
 
