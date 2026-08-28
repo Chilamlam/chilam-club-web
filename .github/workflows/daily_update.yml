@@ -2,7 +2,8 @@ name: Daily Update
 
 on:
   schedule:
-    - cron: '30 11 * * *' # 北京时间 19:30 自动触发，完美避开数据延迟
+    - cron: '37 11 * * *' # 北京时间 19:37 主跑批（错开整点/半点高峰，减少 Actions 排队延迟）
+    - cron: '20 14 * * *' # 北京时间 22:20 兜底补跑（主跑批被延迟或失败时保证当日数据落地）
   workflow_dispatch:      # 保留手动触发按钮，方便调试
 
 jobs:
@@ -62,12 +63,23 @@ jobs:
       run: python daily_snapshot.py
 
       
-    # ★★★ 终极防弹提交：先打包保存数据，再拉取远程更新，最后推送 ★★★
+    - name: Show data freshness
+      run: |
+        echo "===== 数据新鲜度自检 ====="
+        tail -1 data/market_sentiment.csv || true
+        tail -1 data/index_history.csv || true
+
+    # ★★★ 防弹提交：本地提交后 rebase 远程，冲突以本地新数据为准，并重试推送 ★★★
     - name: Commit and push changes
       run: |
         git config --local user.name "GitHub Action"
         git config --local user.email "action@github.com"
         git add data/
         git commit -m "Auto-update daily data [skip ci]" || echo "No changes to commit"
-        git pull origin main --rebase
-        git push
+        for i in 1 2 3; do
+          git pull origin main --rebase && git push && exit 0
+          echo "push attempt $i failed, retrying..."
+          sleep 15
+        done
+        echo "::error::推送失败，data/ 未能写回仓库"
+        exit 1
