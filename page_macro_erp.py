@@ -14,73 +14,89 @@ from datetime import datetime, timedelta
 
 # ==================== 行业 10 年历史数据引擎 (高速高可用多节点) ====================
 
-INDUSTRY_CODE_MAP = {
-    "化学制药": "BK0465", "中药": "BK0467", "生物制品": "BK0466", "医疗器械": "BK0468", "医药商业": "BK0469",
-    "半导体": "BK1036", "消费电子": "BK0987", "电子元件": "BK0459", "光学光电子": "BK0460", "电子化学品": "BK1026",
-    "软件开发": "BK0737", "互联网服务": "BK0447", "计算机设备": "BK0485", "通信设备": "BK0448", "通信服务": "BK0738",
-    "光伏设备": "BK1031", "电池": "BK1033", "风电设备": "BK1028", "电网设备": "BK1029", "电力行业": "BK0428",
-    "白酒": "BK0896", "酿酒行业": "BK0477", "食品饮料": "BK0438", "家电行业": "BK0456", "农牧饲渔": "BK0433", "旅游酒店": "BK0485",
-    "汽车整车": "BK0481", "汽车零部件": "BK0481", "汽车服务": "BK1016",
-    "证券": "BK0473", "银行": "BK0475", "保险": "BK0474", "多元金融": "BK0733",
-    "有色金属": "BK0478", "钢铁行业": "BK0479", "煤炭行业": "BK0437", "石油行业": "BK0464", "贵金属": "BK0732", "小金属": "BK1025",
-    "化学原料": "BK1019", "化学制品": "BK0538", "化纤行业": "BK0440", "农化制品": "BK0731",
-    "通用设备": "BK0545", "专用设备": "BK0546", "自动化设备": "BK1027", "工程机械": "BK0736", "仪器仪表": "BK0458",
-    "航天航空": "BK0430", "船舶制造": "BK0729", "交运设备": "BK0429", "铁路公路": "BK0424", "航运港口": "BK0450",
-    "房地产开发": "BK0451", "房地产服务": "BK1045", "装修建材": "BK0476", "建筑装饰": "BK0476", "水泥建材": "BK0425",
-    "游戏": "BK1046", "文化传媒": "BK0486", "影视院线": "BK0486", "商业百货": "BK0453", "纺织服装": "BK0436", "造纸印刷": "BK0432"
+# 常用行业及别名标准 QuoteID 映射表 (覆盖 100% 常见行业板块)
+INDUSTRY_SECID_MAP = {
+    # 医药医疗
+    "化学制药": "90.BK0465", "中药": "90.BK0467", "生物制品": "90.BK0466", "医疗器械": "90.BK0468", "医药商业": "90.BK0469",
+    "医药生物": "90.BK0465", "制药": "90.BK0465", "创新药": "90.BK1106",
+    # 科技与电子
+    "半导体": "90.BK1036", "芯片": "90.BK1036", "消费电子": "90.BK0987", "电子元件": "90.BK0459", "光学光电子": "90.BK0460", "电子化学品": "90.BK1026",
+    "软件开发": "90.BK0737", "互联网服务": "90.BK0447", "计算机设备": "90.BK0485", "通信设备": "90.BK0448", "通信服务": "90.BK0738",
+    "算力": "90.BK1137", "人工智能": "90.BK1128", "信创": "90.BK0737",
+    # 新能源与电力
+    "光伏设备": "90.BK1031", "光伏": "90.BK1031", "电池": "90.BK1033", "锂电池": "90.BK1033", "固态电池": "90.BK0968",
+    "风电设备": "90.BK1028", "电网设备": "90.BK1029", "电力行业": "90.BK0428", "电力": "90.BK0428",
+    # 大消费
+    "白酒": "90.BK0896", "酿酒行业": "90.BK0477", "食品饮料": "90.BK0438", "家用电器": "90.BK0456", "家电": "90.BK0456",
+    "农林牧渔": "90.BK0433", "农牧饲渔": "90.BK0433", "农业": "90.BK0433", "旅游酒店": "90.BK0485", "商贸零售": "90.BK0453",
+    "纺织服装": "90.BK0436", "商业百货": "90.BK0453",
+    # 汽车与制造
+    "汽车整车": "90.BK0481", "汽车零部件": "90.BK0481", "汽车服务": "90.BK1016", "汽车": "90.BK0481",
+    "通用设备": "90.BK0545", "专用设备": "90.BK0546", "自动化设备": "90.BK1027", "工程机械": "90.BK0736", "仪器仪表": "90.BK0458",
+    # 金融
+    "证券": "90.BK0473", "券商": "90.BK0473", "银行": "90.BK0475", "保险": "90.BK0474", "多元金融": "90.BK0733",
+    # 周期与原材料
+    "有色金属": "90.BK0478", "工业金属": "90.BK0478", "小金属": "90.BK1025", "贵金属": "90.BK0732",
+    "钢铁行业": "90.BK0479", "煤炭行业": "90.BK0437", "煤炭": "90.BK0437", "石油行业": "90.BK0464", "石油": "90.BK0464",
+    "化学原料": "90.BK1019", "化学制品": "90.BK0538", "化纤行业": "90.BK0440", "农化制品": "90.BK0731",
+    # 军工与重工
+    "航天航空": "90.BK0430", "军工": "90.BK0430", "船舶制造": "90.BK0729", "交运设备": "90.BK0429", "航运港口": "90.BK0450", "铁路公路": "90.BK0424",
+    # 地产基建
+    "房地产开发": "90.BK0451", "房地产": "90.BK0451", "房地产服务": "90.BK1045", "装修建材": "90.BK0476", "建筑装饰": "90.BK0476", "水泥建材": "90.BK0425",
+    # 传媒娱乐
+    "游戏": "90.BK1046", "文化传媒": "90.BK0486", "影视院线": "90.BK0486", "造纸印刷": "90.BK0432", "环保行业": "90.BK0728"
 }
+
+# 标准显示行业列表（过滤掉别名，展示规范大类）
+STANDARD_DISPLAY_INDUSTRIES = [
+    "半导体", "化学制药", "中药", "生物制品", "医疗器械", "消费电子", "软件开发", "互联网服务", "通信设备",
+    "光伏设备", "电池", "电网设备", "电力行业", "白酒", "食品饮料", "家用电器", "农林牧渔", "农牧饲渔",
+    "汽车零部件", "汽车整车", "证券", "银行", "保险", "有色金属", "煤炭行业", "钢铁行业", "石油行业",
+    "化学制品", "通用设备", "自动化设备", "航天航空", "房地产开发", "游戏", "文化传媒", "旅游酒店"
+]
 
 @st.cache_data(ttl=86400)
 def get_available_industry_list():
-    """获取所有预置和市场可用的行业板块列表"""
-    base_list = sorted(list(INDUSTRY_CODE_MAP.keys()))
-    # 结合 market_snapshot 的行业
-    if os.path.exists("data/market_snapshot.csv"):
-        try:
-            df_snap = pd.read_csv("data/market_snapshot.csv")
-            if "industry" in df_snap.columns:
-                extra = [str(x) for x in df_snap["industry"].dropna().unique() if str(x) not in ('-', 'nan', '')]
-                base_list = sorted(list(set(base_list + extra)))
-        except Exception:
-            pass
-    return base_list
+    """获取规范的行业板块下拉列表"""
+    return sorted(list(set(STANDARD_DISPLAY_INDUSTRIES)))
+
+
+def resolve_industry_secid(name: str) -> str:
+    """精准解析板块 QuoteID / secid"""
+    clean_name = name.strip()
+    if clean_name in INDUSTRY_SECID_MAP:
+        return INDUSTRY_SECID_MAP[clean_name]
+    
+    # 动态 Suggest 解析
+    try:
+        s_url = f"http://searchapi.eastmoney.com/api/suggest/get?input={urllib.parse.quote(clean_name)}&type=14"
+        req = urllib.request.Request(s_url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            s_data = json.loads(resp.read().decode("utf-8"))
+            items = s_data.get("QuotationCodeTable", {}).get("Data", [])
+            if items:
+                for it in items:
+                    qid = it.get("QuoteID", "")
+                    if qid and (qid.startswith("90.BK") or qid.startswith("1.") or qid.startswith("0.")):
+                        return qid
+                # 备选 Code
+                first_code = items[0].get("Code", "")
+                if first_code:
+                    return f"90.{first_code}" if not first_code.startswith("90.") else first_code
+    except Exception:
+        pass
+    return None
 
 
 @st.cache_data(ttl=1800, show_spinner="正在获取 10 年历史日K与分位数据...")
 def fetch_industry_10y_df(industry_name: str) -> pd.DataFrame:
     """
     通过原生 HTTP 高速多节点轮询获取行业板块 10 年日K (约2600条)
-    零第三方依赖，彻底规避 https 反爬断连
     """
-    code = INDUSTRY_CODE_MAP.get(industry_name)
-    
-    # 动态 Suggest 解析
-    if not code:
-        try:
-            s_url = f"http://searchapi.eastmoney.com/api/suggest/get?input={urllib.parse.quote(industry_name)}&type=14"
-            req = urllib.request.Request(s_url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-            with urllib.request.urlopen(req, timeout=3) as resp:
-                s_data = json.loads(resp.read().decode("utf-8"))
-                items = s_data.get("QuotationCodeTable", {}).get("Data", [])
-                if items:
-                    for it in items:
-                        c_val = it.get("Code", "")
-                        if c_val.startswith("BK"):
-                            code = c_val
-                            break
-                    if not code and items:
-                        code = items[0].get("Code")
-        except Exception:
-            pass
-
-    if not code:
+    secid = resolve_industry_secid(industry_name)
+    if not secid:
         return pd.DataFrame()
 
-    secid = f"90.{code}" if not code.startswith("90.") and not code.startswith("1.") and not code.startswith("0.") else code
-    if not any(secid.startswith(p) for p in ["90.", "1.", "0."]):
-        secid = f"90.{secid}"
-
-    # 多节点轮询容错
     nodes = [
         "push2his.eastmoney.com",
         "95.push2his.eastmoney.com",
@@ -132,18 +148,18 @@ def render_macro_erp_page():
 
         ind_options = get_available_industry_list()
         
-        # 默认选中化学制药或半导体
+        # 默认选中半导体或化学制药
         default_idx = 0
-        if "化学制药" in ind_options:
-            default_idx = ind_options.index("化学制药")
-        elif "半导体" in ind_options:
+        if "半导体" in ind_options:
             default_idx = ind_options.index("半导体")
+        elif "化学制药" in ind_options:
+            default_idx = ind_options.index("化学制药")
 
         c_sel, c_custom = st.columns([1.5, 1])
         with c_sel:
             sel_ind = st.selectbox("🎯 选择行业板块：", ind_options, index=default_idx)
         with c_custom:
-            custom_input = st.text_input("🔍 或输入任意行业/概念搜索：", placeholder="如: 创新药, 算力, 固态电池")
+            custom_input = st.text_input("🔍 或输入任意细分概念/行业（支持别名）：", placeholder="如: 农牧饲渔, 创新药, 算力, 芯片")
             if custom_input.strip():
                 sel_ind = custom_input.strip()
 
@@ -151,7 +167,7 @@ def render_macro_erp_page():
         df_hist = fetch_industry_10y_df(sel_ind)
 
         if df_hist is None or df_hist.empty:
-            st.warning(f"⚠️ 暂未匹配到【{sel_ind}】的 10 年历史行情数据，请尝试从下拉菜单选择标准行业。")
+            st.warning(f"⚠️ 暂未匹配到【{sel_ind}】的 10 年历史行情数据，请尝试从左侧下拉菜单选择标准行业。")
         else:
             close_vals = df_hist["close"].values
             cur_close = close_vals[-1]
