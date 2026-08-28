@@ -1,5 +1,5 @@
 """
-全球宏观资产与 A 股股债性价比 (ERP / FED 估值模型) & 行业流通市值占比历史分位
+全球宏观资产与 A 股股债性价比 (ERP / FED 估值模型) & 行业流通市值占比历史分位 (支持个股反查行业)
 """
 import streamlit as st
 import pandas as pd
@@ -17,26 +17,26 @@ from datetime import datetime, timedelta
 
 INDUSTRY_SINA_MAP = {
     # 医药医疗
-    "医疗器械": "sz159883", "化学制药": "sh512010", "生物制品": "sh512290", "中药": "sz159647", "医药商业": "sh512010",
-    "医药生物": "sh512010", "制药": "sh512010", "创新药": "sz159992",
+    "医疗器械": "sz159883", "医疗保健": "sz159883", "化学制药": "sh512010", "生物制品": "sh512290", "中药": "sz159647", "医药商业": "sh512010",
+    "医药生物": "sh512010", "制药": "sh512010", "创新药": "sz159992", "医药": "sh512010",
     # 科技与电子
-    "半导体": "sh512480", "芯片": "sz159995", "消费电子": "sz159732", "电子元件": "sz159732", "光学光电子": "sz159732",
-    "软件开发": "sh515230", "互联网服务": "sh515230", "计算机设备": "sh512720", "通信设备": "sh515880", "通信服务": "sh515880",
-    "算力": "sz159530", "人工智能": "sz159819", "游戏": "sz159869", "文化传媒": "sz159805",
+    "半导体": "sh512480", "芯片": "sz159995", "元器件": "sz159732", "消费电子": "sz159732", "电子元件": "sz159732", "光学光电子": "sz159732",
+    "软件开发": "sh515230", "软件服务": "sh515230", "互联网服务": "sh515230", "计算机设备": "sh512720", "通信设备": "sh515880", "通信服务": "sh515880",
+    "算力": "sz159530", "人工智能": "sz159819", "游戏": "sz159869", "文化传媒": "sz159805", "IT设备": "sh512720",
     # 新能源与电力
-    "光伏设备": "sh515790", "电池": "sz159755", "固态电池": "sz159755", "风电设备": "sh515790", "电网设备": "sh561560", "电力行业": "sh561560",
+    "光伏设备": "sh515790", "光伏": "sh515790", "电池": "sz159755", "电气设备": "sz159755", "固态电池": "sz159755", "风电设备": "sh515790", "电网设备": "sh561560", "电力行业": "sh561560", "电力": "sh561560",
     # 大消费
-    "白酒": "sh512690", "酿酒行业": "sh512690", "食品饮料": "sz159843", "家用电器": "sz159996", "家电": "sz159996",
-    "农林牧渔": "sz159825", "农牧饲渔": "sz159825", "农业": "sz159825", "旅游酒店": "sz159766", "商业百货": "sz159843",
+    "白酒": "sh512690", "酿酒行业": "sh512690", "食品饮料": "sz159843", "食品": "sz159843", "家用电器": "sz159996", "家电": "sz159996",
+    "农林牧渔": "sz159825", "农牧饲渔": "sz159825", "农业综合": "sz159825", "农业": "sz159825", "旅游酒店": "sz159766", "商业百货": "sz159843", "超市": "sz159843",
     "纺织服装": "sz159843",
     # 汽车与装备制造
-    "汽车整车": "sh516110", "汽车零部件": "sz159565", "汽车": "sh516110",
-    "通用设备": "sh512720", "专用设备": "sh512720", "自动化设备": "sz159779", "工程机械": "sh516970", "仪器仪表": "sz159779",
+    "汽车整车": "sh516110", "汽车零部件": "sz159565", "汽车配件": "sz159565", "汽车": "sh516110",
+    "通用设备": "sh512720", "通用机械": "sh512720", "专用设备": "sh512720", "专用机械": "sh512720", "自动化设备": "sz159779", "工程机械": "sh516970", "机械基件": "sh512720", "仪器仪表": "sz159779",
     "航天航空": "sh512660", "军工": "sh512660", "船舶制造": "sh512660", "交运设备": "sh516970",
     # 金融地产与周期
     "证券": "sh512880", "券商": "sh512880", "银行": "sh512800", "保险": "sh515630", "多元金融": "sh512880",
-    "有色金属": "sh512400", "工业金属": "sh512400", "贵金属": "sh518880", "煤炭行业": "sh515220", "钢铁行业": "sh515210", "石油行业": "sh561560",
-    "化学制品": "sh512010", "化学原料": "sh512400",
+    "有色金属": "sh512400", "有色": "sh512400", "工业金属": "sh512400", "贵金属": "sh518880", "煤炭行业": "sh515220", "煤炭": "sh515220", "钢铁行业": "sh515210", "钢铁": "sh515210", "石油行业": "sh561560", "石油": "sh561560",
+    "化学制品": "sh512010", "化学原料": "sh512400", "化工原料": "sh512400",
     "房地产开发": "sh512200", "房地产": "sh512200", "建筑装饰": "sh516970", "装修建材": "sh516970"
 }
 
@@ -76,11 +76,67 @@ def get_market_industry_mv_dict():
     return ind_circ_mv, total_circ_mv
 
 
+@st.cache_data(ttl=86400)
+def lookup_stock_info(query: str):
+    """
+    通过股票代码或名称反查其归属行业板块与市值现价
+    """
+    q = query.strip()
+    if not q:
+        return None
+        
+    snapshot_path = "data/market_snapshot.csv"
+    if os.path.exists(snapshot_path):
+        try:
+            df = pd.read_csv(snapshot_path)
+            # 优先精准匹配代码或名称
+            pure_codes = df["ts_code"].astype(str).str.split(".").str[0]
+            mask = (df["name"] == q) | (pure_codes == q) | (df["ts_code"] == q)
+            sub = df[mask]
+            if sub.empty:
+                # 模糊匹配名称
+                mask_fuzzy = df["name"].str.contains(q, na=False)
+                sub = df[mask_fuzzy]
+            
+            if not sub.empty:
+                row = sub.iloc[0]
+                return {
+                    "code": str(row.get("ts_code", "")),
+                    "name": str(row.get("name", "")),
+                    "industry": str(row.get("industry", "")),
+                    "close": float(row.get("close", 0)) if pd.notna(row.get("close")) else 0.0,
+                    "circ_mv_yi": round(float(row.get("circ_mv", 0)) / 10000.0, 1) if pd.notna(row.get("circ_mv")) else 0.0
+                }
+        except Exception:
+            pass
+
+    # 在线 Suggest 兜底
+    try:
+        s_url = f"http://searchapi.eastmoney.com/api/suggest/get?input={urllib.parse.quote(q)}&type=14"
+        req = urllib.request.Request(s_url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            items = data.get("QuotationCodeTable", {}).get("Data", [])
+            if items:
+                for it in items:
+                    c = it.get("Code", "")
+                    if it.get("MarketType") in ["1", "2"] and not c.startswith("BK"):
+                        return {
+                            "code": c,
+                            "name": it.get("Name", ""),
+                            "industry": it.get("SecurityTypeName", "A股"),
+                            "close": 0.0,
+                            "circ_mv_yi": 0.0
+                        }
+    except Exception:
+        pass
+    return None
+
+
 @st.cache_data(ttl=1800, show_spinner="正在拉取前复权日K数据...")
 def fetch_qfq_kline_data(sym: str) -> list:
     """
     通过腾讯前复权接口获取日K (消除ETF折算、分红跳水断崖)
-    若腾讯超时则自动平滑回退
     """
     url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?_var=kline_dayqfq&param={sym},day,,,800,qfq"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
@@ -142,7 +198,13 @@ def calculate_industry_mv_share_history(industry_name: str):
     clean_name = industry_name.strip()
     sym = INDUSTRY_SINA_MAP.get(clean_name)
     if not sym:
-        sym = "sh512010" if "药" in clean_name or "医" in clean_name else "sh512480"
+        # 模糊匹配映射表
+        for k, v in INDUSTRY_SINA_MAP.items():
+            if k in clean_name or clean_name in k:
+                sym = v
+                break
+    if not sym:
+        sym = "sh512010" if ("药" in clean_name or "医" in clean_name) else "sh512480"
 
     ind_k = fetch_qfq_kline_data(sym)
     if not ind_k or len(ind_k) < 10:
@@ -175,7 +237,6 @@ def calculate_industry_mv_share_history(industry_name: str):
         p = float(item.get("close", 0))
         bp = bench_map.get(d)
         if bp and p > 0 and bp > 0:
-            # 相对强弱系数推导前复权历史占比
             rel_strength = (p / cur_ind_price_now) / (bp / cur_bench_now)
             hist_ratio = cur_ratio_now * rel_strength
             amt = float(item.get("amount", 0))
@@ -190,7 +251,6 @@ def calculate_industry_mv_share_history(industry_name: str):
         return None
 
     df = pd.DataFrame(records)
-    # 计算 20 日成交均量
     df["amount_ma20"] = df["amount"].rolling(window=20, min_periods=1).mean()
     return df, cur_ratio_now, cur_ind_mv, total_mv
 
@@ -221,19 +281,35 @@ def render_macro_erp_page():
         elif "医疗器械" in ind_options:
             default_idx = ind_options.index("医疗器械")
 
-        c_sel, c_custom = st.columns([1.5, 1])
+        c_sel, c_stock = st.columns([1.3, 1.2])
         with c_sel:
-            sel_ind = st.selectbox("🎯 选择行业板块：", ind_options, index=default_idx)
-        with c_custom:
-            custom_input = st.text_input("🔍 或输入任意细分概念/行业（支持别名）：", placeholder="如: 医疗器械, 农牧饲渔, 芯片, 创新药")
-            if custom_input.strip():
-                sel_ind = custom_input.strip()
+            sel_ind = st.selectbox("🎯 方式一：选择行业板块（下拉菜单）", ind_options, index=default_idx)
+        with c_stock:
+            stock_input = st.text_input("🔎 方式二：输入股票名称/代码反查行业：", placeholder="如: 贵州茅台, 300750, 比亚迪, 中际旭创")
+
+        target_industry = sel_ind
+        stock_info = None
+
+        # 如果用户输入了股票代码/名称，执行反查联动
+        if stock_input.strip():
+            stock_info = lookup_stock_info(stock_input.strip())
+            if stock_info and stock_info.get("industry"):
+                matched_ind = stock_info["industry"]
+                target_industry = matched_ind
+                
+                # 展示反查成功卡片
+                st.success(
+                    f"🎯 **个股行业穿透成功**：`{stock_info['name']}` ({stock_info['code']}) 归属于 **【{matched_ind}】** 行业板块 "
+                    f"| 现价: `{stock_info['close']}元` | 个股流通市值: `{stock_info['circ_mv_yi']}亿元`"
+                )
+            else:
+                st.warning(f"⚠️ 未在全市场快照中找到股票 `{stock_input}`，已维持选择行业：【{target_industry}】")
 
         # 计算前复权市值占比历史
-        result = calculate_industry_mv_share_history(sel_ind)
+        result = calculate_industry_mv_share_history(target_industry)
 
         if not result:
-            st.warning(f"⚠️ 暂未匹配到【{sel_ind}】的行情数据，请尝试从左侧下拉菜单选择标准行业。")
+            st.warning(f"⚠️ 暂未匹配到【{target_industry}】的行情数据，请尝试从左侧下拉菜单选择标准行业。")
         else:
             df_hist, cur_ratio, cur_mv, total_mv = result
             
@@ -259,7 +335,7 @@ def render_macro_erp_page():
             k1, k2, k3, k4 = st.columns(4)
             with k1:
                 with st.container(border=True):
-                    st.caption("当前市值全市场占比")
+                    st.caption(f"【{target_industry}】全市场市值占比")
                     st.markdown(f"### `{cur_r:.2f}%`")
                     diff_mean = cur_r - hist_mean
                     arrow = "🔺" if diff_mean >= 0 else "🔻"
@@ -298,7 +374,7 @@ def render_macro_erp_page():
             # ==================== 卡片 1：主图【市值占比历史分位通道】 ====================
             st.markdown("<div style='margin-top: 12px;'></div>", unsafe_allow_html=True)
             with st.container(border=True):
-                st.markdown(f"##### 📈 【{sel_ind}】流通市值全市场占比 (%) 历史走势与分位通道")
+                st.markdown(f"##### 📈 【{target_industry}】流通市值全市场占比 (%) 历史走势与分位通道")
                 
                 fig_main = go.Figure()
 
@@ -329,7 +405,7 @@ def render_macro_erp_page():
                 # 主折线：市值占比 (%) (科技蓝实线，微弱底色填充)
                 fig_main.add_trace(go.Scatter(
                     x=df_hist["date"], y=df_hist["ratio"],
-                    name=f"{sel_ind} 市值占比",
+                    name=f"{target_industry} 市值占比",
                     line=dict(color="#2563eb", width=2.5),
                     fill="tozeroy",
                     fillcolor="rgba(37, 99, 235, 0.05)",
@@ -357,7 +433,7 @@ def render_macro_erp_page():
 
             # ==================== 卡片 2：副图【资金热度日成交额变动】 ====================
             with st.container(border=True):
-                st.markdown(f"##### 🔥 【{sel_ind}】资金热度：行业日成交额变动 (亿元)")
+                st.markdown(f"##### 🔥 【{target_industry}】资金热度：行业日成交额变动 (亿元)")
                 
                 amt_yi = df_hist["amount"] / 100000000.0 if df_hist["amount"].max() > 100000 else df_hist["amount"] / 10000.0
                 amt_ma20_yi = df_hist["amount_ma20"] / 100000000.0 if df_hist["amount_ma20"].max() > 100000 else df_hist["amount_ma20"] / 10000.0
@@ -392,7 +468,6 @@ def render_macro_erp_page():
                     font=dict(size=11, color="#0284c7")
                 )
 
-                # Y 轴自适应上限 (防止极端天量压扁其他柱子)
                 p98_amt = np.percentile(amt_yi, 98)
                 y_max = max(p98_amt * 1.3, max_amt_val * 1.1)
 
