@@ -155,35 +155,69 @@ def get_akshare_data(trade_date_str):
     else:
         news_stream = ["(数据源为空，请检查网络)"]
 
-    # 修改：强制使用刚才推算出的真实交易日，抓取并保存全量涨停梯队 (AkShare + Tushare 双通道兜底)
+    # 修改：强制使用刚才推算出的真实交易日，抓取并保存全量涨停梯队 (东财直连 + AkShare + Tushare 三通道兜底)
     all_zt_records = []
+
+    # ★★★ 通道0: 东方财富涨停池官方接口直连（纯 stdlib，不依赖 akshare 版本，最稳） ★★★
     try:
-        print(f"🔥 [通道1: AkShare] 正在抓取 {trade_date_str} 全量涨停池...")
-        df_zt = ak.stock_zt_pool_em(date=trade_date_str)
-        if df_zt.empty: df_zt = ak.stock_zt_pool_em(date=None)
-        if not df_zt.empty:
-            cols = df_zt.columns.tolist()
-            name_col = next((c for c in cols if '名称' in c), '名称')
-            code_col = next((c for c in cols if '代码' in c), '代码')
-            ind_col = next((c for c in cols if '行业' in c), '所属行业')
-            lb_col = next((c for c in cols if '连板' in c), '连板数')
-            time_col = next((c for c in cols if '最后封板时间' in c or '封板时间' in c), None)
-            reason_col = next((c for c in cols if '原因' in c or '题材' in c or '涨停分析' in c), None)
-            
-            df_zt[lb_col] = pd.to_numeric(df_zt[lb_col], errors='coerce').fillna(1).astype(int)
-            df_zt_sorted = df_zt.sort_values(by=[lb_col, name_col], ascending=[False, True])
-            
-            for _, row in df_zt_sorted.iterrows():
-                all_zt_records.append({
-                    "code": str(row[code_col]) if code_col in row else "",
-                    "name": str(row[name_col]),
-                    "industry": str(row[ind_col]) if ind_col in row else "-",
-                    "limit_times": int(row[lb_col]),
-                    "first_time": str(row[time_col]) if time_col and pd.notna(row[time_col]) else "",
-                    "reason": str(row[reason_col]) if reason_col and pd.notna(row[reason_col]) else ""
-                })
+        print(f"🔥 [通道0: 东财直连] 正在抓取 {trade_date_str} 全量涨停池...")
+        zt_url = (
+            "https://push2ex.eastmoney.com/getTopicZTPool"
+            "?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt"
+            "&Pageindex=0&pagesize=600&sort=fbt%3Aasc"
+            f"&date={trade_date_str}&_=1"
+        )
+        zt_resp = requests.get(
+            zt_url,
+            headers={"User-Agent": "Mozilla/5.0", "Referer": "https://quote.eastmoney.com/"},
+            timeout=20,
+        )
+        zt_pool = ((zt_resp.json() or {}).get("data") or {}).get("pool") or []
+        for it in zt_pool:
+            # fbt 为整数形态的首封时间，如 92500 -> 09:25:00
+            fbt = str(it.get("fbt") or "").zfill(6)
+            ftime = f"{fbt[:2]}:{fbt[2:4]}:{fbt[4:6]}" if fbt.strip("0") else ""
+            all_zt_records.append({
+                "code": str(it.get("c") or ""),
+                "name": str(it.get("n") or ""),
+                "industry": str(it.get("hybk") or "-"),
+                "limit_times": int(it.get("lbc") or 1),
+                "first_time": ftime,
+                "reason": f"封板资金 {round(float(it.get('fund') or 0) / 1e8, 2)} 亿 | 炸板 {it.get('zbc', 0)} 次",
+            })
+        all_zt_records.sort(key=lambda x: (-x["limit_times"], x["name"]))
+        print(f"✅ [通道0] 东财直连获取涨停 {len(all_zt_records)} 只")
     except Exception as e:
-        print(f"⚠️ AkShare 涨停池获取异常: {e}")
+        print(f"⚠️ 东财涨停池直连异常: {e}")
+
+    if not all_zt_records:
+        try:
+            print(f"🔥 [通道1: AkShare] 正在抓取 {trade_date_str} 全量涨停池...")
+            df_zt = ak.stock_zt_pool_em(date=trade_date_str)
+            if df_zt.empty: df_zt = ak.stock_zt_pool_em(date=None)
+            if not df_zt.empty:
+                cols = df_zt.columns.tolist()
+                name_col = next((c for c in cols if '名称' in c), '名称')
+                code_col = next((c for c in cols if '代码' in c), '代码')
+                ind_col = next((c for c in cols if '行业' in c), '所属行业')
+                lb_col = next((c for c in cols if '连板' in c), '连板数')
+                time_col = next((c for c in cols if '最后封板时间' in c or '封板时间' in c), None)
+                reason_col = next((c for c in cols if '原因' in c or '题材' in c or '涨停分析' in c), None)
+
+                df_zt[lb_col] = pd.to_numeric(df_zt[lb_col], errors='coerce').fillna(1).astype(int)
+                df_zt_sorted = df_zt.sort_values(by=[lb_col, name_col], ascending=[False, True])
+
+                for _, row in df_zt_sorted.iterrows():
+                    all_zt_records.append({
+                        "code": str(row[code_col]) if code_col in row else "",
+                        "name": str(row[name_col]),
+                        "industry": str(row[ind_col]) if ind_col in row else "-",
+                        "limit_times": int(row[lb_col]),
+                        "first_time": str(row[time_col]) if time_col and pd.notna(row[time_col]) else "",
+                        "reason": str(row[reason_col]) if reason_col and pd.notna(row[reason_col]) else ""
+                    })
+        except Exception as e:
+            print(f"⚠️ AkShare 涨停池获取异常: {e}")
 
     # 若 AkShare 未获取到数据，启动 Tushare 官方涨停计算备用引擎
     if not all_zt_records and MY_TOKEN:
@@ -226,8 +260,10 @@ def get_akshare_data(trade_date_str):
     # 保存真实连板天梯数据供 Streamlit 直接读取
     if all_zt_records:
         max_h = max([r["limit_times"] for r in all_zt_records])
+        _d = str(trade_date_str)
+        date_disp = f"{_d[:4]}-{_d[4:6]}-{_d[6:8]}" if len(_d) == 8 and _d.isdigit() else _d
         ladder_data = {
-            "date": trade_date_str,
+            "date": date_disp,
             "update_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "total_count": len(all_zt_records),
             "max_height": max_h,
@@ -235,7 +271,9 @@ def get_akshare_data(trade_date_str):
         }
         with open(LIMIT_LADDER_PATH, "w", encoding="utf-8") as f:
             json.dump(ladder_data, f, ensure_ascii=False, indent=2)
-        print(f"✅ 涨停天梯数据已保存至 {LIMIT_LADDER_PATH}，共 {len(all_zt_records)} 只标的！")
+        print(f"✅ 涨停天梯数据已保存至 {LIMIT_LADDER_PATH}，共 {len(all_zt_records)} 只标的，最高 {max_h} 连板！")
+    else:
+        print("::warning::三通道均未取到涨停池数据，limit_ladder.json 保持上一交易日内容")
 
     top_limit_stocks = all_zt_records[:15]
     return news_stream, top_limit_stocks
