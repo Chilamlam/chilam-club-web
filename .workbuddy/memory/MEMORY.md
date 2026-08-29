@@ -27,7 +27,8 @@
 - **严禁强推 / 重写 main 历史**（`git push -f`、重建仓库后覆盖推送）。2026-08-28 曾因本地重建成孤立历史后强推，静默抹掉 Actions 于 8/25、8/26、8/27 产出的三次数据提交，导致线上数据停滞在 8-24。
 - **数据停更排查顺序**：① `git log --all --grep="Auto-update"` 为空即说明历史被重写（而非 Actions 失败）；② 查 GitHub API `/events` 的 PushEvent `before -> head` 链是否被人工推送断开；③ 用 `git checkout <被抹掉的sha> -- data/` 恢复（对象通常未 gc，仍可读）。
 - **当前 PAT 缺少 `workflow` scope**，无法通过命令行推送 `.github/workflows/*.yml` 的改动。**约定做法：在 GitHub 网页端直接编辑该文件，然后本地 `git fetch origin && git merge --ff-only origin/main` 同步。** 2026-08-28 两次工作流加固（`d9e9a97` 调度加固、`156e2b5` v2 补突破池+容错）均通过此方式落地。注意网页端提交后本地 refs 常静默不更新，需 `printf <sha> > .git/refs/remotes/origin/main` 手写后再 ff-only。
-- **`.git/refs/` 目录可能缺失导致 ref 静默不更新**：若 `git fetch` 提示更新成功但 `git rev-parse origin/main` 仍是旧值，先 `find .git/refs -type f`，为空则 `mkdir -p .git/refs/{heads,tags,remotes/origin}` 后重新 fetch。`git update-ref` / `git pack-refs` 在此情况下不报错也不生效。
+- **`.git/refs/` 目录可能缺失导致 ref 静默不更新**：若 `git fetch` 提示更新成功但 `git rev-parse origin/main` 仍是旧值，先 `find .git/refs -type f`，为空或只剩 `heads/` 则 `mkdir -p .git/refs/{heads,tags,remotes/origin}`，再从 `.git/FETCH_HEAD` 第一列取 sha 手写 `printf <sha> > .git/refs/remotes/origin/main`。`git update-ref` / `git pack-refs` 在此情况下不报错也不生效。**该问题会反复复发（8/28、8/29 各一次），每次 push 前先检查。**
+- **GitHub 连接常被重置**：`fetch`/`push` 需重试循环（实测第 4 次才通）。推完必须用 GitHub API `/commits/main` 核验远端 head，不能只信本地 `git log`。
 - **严禁在 `data/` 写入占位/模拟假数据**。2026-08-28 `limit_ladder.json` 曾被手工写入 8 只股票的占位数据（total_count 虚标 28），云端从未跑过带天梯逻辑的版本 → 假数据长期展示给用户。新增数据文件时必须同步在当次跑批中产出真实内容，否则宁可让前端显示"暂无数据"。
 - **新增 `daily_*.py` 跑批脚本后，必须同步在 `.github/workflows/daily_update.yml` 里加对应 step**。2026-08-28 发现 `daily_breakout.py`（8/28 09:28 随突破池功能引入）从未被工作流调用，`breakout_stocks.csv` 因此长期停在 8-24。检查命令：`ls -1 daily_*.py` 与 `grep -oE "python [a-z_]+\.py" .github/workflows/daily_update.yml` 两边数量必须一致。
 - **跑批步骤必须带 `continue-on-error: true`**，否则任一脚本异常会中断整个 job，导致最后的 commit/push 不执行，当日全量数据都不落地（表面只看到某一步红叉）。
@@ -41,6 +42,21 @@
 - **涨停池/连板天梯**：`https://push2ex.eastmoney.com/getTopicZTPool?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt&Pageindex=0&pagesize=600&sort=fbt:asc&date=YYYYMMDD`（`sort` 中的冒号需 URL 编码为 `%3A`）。字段：`c`代码 `n`名称 `hybk`行业 `lbc`连板数 `fbt`首封时间(整数 92500→09:25:00) `fund`封板资金 `zbc`炸板次数 `data.tc`总数。
 - **沪深300/上证50/中证1000 PE-TTM 历史**：`https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000300&startDate=20140101&endDate=YYYYMMDD`，需带 `Referer: https://www.csindex.com.cn/`，PE 字段名是 `peg`。中证500(000905)、科创50(000688) 该字段为空。
 - **中国10年期国债收益率历史**：东财 `datacenter.eastmoney.com/api/data/get?type=RPTA_WEB_TREASURYYIELD&sty=ALL&st=SOLAR_DATE&sr=-1&token=894050c76af8597a853f5b408b759f5d&ps=500&p=N`，10Y 字段为 `EMM00166466`，需分页拉取。
+
+## 全市场行情通道（`page_live_quote.py`，2026-08-29 穷举实测，0 失败）
+| 市场 | 报价 | 分时 | 分钟K | 日/周/月K |
+|---|---|---|---|---|
+| A股/ETF/指数 | 腾讯 `qt.gtimg.cn/q=` | 腾讯 `minute/query` | 腾讯 `kline/mkline` | 腾讯 `fqkline` |
+| 港股(含 hkHSI) | 腾讯 `hk00700` | 腾讯 ✅ | ❌ 无公开源 | 腾讯 `hkfqkline` |
+| 美股个股 | 腾讯 `usNVDA` | 新浪 `US_MinlineService` | 新浪 `US_MinKService` | 腾讯 `usfqkline`，**须带 `.OQ`/`.N` 后缀** |
+| 美股指数 | 腾讯 `usIXIC` | 新浪 `symbol=.IXIC`（**带前导点**） | 新浪 `symbol=.IXIC` | 腾讯 `usIXIC`（**不带后缀**） |
+| 国际商品 | 新浪 `hf_GC` | 新浪 `getGlobalFuturesMinLine` | ❌ 无公开源 | 新浪日K + `resample` 本地聚合 |
+
+- **东财 `push2`/`push2his` 已放弃**：`secid` 体系理论全市场通吃，但高频探测触发 IP 级限流后持续 `RemoteDisconnected` 逾 10 分钟，换 UA/Referer/数字前缀/`push2delay` 均无效。**当场不可验证的接口不能做线上依赖。**
+- **腾讯 `_TX_PERIOD` 的 `"month"` 也以 m 开头**，判断分钟线必须用 `m5/m15/m30/m60` 白名单，否则月K 被误发到 `mkline` 而恒为空。`fqkline` 的 `limit` 上限约 300。
+- **`MARKET_PERIODS` / `MARKET_LIMIT_NOTE` 是页面周期选项的唯一来源**。新增市场或周期必须同步改这两个字典并跑 `tools_probe_quote_api.py` 复验，**禁止让页面出现「能选但没数据」**。
+- **行情自检**：`/c/Users/Lenovo/.workbuddy/binaries/python/envs/stcheck/Scripts/python.exe tools_probe_quote_api.py`（主解释器没装 pandas/plotly，必须用这个 venv）。
+- **`HF_` 前缀区分撞名商品**：`HSI/C/S/W/CT/CAD` 与股票 ticker 重名，裸输入按股票解析，要商品写 `HF_HSI`。
 
 ## 前端 UI 兼容铁律
 - **禁止直接写 `st.image(..., use_column_width=...)` 或 `use_container_width=...`**。Streamlit 三代改名（`use_column_width` → `use_container_width` → `width="stretch"`），`requirements.txt` 未锁版本时 Streamlit Cloud 自动升级会让整页 TypeError 崩掉。统一用 `ui_compat.image_stretch(path)`（逐级降级 try/except）。2026-08-29 投资作业本即因此白屏。
