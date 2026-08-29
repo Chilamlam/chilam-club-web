@@ -436,9 +436,11 @@ _SESSIONS = {
     "A_SHARE": ([("09:30", "11:30"), ("13:00", "15:00")],
                 ["09:30", "10:30", "11:30", "14:00", "15:00"],
                 ["09:30", "10:30", "11:30/13:00", "14:00", "15:00"]),
-    "HK_SHARE": ([("09:30", "12:00"), ("13:00", "16:10")],
-                 ["09:30", "10:30", "12:00", "14:30", "16:10"],
-                 ["09:30", "10:30", "12:00/13:00", "14:30", "16:10"]),
+    # 港股连续竞价 16:00 收盘，之后 16:01-16:10 是收市竞价(CAS)只有一个成交点，
+    # 若把轴拉到 16:10 会让右侧出现一段空白 + 孤点，故轴止于 16:00，CAS 价并入收盘分钟。
+    "HK_SHARE": ([("09:30", "12:00"), ("13:00", "16:00")],
+                 ["09:30", "10:30", "12:00", "14:30", "16:00"],
+                 ["09:30", "10:30", "12:00/13:00", "14:30", "16:00"]),
     # 美股用当地时间轴(09:30-16:00)，与新浪分时返回的时间戳一致
     "US_SHARE": ([("09:30", "16:00")],
                  ["09:30", "11:00", "12:30", "14:00", "16:00"],
@@ -458,6 +460,38 @@ def _timeline(market: str) -> tuple:
     return list(dict.fromkeys(tl)), tv, tt
 
 
+def _align_to_timeline(df: pd.DataFrame, timeline: list) -> pd.DataFrame:
+    """把分时点吸附到交易时段轴上。
+
+    行情源常返回不在标准时段内的时间戳：A股收盘后集合竞价/延时快照会出现
+    15:06~15:30，港股恒指有 18:31 的期指延伸报价，港股收市竞价落在 16:00 之后。
+    这些点若原样 merge 会全部变成 NaN，画出来就是「曲线只画到一半」的错位。
+    统一吸附到不晚于它的最后一个轴刻度（早于开盘的吸附到第一个刻度），同一
+    刻度保留最后一条。
+    """
+    if df.empty or not timeline:
+        return df
+    slot_min = [int(t[:2]) * 60 + int(t[3:5]) for t in timeline]
+    base = slot_min[0]
+    adj = [m + 1440 if m < base else m for m in slot_min]  # 跨零点(商品)展平
+    known = set(timeline)
+
+    def snap(t: str) -> str:
+        if t in known:
+            return t
+        try:
+            m = int(t[:2]) * 60 + int(t[3:5])
+        except (ValueError, IndexError):
+            return timeline[-1]
+        m = m + 1440 if m < base else m
+        pos = [i for i, a in enumerate(adj) if a <= m]
+        return timeline[pos[-1]] if pos else timeline[0]
+
+    out = df.copy()
+    out["time"] = out["time"].map(snap)
+    return out.drop_duplicates(subset="time", keep="last")
+
+
 # ==================== 6. 页面渲染 ====================
 
 PRESETS = [
@@ -474,20 +508,32 @@ def _fmt(v: float, market: str) -> str:
 def _render_minute_chart(sym: dict, quote: dict, df: pd.DataFrame):
     market = sym["market"]
     name = quote.get("name", sym["display"])
-    last_close = quote.get("last_close") or df["price"].iloc[0]
+    timeline, tick_vals, tick_texts = _timeline(market)
+    df = _align_to_timeline(df, timeline)
 
-    dev = max(abs(df["price"].max() - last_close), abs(df["price"].min() - last_close))
+    price = pd.to_numeric(df["price"], errors="coerce")
+    vol = pd.to_numeric(df.get("vol"), errors="coerce").fillna(0.0)
+    df = df.assign(price=price, vol=vol).dropna(subset=["price"])
+    if df.empty:
+        st.info("暂无分时数据")
+        return
+    price, vol = df["price"], df["vol"]
+
+    last_close = quote.get("last_close") or float(price.iloc[0])
+    dev = max(abs(float(price.max()) - last_close), abs(float(price.min()) - last_close))
     if dev <= 0:
-        dev = max(last_close * 0.01, 0.01)
+        dev = max(abs(last_close) * 0.01, 0.01)
     y_min, y_max = last_close - dev * 1.15, last_close + dev * 1.15
 
-    if df["vol"].sum() > 0:
-        cum_v = df["vol"].cumsum().replace(0, pd.NA)
-        df["avg_price"] = ((df["price"] * df["vol"]).cumsum() / cum_v).astype(float)
+    # cum_v 为 0 的分钟（开盘瞬间未成交）不能用 replace(0, pd.NA)：pandas 3.x 下
+    # 结果 dtype 会退化成 object，随后 .astype(float) 直接 TypeError 崩页。
+    # 用 where 保持 float64 + NaN。
+    cum_v = vol.cumsum()
+    if float(cum_v.iloc[-1]) > 0:
+        df["avg_price"] = ((price * vol).cumsum() / cum_v.where(cum_v > 0)).astype("float64")
     else:
-        df["avg_price"] = df["price"].expanding().mean()
+        df["avg_price"] = price.expanding().mean().astype("float64")
 
-    timeline, tick_vals, tick_texts = _timeline(market)
     full = pd.merge(pd.DataFrame({"time": timeline}), df, on="time", how="left")
 
     fig = go.Figure()
