@@ -58,6 +58,15 @@
 - **行情自检**：`/c/Users/Lenovo/.workbuddy/binaries/python/envs/stcheck/Scripts/python.exe tools_probe_quote_api.py`（主解释器没装 pandas/plotly，必须用这个 venv）。
 - **`HF_` 前缀区分撞名商品**：`HSI/C/S/W/CT/CAD` 与股票 ticker 重名，裸输入按股票解析，要商品写 `HF_HSI`。
 
+## pandas 3.x 兼容铁律（Streamlit Cloud 已是 pandas 3.x）
+- **禁止 `s.replace(0, pd.NA)`**：pandas 3.x 下会把 float64 列退化成 object dtype，参与运算后 `.astype(float)` 遇 `NAType` 抛 `TypeError: float() argument must be a string or a real number`。要「把 0 当缺失值」统一写 `s.where(s > 0)`。2026-08-29 港股分时均价线即因此崩页。
+- `astype` 一律写 `astype("float64")`，不要写 `astype(float)`。外部接口来的数值列先过 `pd.to_numeric(..., errors="coerce")`。
+
+## 分时图时间轴对齐铁律
+- 行情源会返回**不在标准交易时段内**的时间戳，直接 merge 到 category 轴会全变 NaN，表现为「曲线只画一截」：A股有 `15:06~15:30`（收盘后集合竞价/延时快照，267 点里占 25 点）、港股恒指有 `18:31`（期指延伸报价）、港股收市竞价 CAS 在 16:00 之后（腾讯给 `16:08`）。
+- 统一用 `_align_to_timeline(df, timeline)` 把越界点吸附到「不晚于它的最后一个轴刻度」，同刻度 `drop_duplicates(keep="last")`；跨零点市场（商品）先把小于开盘分钟数的时间 +1440 展平。港股 X 轴止于 `16:00`（不要拉到 16:10）。
+- 校验口径：对齐后 `df["time"]` 必须 100% ∈ timeline。
+
 ## 前端 UI 兼容铁律
 - **禁止直接写 `st.image(..., use_column_width=...)` 或 `use_container_width=...`**。Streamlit 三代改名（`use_column_width` → `use_container_width` → `width="stretch"`），`requirements.txt` 未锁版本时 Streamlit Cloud 自动升级会让整页 TypeError 崩掉。统一用 `ui_compat.image_stretch(path)`（逐级降级 try/except）。2026-08-29 投资作业本即因此白屏。
 - **升级/排查 Streamlit 兼容性先跑 `python tools_check_st_api.py .`**：AST 扫描全仓库 `st.*` 调用的关键字参数是否被当前版本移除。需在装了目标版本的 venv 里跑。
