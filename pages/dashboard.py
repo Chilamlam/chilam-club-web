@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import os
 import auth
 import database
+from ui_compat import image_stretch
 
 st.set_page_config(page_title="会员中心 - Chilam Club", page_icon="👑", layout="centered")
 
@@ -161,9 +162,9 @@ if "last_order" in st.session_state and st.session_state["last_order"]:
                 st.markdown("**微信支付**")
                 wechat_found = WECHAT_QR and os.path.exists(WECHAT_QR)
                 if wechat_found:
-                    st.image(WECHAT_QR, use_container_width=True)
+                    image_stretch(WECHAT_QR)
                 elif WECHAT_QR:
-                    st.image(WECHAT_QR, use_container_width=True)
+                    image_stretch(WECHAT_QR)
                 else:
                     st.info("收款码待配置，请联系管理员")
 
@@ -171,9 +172,9 @@ if "last_order" in st.session_state and st.session_state["last_order"]:
                 st.markdown("**支付宝**")
                 alipay_found = ALIPAY_QR and os.path.exists(ALIPAY_QR)
                 if alipay_found:
-                    st.image(ALIPAY_QR, use_container_width=True)
+                    image_stretch(ALIPAY_QR)
                 elif ALIPAY_QR:
-                    st.image(ALIPAY_QR, use_container_width=True)
+                    image_stretch(ALIPAY_QR)
                 else:
                     st.info("收款码待配置，请联系管理员")
 

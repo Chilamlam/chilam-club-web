@@ -11,6 +11,7 @@ from page_core_driver import render_core_driver_page
 from page_macro_erp import render_macro_erp_page
 from page_watchlist import render_watchlist_page
 from page_live_quote import render_live_quote_page
+from ui_compat import image_stretch
 import auth
 
 # ================= 1. 基础配置 (必须放在最前面) =================
@@ -509,7 +510,7 @@ def render_guru_tracker():
             col = cols[index % 3]
             with col:
                 with st.container(border=True):
-                    if os.path.exists(info['avatar']): st.image(info['avatar'], use_column_width=True)
+                    if os.path.exists(info['avatar']): image_stretch(info['avatar'])
                     else: st.warning("照片缺失")
                     st.subheader(info['name'])
                     st.caption(info['company'])
@@ -526,7 +527,7 @@ def render_guru_tracker():
         st.divider()
         col1, col2 = st.columns([1, 4])
         with col1:
-            if os.path.exists(info['avatar']): st.image(info['avatar'], use_column_width=True)
+            if os.path.exists(info['avatar']): image_stretch(info['avatar'])
         with col2:
             st.markdown(f"## {info['name']}")
             st.markdown(f"**{info['company']}** | *{info['style']}*")
