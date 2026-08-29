@@ -1,0 +1,84 @@
+{
+  "status": "incomplete",
+  "date": "20260828",
+  "prev_date": null,
+  "generated_at": "2026-08-30 00:42:05",
+  "archive_days": 1,
+  "promotion": {
+    "status": "failed",
+    "reason": "归档中尚无更早的交易日，晋级率需要至少两天数据才能计算"
+  },
+  "premium": {
+    "status": "failed",
+    "reason": "缺少前一交易日涨停归档"
+  },
+  "ladder_gap": {
+    "status": "ok",
+    "max_height": 7,
+    "min_height": 1,
+    "first_board": 64,
+    "total": 82,
+    "tiers": [
+      {
+        "height": 7,
+        "count": 1
+      },
+      {
+        "height": 6,
+        "count": 0
+      },
+      {
+        "height": 5,
+        "count": 1
+      },
+      {
+        "height": 4,
+        "count": 3
+      },
+      {
+        "height": 3,
+        "count": 3
+      },
+      {
+        "height": 2,
+        "count": 10
+      },
+      {
+        "height": 1,
+        "count": 64
+      }
+    ],
+    "gaps": [
+      6
+    ],
+    "verdict": "7 板成为孤高，中间 [6] 板断层，接力链条不连续"
+  },
+  "breadth": {
+    "status": "ok",
+    "mean_pct": 0.27312392284117537,
+    "median_pct": 0.2241,
+    "divergence": 0.04902392284117538,
+    "up": 3013,
+    "down": 2390,
+    "up_ratio": 0.5576531556542661,
+    "verdict": "均值与中位数基本一致，涨跌较为普遍"
+  },
+  "phase": {
+    "status": "insufficient",
+    "reason": "1进2 样本不足或缺失，无法定位周期（不做猜测）"
+  },
+  "verification_plan": [
+    {
+      "指标": "连板梯队最高高度",
+      "今日基准": "7 板，断层于 [6] 板",
+      "验证条件": "明日若最高板不足 7 板且无新晋高度，高度链条判定为断裂",
+      "为什么看它": "高度是情绪的天花板，塌了通常先于家数走弱"
+    },
+    {
+      "指标": "全市场涨幅 均值−中位数 背离",
+      "今日基准": "+0.05 个百分点（均值 +0.27% / 中位 +0.22%）",
+      "验证条件": "明日若背离扩大至 +1.0 以上，说明赚钱效应进一步向少数标的集中",
+      "为什么看它": "解释「指数涨了但我亏钱」的直接原因，涨跌家数看不出这一层"
+    }
+  ]
+}
