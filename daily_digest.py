@@ -137,14 +137,19 @@ def archive(payload: dict, date_key: str) -> None:
 # ================= 渠道 =================
 
 def _post_json(url: str, body: dict, timeout: int = 15) -> tuple[bool, str]:
+    """POST JSON，返回 (HTTP 是否 2xx, 响应体文本)。
+
+    响应体截断长度取 800 而非 200：Server酱 的成败判定要靠响应体里的 `code`
+    字段，截太短会把 JSON 切断导致解析失败，进而把失败误判成成功。
+    """
     req = urllib.request.Request(
         url, data=json.dumps(body).encode("utf-8"),
         headers={"Content-Type": "application/json"}, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
-            return True, r.read().decode("utf-8", "ignore")[:200]
+            return True, r.read().decode("utf-8", "ignore")[:800]
     except urllib.error.HTTPError as e:
-        return False, f"HTTP {e.code}: {e.read().decode('utf-8', 'ignore')[:200]}"
+        return False, f"HTTP {e.code}: {e.read().decode('utf-8', 'ignore')[:800]}"
     except Exception as e:
         return False, str(e)
 
@@ -160,11 +165,30 @@ def send_wecom(payload: dict) -> str | None:
 
 
 def send_serverchan(payload: dict) -> str | None:
+    """Server酱 Turbo（sctapi.ftqq.com）推送。
+
+    两个坑，都会让"失败"伪装成"成功"，所以必须显式处理：
+
+    1. **额度耗尽/参数错误时 HTTP 仍是 200**，真正的结果在响应体 `code` 字段
+       （0 = 成功，非 0 时 `message` 说明原因，如免费版每天 5 条用完）。
+       只看 HTTP 状态码会把"今天配额没了"记成推送成功，明天照样静默失败。
+    2. **title 不允许包含换行符**，含换行会被服务端拒绝并报"包含特殊字符"。
+       正文放 desp，标题这里强制压成单行。
+    """
     key = _env("DIGEST_SERVERCHAN_KEY")
     if not key:
         return None
+    title = " ".join(str(payload["title"]).split())[:100]
     ok, msg = _post_json(f"https://sctapi.ftqq.com/{key}.send",
-                         {"title": payload["title"], "desp": payload["markdown"]})
+                         {"title": title, "desp": payload["markdown"]})
+    if ok:
+        try:
+            body = json.loads(msg)
+            code = body.get("code")
+            if code not in (0, None):
+                ok, msg = False, f"code={code} {body.get('message', '')}"
+        except Exception:
+            pass       # 返回体不是 JSON 时以 HTTP 状态为准，不因解析失败误判
     print(("✅ Server酱推送成功" if ok else f"❌ Server酱推送失败：{msg}"))
     return None if ok else f"serverchan: {msg}"
 
