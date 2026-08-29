@@ -240,6 +240,14 @@ ck(not re.search(r"print\([^)]*\{\s*key\s*[}\[]", SRC_DAILY), "不回显 SendKey
 ck("sctapi.ftqq.com/{key}" not in SRC_DAILY.replace('f"https://sctapi.ftqq.com/{key}.send"', ""),
    "SendKey 仅用于构造请求 URL，不出现在日志里")
 
+# Server酱 的失败会伪装成 HTTP 200（真实结果在响应体 code 字段），
+# 只看状态码会把「今天 5 条免费额度用完」记成推送成功，明天照样静默失败。
+ck('body.get("code")' in SRC_DAILY, "Server酱 校验响应体 code 字段而非只看 HTTP 状态")
+ck("code not in (0, None)" in SRC_DAILY, "code 非 0 判为失败")
+ck('" ".join(str(payload["title"]).split())' in SRC_DAILY,
+   "Server酱 title 压成单行（含换行会被服务端拒绝）")
+ck("[:800]" in SRC_DAILY, "响应体截断长度足够容纳 JSON（避免解析失败误判成功）")
+
 # 页面接线
 ck("from page_digest import render_digest_page" in SRC_APP, "app.py 已 import 摘要页")
 ck('"📮 收盘摘要"' in SRC_APP, "侧边栏已加入「收盘摘要」入口")
