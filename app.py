@@ -5,13 +5,15 @@ import json
 import plotly.graph_objects as go
 import plotly.express as px
 from page_fibonacci import render_fibonacci_chart
-import streamlit.components.v1 as components
 from config_gurus import GURUS
 from page_core_driver import render_core_driver_page
 from page_macro_erp import render_macro_erp_page
 from page_watchlist import render_watchlist_page
 from page_live_quote import render_live_quote_page
-from ui_compat import image_stretch
+from page_scorecard import render_scorecard_page
+from page_sentiment import render_sentiment_block
+from page_digest import render_digest_page
+from ui_compat import image_stretch, html_embed
 import auth
 
 # ================= 1. 基础配置 (必须放在最前面) =================
@@ -32,7 +34,9 @@ def inject_ga_safe():
       gtag('config', '{GA_ID}');
     </script>
     """
-    components.html(ga_code, width=10, height=10)
+    # st.components.v1.html 已被官方标注 2026-06-01 后移除，
+    # 走 ui_compat.html_embed 统一降级（同 image_stretch 的处理思路）
+    html_embed(ga_code, width=10, height=10)
 
 def inject_ga():
     GA_ID = "G-1HFTXNLL20"
@@ -246,7 +250,11 @@ def render_market_dashboard():
         fig_sec.update_traces(texttemplate='%{text}亿', textposition='outside')
         st.plotly_chart(fig_sec, use_container_width=True)
 
-    # === D2. 连板情绪天梯 (涨停高度与梯队) ===
+    # === D2. 短线情绪派生指标（接力成功率 / 溢价 / 断层 / 明日验证条件） ===
+    # 放在连板天梯之前：先给"这堆涨停意味着什么"的结论，再给明细名单。
+    render_sentiment_block()
+
+    # === D3. 连板情绪天梯 (涨停高度与梯队) ===
     st.subheader("🪜 连板情绪天梯 (打板与连板接力)")
     ladder_raw = load_json("data/limit_ladder.json")
     
@@ -568,6 +576,57 @@ def render_manual_page():
         - 懂申赎机制的资金会在场外（按净值）申购，转到场内（按高价）抛售，俗称“搬砖”。这会导致高溢价最终必然回落（被砸盘）。监控溢价率，主要是为了防范追高被埋。
         """)
 
+    with st.expander("🌡️ 短线情绪派生指标 怎么读（2026-08 新增）", expanded=True):
+        st.markdown("""
+        涨停家数、上涨家数这类原始计数只说明"今天涨了多少"，说明不了"明天还能不能接力"。
+        看板上的派生指标才是有前瞻性的那一层：
+
+        - **1进2 晋级率**：昨日首板中今日成功连板的比例。首板通常有几十只，样本足、噪音小，
+          是次日打板资金接力意愿**最敏感**的前瞻指标。高位板（4进5 以上）常常只有个位数样本，
+          比率在 0% 和 100% 之间跳，页面会标注"样本<10"，不要当信号看。
+        - **昨日连板股今日中位涨幅**：衡量"昨天追高连板的人今天赚不赚钱"。
+          取中位数而不是均值，因为均值会被个别 20cm 涨停拉飞，中位数才代表典型处境。
+        - **梯队断层**：被上下都有票的高度夹住的空档。断层说明高度接力链条不连续，
+          比"最高板是几板"更能说明情绪结构。
+        - **均值−中位 背离**：全市场涨幅的均值远高于中位数，意味着涨幅集中在少数标的、
+          多数个股其实在跌——这就是"指数涨了但我亏钱"那种日子的量化解释。
+        - **明日验证条件**：每条都带今日基准值和明确阈值，第二天收盘可以逐条打勾。
+          不带基准的判断永远无法被证伪，那种"怎么说都对"的话没有价值。
+
+        周期定位（发酵/分歧/退潮/冰点）只描述当前状态，**不含参与建议、目标价或仓位指引**。
+        """)
+
+    with st.expander("🎯 战绩回看 怎么读（2026-08 新增）", expanded=False):
+        st.markdown("""
+        **只统计超额收益（alpha），不看绝对收益。** 牛市里人人都赚钱，绝对收益没有信息量；
+        只有"跑赢沪深300 多少"才能说明榜单本身有没有价值。
+
+        - **方向正确率**：榜单是看多信号，只有跑赢基准才算方向正确。跟涨但没跑赢，记为错。
+        - **分档区分度**：把榜单按名次分成 1-10 / 11-30 / 31-50 / 51+ 四档，
+          各档平均 alpha 必须**单调递减**。不单调说明排序本身没有信息量——
+          页面会照实写出来，而不是只挑好看的数字展示。
+        - **T+N 口径的诚实声明**：以上榜当日收盘价为基准点，但你当晚才看到榜单、次日才能买。
+          所以这个口径衡量的是"排序有无信息量"，**不是**"照着买能赚多少"。
+        - **样本门槛**：低于 20 条会标注"insufficient"并写明"基本是噪音，不构成参考"。
+        - **历史回溯只重建 RPS 榜**。突破池与 ETF 榜依赖当日盘中派生字段，无法忠实重建，
+          强行重建会得到"另一个策略"的战绩，那属于变相造假。
+        """)
+
+    with st.expander("📮 收盘摘要 与推送 说明（2026-08 新增）", expanded=False):
+        st.markdown("""
+        摘要**只播报派生结论和需要跨日对账的东西**，不重复"今天上涨 2800 家"这类
+        打开任何行情 app 都能看到的原始数据。
+
+        段落顺序按"我关心什么"排：你的池子今日 → 情绪周期 → 明日验证条件 → 榜单变动 → 榜单战绩。
+
+        - **摘要内容始终免费可看**（就在本站「收盘摘要」页）；付费部分是**投递**——
+          收盘后自动推到邮箱，并且带上用你自己自选股算的「你的池子今日」那一段。
+        - **数据缺失就少说一段，绝不编**。任一段的数据源没取到，该段整段不出现，
+          并在末尾统一列出"本次缺失"，让你能区分"今天没事发生"和"数据没到"。
+        - **关键数据全缺时不发送**。宁可今天不推，也不推一封"今天没有数据"的骚扰信。
+        - 历史摘要**原样保存、不做事后修改**——这样"明日验证条件"才能被回头核对。
+        """)
+
 def render_vip_lock(feature_name: str):
     """VIP 页面锁定卡片"""
     st.warning(f"🔒 **{feature_name}** 为 VIP 会员专享模块")
@@ -614,12 +673,14 @@ def main():
         st.markdown("---")
         menu_items = [
             "🛸 全市场看板",
+            "📮 收盘摘要",
+            "⭐ 我的池子 (每日复盘)",
+            "🎯 战绩回看",
             "⚡ 实时行情 + 技术分析",
             "🔥 强势股",
-            "⭐ 自选股雷达",
             "🌐 宏观与股债性价比",
             "⚡ 投机与套利",
-            "🚨 核心龙头雷达",  
+            "🚨 核心龙头雷达",
             "📚 投资作业本",
             "📏 黄金分割预测",
             "📖 使用说明文档"
@@ -630,40 +691,43 @@ def main():
         if os.path.exists("donate.jpg"):
             st.image("donate.jpg", caption="请喝咖啡 ☕")
 
+    # ================= 路由 =================
+    # 门禁原则（2026-08-29 调整）：
+    #   全市场客观数据（强势股/投机套利/投资作业本/战绩回看）一律开放——
+    #   这些内容在同花顺、东财上免费就能看到近似替代品，锁它们只会在用户
+    #   建立信任之前先把人赶走。
+    #   真正的付费墙放在「个性化视角」与「主动推送」上：这两样依赖用户自己的
+    #   数据与时间积累，别处抄不走，也是唯一让人愿意按月付费的东西。
     if page == "🛸 全市场看板":
         render_market_dashboard()
+    elif page == "📮 收盘摘要":
+        # 摘要「内容」开放（最好的引流物），「投递」锁 VIP（页内自行处理）
+        render_digest_page()
+    elif page == "⭐ 我的池子 (每日复盘)":
+        if not auth.is_logged_in():
+            render_vip_lock("⭐ 我的池子 (个人每日复盘)")
+        else:
+            render_watchlist_page()
+    elif page == "🎯 战绩回看":
+        render_scorecard_page()
     elif page == "⚡ 实时行情 + 技术分析":
         render_live_quote_page()
     elif page == "🔥 强势股":
-        if not auth.is_vip():
-            render_vip_lock("🔥 强势股 (RPS 动量策略)")
-        else:
-            df_stock = load_data("data/strong_stocks.csv")
-            df_breakout = load_data("data/breakout_stocks.csv")
-            df_etf = load_data("data/strong_etfs.csv")
-            t1, t2, t3 = st.tabs(["🐉 RPS 个股", "🚀 阶段新高突破", "💰 强势 ETF"])
-            with t1: render_stock_content(df_stock)
-            with t2: render_breakout_content(df_breakout)
-            with t3: render_etf_content(df_etf)
-    elif page == "⭐ 自选股雷达":
-        if not auth.is_logged_in():
-            render_vip_lock("⭐ 个人自选股雷达 (云端持久化)")
-        else:
-            render_watchlist_page()
+        df_stock = load_data("data/strong_stocks.csv")
+        df_breakout = load_data("data/breakout_stocks.csv")
+        df_etf = load_data("data/strong_etfs.csv")
+        t1, t2, t3 = st.tabs(["🐉 RPS 个股", "🚀 阶段新高突破", "💰 强势 ETF"])
+        with t1: render_stock_content(df_stock)
+        with t2: render_breakout_content(df_breakout)
+        with t3: render_etf_content(df_etf)
     elif page == "🌐 宏观与股债性价比":
         render_macro_erp_page()
     elif page == "⚡ 投机与套利":
-        if not auth.is_vip():
-            render_vip_lock("⚡ 投机与套利 (可转债双低/溢价套利)")
-        else:
-            render_arbitrage_page()
-    elif page == "🚨 核心龙头雷达":          
+        render_arbitrage_page()
+    elif page == "🚨 核心龙头雷达":
         render_core_driver_page()
     elif page == "📚 投资作业本":
-        if not auth.is_vip():
-            render_vip_lock("📚 投资作业本 (顶尖机构持仓追踪)")
-        else:
-            render_guru_tracker()
+        render_guru_tracker()
     elif page == "📏 黄金分割预测":
         render_fibonacci_chart()
     elif page == "📖 使用说明文档":

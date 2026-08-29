@@ -29,3 +29,34 @@ def image_stretch(image, **kwargs):
             continue
     # 理论上不会走到这里；兜底为默认宽度
     st.image(image, **kwargs)
+
+
+def html_embed(html: str, width: int = 10, height: int = 10) -> None:
+    """
+    嵌入一段原始 HTML（用于 GA 埋点等），跨版本安全。
+
+    背景（2026-08-29 发现）：`st.components.v1.html` 已被官方标注
+    「will be removed after 2026-06-01」，替代品是 `st.iframe`。
+    今天已经过了那个日期，而 Streamlit Cloud 会自动升级依赖——
+    这和此前把整页打崩的 `st.image(use_column_width=)` 是完全同一类隐患：
+    参数/API 被移除 → 模块顶层调用抛异常 → 整站白屏。
+
+    但 `st.iframe(src=...)` 只接受 URL 或路径，**不接受 HTML 字符串**，
+    所以不能直接替换：这里用 data URI 承载内联 HTML。
+    调用顺序：新 API（data URI）→ 旧 components.html → 静默放弃。
+    埋点失败绝不能影响页面渲染，所以最终一定吞掉异常。
+    """
+    if hasattr(st, "iframe"):
+        try:
+            import base64
+            b64 = base64.b64encode(html.encode("utf-8")).decode("ascii")
+            st.iframe(f"data:text/html;base64,{b64}", width=width, height=height)
+            return
+        except Exception:
+            pass
+    try:
+        import streamlit.components.v1 as components
+        components.html(html, width=width, height=height)
+    except Exception:
+        # 埋点不是功能，失败就静默跳过，绝不冒风险影响页面
+        pass
