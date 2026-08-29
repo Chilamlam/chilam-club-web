@@ -5,6 +5,11 @@ on:
     - cron: '37 11 * * *' # 北京时间 19:37 主跑批（错开整点/半点高峰，减少 Actions 排队延迟）
     - cron: '20 14 * * *' # 北京时间 22:20 兜底补跑（主跑批被延迟或失败时保证当日数据落地）
   workflow_dispatch:      # 保留手动触发按钮，方便调试
+    inputs:
+      backfill_days:
+        description: '战绩回看历史回溯天数（0=不回溯，仅当日增量；首次上线建议填 40）'
+        required: false
+        default: '0'
 
 jobs:
   build:
@@ -56,7 +61,7 @@ jobs:
     - name: Run Guru Loader
       continue-on-error: true
       run: python daily_guru_loader.py
-    
+
     - name: Run Anomaly Radar
       continue-on-error: true
       env:
@@ -76,6 +81,46 @@ jobs:
         TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
       run: python daily_breakout.py
 
+    # 情绪派生指标：必须排在 Market Monitor 之后（依赖它产出的 limit_ladder.json）
+    # 退出码 2=incomplete（部分指标缺失，已在产物里标注）、3=failed，均不阻断后续步骤
+    - name: Run Sentiment Derived
+      continue-on-error: true
+      env:
+        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+      run: python daily_sentiment.py
+
+    # 战绩归档与绩效：必须排在所有榜单跑批之后（读取当日 strong_stocks / breakout / strong_etfs）
+    # backfill_days > 0 时先用 tushare 重建历史 RPS 榜，再做当日增量
+    - name: Run Scorecard
+      continue-on-error: true
+      env:
+        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+        BACKFILL_DAYS: ${{ github.event.inputs.backfill_days }}
+      run: |
+        if [ -n "$BACKFILL_DAYS" ] && [ "$BACKFILL_DAYS" != "0" ]; then
+          echo "===== 历史回溯 $BACKFILL_DAYS 个交易日 ====="
+          python daily_scorecard.py --backfill "$BACKFILL_DAYS" || echo "backfill 退出码 $?"
+        fi
+        python daily_scorecard.py
+
+    # 收盘摘要：必须排在 Sentiment + Scorecard 之后（读它们的产物组装文本）
+    # 没配任何推送渠道时也会把摘要归档到 data/digest/，站内「收盘摘要」页即可读
+    - name: Run Closing Digest
+      continue-on-error: true
+      env:
+        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        DIGEST_SMTP_HOST: ${{ secrets.DIGEST_SMTP_HOST }}
+        DIGEST_SMTP_PORT: ${{ secrets.DIGEST_SMTP_PORT }}
+        DIGEST_SMTP_USER: ${{ secrets.DIGEST_SMTP_USER }}
+        DIGEST_SMTP_PASS: ${{ secrets.DIGEST_SMTP_PASS }}
+        DIGEST_SMTP_FROM: ${{ secrets.DIGEST_SMTP_FROM }}
+        DIGEST_TEST_TO: ${{ secrets.DIGEST_TEST_TO }}
+        DIGEST_WECOM_WEBHOOK: ${{ secrets.DIGEST_WECOM_WEBHOOK }}
+        DIGEST_SERVERCHAN_KEY: ${{ secrets.DIGEST_SERVERCHAN_KEY }}
+      run: python daily_digest.py
+
     - name: Show data freshness
       run: |
         echo "===== 数据新鲜度自检 ====="
@@ -84,6 +129,9 @@ jobs:
         echo "-- RPS 强势股:"  ; tail -1 data/strong_stocks.csv | awk -F, '{print $NF}' || true
         echo "-- 突破池:"      ; tail -1 data/breakout_stocks.csv | awk -F, '{print $NF}' || true
         echo "-- 连板天梯:"    ; python -c "import json;d=json.load(open('data/limit_ladder.json'));print(d['date'],'涨停',d['total_count'],'家 最高',d['max_height'],'板')" || true
+        echo "-- 情绪派生:"    ; python -c "import json;d=json.load(open('data/sentiment/derived.json'));p=d.get('phase') or {};print(d['status'],d['date'],'归档',d['archive_days'],'天 周期',p.get('phase','—'),'验证条件',len(d.get('verification_plan') or []),'条')" || true
+        echo "-- 战绩绩效:"    ; python -c "import json;d=json.load(open('data/scorecard/performance.json'));a=d.get('archive') or {};print(d['status'],'榜单区间',a.get('date_from','—'),'~',a.get('date_to','—'),a.get('trade_days','—'),'个交易日 策略',len(d.get('strategies') or {}),'个')" || true
+        echo "-- 收盘摘要:"    ; python -c "import json;d=json.load(open('data/digest/latest.json'));print(d['date'],'有内容' if d['has_content'] else '无内容','缺失',len(d.get('missing') or []),'项 |',d['plain'][:80])" || true
 
     # ★★★ 防弹提交：本地提交后 rebase 远程，冲突以本地新数据为准，并重试推送 ★★★
     - name: Commit and push changes
