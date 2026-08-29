@@ -17,6 +17,12 @@
    否则月 K 会被误发到 mkline 接口而返回空。
 2. 美股指数(.IXIC/.DJI/.INX) 的分时与分钟 K 在新浪要带前导点，腾讯日/周/月 K 则用
    usIXIC 这种不带交易所后缀的写法；美股个股反过来必须带 .OQ/.N 后缀。
+
+自动技术分析（K 线周期可用，分时不做结构识别）由两个模块提供：
+  tech_analysis.py —— 纯计算（缠论包含处理/分型/笔/线段/中枢；帝纳波利 DMA/
+                      Fibnode/COP·OP·XOP/汇聚区/MACD 8-17-9 背离），不依赖 Streamlit
+  tech_overlay.py  —— 纯绘制（Plotly 图层 + 文字结论 + 免责声明）
+自检: tools_probe_tech_analysis.py（结构合法性 + 全周期渲染，须用 stcheck venv 跑）
 """
 import streamlit as st
 import pandas as pd
@@ -24,6 +30,9 @@ import plotly.graph_objects as go
 import urllib.request
 import json
 import re
+
+import tech_analysis as ta
+import tech_overlay as tov
 
 _UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 _UA_SINA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
@@ -563,30 +572,54 @@ def _render_minute_chart(sym: dict, quote: dict, df: pd.DataFrame):
     st.plotly_chart(fig, use_container_width=True)
 
 
-def _render_kline_chart(sym: dict, quote: dict, df: pd.DataFrame, period: str):
+def _render_kline_chart(sym: dict, quote: dict, df: pd.DataFrame, period: str,
+                        modes: list = None, show_stroke: bool = True,
+                        show_ma: bool = True):
+    """
+    K 线主图。modes 为空 → 只画蜡烛 + MA；否则按选中的分析体系叠加图层。
+    返回 analyze() 的结果，供调用方渲染文字结论与 MACD 副图（避免重复计算）。
+    """
     name = quote.get("name", sym["display"])
+    modes = modes or []
+
     fig = go.Figure()
     fig.add_trace(go.Candlestick(
         x=df["datetime"], open=df["open"], high=df["high"], low=df["low"], close=df["close"],
         name=period, increasing_line_color="#ff4d4d", decreasing_line_color="#2ecc71"))
-    for w, color in ((5, "#f39c12"), (20, "#3498db")):
-        if len(df) >= w:
-            fig.add_trace(go.Scatter(x=df["datetime"], y=df["close"].rolling(w).mean(),
-                                     name=f"MA{w}", line=dict(color=color, width=1.4)))
+
+    # 叠加帝纳波利 DMA 时不再画普通 MA，避免图上七八条线糊成一片
+    if show_ma and tov._MODE_DINAPOLI not in modes:
+        for w, color in ((5, "#f39c12"), (20, "#3498db")):
+            if len(df) >= w:
+                fig.add_trace(go.Scatter(x=df["datetime"], y=df["close"].rolling(w).mean(),
+                                         name=f"MA{w}", line=dict(color=color, width=1.4)))
+
+    res = ta.analyze(df) if modes else {"ok": False, "reason": ""}
+    if modes and res.get("ok"):
+        if tov._MODE_CHAN in modes:
+            tov.draw_chan(fig, df, res, show_stroke=show_stroke)
+        if tov._MODE_DINAPOLI in modes:
+            tov.draw_dinapoli(fig, df, res)
+
+    title = f"{name} · {period}（{len(df)} 根）"
+    if modes and res.get("ok"):
+        title += " · " + " + ".join(modes)
     fig.update_layout(
-        title=f"{name} · {period}（{len(df)} 根）",
+        title=title,
         xaxis=dict(rangeslider=dict(visible=False), tickangle=-45, type="category",
                    nticks=14, gridcolor="rgba(128,128,128,0.2)"),
         yaxis=dict(title="价格", gridcolor="rgba(128,128,128,0.2)"),
-        hovermode="x unified", height=520,
+        hovermode="x unified", height=600 if modes else 520,
         legend=dict(orientation="h", y=1.06, x=0),
     )
     st.plotly_chart(fig, use_container_width=True)
+    return res
 
 
 def render_live_quote_page():
-    st.header("⚡ 全市场实时行情与 K 线看板")
-    st.caption("A股 / ETF / 指数 · 港股 · 美股 · 国际大宗商品 —— 周期选项按各市场实际可取到的数据动态生成")
+    st.header("⚡ 全市场实时行情与自动技术分析")
+    st.caption("A股 / ETF / 指数 · 港股 · 美股 · 国际大宗商品 —— 周期选项按各市场实际可取到的数据动态生成；"
+               "K 线周期支持自动画缠论结构（笔 / 线段 / 中枢）与帝纳波利位置（DMA / F3·F5 回撤 / COP·OP·XOP 目标位）")
 
     if "active_symbol" not in st.session_state:
         st.session_state.active_symbol = "600519"
@@ -662,9 +695,43 @@ def render_live_quote_page():
             st.info("暂无当日分时数据（可能尚未开盘或数据源临时无响应），可切换到日 K 查看。")
         else:
             _render_minute_chart(sym, quote, df)
-    else:
-        df = get_kline(sym, period)
-        if df.empty:
-            st.info(f"暂未取到 {period} 数据，数据源可能临时无响应，稍后重试或换个周期。")
-        else:
-            _render_kline_chart(sym, quote, df, period)
+        st.caption("ℹ️ 自动技术分析作用于 K 线周期，分时图不做结构识别 —— "
+                   "缠论的笔与帝纳波利的摆动点都需要完整 K 线的高低点。")
+        return
+
+    df = get_kline(sym, period)
+    if df.empty:
+        st.info(f"暂未取到 {period} 数据，数据源可能临时无响应，稍后重试或换个周期。")
+        return
+
+    st.markdown("**🧠 自动技术分析**")
+    a1, a2, a3 = st.columns([3, 1.2, 1.2])
+    with a1:
+        modes = st.multiselect(
+            "分析体系（可多选，留空则只看普通 K 线）",
+            tov.ANALYSIS_MODES, default=[tov._MODE_CHAN],
+            key=f"ta_modes_{market}",
+            help="缠论：K线包含处理 → 分型 → 笔 → 线段 → 中枢；"
+                 "帝纳波利：3x3/7x5/25x5 位移均线 + F3/F5 斐波那契回撤位 + COP/OP/XOP 目标位 + 汇聚区")
+    with a2:
+        show_stroke = st.checkbox("显示笔", value=True, key=f"ta_stroke_{market}",
+                                  help="关掉后只保留高一级的线段，图面更干净")
+    with a3:
+        show_macd = st.checkbox("MACD 副图", value=bool(modes), key=f"ta_macd_{market}",
+                                help="8/17/9 快参数 + 自动标注顶/底背离")
+
+    res = _render_kline_chart(sym, quote, df, period,
+                             modes=modes, show_stroke=show_stroke)
+
+    if not modes:
+        st.caption("ℹ️ 勾选上方的分析体系即可在图上自动画出缠论结构或帝纳波利位置。")
+        return
+
+    if not res.get("ok"):
+        st.warning(f"无法完成结构分析：{res.get('reason', '未知原因')}")
+        return
+
+    if show_macd:
+        st.plotly_chart(tov.draw_macd(df, res), use_container_width=True)
+
+    tov.render_conclusion(res, period, modes)

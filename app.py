@@ -614,7 +614,7 @@ def main():
         st.markdown("---")
         menu_items = [
             "🛸 全市场看板",
-            "⚡ 实时行情 (分时/K线)",
+            "⚡ 实时行情 + 技术分析",
             "🔥 强势股",
             "⭐ 自选股雷达",
             "🌐 宏观与股债性价比",
@@ -632,7 +632,7 @@ def main():
 
     if page == "🛸 全市场看板":
         render_market_dashboard()
-    elif page == "⚡ 实时行情 (分时/K线)":
+    elif page == "⚡ 实时行情 + 技术分析":
         render_live_quote_page()
     elif page == "🔥 强势股":
         if not auth.is_vip():
