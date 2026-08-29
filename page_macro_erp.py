@@ -13,6 +13,140 @@ import urllib.request
 import urllib.parse
 from datetime import datetime, timedelta
 
+# ==================== 全球核心资产实时报价（真实通道，2026-08-29 实测） ====================
+# 铁律：这一块曾经写死过一组 2024 年的假数据（纳指 19,845 / 黄金 2,512 / 原油 75.8），
+# 长期把过期价格当实时行情展示给用户。任何看板数值都必须来自下面的实时接口，
+# 取不到就显示「—」并明确提示，绝不允许再出现硬编码价格。
+#
+# | 资产 | 通道 | 关键字段 |
+# |------|------|----------|
+# | 美股指数 | 腾讯 qt.gtimg.cn/q=usNDX,usINX,usDJI | ~ 分隔：[3]现价 [4]昨收 [31]涨跌 [32]涨跌% [30]时间 |
+# | 港股指数 | 腾讯 qt.gtimg.cn/q=hkHSI | 同上 |
+# | 国际商品 | 新浪 hq.sinajs.cn/list=hf_XAU,hf_CL,hf_CAD,hf_CHA50CFD | , 分隔：[0]现价 [7]昨收 [13]名称 [6]时间 [12]日期 |
+# | 外汇 | 新浪 hq.sinajs.cn/list=fx_susdcnh | , 分隔：[8]现价 [10]涨跌% [11]涨跌 [9]名称 [0]时间 [17]日期 |
+#
+# 注意：`usSPX` / `hf_DX`（美元指数）/ `usUS10Y` 均返回空，不要用。
+#      标普 500 用 `usINX`，纳指 100 用 `usNDX`（`usIXIC` 是纳斯达克综指，不是 100）。
+
+_UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+_UA_SINA = dict(_UA, Referer="https://finance.sina.com.cn")
+
+# (key, 源, 源代码, 展示名, 价格格式, 类型标签, 解读)
+GLOBAL_ASSETS = [
+    ("ndx",  "tx",   "usNDX",       "纳斯达克 100",              "num",   "📈 全球风险资产", "全球科技股总风向标"),
+    ("inx",  "tx",   "usINX",       "标普 500",                  "num",   "📈 全球风险资产", "美股大盘中枢"),
+    ("dji",  "tx",   "usDJI",       "道琼斯工业",                "num",   "📈 全球风险资产", "美国传统经济与价值股"),
+    ("hsi",  "tx",   "hkHSI",       "恒生指数",                  "num",   "🐉 中国资产", "离岸中国资产定价锚"),
+    ("a50",  "sina", "hf_CHA50CFD", "富时中国 A50 期货",         "num",   "🐉 中国资产", "A股盘前盘后核心情绪指引"),
+    ("cnh",  "fx",   "fx_susdcnh",  "美元/离岸人民币 (USD/CNH)", "fx",    "💵 汇率变动", "上行=人民币贬值，外资流出压力"),
+    ("xau",  "sina", "hf_XAU",      "现货黄金 (XAU/USD)",        "usd_oz", "🛡️ 避险资产", "抗通胀与地缘避险核心"),
+    ("cl",   "sina", "hf_CL",       "WTI 原油",                  "usd_bbl", "🛢️ 大宗商品", "全球经济与能源需求温度计"),
+    ("cu",   "sina", "hf_CAD",      "伦铜 (LME)",                "usd_ton", "🛢️ 大宗商品", "工业需求先行指标，铜金比看复苏"),
+]
+
+
+def _mac_http(url, headers):
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req, timeout=8) as resp:
+        return resp.read().decode("gbk", errors="ignore")
+
+
+def _mac_f(v, default=None):
+    try:
+        f = float(v)
+        return f if np.isfinite(f) else default
+    except (TypeError, ValueError):
+        return default
+
+
+def _fmt_asset_price(v, kind):
+    """按资产类型格式化价格。禁用 :.4g（指数会变成科学计数法）。"""
+    if v is None:
+        return "—"
+    if kind == "fx":
+        return f"{v:.4f}"
+    if kind == "usd_oz":
+        return f"${v:,.2f}/oz"
+    if kind == "usd_bbl":
+        return f"${v:,.2f}/桶"
+    if kind == "usd_ton":
+        return f"${v:,.0f}/吨"
+    return f"{v:,.2f}" if abs(v) < 10000 else f"{v:,.1f}"
+
+
+def _fetch_tx_assets(codes: dict) -> dict:
+    """腾讯批量报价。codes = {key: usNDX}。返回 {key: {price, pct, chg, name, ts}}"""
+    out = {}
+    if not codes:
+        return out
+    try:
+        q = ",".join(codes.values())
+        txt = _mac_http(f"https://qt.gtimg.cn/q={q}", _UA)
+        rev = {v: k for k, v in codes.items()}
+        for line in txt.strip().splitlines():
+            m = re.match(r'v_(\w+)="([^"]*)"', line.strip())
+            if not m or not m.group(2):
+                continue
+            key = rev.get(m.group(1))
+            p = m.group(2).split("~")
+            if key is None or len(p) < 33:
+                continue
+            out[key] = {"price": _mac_f(p[3]), "pct": _mac_f(p[32]),
+                        "chg": _mac_f(p[31]), "name": p[1], "ts": p[30]}
+    except Exception:
+        pass
+    return out
+
+
+def _fetch_sina_assets(hf_codes: dict, fx_codes: dict) -> dict:
+    """新浪批量报价。hf_(国际商品/期货) 与 fx_(外汇) 可以放在同一次请求里。"""
+    out = {}
+    allc = {**hf_codes, **fx_codes}
+    if not allc:
+        return out
+    try:
+        txt = _mac_http("https://hq.sinajs.cn/list=" + ",".join(allc.values()), _UA_SINA)
+        rev = {v: k for k, v in allc.items()}
+        for line in txt.strip().splitlines():
+            m = re.match(r'var hq_str_(\w+)="([^"]*)"', line.strip())
+            if not m or not m.group(2):
+                continue
+            key = rev.get(m.group(1))
+            if key is None:
+                continue
+            p = m.group(2).split(",")
+            if m.group(1).startswith("fx_"):
+                # 外汇: [8]现价 [10]涨跌% [11]涨跌 [9]名称 [0]时间 [17]日期
+                if len(p) < 18:
+                    continue
+                out[key] = {"price": _mac_f(p[8]), "pct": _mac_f(p[10]),
+                            "chg": _mac_f(p[11]), "name": p[9],
+                            "ts": f"{p[17]} {p[0]}"}
+            else:
+                # 国际商品: [0]现价 [7]昨收 [13]名称 [6]时间 [12]日期（无现成涨跌幅，自算）
+                if len(p) < 14:
+                    continue
+                cur, prev = _mac_f(p[0]), _mac_f(p[7])
+                pct = ((cur - prev) / prev * 100) if (cur is not None and prev) else None
+                out[key] = {"price": cur, "pct": pct,
+                            "chg": (cur - prev) if (cur is not None and prev is not None) else None,
+                            "name": p[13], "ts": f"{p[12]} {p[6]}"}
+    except Exception:
+        pass
+    return out
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def get_global_assets() -> dict:
+    """一次性拉全部全球核心资产实时报价。任何一路失败只影响该项，其余照常显示。"""
+    tx = {k: code for k, src, code, *_ in GLOBAL_ASSETS if src == "tx"}
+    hf = {k: code for k, src, code, *_ in GLOBAL_ASSETS if src == "sina"}
+    fx = {k: code for k, src, code, *_ in GLOBAL_ASSETS if src == "fx"}
+    data = {}
+    data.update(_fetch_tx_assets(tx))
+    data.update(_fetch_sina_assets(hf, fx))
+    return data
+
 # ==================== 行业/板块 真实前复权日K与市值数据引擎 ====================
 
 INDUSTRY_SINA_MAP = {
@@ -714,24 +848,47 @@ def render_macro_erp_page():
     # ==================== Tab 3: 全球宏观资产联动 ====================
     with tab_global:
         st.subheader("🌍 全球核心资产走势与资金风向标")
-        st.caption("监控外盘流动性、大宗商品、汇率与避险情绪")
+        st.caption("监控外盘流动性、大宗商品、汇率与避险情绪 · 数据来自腾讯/新浪实时行情接口，缓存 60 秒")
 
-        macro_items = [
-            {"name": "纳斯达克 100", "price": "19,845.2", "chg": "+1.25%", "type": "📈 全球风险资产", "desc": "全球科技股总风向标"},
-            {"name": "标普 500", "price": "5,620.8", "chg": "+0.68%", "type": "📈 全球风险资产", "desc": "美股大盘中枢"},
-            {"name": "美元/离岸人民币 (USD/CNH)", "price": "7.1420", "chg": "-0.18%", "type": "💵 汇率变动", "desc": "人民币升值利好 A股港股外资流入"},
-            {"name": "现货黄金 (XAU/USD)", "price": "$2,512.4/oz", "chg": "+0.45%", "type": "🛡️ 避险资产", "desc": "抗通胀与地缘避险核心"},
-            {"name": "WTI 原油", "price": "$75.8/桶", "chg": "-1.12%", "type": "🛢️ 大宗商品", "desc": "全球经济与能源需求温度计"},
-            {"name": "富时中国 A50 期货", "price": "12,180.0", "chg": "+0.85%", "type": "🐉 外盘先导", "desc": "A股盘前盘后核心情绪指引"}
-        ]
+        hc1, hc2 = st.columns([1, 4])
+        if hc1.button("🔄 刷新报价", key="macro_asset_refresh"):
+            get_global_assets.clear()
+            st.rerun()
+
+        assets = get_global_assets()
+        ok_n = sum(1 for v in assets.values() if v.get("price") is not None)
+        stamps = [v.get("ts", "") for v in assets.values() if v.get("ts")]
+        hc2.caption(f"✅ 成功获取 `{ok_n}/{len(GLOBAL_ASSETS)}` 项"
+                    + (f"｜最新行情时间 `{max(stamps)}`" if stamps else ""))
+        if ok_n < len(GLOBAL_ASSETS):
+            st.warning(f"有 {len(GLOBAL_ASSETS) - ok_n} 项行情暂时取不到（外盘接口偶发限流），"
+                       "对应卡片显示「—」。点上方刷新可重试，不会用历史值冒充实时价。")
 
         m_cols = st.columns(3)
-        for i, item in enumerate(macro_items):
+        for i, (key, _src, _code, disp, kind, tag, desc) in enumerate(GLOBAL_ASSETS):
+            d = assets.get(key, {})
+            price, pct = d.get("price"), d.get("pct")
             with m_cols[i % 3]:
                 with st.container(border=True):
-                    st.markdown(f"#### {item['name']}")
-                    st.markdown(f"## `{item['price']}`")
-                    is_up = "+" in item['chg']
-                    color = "red" if is_up else "green"
-                    st.markdown(f"**涨跌幅**: :{color}[{item['chg']}] | `{item['type']}`")
-                    st.caption(item['desc'])
+                    st.markdown(f"#### {disp}")
+                    st.markdown(f"## `{_fmt_asset_price(price, kind)}`")
+                    if pct is None:
+                        st.markdown("**涨跌幅**: `—` | `" + tag + "`")
+                    else:
+                        # A股习惯：涨红跌绿
+                        color = "red" if pct > 0 else ("green" if pct < 0 else "gray")
+                        st.markdown(f"**涨跌幅**: :{color}[{pct:+.2f}%] | `{tag}`")
+                    st.caption(desc)
+
+        # 铜金比：工业需求 / 避险需求的相对强弱，是判断全球复苏的经典比价
+        cu = assets.get("cu", {}).get("price")
+        au = assets.get("xau", {}).get("price")
+        st.divider()
+        if cu and au:
+            ratio = cu / au
+            st.markdown(f"**🔀 铜金比 (LME 铜 / 现货黄金)**：`{ratio:.3f}`")
+            st.caption("铜金比走高 = 工业需求强于避险需求，通常对应全球复苏与风险偏好回升；"
+                       "走低 = 避险主导，对应衰退担忧。只看方向变化，不看绝对值。")
+        else:
+            st.caption("🔀 铜金比：所需报价缺失，暂不计算。")
+
