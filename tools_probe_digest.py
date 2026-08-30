@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import ast
 import contextlib
+import glob
 import importlib
 import io
 import json
@@ -401,8 +402,31 @@ ck({"情绪派生", "战绩绩效", "收盘摘要"} <= _fresh, "新鲜度自检�
 wf = open(os.path.join(ROOT, ".github", "workflows", "daily_update.yml"),
           encoding="utf-8").read()
 ck("run_daily.py" in wf, "yml 通过编排器统一跑批（薄壳化）")
-ck("toJSON(secrets)" in wf,
-   "secrets 整体透传——新增推送渠道密钥无需再改 yml（PAT 改不了 yml）")
+# 2026-08-30 回退：`toJSON(secrets)` 把整个 secrets 集合序列化进环境变量，
+# 正是凭据外泄攻击的标志动作，GitHub 供应链保护会把 run 挂起等人工 Approve
+# （公开仓库，run #334 实测被拦）。定时跑批被挂起时无人知晓 → 当日 data/ 不落盘，
+# 比「加 secret 时人工一次」严重得多。故必须逐个点名。
+#
+# 匹配前必须剥掉注释行：yml 注释里正当地引用了这个表达式来解释为何回退，
+# 裸匹配会被自己的文档误伤。这类假失败会训练人忽略自检输出，比没有自检更糟
+# （8/30 已因同类原因踩过三次：continue-on-error、end_date、import streamlit）。
+_wf_code = "\n".join(ln for ln in wf.splitlines() if not ln.lstrip().startswith("#"))
+ck(not re.search(r"\$\{\{\s*toJSON\s*\(\s*secrets\s*\)\s*\}\}", _wf_code),
+   "yml 不得用 toJSON(secrets) 整体透传（会被 GitHub 供应链保护挂起，导致定时跑批静默不执行）")
+# 逐个点名的代价是「漏点名」会让功能静默失效（引用不存在的 secret 只得到空字符串，
+# 不报错）。所以这里反过来断言：代码里实际读取的每个密钥名，yml 都必须点到。
+_env_names = set()
+for _f in sorted(glob.glob(os.path.join(ROOT, "daily_*.py")) +
+                 [os.path.join(ROOT, "database.py")]):
+    _src = open(_f, encoding="utf-8").read()
+    _env_names |= set(re.findall(
+        r"(?:getenv|environ\.get)\(\s*[\"']([A-Z][A-Z0-9_]{3,})[\"']", _src))
+    _env_names |= set(re.findall(r"_env\(\s*[\"']([A-Z][A-Z0-9_]{3,})[\"']", _src))
+# ALL_SECRETS 是已废弃的透传入口，BACKFILL_DAYS/ONLY_STEPS 来自 workflow 输入而非 secrets
+_env_names -= {"ALL_SECRETS", "BACKFILL_DAYS", "ONLY_STEPS"}
+_missing = sorted(n for n in _env_names if n not in wf)
+ck(not _missing,
+   f"代码读取的密钥必须都在 yml 里点名，否则静默变空字符串。缺：{_missing}")
 ck("backfill_days" in wf, "workflow_dispatch 支持首次历史回溯入参")
 # 注意用正则匹配「行首缩进 + 键」而非裸字符串：yml 的注释里正当地提到了
 # continue-on-error（解释失败语义搬去了哪里），裸 in 判断会被注释误伤。
