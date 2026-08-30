@@ -1,16 +1,62 @@
 {
-  "status": "incomplete",
+  "status": "complete",
   "date": "20260828",
-  "prev_date": null,
-  "generated_at": "2026-08-30 01:59:49",
-  "archive_days": 1,
+  "prev_date": "20260827",
+  "generated_at": "2026-08-30 14:43:38",
+  "archive_days": 12,
   "promotion": {
-    "status": "failed",
-    "reason": "归档中尚无更早的交易日，晋级率需要至少两天数据才能计算"
+    "status": "ok",
+    "prev_date": "20260827",
+    "date": "20260828",
+    "rates": {
+      "1进2": {
+        "base": 61,
+        "promoted": 10,
+        "rate": 0.16393442622950818,
+        "reliable": true
+      },
+      "2进3": {
+        "base": 8,
+        "promoted": 3,
+        "rate": 0.375,
+        "reliable": false
+      },
+      "3进4": {
+        "base": 5,
+        "promoted": 3,
+        "rate": 0.6,
+        "reliable": false
+      },
+      "4进5": {
+        "base": 1,
+        "promoted": 1,
+        "rate": 1.0,
+        "reliable": false
+      },
+      "5进6": {
+        "base": 1,
+        "promoted": 0,
+        "rate": 0.0,
+        "reliable": false
+      },
+      "6进7": {
+        "base": 1,
+        "promoted": 1,
+        "rate": 1.0,
+        "reliable": false
+      }
+    }
   },
   "premium": {
-    "status": "failed",
-    "reason": "缺少前一交易日涨停归档"
+    "status": "ok",
+    "prev_date": "20260827",
+    "n": 16,
+    "missing": 0,
+    "median_pct": 7.28935,
+    "mean_pct": 5.0580875,
+    "win_rate": 0.75,
+    "limit_again": 8,
+    "reason": null
   },
   "ladder_gap": {
     "status": "ok",
@@ -64,10 +110,26 @@
     "verdict": "均值与中位数基本一致，涨跌较为普遍"
   },
   "phase": {
-    "status": "insufficient",
-    "reason": "1进2 样本不足或缺失，无法定位周期（不做猜测）"
+    "status": "ok",
+    "phase": "退潮期",
+    "basis": "晋级率明显走低，接力开始失败",
+    "r12": 0.16393442622950818,
+    "premium_median": 7.28935,
+    "note": "周期定位仅描述当前市场状态，不构成参与建议或仓位指引。"
   },
   "verification_plan": [
+    {
+      "指标": "1进2 晋级率",
+      "今日基准": "16.4%（10/61）",
+      "验证条件": "明日若跌破 15%，视为接力意愿转弱；若站上 26%，视为情绪继续发酵",
+      "为什么看它": "首板数量足、样本稳定，是次日资金接力意愿最敏感的前瞻指标"
+    },
+    {
+      "指标": "昨日连板股今日中位涨幅",
+      "今日基准": "+7.29%（16 只，胜率 75%）",
+      "验证条件": "明日若转负且胜率跌破 40%，说明接力资金已停止出价（退潮确认）",
+      "为什么看它": "衡量「昨天追高的人今天赚不赚钱」，比涨停家数更贴近真实体感"
+    },
     {
       "指标": "连板梯队最高高度",
       "今日基准": "7 板，断层于 [6] 板",
