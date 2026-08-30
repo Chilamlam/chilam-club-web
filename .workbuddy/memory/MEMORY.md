@@ -12,12 +12,15 @@ Streamlit + GitHub Actions + 量化策略的投资驾驶舱与会员服务（部
 - **`data/` 归 Actions 云端所有**；本地 push 前必须 `fetch + pull --rebase`。**严禁强推或重写 main 历史**（8/28 强推抹掉三次数据提交）。
 - **数据停更排查序**：① `git log --all --grep="Auto-update"` 为空 = 历史被重写；② 查 API `/events` PushEvent `before→head` 链是否断开；③ `git checkout <sha> -- data/` 恢复。
 - **PAT 只有 `repo` scope，改不了 `.github/workflows/*.yml`，四条路全实测封死**：`git push` → `without 'workflow' scope`；Contents API PUT → 404；Git Data API `POST /git/trees` → 404（blob 成功、tree 被拦）；同两条 API 推**普通文件**均 200/201 成功。**改工作流只有：① 网页端编辑；② 换带 `workflow` scope 的 PAT。** 推不上去的提交用 `git reset --soft HEAD~1` 撤回（工作树保留）。
+- **工作流已「薄壳化」，此后不应再需要改 yml**（8/30）。yml 只剩 5 步：Checkout / Set up Python / Install deps / `python run_daily.py` / Commit and push。所有会变的东西下沉到普通 .py：步骤表·顺序·超时·回溯策略·失败语义·新鲜度自检 → `run_daily.py`；依赖 → `requirements-batch.txt`；**secrets → `ALL_SECRETS: ${{ toJSON(secrets) }}` 整体透传**，`inject_secrets()` 展开（空值不注入、跳过 GITHUB_TOKEN、已存在不覆盖、从 environ pop 掉、只回显键名），**新增任何 secret 都不必改 yml**。
+- **编排器 `run_daily.py` 三条硬约束**：① 逐步骤捕获异常/非零码后继续、**恒 exit 0**（否则 yml 的 `data/` 提交步骤不执行，当日全量数据不落盘）；② 每步独立 timeout，超时记 124 后继续；③ 回溯三模式 `none`/`inline`/`extra_pass` + `backfill_cap`（sentiment 截顶 15）。**新增跑批只改 `STEPS` 表**，`tools_probe_run_daily.py` 会断言「仓库里所有 `daily_*.py` 必须全部进入步骤表」，漏挂即报错。
+- **yml 里手动输入一律走 `env:` 不直接插值进 `run:`**：`${{ inputs.xxx }}` 会被原文拼进 shell，输入带引号/分号即命令注入。
 - **备用推送通道**（推普通文件）：`tools_gh_put_file.py`、`tools_gh_put_via_gitdata.py`，均从 remote url 取 token 且不回显。
 - **git 传输不稳根因是 HTTP/2 被中间设备打断**（`close_notify` 后 `443 Timed out`）。加 `-c http.version=HTTP/1.1` 立刻可用，已写进本地 config（另 `http.postBuffer 524288000`）。**`api.github.com` curl 200 不代表 git 传输通。** fetch/push 一律写重试循环（实测第 4 次才通），推完用 API `/commits/main` 核验。
 - **`.git` 损坏两级**。轻：`refs/` 消失 → `mkdir -p .git/refs/{heads,tags,remotes/origin}` + 从 `.git/FETCH_HEAD` 取 sha `printf >` 手写 loose ref（`update-ref`/`pack-refs` 此时静默失效）。重：`objects/pack/` 只剩 `.idx` 没 `.pack`（`.git` 掉到 480K）→ 直接重建：备份工作区（删其 `.git`）→ 远端 `clone --depth 1 --no-checkout` 取对象库 → `tar` 复制（`cp -r` 会截断）→ **`git reset --mixed HEAD` 重建 index 不动工作区**（漏这步 status 全报 deleted）→ `fetch --unshallow` → `git checkout -- data/`。
 - **手动触发跑批**：`POST /repos/Chilamlam/chilam-club-web/actions/workflows/daily_update.yml/dispatches`，body `{"ref":"main","inputs":{"backfill_days":"40"}}`，token 从 `git config --get remote.origin.url` 提取（**不回显**），返 204，全量约 12 分钟。
 - **cron 不可信**（8/28 两条均未派发）：先看有没有运行记录，再看是否失败。
-- **新增 `daily_*.py` 必须同步加 workflow step**，每步 `continue-on-error: true`（否则任一异常中断 job，当日全量数据不落地）。顺序依赖：`sentiment` 在 `market_monitor` 后、`scorecard` 在所有榜单后、`digest` 在前两者后。
+- **新增 `daily_*.py` 只需加进 `run_daily.py` 的 `STEPS` 表**（薄壳化后不再改 yml）。顺序依赖：`sentiment` 在 `market_monitor` 后、`scorecard` 在所有榜单后、`digest` 在前两者后。
 - **前端 10 分钟缓存**（`ttl=600`）：推完最多滞后 10 分钟；要立刻看走右上菜单 Clear cache / Rerun，必要时 `share.streamlit.io` → Reboot。
 - `data/*.json` 用 `head`/`cat` 看中文是乱码（Git Bash 按 GBK 解 UTF-8），非损坏；校验用 `json.load(open(..., encoding='utf-8'))`。
 
