@@ -321,6 +321,15 @@ ck("day != date_key" in _SEG_FB,
    "兜底必须校验行情日期：拿到别的交易日的涨幅要整段丢弃，不可冒充今日")
 ck("qt.gtimg.cn" in _SEG_FB, "兜底走腾讯行情（纯 stdlib，无额外依赖）")
 ck("import tushare" not in _SEG_FB, "兜底通道不复用失效的 tushare 依赖")
+
+# 「投递成功 N/N」这行读不出用户收到的是个性化版还是通用版：个性化渲染成空时，
+# 用户照样收到一条计入成功的通用摘要，日志毫无异常 → 付费独占内容静默消失。
+_SEG_WX = SRC_DAILY[SRC_DAILY.find("def send_wxpusher"):]
+_SEG_WX = _SEG_WX[:_SEG_WX.find("\ndef ", 10)] if "\ndef " in _SEG_WX[10:] else _SEG_WX
+ck("个性化" in _SEG_WX and "通用" in _SEG_WX and "n_person_ok" in _SEG_WX,
+   "投递日志分别计数个性化/通用（只打总数会让降级投递看起来完全正常）")
+ck('"你的池子" not in p["markdown"]' in _SEG_WX,
+   "有自选股却渲染不出自选段时，显式记录降级而不是静默按成功投递")
 try:
     _dd_fb = importlib.import_module("daily_digest")
     ck(_dd_fb.fallback_pct_map([], "20260828") == {},

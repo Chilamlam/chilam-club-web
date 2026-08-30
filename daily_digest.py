@@ -258,13 +258,21 @@ def send_wxpusher(rec: list[dict], pct_map: dict, base: dict) -> str | None:
         return None
 
     ok_all, bad_all = [], []
+    # 个性化段是付费用户唯一独占的内容。只打「投递成功 N/N」看不出他们收到的是
+    # 个性化版还是通用版——个性化渲染成空时，用户照样收到一条「成功」的通用摘要，
+    # 日志毫无异常。故两类分别计数，并单独记录「本该个性化却降级」。
+    n_person_ok, n_plain_ok, degraded = 0, 0, []
 
     # 个性化：一人一份
     for uid, wl in [(u, w) for u, w in dedup if w]:
         p = dg.build_markdown(watchlist=wl, pct_map=pct_map)
+        # 有自选股却没渲染出自选段 = 已降级为通用版，必须显式记录而不是静默投递
+        if "你的池子" not in p["markdown"]:
+            degraded.append(f"…{uid[-6:]}（自选 {len(wl)} 只）")
         o, b = wx.send_to_uids([uid], p["markdown"], p["plain"])
         ok_all += o
         bad_all += b
+        n_person_ok += len(o)
 
     # 通用：合并一次
     plain_uids = [u for u, w in dedup if not w]
@@ -272,8 +280,13 @@ def send_wxpusher(rec: list[dict], pct_map: dict, base: dict) -> str | None:
         o, b = wx.send_to_uids(plain_uids, base["markdown"], base["plain"])
         ok_all += o
         bad_all += b
+        n_plain_ok += len(o)
 
-    print(f"{'✅' if not bad_all else '⚠️'} WxPusher 投递成功 {len(ok_all)}/{len(dedup)}")
+    print(f"{'✅' if not bad_all else '⚠️'} WxPusher 投递成功 {len(ok_all)}/{len(dedup)}"
+          f"（个性化 {n_person_ok} 位｜通用 {n_plain_ok} 位）")
+    if degraded:
+        print("   ⚠️ 有自选股但个性化段落为空，已降级为通用版："
+              + "、".join(degraded[:8]))
     for b in bad_all[:8]:
         print(f"   ❌ {b}")
     return None if not bad_all else f"wxpusher: {len(bad_all)} 个 UID 失败"
