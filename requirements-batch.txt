@@ -1,0 +1,15 @@
+# 跑批依赖清单（GitHub Actions 专用，与前端 requirements.txt 分开）
+#
+# 为什么单独一份：前端 requirements.txt 含 streamlit 等一大堆运行时不需要的包，
+# 跑批装它们纯属浪费 CI 时间；反之跑批需要 lxml / bs4 / cloudscraper 这些前端不用的抓取库。
+#
+# 为什么不写在 yml 里：PAT 不带 workflow scope 时改不了 yml，
+# 而「加一个依赖」是最常发生的变更之一。放到普通文件里就能自由推送。
+pandas
+tushare
+akshare
+requests
+plotly
+lxml
+beautifulsoup4
+cloudscraper
