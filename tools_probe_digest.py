@@ -16,7 +16,9 @@
 from __future__ import annotations
 
 import ast
+import contextlib
 import importlib
+import io
 import json
 import os
 import re
@@ -264,23 +266,48 @@ ck(0 < i_dash < i_menu, "摘要入口紧随全市场看板（第 2 位，最高�
 ck("auth.is_vip()" in SRC_PAGE, "摘要页对推送订阅做 VIP 判定")
 ck("内容在这里始终免费可看" in SRC_PAGE, "明确「锁投递不锁内容」")
 
-# 工作流接线
+# 跑批接线
+# 工作流已薄壳化：步骤清单与顺序不再写在 yml 里，而是下沉到 run_daily.py 的 STEPS 表
+# （理由：PAT 缺 workflow scope，改不了 yml，只能让 yml 不承载会变的东西）。
+# 因此这里改为断言「编排器里有这三个步骤且顺序正确」+「yml 确实是薄壳」。
+# 步骤表的完整性由 tools_probe_run_daily.py 深度校验，此处只守 digest 相关的接线。
+sys.path.insert(0, ROOT)
+import run_daily as _rd  # noqa: E402
+
+_keys = [s["key"] for s in _rd.STEPS]
+_scripts = {s["key"]: s["script"] for s in _rd.STEPS}
+for k, script in (("sentiment", "daily_sentiment.py"),
+                  ("scorecard", "daily_scorecard.py"),
+                  ("digest", "daily_digest.py")):
+    ck(_scripts.get(k) == script, f"编排器含步骤 {k} → {script}")
+_i = {k: i for i, k in enumerate(_keys)}
+ck(_i["sentiment"] > _i["market_monitor"],
+   "sentiment 排在 market_monitor 之后（依赖 limit_ladder.json）")
+ck(_i["sentiment"] < _i["scorecard"] < _i["digest"],
+   "顺序 sentiment → scorecard → digest")
+ck(_i["digest"] == len(_keys) - 1, "digest 是最后一步（读前两者产物）")
+# finish() 内部会打印新鲜度与汇总，这里只关心返回码，故临时静默以免污染自检输出
+_buf = io.StringIO()
+with contextlib.redirect_stdout(_buf):
+    _rc = _rd.finish([("x", 3, 0.0)])
+ck(_rc == 0,
+   "编排器即使有步骤失败也返回 0（等价原 yml 的 continue-on-error，保证 data/ 落盘）")
+_fresh = {lbl for lbl, _ in _rd.FRESHNESS}
+ck({"情绪派生", "战绩绩效", "收盘摘要"} <= _fresh, "新鲜度自检覆盖三个新产物")
+
 wf = open(os.path.join(ROOT, ".github", "workflows", "daily_update.yml"),
           encoding="utf-8").read()
-for step in ("Run Sentiment Derived", "Run Scorecard", "Run Closing Digest"):
-    ck(step in wf, f"工作流含步骤「{step}」")
-i_mon = wf.find("Run Market Monitor")
-i_sent = wf.find("Run Sentiment Derived")
-i_score = wf.find("Run Scorecard")
-i_dig = wf.find("Run Closing Digest")
-i_fresh = wf.find("Show data freshness")
-ck(i_mon < i_sent, "Sentiment 排在 Market Monitor 之后（依赖 limit_ladder.json）")
-ck(i_sent < i_score < i_dig < i_fresh, "顺序 Sentiment → Scorecard → Digest → 自检")
-ck(wf.count("continue-on-error: true") >= 11,
-   f"所有跑批步骤均带 continue-on-error（实际 {wf.count('continue-on-error: true')} 处）")
-ck("derived.json" in wf and "performance.json" in wf and "latest.json" in wf,
-   "新鲜度自检覆盖三个新产物")
+ck("run_daily.py" in wf, "yml 通过编排器统一跑批（薄壳化）")
+ck("toJSON(secrets)" in wf,
+   "secrets 整体透传——新增推送渠道密钥无需再改 yml（PAT 改不了 yml）")
 ck("backfill_days" in wf, "workflow_dispatch 支持首次历史回溯入参")
+# 注意用正则匹配「行首缩进 + 键」而非裸字符串：yml 的注释里正当地提到了
+# continue-on-error（解释失败语义搬去了哪里），裸 in 判断会被注释误伤。
+ck(not re.search(r"^\s*continue-on-error\s*:", wf, re.M),
+   "薄壳 yml 不再需要 continue-on-error 键（失败语义已收进编排器）")
+_steps_yml = re.findall(r"^\s*-\s*name:\s*(.+)$", wf, re.M)
+ck(len(_steps_yml) == 5,
+   f"yml 应只剩 5 步（装环境→跑编排器→提交），实际 {len(_steps_yml)}：{_steps_yml}")
 
 print("-" * 60)
 print(f"通过 {len(PASS)} 项，失败 {len(FAIL)} 项")
