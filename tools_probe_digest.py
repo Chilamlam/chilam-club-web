@@ -232,7 +232,7 @@ i_empty = SRC_DAILY.find("has_content")
 i_send = SRC_DAILY.find("send_wecom(base)")
 ck(0 < i_empty < i_send, "has_content 检查排在所有发送动作之前（防空推送）")
 ck("DIGEST_DRY_RUN" in SRC_DAILY, "支持 DRY_RUN 干跑（可安全首次验证）")
-ck("未配置任何推送渠道" in SRC_DAILY, "全渠道未配时给出明确提示而非报错")
+ck("未配置任何用户投递渠道" in SRC_DAILY, "全渠道未配时给出明确提示而非报错")
 ck("sys.exit(2)" in SRC_DAILY and "sys.exit(3)" in SRC_DAILY,
    "保留 2=部分失败 / 3=无内容 的退出码语义")
 ck("archive(base, date_key)" in SRC_DAILY, "先归档再发送（推送失败也留下产物）")
@@ -250,9 +250,11 @@ ck("sctapi.ftqq.com/{key}" not in SRC_DAILY.replace('f"https://sctapi.ftqq.com/{
 
 # Server酱 的失败会伪装成 HTTP 200（真实结果在响应体 code 字段），
 # 只看状态码会把「今天 5 条免费额度用完」记成推送成功，明天照样静默失败。
-ck('body.get("code")' in SRC_DAILY, "Server酱 校验响应体 code 字段而非只看 HTTP 状态")
+# 注意 8/30 起 Server酱 已降级为**管理员告警**通道（它的 SendKey 绑定单个微信、
+# 官方明确不支持群发，推不到付费用户手上），所以入参从 payload 改成 (title, body)。
+ck('resp.get("code")' in SRC_DAILY, "Server酱 校验响应体 code 字段而非只看 HTTP 状态")
 ck("code not in (0, None)" in SRC_DAILY, "code 非 0 判为失败")
-ck('" ".join(str(payload["title"]).split())' in SRC_DAILY,
+ck('" ".join(str(title).split())' in SRC_DAILY,
    "Server酱 title 压成单行（含换行会被服务端拒绝）")
 ck("[:800]" in SRC_DAILY, "响应体截断长度足够容纳 JSON（避免解析失败误判成功）")
 
@@ -284,12 +286,21 @@ ck("expires_at" in SRC_DAILY, "订阅到期字段用 expires_at（表的真实�
 # 用裸字符串判断会被自己写的注释误伤（同 continue-on-error 那次）。
 ck(not re.search(r'\.get\(\s*["\'](end_date|expire_date)["\']', SRC_DAILY),
    "不再从不存在的 end_date / expire_date 列取数")
-ck("subscriptions 表无 expires_at 列" in SRC_DAILY,
-   "表结构不符时必须显式报错，而不是安静返回 0 位订阅")
-ck('str(s.get("status") or "active") != "active"' in SRC_DAILY,
-   "只取 status=active 的订阅（已取消的订阅不该继续收付费邮件）")
-ck('u.get("digest_optin") is False' in SRC_DAILY,
+
+# 8/30 起名单取数下沉到 database.get_push_recipients（前端绑定页也要用同一份判定，
+# 逻辑留在跑批脚本里会导致两处口径漂移）。因此这三条断言改查 database.py。
+SRC_DB = open(os.path.join(ROOT, "database.py"), encoding="utf-8").read()
+_SEG_REC = SRC_DB[SRC_DB.find("def get_push_recipients"):]
+_SEG_REC = _SEG_REC[:_SEG_REC.find("\ndef ", 10)] if "\ndef " in _SEG_REC[10:] else _SEG_REC
+ck("def get_push_recipients" in SRC_DB, "database 提供统一的投递名单取数")
+ck("return None" in _SEG_REC,
+   "表结构不符/取数失败时返回 None，而不是安静返回 0 位订阅")
+ck('str(s.get("status") or "active") != "active"' in _SEG_REC,
+   "只取 status=active 的订阅（已取消的订阅不该继续收付费推送）")
+ck('u.get("digest_optin") is False' in _SEG_REC,
    "尊重退订标记（付费不等于同意被打扰），且缺列时默认订阅")
+# None 与 [] 必须在调用侧也被区分，否则「配置坏了」会长期伪装成「暂时没人付费」
+ck("if rec is None:" in SRC_DAILY, "调用侧区分 None（取数失败）与 []（确实没人）")
 try:
     _dd = importlib.import_module("daily_digest")
     _rows = [{"user_id": 2, "status": "active", "expires_at": "2099-01-01T00:00:00+00:00"},

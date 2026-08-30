@@ -8,23 +8,34 @@
    这样「收盘摘要」这个功能立刻可用（站内可读、可分享），
    推送渠道是叠加增强，不是前置门槛。
 
-2. **多渠道各自独立、互不阻断**。邮件、企业微信、Server酱 任一失败都只记一条
-   failure，不影响其他渠道和归档。渠道全部未配 = skipped，不算失败。
+2. **多渠道各自独立、互不阻断**。任一渠道失败只记一条 failure，
+   不影响其他渠道和归档。渠道全部未配 = skipped，不算失败。
 
 3. **绝不发空推送**。摘要 has_content=False（关键数据全缺）时不发送，
    只归档并打印原因。宁可今天不推，也不推一封"今天没有数据"的骚扰信。
 
-4. **收件人来自 Supabase 有效订阅**。这是推送该锁在付费墙后的原因——
-   它依赖用户的邮箱与我们的持续投入，别处抄不走。
+4. **渠道分工必须写清楚，否则会配错**（8/30 修正）：
+
+   · **WxPusher = 用户投递主通道**。一个 appToken + 每人一个 UID，
+     用户扫码关注一次即可，之后按 UID 精准推送。这是目前唯一免费、
+     能一对多推到微信、且不用把用户拉进企业通讯录的方案。
+   · **Server酱 = 管理员运维告警，不是用户通道**。它的 SendKey 绑定单个
+     微信账号，官方明确「群发不支持」——用它服务付费用户在架构上就是死路。
+     现在它只在「有渠道失败 / 有数据缺失 / 无人可投」时给站长报一声，
+     正好落在免费版 5 条/天以内。
+   · **邮件 = 可选兜底**。收盘 19:40 发出的邮件，用户次日早上才在促销堆里
+     翻到，「主动触达」这一段基本失效，所以不再是主路径；仍保留是因为
+     未绑定微信的付费用户总得有个去处。
 
 环境变量（GitHub Secrets）：
-  DIGEST_SMTP_HOST / _PORT / _USER / _PASS / _FROM   邮件（缺任一即跳过邮件）
-  DIGEST_WECOM_WEBHOOK    企业微信群机器人 webhook
-  DIGEST_SERVERCHAN_KEY   Server酱 SendKey（Turbo 的 SCT… 或 Server酱³ 的 sctp… 均可，
-                          脚本按前缀自动选端点，见 _serverchan_url）
-  SUPABASE_URL / SUPABASE_KEY   取有效订阅用户邮箱（缺则邮件仅发 DIGEST_TEST_TO）
-  DIGEST_TEST_TO          调试收件人，逗号分隔，始终包含
-  DIGEST_DRY_RUN=1        只归档不发送
+  WXPUSHER_APP_TOKEN     WxPusher 应用 token（用户投递主通道，AT_ 开头）
+  DIGEST_SERVERCHAN_KEY  Server酱 SendKey —— **仅管理员告警**
+  DIGEST_WECOM_WEBHOOK   企业微信群机器人（内部群播报，可选）
+  DIGEST_SMTP_HOST / _PORT / _USER / _PASS / _FROM   邮件兜底
+  SUPABASE_URL / SUPABASE_KEY   取有效订阅名单（**两个都必须配**，缺一即整段跳过）
+  DIGEST_TEST_TO         调试收件邮箱，逗号分隔
+  WXPUSHER_TEST_UID      调试推送 UID，逗号分隔（自测用，无需真实订阅）
+  DIGEST_DRY_RUN=1       只归档不发送
 
 退出码：0 正常（含全渠道未配置）/ 2 部分渠道失败 / 3 摘要无内容或归档失败
 """
@@ -84,58 +95,32 @@ def gather_pct_map() -> dict:
         return {}
 
 
-def subscriber_emails() -> list[tuple[str, list[str]]]:
+def recipients() -> tuple[list[dict] | None, str]:
     """
-    返回 [(email, watchlist)] —— 有效订阅用户及其自选股。
-    Supabase 不可用时返回空列表（邮件仅发调试收件人）。
+    返回 (名单, 说明)。名单元素 {user_id, email, wxpusher_uid, watchlist}。
 
-    到期字段名必须与 subscriptions 表一致：实际列名是 **expires_at**。
-    此处曾写成 `end_date or expire_date`，两个列都不存在 → `.get()` 恒为 None
-    → 有效订阅永远算成 0 位 → 付费用户一封邮件都收不到，而日志只会平静地打印
-    「有效订阅用户 0 位」，看起来像"确实没人订阅"。字段名写错的取数逻辑不会报错，
-    只会给出一个语法正确、语义为空的答案，这类静默失败最难被发现。
+    **None 与 [] 必须区分**：None = 取数本身失败（凭据缺失/网络/表结构变了），
+    [] = 确实没有有效订阅。两者都返回 [] 的写法会让「配置坏了」长期伪装成
+    「暂时没人付费」——日志平静地打印「有效订阅 0 位」，看起来完全正常。
+
+    历史教训：到期列名实际是 `expires_at`，代码里曾写 `end_date or expire_date`，
+    两个列都不存在 → `.get()` 恒 None → 有效订阅永远算成 0 位。
+    字段名写错的取数逻辑不会抛异常，只会给出一个语法正确、语义为空的答案。
     """
     if not (_env("SUPABASE_URL") and _env("SUPABASE_KEY")):
-        print("⚠️ 未配置 SUPABASE_URL/KEY，跳过订阅用户收集")
-        return []
+        return None, "未配置 SUPABASE_URL / SUPABASE_KEY（两个都必须有），无法取订阅名单"
     try:
         import database as db
-        subs = db.get_all_subscriptions()
-        if subs is None:
-            print("⚠️ subscriptions 取数返回 None（凭据或网络问题），本次不发订阅邮件")
-            return []
-        today = datetime.date.today().isoformat()
-        active_ids, seen_fields = set(), False
-        for s in subs or []:
-            if "expires_at" in s:
-                seen_fields = True
-            if str(s.get("status") or "active") != "active":
-                continue
-            end = str(s.get("expires_at") or "")[:10]
-            if end and end >= today:
-                active_ids.add(s.get("user_id"))
-        if subs and not seen_fields:
-            # 表结构变了就必须喊出来，而不是安静地返回 0 位
-            print(f"❌ subscriptions 表无 expires_at 列，实际字段：{sorted(subs[0].keys())}")
-            return []
-        out = []
-        for uid in active_ids:
-            u = db.get_user_by_id(uid)
-            if not u or not u.get("email"):
-                print(f"   ⚠️ user_id={uid} 订阅有效但无邮箱，跳过")
-                continue
-            # digest_optin 列可能还没建，缺列时视为同意（默认订阅），
-            # 但一旦存在且为 False 就必须尊重——付费不等于同意被打扰
-            if u.get("digest_optin") is False:
-                print(f"   ⏭️ user_id={uid} 已退订摘要邮件")
-                continue
-            out.append((u["email"], db.get_user_watchlist(uid) or []))
-        print(f"📇 订阅记录 {len(subs)} 条 → 有效订阅用户 {len(out)} 位"
-              f"（其中 {sum(1 for _, w in out if w)} 位有自选股，可生成个性化段）")
-        return out
+        rec = db.get_push_recipients()
     except Exception as e:
-        print(f"⚠️ 订阅用户收集失败：{type(e).__name__}: {e}")
-        return []
+        return None, f"订阅名单取数异常：{type(e).__name__}: {e}"
+    if rec is None:
+        return None, "订阅名单取数失败（凭据、网络或 subscriptions 表结构不符）"
+    bound = sum(1 for r in rec if r.get("wxpusher_uid"))
+    with_wl = sum(1 for r in rec if r.get("watchlist"))
+    msg = (f"有效订阅 {len(rec)} 位｜已绑微信 {bound} 位｜有自选股 {with_wl} 位")
+    print(f"📇 {msg}")
+    return rec, msg
 
 
 # ================= 归档 =================
@@ -179,6 +164,57 @@ def _post_json(url: str, body: dict, timeout: int = 15) -> tuple[bool, str]:
         return False, str(e)
 
 
+def send_wxpusher(rec: list[dict], pct_map: dict, base: dict) -> str | None:
+    """用户投递主通道。返回失败说明或 None。
+
+    分两批发，原因是内容不同而不是为了省请求数：
+      · 有自选股的用户 → 每人单独渲染（个性化段是付费的核心价值，必须一人一份）
+      · 无自选股的用户 → 共用 base 正文，可以合并成一次请求（最多 2000 UID）
+
+    未绑定微信的用户在这里被跳过而不是报错——他们只是还没扫码，不是故障。
+    """
+    import wxpusher as wx
+    if not wx.app_token():
+        return None                                   # 未配置 = 跳过，不算失败
+
+    extra = [u.strip() for u in _env("WXPUSHER_TEST_UID").split(",") if u.strip()]
+    targets = [(r["wxpusher_uid"], r.get("watchlist") or [])
+               for r in (rec or []) if r.get("wxpusher_uid")]
+    targets += [(u, []) for u in extra]
+    # 同一个 UID 只发一次（调试 UID 可能与真实订阅重合）
+    seen, dedup = set(), []
+    for uid, wl in targets:
+        if uid in seen:
+            continue
+        seen.add(uid)
+        dedup.append((uid, wl))
+
+    if not dedup:
+        print("ℹ️ WxPusher 已配置但没有可投递对象（无人绑定微信，且未设 WXPUSHER_TEST_UID）")
+        return None
+
+    ok_all, bad_all = [], []
+
+    # 个性化：一人一份
+    for uid, wl in [(u, w) for u, w in dedup if w]:
+        p = dg.build_markdown(watchlist=wl, pct_map=pct_map)
+        o, b = wx.send_to_uids([uid], p["markdown"], p["plain"])
+        ok_all += o
+        bad_all += b
+
+    # 通用：合并一次
+    plain_uids = [u for u, w in dedup if not w]
+    if plain_uids:
+        o, b = wx.send_to_uids(plain_uids, base["markdown"], base["plain"])
+        ok_all += o
+        bad_all += b
+
+    print(f"{'✅' if not bad_all else '⚠️'} WxPusher 投递成功 {len(ok_all)}/{len(dedup)}")
+    for b in bad_all[:8]:
+        print(f"   ❌ {b}")
+    return None if not bad_all else f"wxpusher: {len(bad_all)} 个 UID 失败"
+
+
 def send_wecom(payload: dict) -> str | None:
     hook = _env("DIGEST_WECOM_WEBHOOK")
     if not hook:
@@ -213,32 +249,38 @@ def _serverchan_url(key: str) -> str:
     return f"https://sctapi.ftqq.com/{key}.send"
 
 
-def send_serverchan(payload: dict) -> str | None:
-    """Server酱推送（自动识别 Turbo / Server酱³ 两种 SendKey）。
+def send_serverchan(title: str, body: str) -> str | None:
+    """**管理员运维告警通道**（不是用户投递通道）。
 
-    两个坑，都会让"失败"伪装成"成功"，所以必须显式处理：
+    定位在 8/30 修正：Server酱 的 SendKey 是「一把 key 绑一个微信账号」的身份
+    凭据，官方文档明确「群发：不支持」。它推不到第三方付费用户手上，
+    只能推给站长自己。指望用它服务用户，架构上就是死路，不是配置问题。
+    所以它现在只在「渠道失败 / 数据缺失 / 无人可投」时喊站长一声，
+    调用频次天然落在免费版 5 条/天以内。
 
-    1. **额度耗尽/参数错误时 HTTP 仍是 200**，真正的结果在响应体 `code` 字段
-       （0 = 成功，非 0 时 `message` 说明原因，如免费版每天 5 条用完）。
-       只看 HTTP 状态码会把"今天配额没了"记成推送成功，明天照样静默失败。
+    两个坑，都会让"失败"伪装成"成功"，必须显式处理：
+
+    1. **额度耗尽/参数错误时 HTTP 仍是 200**，真正结果在响应体 `code` 字段
+       （0 = 成功，非 0 时 `message` 说明原因）。只看 HTTP 状态码会把
+       "今天配额没了"记成推送成功，明天照样静默失败。
     2. **title 不允许包含换行符**，含换行会被服务端拒绝并报"包含特殊字符"。
-       正文放 desp，标题这里强制压成单行。
+       正文放 desp，标题强制压成单行。
     """
     key = _env("DIGEST_SERVERCHAN_KEY")
     if not key:
         return None
-    title = " ".join(str(payload["title"]).split())[:100]
+    one_line = " ".join(str(title).split())[:100]
     ok, msg = _post_json(_serverchan_url(key),
-                         {"title": title, "desp": payload["markdown"]})
+                         {"title": one_line, "desp": body})
     if ok:
         try:
-            body = json.loads(msg)
-            code = body.get("code")
+            resp = json.loads(msg)
+            code = resp.get("code")
             if code not in (0, None):
-                ok, msg = False, f"code={code} {body.get('message', '')}"
+                ok, msg = False, f"code={code} {resp.get('message', '')}"
         except Exception:
             pass       # 返回体不是 JSON 时以 HTTP 状态为准，不因解析失败误判
-    print(("✅ Server酱推送成功" if ok else f"❌ Server酱推送失败：{msg}"))
+    print(("✅ 管理员告警已发出" if ok else f"❌ 管理员告警发送失败：{msg}"))
     return None if ok else f"serverchan: {msg}"
 
 
@@ -278,15 +320,22 @@ def _md_to_html(md: str) -> str:
             + "\n".join(out) + "</div>")
 
 
-def send_email(recipients: list[tuple[str, list[str]]], pct_map: dict,
-               base: dict) -> str | None:
+def send_email(rec: list[dict], pct_map: dict, base: dict) -> str | None:
+    """邮件兜底通道。
+
+    只发给「有效订阅但**没绑微信**」的用户 + 调试收件人。已绑微信的走 WxPusher，
+    不重复轰炸——同一条摘要收两遍会让人直接退订。
+    """
     conf = _smtp_conf()
     if not conf:
         return None
     extra = [e.strip() for e in _env("DIGEST_TEST_TO").split(",") if e.strip()]
-    targets = list(recipients) + [(e, []) for e in extra]
+    targets = [(r["email"], r.get("watchlist") or [])
+               for r in (rec or [])
+               if r.get("email") and not r.get("wxpusher_uid")]
+    targets += [(e, []) for e in extra]
     if not targets:
-        print("⚠️ 邮件渠道已配置但无收件人（无有效订阅且未设 DIGEST_TEST_TO）")
+        print("ℹ️ 邮件渠道已配置但无收件人（订阅用户都已绑微信，且未设 DIGEST_TEST_TO）")
         return None
 
     sent, failed = 0, []
@@ -330,6 +379,26 @@ def send_email(recipients: list[tuple[str, list[str]]], pct_map: dict,
 
 # ================= 主流程 =================
 
+def _admin_alert(date_key: str, failures: list[str], rec_msg: str,
+                 base: dict) -> None:
+    """给站长发运维告警——只在真有问题时发，否则会把 5 条/天配额浪费在报喜上。
+
+    「什么算问题」必须包含「无人可投」：渠道全部返回成功、但一个人都没收到，
+    在日志里长得跟正常一样。这是最容易被忽略的失败形态。
+    """
+    problems = list(failures)
+    if base.get("missing"):
+        problems.append(f"数据缺失 {len(base['missing'])} 项：{'；'.join(base['missing'][:3])}")
+    if "有效订阅 0 位" in rec_msg or "无法取订阅名单" in rec_msg or "取数失败" in rec_msg:
+        problems.append(rec_msg)
+    if not problems:
+        return
+    send_serverchan(
+        f"⚠️ Chilam Club {date_key} 推送异常 {len(problems)} 项",
+        "## 需要处理\n" + "\n".join(f"- {p}" for p in problems) +
+        f"\n\n---\n\n名单状态：{rec_msg}\n\n摘要摘要行：{base.get('plain', '')}")
+
+
 def main() -> None:
     pct_map = gather_pct_map()
     base = dg.build_markdown(watchlist=None, pct_map=pct_map)
@@ -356,19 +425,27 @@ def main() -> None:
         print("🧪 DRY_RUN=1，仅归档不发送")
         return
 
+    rec, rec_msg = recipients()
+    if rec is None:
+        print(f"⚠️ {rec_msg}")
+        rec = []
+
     failures = []
-    for f in (send_wecom(base), send_serverchan(base)):
+    # WxPusher 是用户投递主通道，放在最前面；企业微信是可选的内部群播报
+    for f in (send_wxpusher(rec, pct_map, base),
+              send_wecom(base),
+              send_email(rec, pct_map, base)):
         if f:
             failures.append(f)
-    f = send_email(subscriber_emails(), pct_map, base)
-    if f:
-        failures.append(f)
 
-    configured = any(_env(k) for k in ("DIGEST_WECOM_WEBHOOK", "DIGEST_SERVERCHAN_KEY",
+    # Server酱 不参与用户投递，只在有问题时告警（放最后，才能把上面的失败带上）
+    _admin_alert(date_key, failures, rec_msg, base)
+
+    configured = any(_env(k) for k in ("WXPUSHER_APP_TOKEN", "DIGEST_WECOM_WEBHOOK",
                                        "DIGEST_SMTP_HOST"))
     if not configured:
-        print("ℹ️ 未配置任何推送渠道，摘要已归档可在站内查看。"
-              "配置 DIGEST_WECOM_WEBHOOK / DIGEST_SERVERCHAN_KEY / DIGEST_SMTP_* 后自动启用。")
+        print("ℹ️ 未配置任何用户投递渠道，摘要已归档可在站内查看。"
+              "配置 WXPUSHER_APP_TOKEN（推荐）或 DIGEST_SMTP_* 后自动启用。")
         return
 
     if failures:

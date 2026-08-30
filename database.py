@@ -242,6 +242,65 @@ def update_user_watchlist(user_id: int, watchlist: List[str]) -> bool:
     return res is not None
 
 
+# ==================== 微信推送绑定 (WxPusher UID) ====================
+
+def update_user_wxpusher_uid(user_id: int, uid: Optional[str]) -> bool:
+    """写入/清空用户的 WxPusher UID。
+
+    返回 False 表示没落库（多半是 users 表缺 wxpusher_uid 列，PostgREST 报
+    PGRST204）。必须忠实返回失败：绑定是「主动触达」这一段的唯一入口，
+    页面显示成功而库里没有，用户会以为自己已经订阅了推送，
+    然后每天等一条永远不会来的消息。缺列时执行 init_wxpusher_column.sql。
+    """
+    res = _supabase_request("PATCH", f"users?id=eq.{user_id}",
+                            json_data={"wxpusher_uid": (uid or None)})
+    return res is not None
+
+
+def get_user_wxpusher_uid(user_id: int) -> Optional[str]:
+    u = get_user_by_id(user_id)
+    return (u or {}).get("wxpusher_uid") or None
+
+
+def get_push_recipients() -> Optional[List[Dict[str, Any]]]:
+    """返回有效订阅且已绑定微信的投递名单。
+
+    返回 None 表示**取数本身失败**（凭据/网络/表结构问题），与「确实没人订阅」
+    返回 [] 必须区分开——前者要报警，后者是正常状态。把两者都返回 []
+    会让「配置坏了」长期伪装成「暂时没人付费」。
+
+    到期列名是 expires_at（不是 end_date），此处曾写错导致有效订阅恒为 0。
+    """
+    subs = get_all_subscriptions()
+    if subs is None:
+        return None
+    if subs and "expires_at" not in subs[0]:
+        return None                       # 表结构不符：宁可报错也不静默返回空
+    today = datetime.utcnow().date().isoformat()
+    active_ids = set()
+    for s in subs:
+        if str(s.get("status") or "active") != "active":
+            continue
+        end = str(s.get("expires_at") or "")[:10]
+        if end and end >= today:
+            active_ids.add(s.get("user_id"))
+    out = []
+    for uid in active_ids:
+        u = get_user_by_id(uid)
+        if not u:
+            continue
+        # 付费不等于同意被打扰：optin 显式为 False 就跳过
+        if u.get("digest_optin") is False:
+            continue
+        out.append({
+            "user_id": uid,
+            "email": u.get("email"),
+            "wxpusher_uid": u.get("wxpusher_uid") or None,
+            "watchlist": get_user_watchlist(uid) or [],
+        })
+    return out
+
+
 def initialize():
     """兼容旧接口"""
     pass
