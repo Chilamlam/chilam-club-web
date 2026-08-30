@@ -4,9 +4,62 @@
 import streamlit as st
 from datetime import datetime, timezone
 import os
+import sys
 import auth
 import database
 from ui_compat import image_stretch
+
+# pages/ 是 Streamlit 的子页目录，运行时 sys.path[0] 未必是项目根，
+# 显式补一次，否则 admin_notify / push_binding 这类根目录模块导不进来。
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
+
+import admin_notify
+import push_binding as pb
+
+
+def _bridge_secrets_to_env() -> None:
+    """把告警通道凭据从 st.secrets 桥到环境变量。
+
+    admin_notify 不 import streamlit（要在 Actions 里跑），只认环境变量；
+    而站内运行时凭据在 st.secrets。已存在则不覆盖。
+    """
+    for name in ("DIGEST_SERVERCHAN_KEY", "WXPUSHER_APP_TOKEN"):
+        if os.getenv(name):
+            continue
+        try:
+            val = str(st.secrets.get(name, "")).strip()
+        except Exception:
+            val = ""
+        if val:
+            os.environ[name] = val
+    pb.ensure_app_token()
+
+
+def _notify_new_order(order: dict, user_email: str) -> None:
+    """下单即告警。送达与否都要如实告诉用户。
+
+    为什么把结果显示给用户看：这一步决定了他要不要自己去戳管理员。
+    通道失败却提示"已通知"，等于让他安心地白等——付费流程里最伤信任的一种。
+    """
+    _bridge_secrets_to_env()
+    title = f"💰 新订单待确认 ¥{order.get('amount', 0)} · {order.get('order_no', '')}"
+    body = (
+        "## 有新的付款订单\n\n"
+        f"- 订单号：`{order.get('order_no', '')}`\n"
+        f"- 用户：{user_email}（user_id={order.get('user_id')}）\n"
+        f"- 套餐：{auth.get_plan_display_name(order.get('plan_name', ''))}"
+        f"（{order.get('months', '')} 个月）\n"
+        f"- 金额：¥{order.get('amount', 0)}\n"
+        f"- 创建时间：{str(order.get('created_at', ''))[:19].replace('T', ' ')}\n\n"
+        "收到款后请到「后台管理 → 待确认订单」点确认，VIP 会自动续期累加。"
+    )
+    try:
+        ok, note = admin_notify.notify_admins(title, body)
+    except Exception as e:
+        ok, note = False, f"{type(e).__name__}: {e}"
+    st.session_state["last_order_alert"] = (ok, note)
 
 st.set_page_config(page_title="会员中心 - Chilam Club", page_icon="👑", layout="centered")
 
@@ -78,6 +131,24 @@ else:
         st.warning("🔒 **当前状态：免费用户（未激活 VIP）**")
         st.markdown("升级 VIP 可解锁：**强势股 RPS 动量**、**投机与套利**、**投资作业本**、**自选股雷达** 等核心功能。")
 
+# ================= 1.5 推送绑定（会员权益的第二个开关） =================
+# 放在会员状态正下方，是因为这里是「刚付完钱、以为一切就绪」的那个位置。
+# 之前绑定入口只在「我的池子」页一个默认折叠的 expander 里，付费用户走完
+# 全流程一次都不会被告知还有这一步，结果权限开了、推送永远不来。
+_bridge_secrets_to_env()
+_member_now = is_admin_flag or auth.is_vip()
+if _member_now:
+    st.markdown("---")
+    st.subheader("📲 收盘摘要推送")
+    _bound_ok = pb.render_gate(
+        user_id, key_prefix="dash",
+        context="这是会员权益的一部分，与访问权限分开：权限已开通，投递还需要绑定一次微信。")
+    if _bound_ok:
+        with st.expander("管理微信推送绑定", expanded=False):
+            pb.render(user_id, key_prefix="dash_mgr")
+else:
+    st.caption("💡 VIP 权益含「收盘后摘要自动推到微信」，开通后回到本页扫码绑定一次即可。")
+
 # ================= 2. 检测 payments 表 =================
 payments_ready = database.check_payments_table()
 
@@ -112,6 +183,8 @@ for idx, (p_key, p_title, p_price, p_desc, p_months) in enumerate(plans):
                 new_payment = database.create_payment(user_id, p_key, p_months, p_price)
                 if new_payment:
                     st.session_state["last_order"] = new_payment
+                    # 立刻告警：否则订单会一直躺在表里等站长自己想起来看后台
+                    _notify_new_order(new_payment, email)
                     st.rerun()
                 else:
                     st.error("订单创建失败，请稍后重试")
@@ -179,6 +252,19 @@ if "last_order" in st.session_state and st.session_state["last_order"]:
                     st.info("收款码待配置，请联系管理员")
 
             st.markdown("---")
+            # 告警结果如实播报：决定用户要不要自己去戳管理员
+            alert = st.session_state.get("last_order_alert")
+            if alert is not None:
+                ok_alert, note_alert = alert
+                if ok_alert:
+                    st.success("🔔 已自动通知管理员这笔订单，收到款后会尽快为你激活。")
+                else:
+                    st.warning(
+                        "⚠️ 自动通知管理员**未成功**，这笔订单可能不会被及时看到。"
+                        f"付款后请务必微信联系 `{ADMIN_WX}` 告知订单号。")
+                    with st.expander("通知失败详情（管理员排查用）", expanded=False):
+                        st.code(str(note_alert), language=None)
+
             st.info(
                 f"📋 **付款流程**：扫码付款（备注订单号）→ 管理员确认收款 → VIP 自动激活\n\n"
                 f"💬 付款后请微信联系管理员（`{ADMIN_WX}`）或发邮件至 `{ADMIN_EMAIL}` 告知已付款\n\n"
@@ -188,6 +274,7 @@ if "last_order" in st.session_state and st.session_state["last_order"]:
             if st.button("❌ 取消此订单", key="cancel_order"):
                 database.cancel_payment(order.get("id"))
                 st.session_state["last_order"] = None
+                st.session_state.pop("last_order_alert", None)
                 st.rerun()
 
 # ================= 5. 我的待处理订单 =================

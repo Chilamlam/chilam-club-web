@@ -233,7 +233,7 @@ def update_user_watchlist(user_id: int, watchlist: List[str]) -> bool:
     返回 False 表示**没有落库**（例如 users 表缺 watchlist 列，PostgREST 报
     PGRST204）。调用方必须把 False 当作失败提示给用户，不能显示成
     「已在本地更新」——自选股只存在 session_state 里，刷新即丢失，
-    而个性化摘要靠它取数，静默失败会让付费邮件退化成免费内容。
+    而个性化摘要靠它取数，静默失败会让付费推送退化成免费内容。
     缺列时执行 init_watchlist_column.sql 补上。
     """
     cleaned = list(dict.fromkeys([c.strip().upper() for c in watchlist if c.strip()]))
@@ -260,6 +260,24 @@ def update_user_wxpusher_uid(user_id: int, uid: Optional[str]) -> bool:
 def get_user_wxpusher_uid(user_id: int) -> Optional[str]:
     u = get_user_by_id(user_id)
     return (u or {}).get("wxpusher_uid") or None
+
+
+def get_admin_wxpusher_uids() -> Optional[List[str]]:
+    """所有已绑微信的管理员 UID。None = 取数失败，[] = 确实没人绑。
+
+    区分这两者的意义：告警通道自己坏了（凭据/网络）必须能被看出来，
+    不能跟「站长还没扫码」混成同一个空列表——前者要修，后者要绑。
+    """
+    res = _supabase_request("GET", "users",
+                            params={"select": "wxpusher_uid", "is_admin": "eq.true"})
+    if res is None:
+        return None
+    out = []
+    for r in (res or []):
+        u = (r or {}).get("wxpusher_uid")
+        if u and str(u).strip():
+            out.append(str(u).strip())
+    return out
 
 
 def get_push_recipients() -> Optional[List[Dict[str, Any]]]:

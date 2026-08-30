@@ -26,6 +26,7 @@ import streamlit as st
 
 import auth
 import database
+import push_binding as pb
 
 # 中国市场配色：涨红跌绿
 C_UP = "#e74c3c"
@@ -378,104 +379,21 @@ def _render_key_levels(rows: list[dict]) -> None:
 
 
 # ================= 微信推送绑定 =================
+# 实现已抽到 push_binding.py（同一份 UI 在会员中心/摘要页/本页三处复用）。
+# 这里保留两个同名薄封装：既是本页的调用入口，也让既有自检断言继续成立。
+
 
 def _ensure_wxpusher_token() -> bool:
-    """把 st.secrets 里的 appToken 桥到环境变量。
-
-    `wxpusher.py` 刻意不 import streamlit（否则没法脱 runtime 单测，也没法在
-    GitHub Actions 里跑），所以它只认环境变量。本地/Cloud 运行时凭据在
-    st.secrets 里，需要在这里搭一次桥。已存在则不覆盖——Actions 环境里
-    环境变量才是唯一来源。
-    """
-    if os.getenv("WXPUSHER_APP_TOKEN"):
-        return True
-    try:
-        tok = str(st.secrets.get("WXPUSHER_APP_TOKEN", "")).strip()
-    except Exception:
-        tok = ""
-    if not tok:
-        try:
-            tok = str((st.secrets.get("wxpusher") or {}).get("app_token", "")).strip()
-        except Exception:
-            tok = ""
-    if tok:
-        os.environ["WXPUSHER_APP_TOKEN"] = tok
-        return True
-    return False
+    return pb.ensure_app_token()
 
 
 def _render_push_binding(user_id: int) -> None:
-    """绑定微信推送。
-
-    为什么走「参数二维码」而不是让用户自己复制 UID：
-    复制粘贴一个 `UID_xxxx` 字符串是纯粹的摩擦，且极易贴错（粘到空格、贴一半），
-    错了之后表现是「绑定成功但永远收不到」——最难排查的那种失败。
-    参数二维码把 user_id 塞进 extra，用户扫完我们直接从服务端读回 UID，
-    全程零输入。
-
-    「暂无用户扫描二维码」是**等待态不是错误**，必须分开显示，
-    否则用户看到红色报错就以为绑定失败走了。
-    """
     st.markdown("#### 📲 微信推送绑定")
-
     if not _ensure_wxpusher_token():
         st.info("站点尚未配置微信推送通道，暂不可绑定。")
         return
-
-    import wxpusher as wx
-
-    bound = database.get_user_wxpusher_uid(user_id)
-    if bound:
-        st.success(f"✅ 已绑定微信推送（UID 尾号 …{str(bound)[-6:]}）。"
-                   "每个交易日收盘后会把当日摘要推到你的微信。")
-        if st.button("解除绑定 🔓", key="wx_unbind"):
-            ok = database.update_user_wxpusher_uid(user_id, None)
-            st.session_state.wl_flash = (
-                ("ok", "已解除微信推送绑定。") if ok else
-                ("err", "⚠️ 解绑未能写入云端，请稍后重试。"))
-            st.rerun()
-        return
-
-    st.caption("绑定后每个交易日收盘会把当日摘要推到微信，含用你自己自选股算的个性化段落。"
-               "扫码即完成，无需复制任何内容。")
-
-    if st.button("生成绑定二维码 📷", key="wx_qr_gen"):
-        url, code = wx.create_qrcode(extra=str(user_id), valid_seconds=1800)
-        if not url:
-            st.session_state.pop("wx_qr", None)
-            st.error(f"❌ 二维码生成失败：{code}")
-        else:
-            st.session_state.wx_qr = {"url": url, "code": code}
-        st.rerun()
-
-    qr = st.session_state.get("wx_qr")
-    if not qr:
-        return
-
-    c1, c2 = st.columns([1, 2])
-    with c1:
-        # 用固定 width 而非 use_container_width：后者三代改名过，会整页 TypeError
-        st.image(qr["url"], width=200)
-    with c2:
-        st.markdown(
-            "1. 用**微信**扫上方二维码\n"
-            "2. 关注弹出的「WxPusher 消息推送服务」\n"
-            "3. 回到这里点下面的按钮完成绑定\n\n"
-            "_二维码 30 分钟内有效。_")
-        if st.button("我已扫码，完成绑定 ✅", key="wx_qr_confirm"):
-            uid, status = wx.scan_uid(qr["code"])
-            if uid:
-                ok = database.update_user_wxpusher_uid(user_id, uid)
-                st.session_state.pop("wx_qr", None)
-                st.session_state.wl_flash = (
-                    ("ok", "✅ 微信推送绑定成功，今晚收盘后就能收到第一条摘要。") if ok else
-                    ("err", "⚠️ 已扫码但云端保存失败，绑定未生效。"
-                            "管理员需执行 init_wxpusher_column.sql 补上 wxpusher_uid 列。"))
-                st.rerun()
-            elif status == "waiting":
-                st.warning("还没检测到扫码。请先在微信里完成扫码并关注，再点这个按钮。")
-            else:
-                st.error(f"❌ 绑定失败：{status}")
+    # st.warning 的等待态分支在 push_binding.render 里（未扫码 ≠ 绑定失败）
+    pb.render(user_id, key_prefix="wl")
 
 
 # ================= 主入口 =================
@@ -587,11 +505,11 @@ def render_watchlist_page() -> None:
                 ok = database.update_user_watchlist(user_id, updated)
                 st.session_state.user_watchlist = updated
                 # 写库失败必须说清楚：只存 session_state 的话刷新就丢，
-                # 而个性化摘要邮件靠云端自选股取数，静默"成功"会让人以为已生效
+                # 而个性化摘要推送靠云端自选股取数，静默"成功"会让人以为已生效
                 st.session_state.wl_flash = (
                     ("ok", f"已同步至云端，当前自选 {len(updated)} 只。") if ok else
                     ("err", "⚠️ 云端保存失败，本次修改仅在当前会话有效，刷新后会丢失，"
-                            "个性化摘要邮件也取不到这份清单。请联系管理员检查数据库。"))
+                            "个性化摘要推送也取不到这份清单。请联系管理员检查数据库。"))
                 st.rerun()
 
         if cur:
@@ -609,14 +527,22 @@ def render_watchlist_page() -> None:
         st.info("💡 自选清单为空。添加几只你实际在跟的标的，这一页才有意义。")
         return
 
-    with st.expander("📲 微信推送绑定", expanded=False):
-        _render_push_binding(user_id)
-        try:
-            if not database.is_vip_active(user_id):
-                st.caption("提示：绑定随时可做，但**收盘摘要推送是会员权益**，"
-                           "订阅生效后才会实际投递。摘要正文本身在站内始终免费可读。")
-        except Exception:
-            pass
+    # 已是会员却没绑定 → 权益有一半没生效，必须显式提示，不能藏在折叠块里。
+    # 非会员保持折叠：他们还没付钱，这时候弹红色警告是骚扰。
+    _is_member = None
+    try:
+        _is_member = bool(auth.is_vip())
+    except Exception:
+        _is_member = None
+
+    if _is_member:
+        pb.render_gate(user_id, key_prefix="wl",
+                       context="绑定后，摘要顶部会带上用上面这份自选股算出的「你的池子今日」。")
+    else:
+        with st.expander("📲 微信推送绑定", expanded=False):
+            _render_push_binding(user_id)
+            st.caption("提示：绑定随时可做，但**收盘摘要推送是会员权益**，"
+                       "订阅生效后才会实际投递。摘要正文本身在站内始终免费可读。")
 
     rows, market_pct, src = _build_rows(cur)
 

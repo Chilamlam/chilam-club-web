@@ -155,29 +155,82 @@ def check_database() -> None:
 # ================= 4. 前端绑定区块 =================
 
 def check_page() -> None:
+    """绑定 UI 已抽到 push_binding.py，page_watchlist 只留薄封装。
+
+    断言拆成两处读：实现细节（等待态、缺列提示、st.image 参数）跟着实现走到
+    push_binding.py，调用入口留在各页面。两边都断言，才不会出现
+    「组件在但没人调」或「有人调但组件被改坏」。
+    """
     src = read("page_watchlist.py")
     ck("def _render_push_binding" in src, "page_watchlist 缺 _render_push_binding")
     ck("_render_push_binding(user_id)" in src, "绑定区块未被调用")
     ck("def _ensure_wxpusher_token" in src,
        "缺 secrets→环境变量 的桥（wxpusher.py 只认环境变量）")
+    ck("pb.render_gate(" in src,
+       "已付费用户须走 render_gate 强提示，不能只留默认折叠的 expander")
+
+    ck(os.path.exists("push_binding.py"), "缺 push_binding.py（绑定组件）")
+    if not os.path.exists("push_binding.py"):
+        return
+    pbs = read("push_binding.py")
+
+    for fn in ("def ensure_app_token", "def is_bound", "def render(", "def render_gate"):
+        ck(fn in pbs, f"push_binding.py 缺 {fn}")
 
     # 等待态不能渲染成报错
-    ck('status == "waiting"' in src,
+    ck('status == "waiting"' in pbs,
        "「暂无用户扫描」是等待态，必须与真失败分开显示（否则用户以为绑定坏了）")
-    ck("st.warning(" in src[src.find("def _render_push_binding"):],
+    ck("st.warning(" in pbs[pbs.find("def render("):],
        "等待态应用 warning 而非 error")
 
+    # 取数失败 ≠ 未绑定：误报会让用户反复重扫，最后不信任这个提示
+    ck("bound is None" in pbs,
+       "is_bound 返回 None（取数失败）必须与 False（确实未绑）分开处理")
+
     # 写库失败必须如实告知，并指明修复动作
-    ck("init_wxpusher_column.sql" in src,
+    ck("init_wxpusher_column.sql" in pbs,
        "缺列导致的保存失败须提示执行 init_wxpusher_column.sql")
 
+    # 同一组件在三个页面渲染，控件 key 必须隔离，否则 Streamlit 报 duplicate key
+    ck("key_prefix" in pbs, "render 须支持 key_prefix 以隔离多处渲染的控件 key")
+
+    # 付费入口必须能看到绑定，这是「收了钱没交付」的唯一防线
+    dash = read(os.path.join("pages", "dashboard.py"))
+    ck("push_binding" in dash, "会员中心须挂载绑定组件（刚付完钱是最该提示的位置）")
+    ck("render_gate(" in dash, "会员中心须对已生效会员做未绑定强提示")
+
+    dg_page = read("page_digest.py")
+    ck("render_gate(" in dg_page, "收盘摘要页须对已生效会员做未绑定强提示")
+
     # 跨版本兼容铁律：st.image 不得带 use_container_width / use_column_width
-    for m in re.finditer(r"st\.image\(([^)]*)\)", src):
+    for m in re.finditer(r"st\.image\(([^)]*)\)", pbs):
         ck("use_container_width" not in m.group(1) and "use_column_width" not in m.group(1),
            f"st.image 不得带 use_*_width（三代改名，会整页 TypeError）：{m.group(1)[:60]}")
 
     # 不得在前端硬编码 appToken
-    ck(not re.search(r"AT_[A-Za-z0-9]{20,}", src), "前端不得硬编码 appToken")
+    for fname, s in (("page_watchlist.py", src), ("push_binding.py", pbs),
+                     ("pages/dashboard.py", dash)):
+        ck(not re.search(r"AT_[A-Za-z0-9]{20,}", s), f"{fname} 不得硬编码 appToken")
+
+
+# ================= 4.5 站内文案不得承诺未配置的邮件通道 =================
+
+def check_no_email_promise() -> None:
+    """页面文案只允许承诺已经跑通的通道。
+
+    历史问题：`app.py` 与 `page_digest.py` 四处写「推送到邮箱」，而
+    DIGEST_SMTP_* 从未进 Secrets → 邮件恒不发。付费用户守着邮箱等一封
+    永远不来的信，后台日志跟「这个人没订阅」完全一样，谁都发现不了。
+    """
+    for fname in ("app.py", "page_digest.py"):
+        src = read(fname)
+        for m in re.finditer(r"[^\n]{0,40}(推到邮箱|推送到邮箱|摘要邮件|收到摘要邮件)[^\n]{0,40}", src):
+            seg = m.group(0)
+            # 允许出现在「说明这条路不通」的否定语境里
+            benign = ("不提供" in seg or "并未配置" in seg or "恒不发" in seg
+                      or "之前写" in seg or "不许" in seg)
+            ck(benign, f"{fname} 仍向用户承诺邮件投递（该通道未配置）：{seg.strip()[:70]}")
+        ck("微信" in src, f"{fname} 应明确投递通道是微信")
 
 
 # ================= 5. 迁移 SQL =================
@@ -191,6 +244,73 @@ def check_sql() -> None:
     ck("IF NOT EXISTS" in src, "迁移脚本须可重复执行")
     ck("WHERE wxpusher_uid IS NOT NULL" in src,
        "唯一索引须跳过 NULL（否则未绑定用户互相冲突）")
+
+
+# ================= 5.5 下单告警链路 =================
+
+def check_order_alert() -> None:
+    """付费链路最后一步是人工确认收款，所以「下单必须惊动站长」是硬要求。
+
+    没有告警时，订单静静躺在 payments 表里等站长自己想起来看后台——
+    那不是流程，是运气。而用户已经付了钱在等，这是收钱不发货。
+    """
+    ck(os.path.exists("admin_notify.py"), "缺 admin_notify.py（下单告警通道）")
+    if not os.path.exists("admin_notify.py"):
+        return
+    an = read("admin_notify.py")
+
+    # 跑批环境没有 streamlit runtime
+    ck(re.search(r"(?m)^\s*(import streamlit|from streamlit\b)", an) is None,
+       "admin_notify.py 不得 import streamlit（daily_digest 要在 Actions 里引用它）")
+
+    for fn in ("def serverchan_url", "def send_serverchan",
+               "def send_wxpusher_admins", "def notify_admins"):
+        ck(fn in an, f"admin_notify.py 缺 {fn}")
+
+    # 两个产品线端点推导
+    sys.path.insert(0, ".")
+    import admin_notify as anm
+    ck(anm.serverchan_url("SCTabc") == "https://sctapi.ftqq.com/SCTabc.send",
+       "Turbo key 应走 sctapi.ftqq.com")
+    ck(anm.serverchan_url("sctp123tXYZ")
+       == "https://123.push.ft07.com/send/sctp123tXYZ.send",
+       "SC3 key 须把 uid 抠出来拼进域名（域名写错表现成网络错误，会带偏排查）")
+    ck(anm.serverchan_url("sctpXtY") == "https://sctapi.ftqq.com/sctpXtY.send",
+       "sctp 后不是数字时应回落到 Turbo 端点，不得拼出空 uid 域名")
+
+    # 额度耗尽仍返 HTTP 200 → 必须查响应体 code
+    ck('resp.get("code")' in an,
+       "Server酱 成败必须看响应体 code（额度耗尽仍返 HTTP 200）")
+
+    # 双通道：只要一条通就算送达，全失败必须如实返回 False
+    ck("delivered = delivered or ok" in an,
+       "notify_admins 须双通道尝试，任一成功即算送达")
+
+    # 「站长还没绑微信」是待办不是故障
+    ck("无已绑定微信的管理员" in an,
+       "无管理员绑定时应给出可操作说明，而不是当成推送故障")
+
+    # database 侧
+    db = read("database.py")
+    ck("def get_admin_wxpusher_uids" in db, "database 缺 get_admin_wxpusher_uids")
+    seg = db[db.find("def get_admin_wxpusher_uids"):]
+    ck("if res is None" in seg and "return None" in seg,
+       "取数失败须返回 None，与「确实没人绑」的 [] 区分（前者要修、后者要绑）")
+
+    # 下单处必须真的调用
+    dash = read(os.path.join("pages", "dashboard.py"))
+    ck("_notify_new_order(" in dash, "创建订单后未触发管理员告警")
+    ck("admin_notify" in dash, "会员中心未引入 admin_notify")
+    # 告警结果必须如实告诉用户：决定他要不要自己去戳管理员
+    ck("last_order_alert" in dash, "告警结果须记录并展示给用户")
+    ck("自动通知管理员**未成功**" in dash,
+       "告警失败必须显式告知用户去手动联系，不能假装已通知")
+
+    # daily_digest 复用同一套端点规则，避免两处漂移
+    dd = read("daily_digest.py")
+    ck("admin_notify" in dd, "daily_digest 应复用 admin_notify 的端点推导，避免规则两处漂移")
+    ck("付费未绑微信" in dd,
+       "「有效订阅但未绑微信」= 收了钱没交付，必须在名单说明里显式点出")
 
 
 # ================= 6. 联网真实断言 =================
@@ -230,7 +350,8 @@ def check_live() -> None:
 
 def main() -> None:
     for fn in (check_module, check_digest, check_database,
-               check_page, check_sql, check_live):
+               check_page, check_no_email_promise, check_sql,
+               check_order_alert, check_live):
         try:
             fn()
         except Exception as e:

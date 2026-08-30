@@ -4,8 +4,15 @@
 
 门禁设计（与全站门禁原则一致）：
   **摘要内容本身开放**——它是最好的引流物，看得懂就会想每天都收到；
-  **「送到你手上」才是付费项**——推送依赖用户邮箱与我们每天的持续投入，
+  **「送到你手上」才是付费项**——推送依赖用户绑定的微信与我们每天的持续投入，
   这一段依旧锁在 VIP 后面。锁内容会把人赶走，锁投递才是可持续的。
+
+投递通道口径（2026-08-30 更正，不要再写回"邮箱"）：
+  实际生效的唯一通道是**微信（WxPusher，扫码绑定）**。邮件通道的
+  DIGEST_SMTP_* 并未配置，代码里那条路恒不发信。页面之前写"推送到邮箱"，
+  属于承诺了一个不存在的功能——付费用户会守着邮箱等一封永远不来的信，
+  而后台日志跟"这个人没订阅"完全一样，谁都发现不了。
+  文案只允许承诺已经跑通的通道。
 """
 from __future__ import annotations
 
@@ -15,6 +22,7 @@ import os
 import streamlit as st
 
 import auth
+import push_binding as pb
 
 DIGEST_DIR = os.path.join("data", "digest")
 LATEST_MD = os.path.join(DIGEST_DIR, "latest.md")
@@ -59,7 +67,7 @@ def _render_subscribe() -> None:
     st.markdown("---")
     st.markdown("### 📮 每天收盘后自动送到你手上")
     st.caption(
-        "摘要内容在这里始终免费可看。付费部分是**投递**：收盘后自动推送到邮箱，"
+        "摘要内容在这里始终免费可看。付费部分是**投递**：收盘后自动推送到你的微信，"
         "并且带上「你的池子今日」这一段——用你自己的自选股算的，别人的摘要里没有这段。"
     )
 
@@ -72,7 +80,7 @@ def _render_subscribe() -> None:
     if not auth.is_vip():
         st.warning(
             "👑 推送订阅为 VIP 权益。开通后：\n\n"
-            "- 每个交易日收盘后自动收到摘要邮件\n"
+            "- 每个交易日收盘后，当日摘要自动推到你的微信\n"
             "- 摘要顶部附「你的池子今日」个性化段落（中位涨幅、最强最弱、命中榜单）\n"
             "- 明日验证条件逐条带今日基准值，第二天可对账"
         )
@@ -82,12 +90,22 @@ def _render_subscribe() -> None:
 
     days = auth.get_vip_remaining_days()
     st.success(
-        f"✅ 推送已对你的账号生效（VIP 剩余 {days} 天）。"
-        if days is not None else "✅ 推送已对你的账号生效。"
+        f"✅ 推送权益已对你的账号生效（VIP 剩余 {days} 天）。"
+        if days is not None else "✅ 推送权益已对你的账号生效。"
     )
+
+    # 权益生效 ≠ 能收到。绑定是投递的唯一开关，必须在这里当场把它做完，
+    # 否则用户看到上面那个绿色的"已生效"就走了，然后每天等一条不会来的消息。
+    user = auth.get_current_user() or {}
+    uid = user.get("user_id")
+    if uid is not None:
+        pb.render_gate(
+            uid, key_prefix="digest",
+            context="绑定后今晚收盘就能收到第一条；不绑定的话，摘要仍然每天更新在本页，"
+                    "只是不会主动找你。")
     st.caption(
-        "推送地址即账号邮箱。个性化段落取自「我的池子」页面里保存的自选股——"
-        "自选为空时该段不出现（不会用占位内容凑数）。"
+        "投递通道是微信（扫码绑定一次即可）。个性化段落取自「我的池子」页面里保存的自选股——"
+        "自选为空时该段不出现（不会用占位内容凑数）。目前不提供邮件投递。"
     )
 
 

@@ -253,19 +253,29 @@ ck("sctapi.ftqq.com/{key}" not in SRC_DAILY.replace('f"https://sctapi.ftqq.com/{
 # 只看状态码会把「今天 5 条免费额度用完」记成推送成功，明天照样静默失败。
 # 注意 8/30 起 Server酱 已降级为**管理员告警**通道（它的 SendKey 绑定单个微信、
 # 官方明确不支持群发，推不到付费用户手上），所以入参从 payload 改成 (title, body)。
-ck('resp.get("code")' in SRC_DAILY, "Server酱 校验响应体 code 字段而非只看 HTTP 状态")
-ck("code not in (0, None)" in SRC_DAILY, "code 非 0 判为失败")
-ck('" ".join(str(title).split())' in SRC_DAILY,
+#
+# 实现体在 8/30 晚进一步搬到 admin_notify.py——站内「下单告警」要用同一套规则，
+# 一份规则两处实现必然漂移，而漂移的表现是「域名解析不到」，会被当成网络问题。
+# 所以下面这些断言改成在 daily_digest + admin_notify 的**合并源码**里找：
+# 只要规则还在链路里且被 daily_digest 复用，断言就应通过；两边都没有才算失败。
+SRC_ALERT = SRC_DAILY + "\n" + open(
+    os.path.join(ROOT, "admin_notify.py"), encoding="utf-8").read()
+
+ck("admin_notify" in SRC_DAILY,
+   "daily_digest 须复用 admin_notify 的告警实现（不得各自维护一份端点规则）")
+ck('resp.get("code")' in SRC_ALERT, "Server酱 校验响应体 code 字段而非只看 HTTP 状态")
+ck("code not in (0, None)" in SRC_ALERT, "code 非 0 判为失败")
+ck('" ".join(str(title).split())' in SRC_ALERT,
    "Server酱 title 压成单行（含换行会被服务端拒绝）")
-ck("[:800]" in SRC_DAILY, "响应体截断长度足够容纳 JSON（避免解析失败误判成功）")
+ck("[:800]" in SRC_ALERT, "响应体截断长度足够容纳 JSON（避免解析失败误判成功）")
 
 # Server酱 有两个产品线，SendKey 不通用且端点不同：Turbo 是 sctapi.ftqq.com，
 # Server酱³ 的 key 形如 sctp{uid}t…，端点是 {uid}.push.ft07.com。
 # 把 sctp 的 key 发去 Turbo 端点只会回「key 不存在」，而用户会坚信刚复制的 key 没错，
 # 排查方向直接被带偏——所以必须按前缀自动选端点，且必须有断言守住。
-ck('key.startswith("sctp")' in SRC_DAILY, "按 SendKey 前缀区分 Turbo / Server酱³")
-ck("push.ft07.com" in SRC_DAILY, "Server酱³ 端点已实现")
-ck("{uid}.push.ft07.com" in SRC_DAILY, "Server酱³ 的 uid 必须拼进域名（写错会表现成网络错误）")
+ck('key.startswith("sctp")' in SRC_ALERT, "按 SendKey 前缀区分 Turbo / Server酱³")
+ck("push.ft07.com" in SRC_ALERT, "Server酱³ 端点已实现")
+ck("{uid}.push.ft07.com" in SRC_ALERT, "Server酱³ 的 uid 必须拼进域名（写错会表现成网络错误）")
 try:
     _dd = importlib.import_module("daily_digest")
     ck(_dd._serverchan_url("SCTabc") == "https://sctapi.ftqq.com/SCTabc.send",

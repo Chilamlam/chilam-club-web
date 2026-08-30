@@ -27,11 +27,16 @@
      翻到，「主动触达」这一段基本失效，所以不再是主路径；仍保留是因为
      未绑定微信的付费用户总得有个去处。
 
+     **邮件当前处于「代码在、凭据没配」的状态**（DIGEST_SMTP_* 未进 Secrets），
+     即恒不发信。所以站内文案一律只承诺微信，不许出现「推送到邮箱」——
+     承诺一个不存在的通道，用户会守着邮箱等一封永远不来的信，
+     而日志跟「这个人没订阅」完全一样，谁都发现不了。
+
 环境变量（GitHub Secrets）：
   WXPUSHER_APP_TOKEN     WxPusher 应用 token（用户投递主通道，AT_ 开头）
   DIGEST_SERVERCHAN_KEY  Server酱 SendKey —— **仅管理员告警**
   DIGEST_WECOM_WEBHOOK   企业微信群机器人（内部群播报，可选）
-  DIGEST_SMTP_HOST / _PORT / _USER / _PASS / _FROM   邮件兜底
+  DIGEST_SMTP_HOST / _PORT / _USER / _PASS / _FROM   邮件兜底（当前未配置＝不发）
   SUPABASE_URL / SUPABASE_KEY   取有效订阅名单（**两个都必须配**，缺一即整段跳过）
   DIGEST_TEST_TO         调试收件邮箱，逗号分隔
   WXPUSHER_TEST_UID      调试推送 UID，逗号分隔（自测用，无需真实订阅）
@@ -52,6 +57,7 @@ from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+import admin_notify as an
 import digest as dg
 
 DIGEST_DIR = os.path.join("data", "digest")
@@ -182,8 +188,15 @@ def recipients() -> tuple[list[dict] | None, str]:
         return None, "订阅名单取数失败（凭据、网络或 subscriptions 表结构不符）"
     bound = sum(1 for r in rec if r.get("wxpusher_uid"))
     with_wl = sum(1 for r in rec if r.get("watchlist"))
+    unbound = len(rec) - bound
     msg = (f"有效订阅 {len(rec)} 位｜已绑微信 {bound} 位｜有自选股 {with_wl} 位")
     print(f"📇 {msg}")
+    # 「付了钱但没绑微信」= 权益收了钱没交付。它在日志里长得跟正常一样
+    # （渠道全成功、无失败项），只有显式点出来才会被处理。
+    if unbound > 0:
+        msg += f"｜⚠️ 付费未绑微信 {unbound} 位（这些人今天收不到任何投递）"
+        print(f"   ⚠️ {unbound} 位有效订阅未绑定微信，今天不会收到投递——"
+              "他们的会员权益有一半没生效")
     return rec, msg
 
 
@@ -303,27 +316,12 @@ def send_wecom(payload: dict) -> str | None:
 
 
 def _serverchan_url(key: str) -> str:
-    """按 SendKey 前缀推导推送端点——两个产品线的 key 不通用、域名也不同。
+    """端点推导已收进 admin_notify（站内下单告警要用同一套规则）。
 
-    · Turbo(SCT)：key 形如 `SCTxxxx`，端点 `https://sctapi.ftqq.com/<key>.send`
-    · Server酱³(SC3)：key 形如 `sctp{uid}t{rand}`，端点
-      `https://{uid}.push.ft07.com/send/<key>.send`——**uid 必须从 key 里抠出来
-      拼进域名**，域名写错不会报"key 无效"，而是整个域名解析不到，
-      表现成网络错误，很容易误判成"网络问题、重试就好"。
-
-    不做前缀判断的代价是：用户注册了 SC3、贴了 sctp 开头的 key，脚本仍往
-    sctapi.ftqq.com 发，服务端只会回一个"key 不存在"，而用户会坚信
-    key 是刚复制的、一定没错——排查方向直接被带偏。
+    保留同名薄封装：一份规则两处实现必然漂移，而漂移的表现是
+    「域名解析不到」，会被误判成网络问题、往错方向排查。
     """
-    if key.startswith("sctp"):
-        uid = ""
-        for ch in key[4:]:
-            if not ch.isdigit():
-                break
-            uid += ch
-        if uid:
-            return f"https://{uid}.push.ft07.com/send/{key}.send"
-    return f"https://sctapi.ftqq.com/{key}.send"
+    return an.serverchan_url(key)
 
 
 def send_serverchan(title: str, body: str) -> str | None:
@@ -335,28 +333,12 @@ def send_serverchan(title: str, body: str) -> str | None:
     所以它现在只在「渠道失败 / 数据缺失 / 无人可投」时喊站长一声，
     调用频次天然落在免费版 5 条/天以内。
 
-    两个坑，都会让"失败"伪装成"成功"，必须显式处理：
-
-    1. **额度耗尽/参数错误时 HTTP 仍是 200**，真正结果在响应体 `code` 字段
-       （0 = 成功，非 0 时 `message` 说明原因）。只看 HTTP 状态码会把
-       "今天配额没了"记成推送成功，明天照样静默失败。
-    2. **title 不允许包含换行符**，含换行会被服务端拒绝并报"包含特殊字符"。
-       正文放 desp，标题强制压成单行。
+    两个会让"失败"伪装成"成功"的坑（额度耗尽仍返 HTTP 200 要看响应体
+    `code`；title 不允许含换行）都在 admin_notify.send_serverchan 里处理。
     """
-    key = _env("DIGEST_SERVERCHAN_KEY")
-    if not key:
-        return None
-    one_line = " ".join(str(title).split())[:100]
-    ok, msg = _post_json(_serverchan_url(key),
-                         {"title": one_line, "desp": body})
-    if ok:
-        try:
-            resp = json.loads(msg)
-            code = resp.get("code")
-            if code not in (0, None):
-                ok, msg = False, f"code={code} {resp.get('message', '')}"
-        except Exception:
-            pass       # 返回体不是 JSON 时以 HTTP 状态为准，不因解析失败误判
+    if not _env("DIGEST_SERVERCHAN_KEY"):
+        return None                        # 未配置不算失败
+    ok, msg = an.send_serverchan(title, body)
     print(("✅ 管理员告警已发出" if ok else f"❌ 管理员告警发送失败：{msg}"))
     return None if ok else f"serverchan: {msg}"
 
@@ -468,6 +450,9 @@ def _admin_alert(date_key: str, failures: list[str], rec_msg: str,
         problems.append(f"数据缺失 {len(base['missing'])} 项：{'；'.join(base['missing'][:3])}")
     if "有效订阅 0 位" in rec_msg or "无法取订阅名单" in rec_msg or "取数失败" in rec_msg:
         problems.append(rec_msg)
+    # 付费未绑微信也是"问题"：收了钱、渠道全成功、但这个人什么都没收到。
+    if "付费未绑微信" in rec_msg:
+        problems.append("有付费用户未绑定微信，权益未实际交付（详见名单状态）")
     if not problems:
         return
     send_serverchan(
