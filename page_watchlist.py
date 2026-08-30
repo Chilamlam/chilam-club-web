@@ -466,6 +466,12 @@ def render_watchlist_page() -> None:
         st.session_state.user_watchlist = database.get_user_watchlist(user_id)
     cur = st.session_state.user_watchlist
 
+    # 写库结果用 flash 传递：st.rerun() 会立刻重跑脚本，
+    # 紧跟其前的 st.success/st.error 根本来不及被用户看到
+    _flash = st.session_state.pop("wl_flash", None)
+    if _flash:
+        (st.success if _flash[0] == "ok" else st.error)(_flash[1])
+
     with st.expander("➕ 添加 / 管理自选代码", expanded=(len(cur) == 0)):
         with st.form("add_stock_form"):
             new_input = st.text_input(
@@ -478,16 +484,23 @@ def render_watchlist_page() -> None:
                 updated = list(dict.fromkeys(cur + tokens))
                 ok = database.update_user_watchlist(user_id, updated)
                 st.session_state.user_watchlist = updated
-                st.success(f"已同步至云端，当前自选 {len(updated)} 只。" if ok else "已在本地更新自选清单。")
+                # 写库失败必须说清楚：只存 session_state 的话刷新就丢，
+                # 而个性化摘要邮件靠云端自选股取数，静默"成功"会让人以为已生效
+                st.session_state.wl_flash = (
+                    ("ok", f"已同步至云端，当前自选 {len(updated)} 只。") if ok else
+                    ("err", "⚠️ 云端保存失败，本次修改仅在当前会话有效，刷新后会丢失，"
+                            "个性化摘要邮件也取不到这份清单。请联系管理员检查数据库。"))
                 st.rerun()
 
         if cur:
             del_code = st.selectbox("🗑️ 移出自选：", ["请选择..."] + cur, key="wl_del")
             if st.button("确认移出 ❌") and del_code != "请选择...":
                 updated = [c for c in cur if c != del_code]
-                database.update_user_watchlist(user_id, updated)
+                ok = database.update_user_watchlist(user_id, updated)
                 st.session_state.user_watchlist = updated
-                st.success(f"已移出 {del_code}")
+                st.session_state.wl_flash = (
+                    ("ok", f"已移出 {del_code}") if ok else
+                    ("err", f"⚠️ 已在本次会话移出 {del_code}，但云端保存失败，刷新后会恢复。"))
                 st.rerun()
 
     if not cur:

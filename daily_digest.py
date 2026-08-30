@@ -88,6 +88,12 @@ def subscriber_emails() -> list[tuple[str, list[str]]]:
     """
     返回 [(email, watchlist)] —— 有效订阅用户及其自选股。
     Supabase 不可用时返回空列表（邮件仅发调试收件人）。
+
+    到期字段名必须与 subscriptions 表一致：实际列名是 **expires_at**。
+    此处曾写成 `end_date or expire_date`，两个列都不存在 → `.get()` 恒为 None
+    → 有效订阅永远算成 0 位 → 付费用户一封邮件都收不到，而日志只会平静地打印
+    「有效订阅用户 0 位」，看起来像"确实没人订阅"。字段名写错的取数逻辑不会报错，
+    只会给出一个语法正确、语义为空的答案，这类静默失败最难被发现。
     """
     if not (_env("SUPABASE_URL") and _env("SUPABASE_KEY")):
         print("⚠️ 未配置 SUPABASE_URL/KEY，跳过订阅用户收集")
@@ -95,22 +101,40 @@ def subscriber_emails() -> list[tuple[str, list[str]]]:
     try:
         import database as db
         subs = db.get_all_subscriptions()
+        if subs is None:
+            print("⚠️ subscriptions 取数返回 None（凭据或网络问题），本次不发订阅邮件")
+            return []
         today = datetime.date.today().isoformat()
-        active_ids = set()
+        active_ids, seen_fields = set(), False
         for s in subs or []:
-            end = str(s.get("end_date") or s.get("expire_date") or "")[:10]
+            if "expires_at" in s:
+                seen_fields = True
+            if str(s.get("status") or "active") != "active":
+                continue
+            end = str(s.get("expires_at") or "")[:10]
             if end and end >= today:
                 active_ids.add(s.get("user_id"))
+        if subs and not seen_fields:
+            # 表结构变了就必须喊出来，而不是安静地返回 0 位
+            print(f"❌ subscriptions 表无 expires_at 列，实际字段：{sorted(subs[0].keys())}")
+            return []
         out = []
         for uid in active_ids:
             u = db.get_user_by_id(uid)
             if not u or not u.get("email"):
+                print(f"   ⚠️ user_id={uid} 订阅有效但无邮箱，跳过")
+                continue
+            # digest_optin 列可能还没建，缺列时视为同意（默认订阅），
+            # 但一旦存在且为 False 就必须尊重——付费不等于同意被打扰
+            if u.get("digest_optin") is False:
+                print(f"   ⏭️ user_id={uid} 已退订摘要邮件")
                 continue
             out.append((u["email"], db.get_user_watchlist(uid) or []))
-        print(f"📇 有效订阅用户 {len(out)} 位")
+        print(f"📇 订阅记录 {len(subs)} 条 → 有效订阅用户 {len(out)} 位"
+              f"（其中 {sum(1 for _, w in out if w)} 位有自选股，可生成个性化段）")
         return out
     except Exception as e:
-        print(f"⚠️ 订阅用户收集失败：{e}")
+        print(f"⚠️ 订阅用户收集失败：{type(e).__name__}: {e}")
         return []
 
 

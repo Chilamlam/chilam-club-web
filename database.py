@@ -228,15 +228,18 @@ def get_user_watchlist(user_id: int) -> List[str]:
     return []
 
 def update_user_watchlist(user_id: int, watchlist: List[str]) -> bool:
-    """更新保存用户自选股"""
-    # 查重并规范化
+    """更新保存用户自选股。
+
+    返回 False 表示**没有落库**（例如 users 表缺 watchlist 列，PostgREST 报
+    PGRST204）。调用方必须把 False 当作失败提示给用户，不能显示成
+    「已在本地更新」——自选股只存在 session_state 里，刷新即丢失，
+    而个性化摘要靠它取数，静默失败会让付费邮件退化成免费内容。
+    缺列时执行 init_watchlist_column.sql 补上。
+    """
     cleaned = list(dict.fromkeys([c.strip().upper() for c in watchlist if c.strip()]))
-    
-    # 尝试更新 users 表
-    res = _supabase_request("PATCH", f"users?id=eq.{user_id}", json_data={"watchlist": cleaned})
-    if res is not None:
-        return True
-    return False
+    res = _supabase_request("PATCH", f"users?id=eq.{user_id}",
+                            json_data={"watchlist": cleaned})
+    return res is not None
 
 
 def initialize():

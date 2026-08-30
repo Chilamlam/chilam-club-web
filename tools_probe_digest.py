@@ -275,6 +275,51 @@ try:
 except Exception as _e:                                     # noqa: BLE001
     ck(False, f"_serverchan_url 可导入并正确分流（{type(_e).__name__}: {_e}）")
 
+# 订阅用户取数：字段名必须与 subscriptions 表真实列名一致。
+# 曾写成 end_date / expire_date（两列都不存在）→ 有效订阅恒为 0 位 →
+# 付费用户一封都收不到，日志却平静打印「有效订阅用户 0 位」，看起来像确实没人订阅。
+# 字段名写错的取数逻辑不抛异常，只给出语义为空的答案，这类静默失败最难发现。
+ck("expires_at" in SRC_DAILY, "订阅到期字段用 expires_at（表的真实列名）")
+# 只查**取数调用**而非裸字符串：注释里必须能提到 end_date 来解释这个坑，
+# 用裸字符串判断会被自己写的注释误伤（同 continue-on-error 那次）。
+ck(not re.search(r'\.get\(\s*["\'](end_date|expire_date)["\']', SRC_DAILY),
+   "不再从不存在的 end_date / expire_date 列取数")
+ck("subscriptions 表无 expires_at 列" in SRC_DAILY,
+   "表结构不符时必须显式报错，而不是安静返回 0 位订阅")
+ck('str(s.get("status") or "active") != "active"' in SRC_DAILY,
+   "只取 status=active 的订阅（已取消的订阅不该继续收付费邮件）")
+ck('u.get("digest_optin") is False' in SRC_DAILY,
+   "尊重退订标记（付费不等于同意被打扰），且缺列时默认订阅")
+try:
+    _dd = importlib.import_module("daily_digest")
+    _rows = [{"user_id": 2, "status": "active", "expires_at": "2099-01-01T00:00:00+00:00"},
+             {"user_id": 3, "status": "active", "expires_at": "2000-01-01T00:00:00+00:00"},
+             {"user_id": 4, "status": "cancelled", "expires_at": "2099-01-01T00:00:00+00:00"}]
+    _today = "2026-08-30"
+    _act = {r["user_id"] for r in _rows
+            if str(r.get("status") or "active") == "active"
+            and str(r.get("expires_at") or "")[:10] >= _today}
+    ck(_act == {2}, "有效订阅判定：未到期且 active 才算（过期/已取消均排除）")
+except Exception as _e:                                     # noqa: BLE001
+    ck(False, f"订阅判定逻辑可复现（{type(_e).__name__}: {_e}）")
+
+# users.watchlist 列是「与我相关」这一段的物理前提：列不存在则自选股存不住，
+# 个性化邮件退化成与免费内容完全相同，付费理由随之消失。
+_SQL_WL = os.path.join(ROOT, "init_watchlist_column.sql")
+ck(os.path.exists(_SQL_WL), "提供 init_watchlist_column.sql 补 users.watchlist 列")
+if os.path.exists(_SQL_WL):
+    _sql = open(_SQL_WL, encoding="utf-8").read()
+    ck("ADD COLUMN IF NOT EXISTS watchlist" in _sql, "建列语句幂等（IF NOT EXISTS）")
+    ck("digest_optin" in _sql, "同时提供退订开关列")
+SRC_DB = open(os.path.join(ROOT, "database.py"), encoding="utf-8").read()
+ck("return res is not None" in SRC_DB,
+   "update_user_watchlist 忠实返回写库结果（缺列时必须为 False）")
+SRC_WL = open(os.path.join(ROOT, "page_watchlist.py"), encoding="utf-8").read()
+ck("已在本地更新自选清单" not in SRC_WL,
+   "写库失败不得伪装成成功（原文案会让人以为已保存，刷新即丢失）")
+ck("wl_flash" in SRC_WL,
+   "保存结果用 flash 传递（紧跟 st.rerun() 的提示来不及显示）")
+
 # 页面接线
 ck("from page_digest import render_digest_page" in SRC_APP, "app.py 已 import 摘要页")
 ck('"📮 收盘摘要"' in SRC_APP, "侧边栏已加入「收盘摘要」入口")
