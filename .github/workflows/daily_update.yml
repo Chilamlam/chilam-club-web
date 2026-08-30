@@ -6,21 +6,31 @@ name: Daily Update
 # 为什么：本仓库的 PAT 只有 repo scope，没有 workflow scope，因此
 #         .github/workflows/*.yml 无法通过 git push、Contents API 或
 #         Git Data API 修改（四条路全部实测被拒），只能人工在网页端粘贴。
-#         而跑批步骤、顺序、依赖、secrets、自检项是最常变动的部分——
+#         而跑批步骤、顺序、依赖、自检项是最常变动的部分——
 #         每次变动都要人工介入是不可接受的。
 #
 # 于是把所有会变的东西下沉到普通 Python 文件（可自由推送）：
 #         步骤清单 / 顺序 / 超时 / 回溯策略 / 失败语义 → run_daily.py
 #         依赖清单                                    → requirements-batch.txt
 #         数据新鲜度自检                              → run_daily.py 内 FRESHNESS
-#         secrets                                     → 由下方 toJSON(secrets) 整体透传
 #
-# 关键点：secrets 用 `toJSON(secrets)` 一次性整体注入，所以**新增任何 secret
-#         都不必再改本文件**（例如加 DIGEST_SERVERCHAN_KEY，只在仓库 Secrets
-#         页面添加即可，代码侧自动可见）。
+# ★ secrets 为什么不用 toJSON(secrets) 整体透传（2026-08-30 回退）：
+#   曾用 `ALL_SECRETS: ${{ toJSON(secrets) }}` 换取「新增 secret 不必改 yml」，
+#   但 GitHub 2026-07-28 上线的供应链保护会把「把整个 secrets 集合序列化进
+#   环境变量」判定为潜在恶意（这正是凭据外泄攻击的标志动作），公开仓库的
+#   workflow run 因此每次都被挂起等人工 Approve —— run #334 实测被拦。
+#   代价对比：原问题是「加新 secret 时人工一次」，改后变成「每次跑批人工一次」，
+#   且定时跑批被挂起时无人知晓、当日 data/ 直接不落盘。故回退为逐个点名。
 #
-# 结论：本文件此后应无需再改。若确实要改，说明有新的「不可下沉」的需求，
-#       请先确认是否真的必须写在 yml 里。
+#   逐个点名的注意事项：
+#   1. 引用一个不存在的 secret 不会报错，只会得到空字符串；
+#      run_daily.inject_secrets() 与 daily_digest._env() 都跳过空值，故无害。
+#      因此下方可以把「将来可能用到」的名字先列上，避免为加一个 secret 再改 yml。
+#   2. 新增一个**下方没列出**的 secret 时，才需要人工来改这个文件。
+#   3. run_daily.inject_secrets() 保留不动：收不到 ALL_SECRETS 时它安静返回空，
+#      两种模式都兼容，本地调试路径不受影响。
+#
+# 结论：除了「新增下方未列出的 secret」，本文件此后应无需再改。
 # ============================================================================
 
 on:
@@ -66,7 +76,29 @@ jobs:
     # 任一脚本失败都不能导致当日全量数据不落盘。
     - name: Run daily pipeline
       env:
-        ALL_SECRETS: ${{ toJSON(secrets) }}
+        # ---- 行情与数据源 ----
+        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        # ---- 会员库（两者缺一即无法取投递名单，届时只归档不投递）----
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        # ---- 推送：WxPusher 是用户投递主通道 ----
+        WXPUSHER_APP_TOKEN: ${{ secrets.WXPUSHER_APP_TOKEN }}
+        # 调试用收件 UID，绕过订阅表。生产环境不应长期存在（等于后门收件人）。
+        WXPUSHER_TEST_UID: ${{ secrets.WXPUSHER_TEST_UID }}
+        # ---- 推送：Server酱 仅管理员运维告警（SendKey 绑单账号，官方不支持群发）----
+        DIGEST_SERVERCHAN_KEY: ${{ secrets.DIGEST_SERVERCHAN_KEY }}
+        # ---- 推送：企业微信群机器人（内部群播报，可选）----
+        DIGEST_WECOM_WEBHOOK: ${{ secrets.DIGEST_WECOM_WEBHOOK }}
+        # ---- 推送：邮件，只发给未绑微信的订阅用户 ----
+        DIGEST_SMTP_HOST: ${{ secrets.DIGEST_SMTP_HOST }}
+        DIGEST_SMTP_PORT: ${{ secrets.DIGEST_SMTP_PORT }}
+        DIGEST_SMTP_USER: ${{ secrets.DIGEST_SMTP_USER }}
+        DIGEST_SMTP_PASS: ${{ secrets.DIGEST_SMTP_PASS }}
+        DIGEST_SMTP_FROM: ${{ secrets.DIGEST_SMTP_FROM }}
+        DIGEST_TEST_TO: ${{ secrets.DIGEST_TEST_TO }}
+        DIGEST_DRY_RUN: ${{ secrets.DIGEST_DRY_RUN }}
+        # ---- 手动输入 ----
         BACKFILL_DAYS: ${{ github.event.inputs.backfill_days }}
         # 手动输入一律走 env 而非直接插值进 run 脚本：${{ }} 会被原文拼进 shell，
         # 输入里带引号或分号就变成命令注入。走 env 后 shell 只当它是普通字符串。
