@@ -95,6 +95,70 @@ def gather_pct_map() -> dict:
         return {}
 
 
+_BJ_PREFIX = ("92", "43", "83", "87")
+
+
+def _tx_code(raw: str) -> str:
+    """纯代码 → 腾讯行情代码。与 page_watchlist._tx_code 同一套号段规则。"""
+    c = str(raw).strip().upper().split(".")[0]
+    if not c.isdigit():
+        return ""
+    if len(c) == 6 and c[:2] in _BJ_PREFIX:
+        return f"bj{c}"
+    if c.startswith(("6", "5", "9")):
+        return f"sh{c}"
+    return f"sz{c}"
+
+
+def fallback_pct_map(codes: list[str], date_key: str = "") -> dict:
+    """
+    兜底：只取「实际有人自选」的那几十个代码的涨幅（腾讯行情，纯 stdlib）。
+
+    为什么要这条兜底：个性化段落是付费用户唯一拿到的独占内容，
+    让它因为 tushare 一处失效就整段消失，等于当天的付费价值归零。
+    全市场取数失败时，需要的其实只是这几十个代码，成本比全市场低两个数量级。
+
+    **兜底不等于放宽真实性要求**：腾讯返回的是「最近一个交易日收盘」，
+    如果它的日期与摘要日期不一致，说明拿到的是别的交易日的涨幅，
+    此时整段放弃而不是拿错日期的数字冒充今日——宁可没有，不可有错。
+    """
+    codes = [c for c in {str(x).strip().upper().split(".")[0] for x in codes if x} if c]
+    if not codes:
+        return {}
+    out: dict[str, float] = {}
+    stale = set()
+    for i in range(0, len(codes), 60):
+        chunk = codes[i:i + 60]
+        tx = [t for t in (_tx_code(c) for c in chunk) if t]
+        if not tx:
+            continue
+        try:
+            url = "https://qt.gtimg.cn/q=" + ",".join(tx)
+            raw = urllib.request.urlopen(url, timeout=15).read().decode("gbk", "ignore")
+        except Exception as e:
+            print(f"⚠️ 兜底涨幅取数失败（{len(tx)} 个代码）：{type(e).__name__}: {e}")
+            continue
+        for line in raw.strip().split(";"):
+            if "~" not in line:
+                continue
+            f = line.split("~")
+            if len(f) < 33:
+                continue
+            try:
+                code, pct, day = f[2].strip(), float(f[32]), f[30][:8]
+            except (ValueError, IndexError):
+                continue
+            if date_key and day and day != date_key:
+                stale.add(day)
+                continue
+            out[code] = pct
+    if stale:
+        print(f"⚠️ 兜底行情日期为 {'/'.join(sorted(stale))}，与摘要日期 {date_key} 不符，已丢弃")
+    if out:
+        print(f"↩️ 个性化段落改用腾讯行情兜底，命中 {len(out)}/{len(codes)} 个代码")
+    return out
+
+
 def recipients() -> tuple[list[dict] | None, str]:
     """
     返回 (名单, 说明)。名单元素 {user_id, email, wxpusher_uid, watchlist}。
@@ -429,6 +493,13 @@ def main() -> None:
     if rec is None:
         print(f"⚠️ {rec_msg}")
         rec = []
+
+    # 全市场取数失败时，只补「实际有人自选」的那几十个代码。
+    # base 用 watchlist=None 渲染，本来就不消费 pct_map，所以这里补在归档之后无影响。
+    if not pct_map:
+        wanted = sorted({c for r in rec for c in (r.get("watchlist") or [])})
+        if wanted:
+            pct_map = fallback_pct_map(wanted, date_key)
 
     failures = []
     # WxPusher 是用户投递主通道，放在最前面；企业微信是可选的内部群播报

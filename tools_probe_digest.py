@@ -299,8 +299,36 @@ ck('str(s.get("status") or "active") != "active"' in _SEG_REC,
    "只取 status=active 的订阅（已取消的订阅不该继续收付费推送）")
 ck('u.get("digest_optin") is False' in _SEG_REC,
    "尊重退订标记（付费不等于同意被打扰），且缺列时默认订阅")
+# 「谁是会员」不允许有两套答案：auth.is_vip() 里管理员默认具备 VIP 权限，
+# 名单取数若只认订阅表，管理员就会「站内看得到会员功能、却永远收不到推送」。
+ck('"is_admin": "eq.true"' in _SEG_REC,
+   "投递名单包含管理员（与 auth.is_vip() 的管理员豁免保持一致）")
+SRC_AUTH = open(os.path.join(ROOT, "auth.py"), encoding="utf-8").read()
+ck('user.get("is_admin", False)' in SRC_AUTH,
+   "auth.is_vip() 确实对管理员豁免（上一条断言的前提，前提变了要一起改）")
+ck("if admins is None:" in _SEG_REC,
+   "管理员名单取数失败时返回 None（名单不完整不算成功）")
 # None 与 [] 必须在调用侧也被区分，否则「配置坏了」会长期伪装成「暂时没人付费」
 ck("if rec is None:" in SRC_DAILY, "调用侧区分 None（取数失败）与 []（确实没人）")
+
+# 个性化段落兜底：它是付费用户唯一的独占内容，不能因 tushare 一处失效就整段消失。
+_SEG_FB = SRC_DAILY[SRC_DAILY.find("def fallback_pct_map"):]
+_SEG_FB = _SEG_FB[:_SEG_FB.find("\ndef ", 10)] if "\ndef " in _SEG_FB[10:] else _SEG_FB
+ck("def fallback_pct_map" in SRC_DAILY, "提供个性化涨幅兜底通道（不依赖 tushare）")
+ck("if not pct_map:" in SRC_DAILY, "仅在全市场取数失败时才走兜底（正常路径不变）")
+ck("day != date_key" in _SEG_FB,
+   "兜底必须校验行情日期：拿到别的交易日的涨幅要整段丢弃，不可冒充今日")
+ck("qt.gtimg.cn" in _SEG_FB, "兜底走腾讯行情（纯 stdlib，无额外依赖）")
+ck("import tushare" not in _SEG_FB, "兜底通道不复用失效的 tushare 依赖")
+try:
+    _dd_fb = importlib.import_module("daily_digest")
+    ck(_dd_fb.fallback_pct_map([], "20260828") == {},
+       "兜底空输入返回空 dict（不发请求）")
+    ck(_dd_fb._tx_code("603259") == "sh603259" and _dd_fb._tx_code("000506") == "sz000506"
+       and _dd_fb._tx_code("920099") == "bj920099",
+       "兜底代码前缀规则与 page_watchlist._tx_code 一致（沪/深/北三段）")
+except Exception as _e:                                     # noqa: BLE001
+    ck(False, f"兜底通道可调用（{type(_e).__name__}: {_e}）")
 try:
     _dd = importlib.import_module("daily_digest")
     _rows = [{"user_id": 2, "status": "active", "expires_at": "2099-01-01T00:00:00+00:00"},

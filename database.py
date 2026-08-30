@@ -270,6 +270,10 @@ def get_push_recipients() -> Optional[List[Dict[str, Any]]]:
     会让「配置坏了」长期伪装成「暂时没人付费」。
 
     到期列名是 expires_at（不是 end_date），此处曾写错导致有效订阅恒为 0。
+
+    权限判定必须与 auth.is_vip() 一致：那边「管理员默认具备 VIP 权限」，
+    如果这里只认订阅表，管理员就会出现「站内看得到会员功能、却永远收不到推送」
+    的分裂状态——同一个「谁是会员」的问题不允许有两套答案。
     """
     subs = get_all_subscriptions()
     if subs is None:
@@ -284,6 +288,15 @@ def get_push_recipients() -> Optional[List[Dict[str, Any]]]:
         end = str(s.get("expires_at") or "")[:10]
         if end and end >= today:
             active_ids.add(s.get("user_id"))
+
+    # 管理员与 auth.is_vip() 对齐：无需订阅记录即视为有效会员
+    admins = _supabase_request("GET", "users", params={"select": "id", "is_admin": "eq.true"})
+    if admins is None:
+        return None                       # 名单不完整就不算成功，宁可报错
+    for a in admins:
+        if a.get("id") is not None:
+            active_ids.add(a["id"])
+
     out = []
     for uid in active_ids:
         u = get_user_by_id(uid)
