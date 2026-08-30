@@ -665,7 +665,9 @@ def main():
                     st.rerun()
             if auth.is_admin():
                 if st.button("⚙️ 后台管理", key="sb_admin", use_container_width=True):
-                    st.switch_page("admin.py")
+                    # 必须是 pages/ 下的路径：switch_page 只认入口脚本与 pages/ 目录，
+                    # 传 "admin.py" 会抛 StreamlitAPIException（Cloud 上错误还被脱敏）。
+                    st.switch_page("pages/admin.py")
         else:
             st.caption("👤 游客未登录")
             if st.button("🔐 登录 / 注册", key="sb_login", use_container_width=True):

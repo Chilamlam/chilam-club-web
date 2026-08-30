@@ -29,6 +29,32 @@ for py in sorted(ROOT.rglob("*.py")):
         if fn is None:
             problems.append((py.name, node.lineno, f"st.{f.attr} 不存在"))
             continue
+
+        # ---- switch_page / page_link 的目标必须是「已注册的页面」 ----
+        # Streamlit 只认：入口脚本（app.py）与 pages/ 目录下的文件。
+        # 传根目录的其它脚本会在运行时抛 StreamlitAPIException，
+        # 而 Cloud 上错误详情被脱敏 → 只能看到一个没有信息量的红框。
+        # 这类错误静态完全可判定，不该留到线上才发现。
+        #
+        # 位置很关键：必须放在下面「签名带 **kwargs 就 continue」之前。
+        # st.switch_page 被 gather_metrics 装饰，包装函数签名是 (*args, **kwargs)，
+        # 放在 continue 之后这段代码永远走不到 —— 一条永不失败的断言等于没有断言。
+        if f.attr in ("switch_page", "page_link") and node.args:
+            arg0 = node.args[0]
+            if isinstance(arg0, ast.Constant) and isinstance(arg0.value, str):
+                target = arg0.value
+                if target.startswith(("http://", "https://")):
+                    pass  # page_link 允许外链
+                elif target == "app.py":
+                    pass  # 入口脚本
+                elif not target.startswith("pages/"):
+                    problems.append((py.name, node.lineno,
+                                     f"st.{f.attr}(\"{target}\") 不是已注册页面："
+                                     "只能是 app.py 或 pages/ 下的文件"))
+                elif not (ROOT / target).exists():
+                    problems.append((py.name, node.lineno,
+                                     f"st.{f.attr}(\"{target}\") 指向的文件不存在"))
+
         try:
             params = inspect.signature(fn).parameters
         except (TypeError, ValueError):

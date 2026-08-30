@@ -1,10 +1,28 @@
 """
 后台管理 - 用户列表、订单确认收款、手动开通/续期 VIP
+
+位置约束（2026-08-30 修正，不要再搬回根目录）：
+    本文件必须留在 `pages/` 下。Streamlit 的 `st.switch_page()` 只接受
+    「入口脚本 app.py」或「pages/ 目录下的文件」，放在根目录的 admin.py
+    不是一个被注册的页面，`st.switch_page("admin.py")` 会抛
+    StreamlitAPIException（Could not find page），且 Cloud 上错误详情被脱敏，
+    只能看到一条没有信息量的红框 —— 排查成本远高于这个文件放哪。
+    副作用：pages/ 下的文件会出现在默认侧边栏导航里，因此本页开头的
+    管理员校验是真正的门禁，不能删。
 """
+import os
+import sys
+
 import streamlit as st
+
+# pages/ 是 Streamlit 子页目录，运行时 sys.path[0] 未必是项目根，
+# 显式补一次，与 pages/dashboard.py 保持一致。
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
+
 import auth
 import database
-import os
 
 st.set_page_config(page_title="后台管理 - Chilam Club", page_icon="⚙️", layout="wide")
 
@@ -63,7 +81,7 @@ with tab_orders:
     if not payments_ready:
         st.error("⚠️ payments 订单表尚未创建！")
         with st.expander("📋 点击查看建表 SQL（复制到 Supabase SQL Editor 执行）", expanded=True):
-            sql_path = "init_payments_table.sql"
+            sql_path = os.path.join(_ROOT, "init_payments_table.sql")
             if os.path.exists(sql_path):
                 with open(sql_path, "r", encoding="utf-8") as f:
                     sql_content = f.read()
