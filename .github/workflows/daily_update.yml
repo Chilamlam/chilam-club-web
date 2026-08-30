@@ -87,10 +87,17 @@ jobs:
       continue-on-error: true
       env:
         TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
-      run: python daily_sentiment.py
+        BACKFILL_DAYS: ${{ github.event.inputs.backfill_days }}
+      run: |
+        if [ -n "$BACKFILL_DAYS" ] && [ "$BACKFILL_DAYS" != "0" ]; then
+          echo "===== 情绪归档回溯（上限 15 个交易日，接口能力所限）====="
+          N=$BACKFILL_DAYS
+          if [ "$N" -gt 15 ]; then N=15; fi
+          python daily_sentiment.py --backfill "$N" || echo "sentiment 退出码 $?"
+        else
+          python daily_sentiment.py
+        fi
 
-    # 战绩归档与绩效：必须排在所有榜单跑批之后（读取当日 strong_stocks / breakout / strong_etfs）
-    # backfill_days > 0 时先用 tushare 重建历史 RPS 榜，再做当日增量
     - name: Run Scorecard
       continue-on-error: true
       env:
