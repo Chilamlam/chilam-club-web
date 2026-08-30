@@ -6,10 +6,16 @@
 用法：
     python tools_gh_put_via_gitdata.py <仓库内路径> "<commit message>"           # 单文件（旧式，保留）
     python tools_gh_put_via_gitdata.py --msg "<message>" <路径> [路径...]        # 多文件，合成**一个** commit
+    python tools_gh_put_via_gitdata.py --msg "<message>" a.py --rm old.py       # 同时删除远端文件
 
 多文件必须走 --msg 形式：一个 tree 里塞多个 blob，只产生一个 commit。
 逐个调用单文件模式会在 main 上留下一串碎提交，之后本地 rebase 要反复处理，
 且中途失败会让远端处于「改了一半」的状态。
+
+`--rm <路径>` 用于删除远端文件（tree entry 的 sha 传 null）。
+**重命名必须在同一个 commit 里「新增新路径 + 删除旧路径」**，否则远端会同时留下两份：
+例如把 admin.py 搬进 pages/ 只上传新路径，根目录那份仍在，Streamlit 侧看似正常
+（它只认 pages/），但后来的人会读到一个永不执行的旧副本，且两份内容随时间漂移。
 
 退出码：0 成功 / 2 API 拒绝 / 3 参数或本地文件问题
 注意：token 从 remote.origin.url 读取，全程不回显明文。
@@ -106,18 +112,36 @@ def main() -> int:
         return 3
 
     # 两种调用形态：--msg 多文件 / 旧式 <path> <msg> 单文件
+    # --rm <路径> 可出现多次，表示在同一个 commit 里删除远端该文件
+    deletes: list[str] = []
     if argv[0] == "--msg":
         if len(argv) < 3:
             print(__doc__)
             return 3
         msg = argv[1]
-        paths = [p.replace("\\", "/") for p in argv[2:]]
+        rest = argv[2:]
+        paths = []
+        i = 0
+        while i < len(rest):
+            if rest[i] == "--rm":
+                if i + 1 >= len(rest):
+                    print("[ERR] --rm 缺少路径参数")
+                    return 3
+                deletes.append(rest[i + 1].replace("\\", "/"))
+                i += 2
+            else:
+                paths.append(rest[i].replace("\\", "/"))
+                i += 1
     else:
         if len(argv) < 2:
             print(__doc__)
             return 3
         paths = [argv[0].replace("\\", "/")]
         msg = argv[1]
+
+    if not paths and not deletes:
+        print("[ERR] 既没有要上传的文件，也没有要删除的路径")
+        return 3
 
     missing = [p for p in paths if not os.path.isfile(p)]
     if missing:
@@ -153,11 +177,17 @@ def main() -> int:
                         "sha": blob["sha"]})
         print(f"[3/5] blob {p} = {blob['sha'][:12]}")
 
+    # 删除：tree entry 的 sha 传 None（JSON null）即表示从 base_tree 移除该路径。
+    for p in deletes:
+        entries.append({"path": p, "mode": "100644", "type": "blob", "sha": None})
+        print(f"[3/5] delete {p}")
+
     st, tree = _req("POST", f"{API}/git/trees",
                     {"base_tree": base_tree, "tree": entries})
     if st not in (200, 201):
         print(f"[ERR] 创建 tree 失败 {st}: {json.dumps(tree, ensure_ascii=False)[:300]}")
         print("      （若为 404，说明其中含 .github/workflows/ 路径，PAT 缺 workflow scope）")
+        print("      （若为 422 且提到 sha/null，说明 --rm 的路径在远端不存在）")
         return 2
     print(f"[4/5] tree = {tree['sha'][:12]}（{len(entries)} 个文件）")
 
