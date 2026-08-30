@@ -195,13 +195,23 @@ def section_scorecard(perf: dict | None) -> tuple[str, str | None]:
         if h.get("status") != "ok":
             continue
         acc = h.get("direction_accuracy")
-        lines.append(f"- {v.get('label')}：5日超额中位数 **{h['alpha_median']:+.2f}%**"
+        # alpha_median 是**小数**（scorecard.py 里 float(a.median())，-0.0382 = -3.82%），
+        # 必须乘 100 才是百分数。此处曾漏乘，把 -3.82% 播成 -0.04%——
+        # 战绩数字报小 100 倍比报大更危险：它会让一个明显失效的榜单看起来"几乎打平"。
+        pct = float(h["alpha_median"]) * 100
+        lines.append(f"- {v.get('label')}：5日超额中位数 **{pct:+.2f}%**"
                      f"，跑赢基准比例 {acc * 100:.0f}%（样本 {h['n']} 条）"
                      if acc is not None else
-                     f"- {v.get('label')}：5日超额中位数 **{h['alpha_median']:+.2f}%**"
+                     f"- {v.get('label')}：5日超额中位数 **{pct:+.2f}%**"
                      f"（样本 {h['n']} 条）")
     if not lines:
         return "", f"战绩样本不足（{perf.get('reason', '样本积累中')}）"
+    # 区分度结论必须跟着战绩数字一起播——只报中位数而藏起"排序没有信息量"，
+    # 等于让用户以为榜单排名可用。自曝其短是这一段存在的全部理由。
+    for _, v in strats.items():
+        disc = v.get("discrimination") or {}
+        if disc.get("status") == "ok" and disc.get("monotonic") is False:
+            lines.append(f"- ⚠️ {v.get('label')}：{disc.get('verdict', '排序未通过单调性检验')}")
     return "\n".join(["### 📊 榜单战绩（滚动统计，对基准沪深300的超额）", ""]
                      + lines
                      + ["", "口径：以上榜当日收盘为基准点，只统计超额收益。"

@@ -77,9 +77,14 @@ PERF = {
                 "date_to": "20260828", "trade_days": 40},
     "strategies": {"rps": {
         "label": "RPS 强势股榜", "total_picks": 900, "days": 40,
-        "horizons": {"5": {"n": 900, "status": "ok", "alpha_median": 0.83,
+        # alpha_median 在 scorecard.py 里是**小数**（0.0083 = 0.83%）。
+        # 这个 fixture 原先误写成 0.83，导致展示层漏乘 100 的 bug 无法被自检发现——
+        # 测试数据的单位必须和生产数据完全一致，否则断言是在验证一个不存在的世界。
+        "horizons": {"5": {"n": 900, "status": "ok", "alpha_median": 0.0083,
                            "direction_accuracy": 0.56}},
-        "discrimination": {}, "daily_alpha": []}},
+        "discrimination": {"status": "ok", "monotonic": False,
+                           "verdict": "排序未通过单调性检验：靠前档位并未更优，该榜单的排序信息量存疑"},
+        "daily_alpha": []}},
 }
 
 with open(os.path.join(WORK, "data", "sentiment", "derived.json"), "w", encoding="utf-8") as f:
@@ -124,8 +129,9 @@ print("=" * 60)
 ck("40.0%" in md and "8/20" in md, "1进2 晋级率与分子分母原样透出")
 ck("+2.00%" in md, "连板溢价中位数原样透出")
 ck("5 板" in md and "[4] 板" in md, "梯队高度与断层原样透出")
-ck("+0.83%" in md, "5日超额中位数 +0.83% 原样透出")
+ck("+0.83%" in md, "5日超额中位数 0.0083 → 显示 +0.83%（小数必须乘 100）")
 ck("56%" in md, "跑赢基准比例 56% 原样透出")
+ck("排序未通过单调性检验" in md, "区分度不单调的结论必须与战绩数字一同播报，不许只报中位数")
 ck("浦发银行" in md, "自选股名称由 market_snapshot 映射得到")
 ck("+3.20%" in md and "-1.10%" in md, "自选股涨幅原样透出")
 ck("+1.05%" in md, "自选中位涨幅 = (3.2 + -1.1)/2 = 1.05%（手算对账）")
