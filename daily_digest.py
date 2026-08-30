@@ -20,7 +20,8 @@
 环境变量（GitHub Secrets）：
   DIGEST_SMTP_HOST / _PORT / _USER / _PASS / _FROM   邮件（缺任一即跳过邮件）
   DIGEST_WECOM_WEBHOOK    企业微信群机器人 webhook
-  DIGEST_SERVERCHAN_KEY   Server酱 SendKey
+  DIGEST_SERVERCHAN_KEY   Server酱 SendKey（Turbo 的 SCT… 或 Server酱³ 的 sctp… 均可，
+                          脚本按前缀自动选端点，见 _serverchan_url）
   SUPABASE_URL / SUPABASE_KEY   取有效订阅用户邮箱（缺则邮件仅发 DIGEST_TEST_TO）
   DIGEST_TEST_TO          调试收件人，逗号分隔，始终包含
   DIGEST_DRY_RUN=1        只归档不发送
@@ -164,8 +165,32 @@ def send_wecom(payload: dict) -> str | None:
     return None if ok else f"wecom: {msg}"
 
 
+def _serverchan_url(key: str) -> str:
+    """按 SendKey 前缀推导推送端点——两个产品线的 key 不通用、域名也不同。
+
+    · Turbo(SCT)：key 形如 `SCTxxxx`，端点 `https://sctapi.ftqq.com/<key>.send`
+    · Server酱³(SC3)：key 形如 `sctp{uid}t{rand}`，端点
+      `https://{uid}.push.ft07.com/send/<key>.send`——**uid 必须从 key 里抠出来
+      拼进域名**，域名写错不会报"key 无效"，而是整个域名解析不到，
+      表现成网络错误，很容易误判成"网络问题、重试就好"。
+
+    不做前缀判断的代价是：用户注册了 SC3、贴了 sctp 开头的 key，脚本仍往
+    sctapi.ftqq.com 发，服务端只会回一个"key 不存在"，而用户会坚信
+    key 是刚复制的、一定没错——排查方向直接被带偏。
+    """
+    if key.startswith("sctp"):
+        uid = ""
+        for ch in key[4:]:
+            if not ch.isdigit():
+                break
+            uid += ch
+        if uid:
+            return f"https://{uid}.push.ft07.com/send/{key}.send"
+    return f"https://sctapi.ftqq.com/{key}.send"
+
+
 def send_serverchan(payload: dict) -> str | None:
-    """Server酱 Turbo（sctapi.ftqq.com）推送。
+    """Server酱推送（自动识别 Turbo / Server酱³ 两种 SendKey）。
 
     两个坑，都会让"失败"伪装成"成功"，所以必须显式处理：
 
@@ -179,7 +204,7 @@ def send_serverchan(payload: dict) -> str | None:
     if not key:
         return None
     title = " ".join(str(payload["title"]).split())[:100]
-    ok, msg = _post_json(f"https://sctapi.ftqq.com/{key}.send",
+    ok, msg = _post_json(_serverchan_url(key),
                          {"title": title, "desp": payload["markdown"]})
     if ok:
         try:

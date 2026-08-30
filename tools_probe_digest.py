@@ -256,6 +256,25 @@ ck('" ".join(str(payload["title"]).split())' in SRC_DAILY,
    "Server酱 title 压成单行（含换行会被服务端拒绝）")
 ck("[:800]" in SRC_DAILY, "响应体截断长度足够容纳 JSON（避免解析失败误判成功）")
 
+# Server酱 有两个产品线，SendKey 不通用且端点不同：Turbo 是 sctapi.ftqq.com，
+# Server酱³ 的 key 形如 sctp{uid}t…，端点是 {uid}.push.ft07.com。
+# 把 sctp 的 key 发去 Turbo 端点只会回「key 不存在」，而用户会坚信刚复制的 key 没错，
+# 排查方向直接被带偏——所以必须按前缀自动选端点，且必须有断言守住。
+ck('key.startswith("sctp")' in SRC_DAILY, "按 SendKey 前缀区分 Turbo / Server酱³")
+ck("push.ft07.com" in SRC_DAILY, "Server酱³ 端点已实现")
+ck("{uid}.push.ft07.com" in SRC_DAILY, "Server酱³ 的 uid 必须拼进域名（写错会表现成网络错误）")
+try:
+    _dd = importlib.import_module("daily_digest")
+    ck(_dd._serverchan_url("SCTabc") == "https://sctapi.ftqq.com/SCTabc.send",
+       "Turbo key → sctapi 端点")
+    ck(_dd._serverchan_url("sctp123tXYZ")
+       == "https://123.push.ft07.com/send/sctp123tXYZ.send",
+       "sctp123tXYZ → uid=123 的 push.ft07.com 端点")
+    ck(_dd._serverchan_url("sctpXtY") == "https://sctapi.ftqq.com/sctpXtY.send",
+       "sctp 后无数字时退回 Turbo 端点（不构造出畸形域名）")
+except Exception as _e:                                     # noqa: BLE001
+    ck(False, f"_serverchan_url 可导入并正确分流（{type(_e).__name__}: {_e}）")
+
 # 页面接线
 ck("from page_digest import render_digest_page" in SRC_APP, "app.py 已 import 摘要页")
 ck('"📮 收盘摘要"' in SRC_APP, "侧边栏已加入「收盘摘要」入口")

@@ -43,6 +43,40 @@ _TOK = _token()
 API = f"https://api.github.com/repos/{REPO}"
 
 
+def _req_curl(method: str, url: str, body=None):
+    """用 curl 子进程发同一请求。
+
+    存在理由：这个网络下 **python 的 urllib 会在 TLS 握手阶段被打断**
+    （`SSL: UNEXPECTED_EOF_WHILE_READING`），而 curl 对同一 URL 稳定返 200。
+    差别在 TLS 栈与协议协商，不是凭据或 URL 的问题——所以看到 UNEXPECTED_EOF
+    不要去查 token，直接换传输层。
+
+    命令以参数数组传给 subprocess（不经 shell），token 只出现在参数里、不打印。
+    """
+    cmd = ["curl", "-sS", "-X", method,
+           "-H", "Authorization: Bearer " + _TOK,
+           "-H", "Accept: application/vnd.github+json",
+           "-w", "\n%{http_code}", url]
+    if body is not None:
+        cmd += ["-H", "Content-Type: application/json", "--data-binary", "@-"]
+    try:
+        p = subprocess.run(
+            cmd, input=json.dumps(body).encode() if body is not None else None,
+            capture_output=True, timeout=60)
+    except Exception as e:                                  # noqa: BLE001
+        return 0, {"raw": f"curl 兜底也失败: {type(e).__name__}: {e}"}
+    out = p.stdout.decode("utf-8", "replace")
+    text, _, code = out.rpartition("\n")
+    try:
+        status = int(code.strip())
+    except ValueError:
+        return 0, {"raw": f"curl 输出无状态码: {out[:300]}"}
+    try:
+        return status, json.loads(text) if text.strip() else {}
+    except Exception:                                       # noqa: BLE001
+        return status, {"raw": text[:400]}
+
+
 def _req(method: str, url: str, body=None):
     data = json.dumps(body).encode() if body is not None else None
     r = urllib.request.Request(url, data=data, method=method)
@@ -54,12 +88,15 @@ def _req(method: str, url: str, body=None):
         with urllib.request.urlopen(r, timeout=45) as resp:
             return resp.status, json.load(resp)
     except urllib.error.HTTPError as e:
+        # HTTP 错误码是**服务端给的答案**（404/422/401），换传输层重发得到的是
+        # 同一个答案，还可能把非幂等 POST 重复执行。只有传输层失败才兜底。
         try:
             return e.code, json.load(e)
         except Exception:
             return e.code, {"raw": e.read().decode("utf-8", "replace")[:400]}
-    except Exception as e:
-        return 0, {"raw": f"{type(e).__name__}: {e}"}
+    except Exception as e:                                  # noqa: BLE001
+        print(f"[warn] urllib 传输失败（{type(e).__name__}），改用 curl 兜底")
+        return _req_curl(method, url, body)
 
 
 def main() -> int:
