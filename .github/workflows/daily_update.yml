@@ -1,20 +1,47 @@
 name: Daily Update
 
+# ============================================================================
+# 这个文件已「薄壳化」：除了装环境、跑一条命令、提交 data/ 之外不做任何事。
+#
+# 为什么：本仓库的 PAT 只有 repo scope，没有 workflow scope，因此
+#         .github/workflows/*.yml 无法通过 git push、Contents API 或
+#         Git Data API 修改（四条路全部实测被拒），只能人工在网页端粘贴。
+#         而跑批步骤、顺序、依赖、secrets、自检项是最常变动的部分——
+#         每次变动都要人工介入是不可接受的。
+#
+# 于是把所有会变的东西下沉到普通 Python 文件（可自由推送）：
+#         步骤清单 / 顺序 / 超时 / 回溯策略 / 失败语义 → run_daily.py
+#         依赖清单                                    → requirements-batch.txt
+#         数据新鲜度自检                              → run_daily.py 内 FRESHNESS
+#         secrets                                     → 由下方 toJSON(secrets) 整体透传
+#
+# 关键点：secrets 用 `toJSON(secrets)` 一次性整体注入，所以**新增任何 secret
+#         都不必再改本文件**（例如加 DIGEST_SERVERCHAN_KEY，只在仓库 Secrets
+#         页面添加即可，代码侧自动可见）。
+#
+# 结论：本文件此后应无需再改。若确实要改，说明有新的「不可下沉」的需求，
+#       请先确认是否真的必须写在 yml 里。
+# ============================================================================
+
 on:
   schedule:
     - cron: '37 11 * * *' # 北京时间 19:37 主跑批（错开整点/半点高峰，减少 Actions 排队延迟）
     - cron: '20 14 * * *' # 北京时间 22:20 兜底补跑（主跑批被延迟或失败时保证当日数据落地）
-  workflow_dispatch:      # 保留手动触发按钮，方便调试
+  workflow_dispatch:
     inputs:
       backfill_days:
-        description: '战绩回看历史回溯天数（0=不回溯，仅当日增量；首次上线建议填 40）'
+        description: '历史回溯天数（0=仅当日增量。战绩可回溯任意天数；情绪归档受东财接口限制自动截顶为 15）'
         required: false
         default: '0'
+      only:
+        description: '只跑指定步骤，逗号分隔（留空=全跑）。可选：rps,etf,market_monitor,speculation,guru,radar,snapshot,breakout,sentiment,scorecard,digest'
+        required: false
+        default: ''
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    # ★★★ 必须增加：赋予 GitHub Actions 写入仓库的权限 ★★★
+    timeout-minutes: 90
     permissions:
       contents: write
 
@@ -26,119 +53,30 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-        cache: 'pip' # 自动缓存依赖，加快速度
+        cache: 'pip'
+        cache-dependency-path: requirements-batch.txt
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pandas tushare akshare requests plotly lxml beautifulsoup4 cloudscraper
+        pip install -r requirements-batch.txt
 
-    - name: Run RPS Strategy
-      continue-on-error: true
+    # 全部跑批由编排器统一执行。它内部逐步骤捕获异常与非零退出码后继续，
+    # 并恒以 0 退出，等价于原先每步的 continue-on-error: true——
+    # 任一脚本失败都不能导致当日全量数据不落盘。
+    - name: Run daily pipeline
       env:
-        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
-      run: python daily_rps_pro.py
-
-    - name: Run ETF Strategy
-      continue-on-error: true
-      env:
-        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
-      run: python daily_etf_pro.py
-
-    - name: Run Market Monitor
-      continue-on-error: true
-      env:
-        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      run: python daily_market_monitor.py
-
-    - name: Run Speculation Scan
-      continue-on-error: true
-      env:
-        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
-      run: python daily_speculation.py
-
-    - name: Run Guru Loader
-      continue-on-error: true
-      run: python daily_guru_loader.py
-
-    - name: Run Anomaly Radar
-      continue-on-error: true
-      env:
-        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
-      run: python daily_radar.py
-
-    - name: Run Market Snapshot
-      continue-on-error: true
-      env:
-        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
-      run: python daily_snapshot.py
-
-    # 阶段新高突破池（此前漏配，导致 breakout_stocks.csv 长期停在 2026-08-24）
-    - name: Run Breakout Scan
-      continue-on-error: true
-      env:
-        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
-      run: python daily_breakout.py
-
-    # 情绪派生指标：必须排在 Market Monitor 之后（依赖它产出的 limit_ladder.json）
-    # 退出码 2=incomplete（部分指标缺失，已在产物里标注）、3=failed，均不阻断后续步骤
-    - name: Run Sentiment Derived
-      continue-on-error: true
-      env:
-        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+        ALL_SECRETS: ${{ toJSON(secrets) }}
         BACKFILL_DAYS: ${{ github.event.inputs.backfill_days }}
+        # 手动输入一律走 env 而非直接插值进 run 脚本：${{ }} 会被原文拼进 shell，
+        # 输入里带引号或分号就变成命令注入。走 env 后 shell 只当它是普通字符串。
+        ONLY_STEPS: ${{ github.event.inputs.only }}
       run: |
-        if [ -n "$BACKFILL_DAYS" ] && [ "$BACKFILL_DAYS" != "0" ]; then
-          echo "===== 情绪归档回溯（上限 15 个交易日，接口能力所限）====="
-          N=$BACKFILL_DAYS
-          if [ "$N" -gt 15 ]; then N=15; fi
-          python daily_sentiment.py --backfill "$N" || echo "sentiment 退出码 $?"
+        if [ -n "$ONLY_STEPS" ]; then
+          python run_daily.py --only "$ONLY_STEPS"
         else
-          python daily_sentiment.py
+          python run_daily.py
         fi
-
-    - name: Run Scorecard
-      continue-on-error: true
-      env:
-        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
-        BACKFILL_DAYS: ${{ github.event.inputs.backfill_days }}
-      run: |
-        if [ -n "$BACKFILL_DAYS" ] && [ "$BACKFILL_DAYS" != "0" ]; then
-          echo "===== 历史回溯 $BACKFILL_DAYS 个交易日 ====="
-          python daily_scorecard.py --backfill "$BACKFILL_DAYS" || echo "backfill 退出码 $?"
-        fi
-        python daily_scorecard.py
-
-    # 收盘摘要：必须排在 Sentiment + Scorecard 之后（读它们的产物组装文本）
-    # 没配任何推送渠道时也会把摘要归档到 data/digest/，站内「收盘摘要」页即可读
-    - name: Run Closing Digest
-      continue-on-error: true
-      env:
-        TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        DIGEST_SMTP_HOST: ${{ secrets.DIGEST_SMTP_HOST }}
-        DIGEST_SMTP_PORT: ${{ secrets.DIGEST_SMTP_PORT }}
-        DIGEST_SMTP_USER: ${{ secrets.DIGEST_SMTP_USER }}
-        DIGEST_SMTP_PASS: ${{ secrets.DIGEST_SMTP_PASS }}
-        DIGEST_SMTP_FROM: ${{ secrets.DIGEST_SMTP_FROM }}
-        DIGEST_TEST_TO: ${{ secrets.DIGEST_TEST_TO }}
-        DIGEST_WECOM_WEBHOOK: ${{ secrets.DIGEST_WECOM_WEBHOOK }}
-        DIGEST_SERVERCHAN_KEY: ${{ secrets.DIGEST_SERVERCHAN_KEY }}
-      run: python daily_digest.py
-
-    - name: Show data freshness
-      run: |
-        echo "===== 数据新鲜度自检 ====="
-        echo "-- 市场情绪:"    ; tail -1 data/market_sentiment.csv || true
-        echo "-- 指数历史:"    ; tail -1 data/index_history.csv || true
-        echo "-- RPS 强势股:"  ; tail -1 data/strong_stocks.csv | awk -F, '{print $NF}' || true
-        echo "-- 突破池:"      ; tail -1 data/breakout_stocks.csv | awk -F, '{print $NF}' || true
-        echo "-- 连板天梯:"    ; python -c "import json;d=json.load(open('data/limit_ladder.json'));print(d['date'],'涨停',d['total_count'],'家 最高',d['max_height'],'板')" || true
-        echo "-- 情绪派生:"    ; python -c "import json;d=json.load(open('data/sentiment/derived.json'));p=d.get('phase') or {};print(d['status'],d['date'],'归档',d['archive_days'],'天 周期',p.get('phase','—'),'验证条件',len(d.get('verification_plan') or []),'条')" || true
-        echo "-- 战绩绩效:"    ; python -c "import json;d=json.load(open('data/scorecard/performance.json'));a=d.get('archive') or {};print(d['status'],'榜单区间',a.get('date_from','—'),'~',a.get('date_to','—'),a.get('trade_days','—'),'个交易日 策略',len(d.get('strategies') or {}),'个')" || true
-        echo "-- 收盘摘要:"    ; python -c "import json;d=json.load(open('data/digest/latest.json'));print(d['date'],'有内容' if d['has_content'] else '无内容','缺失',len(d.get('missing') or []),'项 |',d['plain'][:80])" || true
 
     # ★★★ 防弹提交：本地提交后 rebase 远程，冲突以本地新数据为准，并重试推送 ★★★
     - name: Commit and push changes
