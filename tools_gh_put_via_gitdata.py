@@ -1,10 +1,15 @@
-"""通过 GitHub Git Data API 提交单个文件（blob -> tree -> commit -> update ref）。
+"""通过 GitHub Git Data API 提交文件（blob -> tree -> commit -> update ref）。
 
 用途：当 git 传输通道（git-upload-pack / git-receive-pack）不可达，
 且 Contents API PUT 因 PAT 缺少 workflow scope 返回 404 时，尝试这条路。
 
 用法：
-    python tools_gh_put_via_gitdata.py <仓库内路径> "<commit message>"
+    python tools_gh_put_via_gitdata.py <仓库内路径> "<commit message>"           # 单文件（旧式，保留）
+    python tools_gh_put_via_gitdata.py --msg "<message>" <路径> [路径...]        # 多文件，合成**一个** commit
+
+多文件必须走 --msg 形式：一个 tree 里塞多个 blob，只产生一个 commit。
+逐个调用单文件模式会在 main 上留下一串碎提交，之后本地 rebase 要反复处理，
+且中途失败会让远端处于「改了一半」的状态。
 
 退出码：0 成功 / 2 API 拒绝 / 3 参数或本地文件问题
 注意：token 从 remote.origin.url 读取，全程不回显明文。
@@ -58,13 +63,28 @@ def _req(method: str, url: str, body=None):
 
 
 def main() -> int:
-    if len(sys.argv) < 3:
+    argv = sys.argv[1:]
+    if not argv:
         print(__doc__)
         return 3
-    path = sys.argv[1].replace("\\", "/")
-    msg = sys.argv[2]
-    if not os.path.isfile(path):
-        print(f"[ERR] 本地文件不存在: {path}")
+
+    # 两种调用形态：--msg 多文件 / 旧式 <path> <msg> 单文件
+    if argv[0] == "--msg":
+        if len(argv) < 3:
+            print(__doc__)
+            return 3
+        msg = argv[1]
+        paths = [p.replace("\\", "/") for p in argv[2:]]
+    else:
+        if len(argv) < 2:
+            print(__doc__)
+            return 3
+        paths = [argv[0].replace("\\", "/")]
+        msg = argv[1]
+
+    missing = [p for p in paths if not os.path.isfile(p)]
+    if missing:
+        print(f"[ERR] 本地文件不存在: {', '.join(missing)}")
         return 3
 
     st, ref = _req("GET", f"{API}/git/ref/heads/{BRANCH}")
@@ -81,27 +101,28 @@ def main() -> int:
     base_tree = commit["tree"]["sha"]
     print(f"[2/5] base_tree = {base_tree[:12]}")
 
-    content = open(path, "rb").read().decode("utf-8")
-    st, blob = _req("POST", f"{API}/git/blobs", {"content": content, "encoding": "utf-8"})
-    if st not in (200, 201):
-        print(f"[ERR] 创建 blob 失败 {st}: {json.dumps(blob, ensure_ascii=False)[:300]}")
-        return 2
-    print(f"[3/5] blob = {blob['sha'][:12]}")
+    # 所有 blob 先全部建好，再一次性提交 tree。任一 blob 失败就整体放弃，
+    # 不做「已成功的先落地」——半套改动落到 main 上比不落地更难排查。
+    entries = []
+    for p in paths:
+        content = open(p, "rb").read().decode("utf-8")
+        st, blob = _req("POST", f"{API}/git/blobs",
+                        {"content": content, "encoding": "utf-8"})
+        if st not in (200, 201):
+            print(f"[ERR] 创建 blob 失败 {p} {st}: "
+                  f"{json.dumps(blob, ensure_ascii=False)[:300]}")
+            return 2
+        entries.append({"path": p, "mode": "100644", "type": "blob",
+                        "sha": blob["sha"]})
+        print(f"[3/5] blob {p} = {blob['sha'][:12]}")
 
-    st, tree = _req(
-        "POST",
-        f"{API}/git/trees",
-        {
-            "base_tree": base_tree,
-            "tree": [
-                {"path": path, "mode": "100644", "type": "blob", "sha": blob["sha"]}
-            ],
-        },
-    )
+    st, tree = _req("POST", f"{API}/git/trees",
+                    {"base_tree": base_tree, "tree": entries})
     if st not in (200, 201):
         print(f"[ERR] 创建 tree 失败 {st}: {json.dumps(tree, ensure_ascii=False)[:300]}")
+        print("      （若为 404，说明其中含 .github/workflows/ 路径，PAT 缺 workflow scope）")
         return 2
-    print(f"[4/5] tree = {tree['sha'][:12]}")
+    print(f"[4/5] tree = {tree['sha'][:12]}（{len(entries)} 个文件）")
 
     st, nc = _req(
         "POST",
