@@ -151,6 +151,35 @@ def check_database() -> None:
     ck("return res is not None" in seg2,
        "update_user_wxpusher_uid 必须忠实返回落库结果")
 
+    # 失败原因必须来自真实状态码，不能由调用方猜
+    ck("def _supabase_request" in src and "return_error" in src,
+       "_supabase_request 须支持 return_error 透出状态码（否则 409 与 PGRST204 无法区分）")
+    ck("def bind_wxpusher_uid" in src, "database.py 缺 bind_wxpusher_uid（带原因的写库）")
+    ck("def explain_uid_write_error" in src, "database.py 缺 explain_uid_write_error")
+
+    seg3 = src[src.find("def explain_uid_write_error"):]
+    seg3 = seg3[:seg3.find("\ndef ", 10)] if "\ndef " in seg3[10:] else seg3
+    # 匹配语法结构而非裸子串：注释里合法地写着「23505 = unique_violation；
+    # PostgREST 以 409 透出」，裸匹配会被自己的注释掩护，把判定逻辑删掉也不报错。
+    ck(re.search(r"status\s*==\s*409", seg3) is not None,
+       "唯一冲突须真的按 status==409 判定（不是只在注释里提到 409）")
+    ck(re.search(r'code\s*==\s*["\']23505["\']', seg3) is not None,
+       "唯一冲突须真的按 code=='23505' 判定（PostgreSQL unique_violation）")
+    ck(re.search(r'code\s*==\s*["\']PGRST204["\']', seg3) is not None,
+       "缺列须按 code=='PGRST204' 判定，只在这一支提示执行迁移脚本")
+    ck("已经绑定在另一个账号" in seg3,
+       "409 的文案必须让用户知道下一步怎么做（去那个账号解绑或换微信）")
+    ck("init_wxpusher_column.sql" in seg3,
+       "缺列这一支仍须给出迁移脚本名（原因对上了才该给这个动作）")
+
+    seg4 = src[src.find("def bind_wxpusher_uid"):]
+    seg4 = seg4[:seg4.find("\ndef ", 10)] if "\ndef " in seg4[10:] else seg4
+    ck("return_error=True" in seg4, "bind_wxpusher_uid 须以 return_error=True 取回错误详情")
+    ck("explain_uid_write_error(err)" in seg4, "bind_wxpusher_uid 须把错误翻译成用户可读文案")
+    # `Prefer: return=representation` 零行命中返回 []，而 [] is not None 为真
+    ck(re.search(r"len\(res\)\s*==\s*0", seg4) is not None,
+       "零行命中（[]）须判为失败，否则账号不存在也会被当成绑定成功")
+
 
 # ================= 4. 前端绑定区块 =================
 
@@ -187,9 +216,16 @@ def check_page() -> None:
     ck("bound is None" in pbs,
        "is_bound 返回 None（取数失败）必须与 False（确实未绑）分开处理")
 
-    # 写库失败必须如实告知，并指明修复动作
-    ck("init_wxpusher_column.sql" in pbs,
-       "缺列导致的保存失败须提示执行 init_wxpusher_column.sql")
+    # 写库失败必须如实告知，且**原因不能是前端猜的**。
+    # 曾把所有失败都写死成「管理员需执行 init_wxpusher_column.sql 补列」，
+    # 而实际最常见的失败是 409 唯一冲突（同一微信绑第二个账号）——
+    # 管理员照提示执行幂等迁移脚本，脚本成功，问题分毫未动。
+    ck("init_wxpusher_column.sql" not in pbs,
+       "前端不得写死缺列这一种原因（真实原因须由 database 按状态码给出）")
+    ck("bind_wxpusher_uid(" in pbs,
+       "绑定/解绑须走 bind_wxpusher_uid 以拿到真实失败原因")
+    ck(pbs.count("bind_wxpusher_uid(") >= 2,
+       "绑定与解绑两处都要带出原因（解绑失败时绑定仍然有效，必须说清）")
 
     # 同一组件在三个页面渲染，控件 key 必须隔离，否则 Streamlit 报 duplicate key
     ck("key_prefix" in pbs, "render 须支持 key_prefix 以隔离多处渲染的控件 key")

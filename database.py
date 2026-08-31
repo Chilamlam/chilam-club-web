@@ -36,8 +36,20 @@ def _get_config():
     
     return url.rstrip("/"), key
 
-def _supabase_request(method: str, endpoint: str, params: dict = None, json_data: Any = None, headers_extra: dict = None) -> Any:
-    """封装 Supabase PostgREST 请求"""
+def _supabase_request(method: str, endpoint: str, params: dict = None, json_data: Any = None,
+                      headers_extra: dict = None, return_error: bool = False) -> Any:
+    """封装 Supabase PostgREST 请求。
+
+    `return_error=True` 时返回 `(data, err)`，`err` 为 `None` 或
+    `{"status": int, "code": str, "message": str, "detail": str}`。
+
+    为什么需要这个开关：默认把所有 HTTPError 一律吞成 `None`，调用方只知道
+    「没成功」，不知道为什么。于是提示文案只能猜一个最常见的原因写死——
+    实际发生 409 唯一冲突（同一微信想绑第二个账号）时，用户会看到
+    「管理员需执行 init_wxpusher_column.sql 补列」。**失败如实上报了，
+    但归因是编的**，这比不报更糟：它把人推向一个完全无关的方向，
+    管理员照着去执行迁移脚本，脚本幂等地成功，问题一点没变。
+    """
     base_url, api_key = _get_config()
     query_str = ""
     if params:
@@ -62,16 +74,31 @@ def _supabase_request(method: str, endpoint: str, params: dict = None, json_data
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
             body = resp.read().decode("utf-8")
-            if body:
-                return json.loads(body)
-            return True
+            data = json.loads(body) if body else True
+            return (data, None) if return_error else data
     except urllib.error.HTTPError as e:
         err_body = e.read().decode("utf-8")
         print(f"[Supabase HTTP Error] {method} {url} -> {e.code}: {err_body}")
-        return None
+        if not return_error:
+            return None
+        info = {}
+        try:
+            parsed = json.loads(err_body)
+            if isinstance(parsed, dict):
+                info = parsed
+        except Exception:
+            pass
+        return None, {
+            "status": e.code,
+            "code": str(info.get("code") or ""),
+            "message": str(info.get("message") or ""),
+            "detail": str(info.get("details") or info.get("detail") or ""),
+        }
     except Exception as e:
         print(f"[Supabase Connection Error] {e}")
-        return None
+        if not return_error:
+            return None
+        return None, {"status": 0, "code": "", "message": str(e), "detail": ""}
 
 # ==================== 密码哈希 (PBKDF2-HMAC-SHA256 stdlib) ====================
 
@@ -244,14 +271,58 @@ def update_user_watchlist(user_id: int, watchlist: List[str]) -> bool:
 
 # ==================== 微信推送绑定 (WxPusher UID) ====================
 
-def update_user_wxpusher_uid(user_id: int, uid: Optional[str]) -> bool:
-    """写入/清空用户的 WxPusher UID。
+def explain_uid_write_error(err: Optional[Dict[str, Any]]) -> str:
+    """把 PostgREST 的写库错误翻译成「用户能照着做下一步」的话。
 
-    返回 False 表示没落库（多半是 users 表缺 wxpusher_uid 列，PostgREST 报
-    PGRST204）。必须忠实返回失败：绑定是「主动触达」这一段的唯一入口，
-    页面显示成功而库里没有，用户会以为自己已经订阅了推送，
-    然后每天等一条永远不会来的消息。缺列时执行 init_wxpusher_column.sql。
+    不做这层翻译的后果不是提示不够友好，而是**提示把人指向错误的方向**：
+    唯一冲突（同一微信绑第二个账号）曾被一律说成「管理员需补 wxpusher_uid 列」，
+    管理员照着执行幂等的迁移脚本，脚本成功，问题分毫未动。
+    归因错误的错误信息比「未知错误」更贵。
     """
+    if not err:
+        return "云端保存失败，原因未知。"
+    status = int(err.get("status") or 0)
+    code = str(err.get("code") or "")
+    blob = f"{code} {err.get('message', '')} {err.get('detail', '')}".lower()
+
+    # 23505 = unique_violation；PostgREST 以 409 透出
+    if status == 409 or code == "23505" or "duplicate key" in blob or "uniq_users_wxpusher_uid" in blob:
+        return ("这个微信已经绑定在另一个账号上了。"
+                "一个微信只能绑一个账号（否则你会收到多份不同的摘要）。"
+                "请先用那个账号登录并解除绑定，或换一个微信扫码。")
+    # PGRST204 = 列不存在。括号显式写出：`a or b and c` 里 and 优先，
+    # 不加括号虽然结果一样，但读起来像另一个意思，下次改动极易改错优先级。
+    if code == "PGRST204" or ("wxpusher_uid" in blob and "column" in blob):
+        return ("云端数据表还缺 wxpusher_uid 列，"
+                "需要管理员在 Supabase 里执行一次 init_wxpusher_column.sql。")
+    if status == 0:
+        return f"连不上云端数据库：{err.get('message') or '网络异常'}。请稍后重试。"
+    if status in (401, 403):
+        return "云端拒绝了这次写入（凭据或权限问题），请联系管理员。"
+    return f"云端保存失败（HTTP {status}{': ' + code if code else ''}），请稍后重试。"
+
+
+def bind_wxpusher_uid(user_id: int, uid: Optional[str]) -> tuple:
+    """写入/清空 UID，返回 `(是否成功, 失败原因文案)`。
+
+    绑定是「主动触达」这一段的唯一入口，页面显示成功而库里没有，
+    用户会以为自己已经订阅了推送，然后每天等一条永远不会来的消息。
+    所以既要忠实返回失败，也要把失败的**真实**原因带出来。
+    """
+    res, err = _supabase_request("PATCH", f"users?id=eq.{user_id}",
+                                 json_data={"wxpusher_uid": (uid or None)},
+                                 return_error=True)
+    if res is None:
+        return False, explain_uid_write_error(err)
+    # `Prefer: return=representation` 下零行命中返回 `[]`，而 `[] is not None` 为真
+    # —— 只判 None 会把「账号根本不存在」当成绑定成功。
+    if isinstance(res, list) and len(res) == 0:
+        return False, "云端没有更新到任何一行（账号可能已不存在），请重新登录后再试。"
+    return True, ""
+
+
+def update_user_wxpusher_uid(user_id: int, uid: Optional[str]) -> bool:
+    """布尔版（保留给不关心原因的调用方）。需要提示文案时用 bind_wxpusher_uid。"""
     res = _supabase_request("PATCH", f"users?id=eq.{user_id}",
                             json_data={"wxpusher_uid": (uid or None)})
     return res is not None

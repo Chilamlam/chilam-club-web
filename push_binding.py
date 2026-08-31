@@ -101,10 +101,10 @@ def render(user_id: int, *, key_prefix: str) -> None:
         st.success(f"✅ 已绑定微信推送（UID 尾号 …{str(uid)[-6:]}）。"
                    "每个交易日收盘后会把当日摘要推到你的微信。")
         if st.button("解除绑定 🔓", key=f"{key_prefix}_wx_unbind"):
-            ok = database.update_user_wxpusher_uid(user_id, None)
+            ok, why = database.bind_wxpusher_uid(user_id, None)
             st.session_state["push_flash"] = (
                 ("ok", "已解除微信推送绑定。") if ok else
-                ("err", "⚠️ 解绑未能写入云端，请稍后重试。"))
+                ("err", f"⚠️ 解绑未能写入云端，绑定仍然有效。{why}"))
             st.rerun()
         return
 
@@ -138,12 +138,15 @@ def render(user_id: int, *, key_prefix: str) -> None:
         if st.button("我已扫码，完成绑定 ✅", key=f"{key_prefix}_wx_qr_confirm"):
             uid, status = wx.scan_uid(qr["code"])
             if uid:
-                ok = database.update_user_wxpusher_uid(user_id, uid)
+                ok, why = database.bind_wxpusher_uid(user_id, uid)
                 st.session_state.pop(qr_key, None)
                 st.session_state["push_flash"] = (
                     ("ok", "✅ 微信推送绑定成功，今晚收盘后就能收到第一条摘要。") if ok else
-                    ("err", "⚠️ 已扫码但云端保存失败，绑定未生效。"
-                            "管理员需执行 init_wxpusher_column.sql 补上 wxpusher_uid 列。"))
+                    # 原因由 database.explain_uid_write_error 按真实状态码给出。
+                    # 不要在这里写死任何一种猜测：最常见的失败其实是「这个微信
+                    # 已绑在别的账号上」(409)，写死成「管理员补列」会把人引向
+                    # 一个执行完也不会有任何变化的操作。
+                    ("err", f"⚠️ 已扫码但云端保存失败，绑定未生效。{why}"))
                 st.rerun()
             elif status == "waiting":
                 st.warning("还没检测到扫码。请先在微信里完成扫码并关注，再点这个按钮。")
