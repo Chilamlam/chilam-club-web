@@ -26,7 +26,7 @@ Streamlit Cloud 投资驾驶舱 + 会员付费，仓库 `Chilamlam/chilam-club-w
 - **缺失即留空显示 `—`，绝不补 0**（补 0 显示成「平盘」误导）；禁止「能选但没数据」。
 - **测试 fixture 单位必须与生产一致**：`alpha_median` 曾写 `0.83`（生产 `0.0083`），使展示层漏乘 100 的 bug 在 76 项断言下完全隐形。
 - **静默失败最致命**：字段名写错的取数不抛异常，只返回语法正确、语义为空的答案。**变种：失败如实上报但归因是编的**——`_supabase_request` 曾把 HTTPError 全吞成 `None`（状态码丢失），前端只能猜一种原因写死，于是 409 唯一冲突被报成「缺列，请执行 init_wxpusher_column.sql」，管理员跑完幂等脚本问题分毫未动。**归因错误的错误信息比「未知错误」更贵**。已修（8/31）：`return_error=True` 透出 `{status,code,message,detail}` + `explain_uid_write_error()` 分流 409/23505→「已绑在别的账号」、PGRST204→才提迁移脚本、0→网络、401/403→凭据；`bind_wxpusher_uid()` 返回 `(ok, why)`。默认签名不变故其余调用方零改动。
-- **`None` 与 `False`/`[]` 必须分开**：取数失败=None（修配置），确实没有=False/[]（引导）。混为一谈会让配置故障长期伪装成「暂时没人」。
+- **`None` 与 `False`/`[]` 必须分开**：取数失败=None（修配置），确实没有=False/[]（引导）。混为一谈会让配置故障长期伪装成「暂时没人」。**写库同理且更隐蔽**：PostgREST 在 `Prefer: return=representation` 下 PATCH **零行命中返回 `[]`**，而 `[] is not None` 为真 → 只判 `res is not None` 会把「user_id 在库里不存在」当成保存成功（`bind_wxpusher_uid` 与 `update_user_watchlist` 都踩过，9/1 已堵）。**改返回值语义时三个出口（None / 空 / 有值）要一次列全**——修「失败没说清」时最容易顺手造出「失败说成成功」。
 - **等待态 ≠ 错误态**（未扫码用 warning）；**顶层成功 ≠ 单个成功**（WxPusher `code:1000` 时每 UID 各有 code；Server酱额度耗尽仍返 HTTP 200 → 校验响应体 `code`）。
 - **一份规则两处实现必然漂移**（端点推导收进 `admin_notify.py`，`daily_digest` 反向引用；漂移表现是"域名解析不到"，极易误判成网络问题）。
 
