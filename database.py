@@ -266,7 +266,12 @@ def update_user_watchlist(user_id: int, watchlist: List[str]) -> bool:
     cleaned = list(dict.fromkeys([c.strip().upper() for c in watchlist if c.strip()]))
     res = _supabase_request("PATCH", f"users?id=eq.{user_id}",
                             json_data={"watchlist": cleaned})
-    return res is not None
+    if res is None:
+        return False
+    # `Prefer: return=representation` 下零行命中返回 `[]` 而非 None，
+    # 只判 None 会把「这个 user_id 在库里没有」当成保存成功 —— 与
+    # bind_wxpusher_uid 同一类坑，两处都要堵。
+    return not (isinstance(res, list) and len(res) == 0)
 
 
 # ==================== 微信推送绑定 (WxPusher UID) ====================

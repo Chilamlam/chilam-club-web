@@ -371,8 +371,15 @@ if os.path.exists(_SQL_WL):
     ck("ADD COLUMN IF NOT EXISTS watchlist" in _sql, "建列语句幂等（IF NOT EXISTS）")
     ck("digest_optin" in _sql, "同时提供退订开关列")
 SRC_DB = open(os.path.join(ROOT, "database.py"), encoding="utf-8").read()
-ck("return res is not None" in SRC_DB,
+# 必须定位到函数段再断言：全文件裸匹配 "return res is not None" 时，
+# 另一处同名写法会让它在 update_user_watchlist 被整个删掉后依然「通过」。
+_seg_wl = SRC_DB[SRC_DB.find("def update_user_watchlist"):]
+_seg_wl = _seg_wl[:_seg_wl.find("\ndef ", 10)] if "\ndef " in _seg_wl[10:] else _seg_wl
+ck("def update_user_watchlist" in SRC_DB, "database.py 缺 update_user_watchlist")
+ck("return False" in _seg_wl,
    "update_user_watchlist 忠实返回写库结果（缺列时必须为 False）")
+ck(re.search(r"len\(res\)\s*==\s*0", _seg_wl) is not None,
+   "零行命中（[]）须判为失败，否则账号不存在也会被当成自选股已保存")
 SRC_WL = open(os.path.join(ROOT, "page_watchlist.py"), encoding="utf-8").read()
 ck("已在本地更新自选清单" not in SRC_WL,
    "写库失败不得伪装成成功（原文案会让人以为已保存，刷新即丢失）")
