@@ -1,6 +1,6 @@
 {
   "date": "2026-08-31",
-  "update_time": "2026-08-31 18:06:16",
+  "update_time": "2026-08-31 20:11:51",
   "total_count": 88,
   "max_height": 6,
   "stocks": [
@@ -58,7 +58,7 @@
       "industry": "塑料",
       "limit_times": 3,
       "first_time": "09:30:27",
-      "reason": "封板资金 0.39 亿 | 炸板 7 次"
+      "reason": "封板资金 0.39 亿 | 炸板 6 次"
     },
     {
       "code": "603269",
