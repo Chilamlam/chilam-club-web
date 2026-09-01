@@ -19,16 +19,18 @@ Streamlit Cloud 投资驾驶舱 + 会员付费，仓库 `Chilamlam/chilam-club-w
 - 手动触发 `POST .../workflows/daily_update.yml/dispatches` body `{"ref":"main","inputs":{"backfill_days":"40"}}` 返 204，全量约 12 分钟。**Actions 用触发时刻那个 commit 的 yml**；cancel 会导致当日 `data/` 完全不落盘。
 - 数据停更排查：`git log --all --grep="Auto-update"` 为空=历史被重写 → 查 API `/events` PushEvent 链 → `git checkout <sha> -- data/`。
 - `.git` 重损（`objects/pack/` 只剩 `.idx`）：备份工作区 → 远端 `clone --depth 1 --no-checkout` → **`tar` 复制**（`cp -r` 会截断）→ **`git reset --mixed HEAD` 重建 index** → `fetch --unshallow`。
-- 前端 10 分钟缓存（`ttl=600`）：立刻看走右上 Clear cache/Rerun。`data/*.json` 用 `cat` 看中文乱码是 Git Bash 按 GBK 解，非损坏。
+- **本机 `git update-ref` 写 `refs/remotes/*` 静默失效**（写 `refs/heads/*` 正常，仓库无自定义钩子）：对照实验确认。绕过办法 `mkdir -p .git/refs/remotes/origin && git rev-parse HEAD > .git/refs/remotes/origin/main`；且 `fetch` 可能把远端跟踪引用**整个清空**（packed-refs 只剩表头），fetch 后必须复核 `git for-each-ref refs/remotes`。需要对齐时直接用已知远端 sha：`git reset --mixed <sha>`（先确认本地提交是其祖先，且两边 tree sha 相同）。
+- 前端 10 分钟缓存（`ttl=600`）：立刻看走右上 Clear cache/Rerun。`data/*.json` 用 `cat` 看中文乱码是 Git Bash 按 GBK 解，非损坏。**提示紧跟 `st.rerun()` 会瞬间消失** → 一律走 `st.session_state` flash。
 
 ## 假数据与自检铁律（最高优先级）
 - **严禁占位数据与前端硬编码字面量**（8/29 宏观页写死纳指 19845，实际 29433）。**自检必须含时间戳新鲜度断言**——只校验「非空、格式正常」拦不住硬编码值。
-- **一条永不失败的断言等于没有断言**：加完必须造错反向验证。反向测试目录**别用 `/tmp/...`**（Windows Python 解析成 `\tmp\...`，`rglob` 扫 0 文件同样显示"全部通过"）。**断言须匹配语法结构而非裸子串**（注释里的词会误伤）。
+- **一条永不失败的断言等于没有断言**：加完必须造错反向验证。反向测试目录**别用 `/tmp/...`**（Windows Python 解析成 `\tmp\...`，`rglob` 扫 0 文件同样显示"全部通过"）。**断言须匹配语法结构而非裸子串**（注释里的词会误伤）。**校验要落在「写入」而非「名字出现过」**：`'admin_flash' in src` 会被同一行的 `pop("admin_flash")` 满足，把两处赋值删掉照样通过；要写 `st.session_state["admin_flash"] =`。
 - **缺失即留空显示 `—`，绝不补 0**（补 0 显示成「平盘」误导）；禁止「能选但没数据」。
 - **测试 fixture 单位必须与生产一致**：`alpha_median` 曾写 `0.83`（生产 `0.0083`），使展示层漏乘 100 的 bug 在 76 项断言下完全隐形。
 - **静默失败最致命**：字段名写错的取数不抛异常，只返回语法正确、语义为空的答案。**变种：失败如实上报但归因是编的**——`_supabase_request` 曾把 HTTPError 全吞成 `None`（状态码丢失），前端只能猜一种原因写死，于是 409 唯一冲突被报成「缺列，请执行 init_wxpusher_column.sql」，管理员跑完幂等脚本问题分毫未动。**归因错误的错误信息比「未知错误」更贵**。已修（8/31）：`return_error=True` 透出 `{status,code,message,detail}` + `explain_uid_write_error()` 分流 409/23505→「已绑在别的账号」、PGRST204→才提迁移脚本、0→网络、401/403→凭据；`bind_wxpusher_uid()` 返回 `(ok, why)`。默认签名不变故其余调用方零改动。
 - **`None` 与 `False`/`[]` 必须分开**：取数失败=None（修配置），确实没有=False/[]（引导）。混为一谈会让配置故障长期伪装成「暂时没人」。**写库同理且更隐蔽**：PostgREST 在 `Prefer: return=representation` 下 PATCH **零行命中返回 `[]`**，而 `[] is not None` 为真 → 只判 `res is not None` 会把「user_id 在库里不存在」当成保存成功（`bind_wxpusher_uid` 与 `update_user_watchlist` 都踩过，9/1 已堵）。**改返回值语义时三个出口（None / 空 / 有值）要一次列全**——修「失败没说清」时最容易顺手造出「失败说成成功」。
 - **等待态 ≠ 错误态**（未扫码用 warning）；**顶层成功 ≠ 单个成功**（WxPusher `code:1000` 时每 UID 各有 code；Server酱额度耗尽仍返 HTTP 200 → 校验响应体 `code`）。
+- **失败文案必须说清「已经发生了什么」+「下一步千万别做什么」**：只写「失败」会把人推向重试，而**部分成功时重试正是最糟的操作**——`confirm_payment` 的 REST 兜底若订单状态 PATCH 失败，订阅已建、订单仍 pending，管理员再点一次确认就重复续期（收一笔钱发两次货）。已修（9/1）：失败时明确写「订阅已创建（到期 X），订单仍是 pending，不要重复确认」。
 - **一份规则两处实现必然漂移**（端点推导收进 `admin_notify.py`，`daily_digest` 反向引用；漂移表现是"域名解析不到"，极易误判成网络问题）。
 
 ## 数据接口（只记「不要再试错」的）
