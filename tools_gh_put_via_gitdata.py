@@ -105,6 +105,26 @@ def _req(method: str, url: str, body=None):
         return _req_curl(method, url, body)
 
 
+def _to_lf(raw: bytes) -> tuple[bytes, int]:
+    """把工作区的 CRLF 归一化成 LF —— 必须做，否则会污染远端仓库。
+
+    本机 `core.autocrlf=true` 且仓库无 `.gitattributes`：git 提交时把 CRLF
+    归一化成 LF 存进 blob，检出时再转回 CRLF。这个脚本绕过 git 直接写 blob，
+    如果不做同样的归一化，就会把工作区的 CRLF 原样塞进远端。
+
+    后果不是「风格不统一」那么简单：**下次 fetch 后这些文件会被 git 判成整份已修改**
+    ——工作区文件归一化成 LF 后，与索引里那份 CRLF 的 blob 不相等；
+    之后任何一次提交都会把整个文件的行尾翻一遍，diff 里全是噪点，
+    真正的改动反而看不见，且这种 diff 会反复出现、越滚越大。
+
+    返回 (内容, 归一化掉的 CRLF 处数)。含 NUL 的按二进制原样传（不改动）。
+    """
+    if b"\x00" in raw:
+        return raw, 0
+    n = raw.count(b"\r\n")
+    return (raw.replace(b"\r\n", b"\n") if n else raw), n
+
+
 def main() -> int:
     argv = sys.argv[1:]
     if not argv:
@@ -166,7 +186,8 @@ def main() -> int:
     # 不做「已成功的先落地」——半套改动落到 main 上比不落地更难排查。
     entries = []
     for p in paths:
-        content = open(p, "rb").read().decode("utf-8")
+        raw, n_crlf = _to_lf(open(p, "rb").read())
+        content = raw.decode("utf-8")
         st, blob = _req("POST", f"{API}/git/blobs",
                         {"content": content, "encoding": "utf-8"})
         if st not in (200, 201):
@@ -175,7 +196,8 @@ def main() -> int:
             return 2
         entries.append({"path": p, "mode": "100644", "type": "blob",
                         "sha": blob["sha"]})
-        print(f"[3/5] blob {p} = {blob['sha'][:12]}")
+        note = f"（CRLF→LF 归一化 {n_crlf} 处）" if n_crlf else ""
+        print(f"[3/5] blob {p} = {blob['sha'][:12]}{note}")
 
     # 删除：tree entry 的 sha 传 None（JSON null）即表示从 base_tree 移除该路径。
     for p in deletes:
