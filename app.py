@@ -629,18 +629,18 @@ def render_manual_page():
         - 历史摘要**原样保存、不做事后修改**——这样"明日验证条件"才能被回头核对。
         """)
 
-def render_vip_lock(feature_name: str):
-    """VIP 页面锁定卡片"""
-    st.warning(f"🔒 **{feature_name}** 为 VIP 会员专享模块")
-    if not auth.is_logged_in():
-        st.info("💡 请先登录账号。若未注册，可点击下方按钮注册/登录。")
-        if st.button("👉 登录 / 注册", key=f"btn_login_{feature_name}"):
-            st.switch_page("pages/auth.py")
-    else:
-        st.info(f"当前登录账号：`{auth.get_user_email()}` (未开通 VIP)")
-        st.markdown("欢迎前往会员中心查看 VIP 订阅特权与开通指引。")
-        if st.button("👉 前往会员中心开通", key=f"btn_vip_{feature_name}"):
-            st.switch_page("pages/dashboard.py")
+def render_login_lock(feature_name: str):
+    """登录门禁卡片（不是付费墙）。
+
+    「我的池子」锁的是登录、不是 VIP：功能依赖用户自己的账号数据，
+    没账号无处存放，但免费账号登录后功能完整可用。
+    旧版这里写「VIP 会员专享模块」，与实际门禁不符，会把人误导去付费。
+    """
+    st.warning(f"🔒 **{feature_name}** 需要登录后使用")
+    st.info("这个模块保存的是你自己的池子与复盘记录，需要一个账号来存放——"
+            "**免费注册即可完整使用，无需开通 VIP**。")
+    if st.button("👉 登录 / 注册（免费）", key=f"btn_login_{feature_name}"):
+        st.switch_page("pages/auth.py")
 
 def main():
     with st.sidebar:
@@ -712,7 +712,7 @@ def main():
         render_digest_page()
     elif page == "⭐ 我的池子 (每日复盘)":
         if not auth.is_logged_in():
-            render_vip_lock("⭐ 我的池子 (个人每日复盘)")
+            render_login_lock("⭐ 我的池子 (个人每日复盘)")
         else:
             render_watchlist_page()
     elif page == "🎯 战绩回看":

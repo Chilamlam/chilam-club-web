@@ -269,6 +269,77 @@ def check_no_email_promise() -> None:
         ck("微信" in src, f"{fname} 应明确投递通道是微信")
 
 
+# ================= 4.5 付费墙承诺与实际门禁一致 =================
+
+def _strip_comments(src: str) -> str:
+    """剥掉整行 `#` 注释再做文案断言。
+
+    否则「解释历史错误文案」的注释本身会命中断言——这类误报会逼人删注释，
+    正好把最该留下的教训删掉。
+    """
+    return "\n".join(ln for ln in src.splitlines() if not ln.strip().startswith("#"))
+
+
+def check_paywall_claims() -> None:
+    """卖点文案不得承诺「实际上免费」的东西。
+
+    历史问题：2026-08-29 把强势股/投机套利/作业本/池子雷达全部开放后，
+    会员中心仍写「升级 VIP 可解锁：强势股 RPS 动量、投机与套利、投资作业本、
+    自选股雷达」。用户付完钱回来发现每个页面跟之前一模一样——
+    这种「付了钱什么都没变」比不做付费墙更伤信任，而且没有任何报错会提示它。
+
+    断言方式：从 app.py 路由**推导**哪些页面真的被 VIP 门禁挡住，
+    再检查推销文案里的「解锁」承诺是否落在这个集合里。
+    这样以后谁改了门禁而忘了改文案，这条断言会自己失败。
+    """
+    app_src = read("app.py")
+    dash_src = _strip_comments(read(os.path.join("pages", "dashboard.py")))
+
+    # 路由段：从「================= 路由」到 main() 结束
+    r_start = app_src.find("# ================= 路由")
+    ck(r_start > 0, "app.py 未找到路由段落标记（改结构后须同步本断言）")
+    route_src = app_src[r_start:] if r_start > 0 else app_src
+
+    # 真正被 VIP 挡住的页面数：路由里出现 auth.is_vip() 的分支
+    vip_gated = route_src.count("auth.is_vip()")
+    ck(vip_gated == 0,
+       f"路由中出现 {vip_gated} 处 VIP 门禁；若确实新增了 VIP 页面，"
+       "必须同步更新会员中心文案与本断言")
+
+    # 既然没有任何页面被 VIP 挡住，推销语就不能承诺解锁页面
+    page_keywords = ("强势股", "投机与套利", "投资作业本", "自选股雷达",
+                     "板块轮动", "战绩回看", "龙头雷达", "黄金分割")
+    for m in re.finditer(r"[^\n]{0,80}解锁[^\n]{0,80}", dash_src):
+        seg = m.group(0)
+        # 允许「不会解锁任何新页面」这类否定澄清
+        benign = ("不会解锁" in seg or "无需" in seg or "本来就" in seg)
+        hit = [k for k in page_keywords if k in seg]
+        ck(benign or not hit,
+           f"会员中心承诺解锁实际免费的页面 {hit}：{seg.strip()[:80]}")
+
+    # 下单按钮上方必须如实交代「买不到什么」
+    ck("不会解锁任何新页面" in dash_src,
+       "订阅方案区须明写「开通 VIP 不会解锁任何新页面」（唯一权益是推送投递）")
+    ck("不推荐个股" in dash_src,
+       "订阅方案区须带合规声明（不推荐个股、不给价位仓位）")
+
+    # 「我的池子」是登录墙不是付费墙：锁定卡片不得冒充 VIP 专享
+    lock_start = app_src.find("def render_login_lock")
+    ck(lock_start > 0, "app.py 缺 render_login_lock（登录门禁卡片）")
+    ck("def render_vip_lock" not in app_src,
+       "render_vip_lock 已无 VIP 页面可锁，应改名为 render_login_lock 以免误导")
+    if lock_start > 0:
+        lock_src = app_src[lock_start:lock_start + 900]
+        # 跳过函数 docstring（里面记录着旧文案为什么是错的，不该被当成现行文案）
+        d1 = lock_src.find('"""')
+        d2 = lock_src.find('"""', d1 + 3) if d1 >= 0 else -1
+        body = lock_src[d2 + 3:] if d2 > 0 else lock_src
+        ck("VIP 会员专享" not in body,
+           "登录门禁卡片不得写「VIP 会员专享」（实际只判 is_logged_in）")
+        ck("无需开通 VIP" in body,
+           "登录门禁卡片须明说免费注册即可完整使用")
+
+
 # ================= 5. 迁移 SQL =================
 
 def check_sql() -> None:
@@ -423,8 +494,8 @@ def check_live() -> None:
 
 def main() -> None:
     for fn in (check_module, check_digest, check_database,
-               check_page, check_no_email_promise, check_sql,
-               check_order_alert, check_confirm_payment, check_live):
+               check_page, check_no_email_promise, check_paywall_claims,
+               check_sql, check_order_alert, check_confirm_payment, check_live):
         try:
             fn()
         except Exception as e:
