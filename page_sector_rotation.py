@@ -12,12 +12,16 @@ analysis.json} → 本页只做渲染，不做计算（计算在 sector_rotation
 """
 from __future__ import annotations
 
+import html as _html
 import json
 import os
 
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+
+import sector_rotation as sr
+from ui_compat import html_embed
 
 ANALYSIS_PATH = "data/sector_rotation/analysis.json"
 HISTORY_PATH = "data/sector_rotation/history.csv"
@@ -50,6 +54,15 @@ def load_history_tail() -> pd.DataFrame | None:
         return None
 
 
+@st.cache_data(ttl=600)
+def load_rank_matrix() -> dict | None:
+    """排名矩阵：计算层从归档现算（None=归档不可读，绝不伪造空表）。"""
+    hist = sr.load_history(HISTORY_PATH)
+    if hist is None:
+        return None
+    return sr.build_rank_matrix(hist)
+
+
 def _fmt_pct(v) -> str:
     """涨跌幅展示：缺失一律 —，绝不补 0。"""
     try:
@@ -80,6 +93,65 @@ def render_top_chart(df_top: pd.DataFrame) -> None:
         showlegend=False,
     )
     st.plotly_chart(fig, use_container_width=True)
+
+
+def render_rank_matrix(matrix: dict | None) -> None:
+    """排名矩阵：行=名次（1/2/3 加粗），列=交易日（最新在最左）。
+
+    每格 = 该日该名次的板块名 + 其当日涨跌幅（红涨绿跌，缺失 —）。
+    HTML 表格走 ui_compat.html_embed（st.iframe data-URI，跨版本安全）。
+    """
+    st.subheader("🗓️ 每日 Top10 排名矩阵")
+    st.caption("每列一个交易日（最新在最左）；格内 = 该日按 10 日涨幅排到该名次的板块，及其当日涨跌幅。")
+    if not matrix or matrix.get("status") != "ok":
+        st.caption("排名矩阵暂不可用（历史归档尚未生成），不影响上方榜单。")
+        return
+
+    dates = matrix.get("dates") or []
+    rows = matrix.get("rows") or []
+    if not dates or not rows:
+        st.caption("排名矩阵暂无数据。")
+        return
+    if len(dates) < 10:
+        st.caption(f"历史归档已积累 {len(dates)}/10 个交易日，矩阵随每日收盘跑批逐日补齐。")
+
+    head = "".join(f"<th>{d[5:].replace('-', '/')}</th>" for d in dates)
+    body_rows = []
+    for row in rows:
+        rank = row.get("rank")
+        rank_cls = ' class="hot"' if isinstance(rank, int) and rank <= 3 else ""
+        cells_html = []
+        for cell in row.get("cells") or []:
+            if not cell:
+                cells_html.append('<td><div class="nm">—</div><div class="pct">—</div></td>')
+                continue
+            pct = cell.get("pct_chg")
+            if pct is None:
+                pct_html = '<div class="pct">—</div>'
+            else:
+                cls = "up" if pct >= 0 else "down"
+                pct_html = f'<div class="pct {cls}">{pct:+.2f}%</div>'
+            cells_html.append(
+                f'<td><div class="nm">{_html.escape(str(cell.get("name", "")))}</div>{pct_html}</td>'
+            )
+        body_rows.append(f'<tr><td{rank_cls}>{rank}</td>{"".join(cells_html)}</tr>')
+
+    css = (
+        ".srm{border-collapse:collapse;font-size:12px;color:#1f2328;margin:0 auto}"
+        ".srm th,.srm td{border:1px solid #e6e8eb;padding:4px 6px;text-align:center;vertical-align:middle}"
+        ".srm th{background:#f6f8fa;font-weight:600;white-space:nowrap}"
+        ".srm td:first-child{width:34px;color:#57606a}"
+        ".srm td:first-child.hot{font-weight:700;color:#1f2328}"
+        ".srm .nm{line-height:1.3;max-width:110px;margin:0 auto}"
+        ".srm .pct{line-height:1.3;font-weight:600}"
+        ".srm .up{color:#d94f43}"
+        ".srm .down{color:#3d9970}"
+    )
+    table = (
+        f'<table class="srm"><thead><tr><th>#</th>{head}</tr></thead>'
+        f'<tbody>{"".join(body_rows)}</tbody></table>'
+    )
+    html_embed(f"<style>{css}</style>{table}", width=1000, height=560)
 
 
 def render_sector_rotation_page() -> None:
@@ -175,6 +247,8 @@ def render_sector_rotation_page() -> None:
 
     render_top_chart(df_top)
 
+    render_rank_matrix(load_rank_matrix())
+
     with st.expander("📖 口径与判读方法（点击展开）"):
         st.markdown(f"""
 - **榜单**：按 **10 日涨幅**（自然窗口涨幅，非累加日涨幅）对全部概念板块降序取前 {data.get('top_n', 10)}。
@@ -182,6 +256,10 @@ def render_sector_rotation_page() -> None:
 - **主升 vs 轮动**：看 Top10 与上一交易日的**重合度**——重合 ≥7 视为主线主升（资金持续聚焦同一批板块），
   ≤3 视为快速轮动（领涨板块天天换脸），中间为过渡/混合。阈值是经验约定，页面上理由都带原始数字，可自行对账。
 - **连续在榜**：该板块连续多少个交易日停留在 Top10，断一天就重新从 1 计。
+- **排名矩阵**：行=名次 1~10（第 1/2/3 名加粗），列=交易日（最新在最左）；
+  格内是「该日按 10 日涨幅排到该名次」的板块及其**当日涨跌幅**。
+  同一名次跨日看是「谁在霸榜」，同一板块换列看是「名次进退」；
+  归档积累中（不足 10 天时如实显示已积累天数），缺失格子显示 —，不拿别日顶替。
 - **已剔除**：昨日涨停、基金重仓、沪深股通这类属性型/复盘型板块——它们不是题材，混进榜里会污染答案。
 - **数据源**：{_SOURCE_NOTE}
 - **判读是客观描述，不构成任何操作建议**；不提供买点、目标价或仓位指引。

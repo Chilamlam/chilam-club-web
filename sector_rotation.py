@@ -120,6 +120,50 @@ def compute_streak(history: pd.DataFrame, dates: list[str], end_idx: int,
     return streak
 
 
+def build_rank_matrix(history: pd.DataFrame | None, days: int = 10,
+                      window_col: str = DEFAULT_WINDOW, n: int = TOP_N,
+                      as_of: str | None = None) -> dict:
+    """排名矩阵：行=名次 1..n，列=交易日（最新在最左）。
+
+    每格 = 该日在榜该名次的板块（按 window_col 涨幅降序）+ 其当日涨跌幅。
+    归档不足 days 天时只返回已有的列（前端如实显示积累进度，绝不拿别日顶替）。
+    返回 JSON 可序列化 dict。
+    """
+    if history is None or history.empty:
+        return {"status": "no_data", "reason": "无历史归档（数据尚未生成）"}
+
+    dates = sorted(history["date"].unique().tolist())
+    if as_of is None:
+        as_of = dates[-1]
+    if as_of not in dates:
+        return {"status": "no_data", "reason": f"指定日期 {as_of} 不在归档中"}
+
+    col_dates = [d for d in dates if d <= as_of][-days:][::-1]  # 最新在最左
+    if not col_dates:
+        return {"status": "no_data", "reason": "无可用交易日"}
+
+    tops = {d: top_for_date(history, d, window_col, n) for d in col_dates}
+    rows = []
+    for rank in range(1, n + 1):
+        cells = []
+        for d in col_dates:
+            tdf = tops[d]
+            if len(tdf) < rank:
+                cells.append(None)  # 该日有效板块不足此名次
+                continue
+            r = tdf.iloc[rank - 1]
+            pct = r.get("pct_chg")
+            cells.append({
+                "code": str(r["code"]),
+                "name": str(r["name"]),
+                "pct_chg": None if pd.isna(pct) else round(float(pct), 2),
+            })
+        rows.append({"rank": rank, "cells": cells})
+
+    return {"status": "ok", "dates": col_dates, "window_col": window_col,
+            "rank_n": n, "rows": rows}
+
+
 def compute_analysis(history: pd.DataFrame | None, as_of: str | None = None,
                      window_col: str = DEFAULT_WINDOW, n: int = TOP_N) -> dict:
     """主分析入口：返回 JSON 可序列化的 dict（直接落 analysis.json / 进前端）。"""

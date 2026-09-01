@@ -9,6 +9,8 @@
 5. 判读理由必须带可对账的数字（重合 X/10、中位数），观察条件必须带阈值
 6. 计算层不得 import streamlit / 网络库
 7. 接线完整性：run_daily STEPS、app.py 路由、analysis.json 产物存在且日期新鲜
+8. 排名矩阵：日期列最新在最左、同 rank 跨日可比、板块不足的格子=None（缺失≠0）、
+   属性板块不占名次、页面第 1/2/3 名加粗且走 ui_compat 渲染
 """
 from __future__ import annotations
 
@@ -171,6 +173,51 @@ def test_insufficient_and_no_data() -> None:
           sr.compute_analysis(pd.DataFrame()).get("status") == "no_data")
 
 
+def test_rank_matrix() -> None:
+    """排名矩阵：行=名次，列=交易日（最新在最左），格=板块+当日涨跌幅。"""
+    d1 = [(f"T{i:02d}", 20.0 - i) for i in range(12)]
+    d2 = [(f"T{i:02d}", 21.0 - i) for i in range(6)] + \
+         [(f"N{i:02d}", 15.0 - i) for i in range(6)]
+    d3 = [(f"M{i:02d}", 40.0 - i) for i in range(12)]  # 涨幅区间与 D1/D2 隔开
+    rows = (_rows("20260825", d1) + _rows("20260826", d2)
+            + _rows("20260827", d3, extra_rows=[_style_row("20260827", 50.0)]))
+    m = sr.build_rank_matrix(pd.DataFrame(rows))
+
+    check("矩阵 status=ok", m.get("status") == "ok", str(m.get("reason", "")))
+    check("矩阵行数=10", len(m.get("rows") or []) == 10, str(len(m.get("rows") or [])))
+    check("日期列最新在最左（倒序）",
+          m.get("dates") == ["20260827", "20260826", "20260825"], str(m.get("dates")))
+    r1 = m["rows"][0]
+    check("rank1 最新日第一名=M00", r1["cells"][0]["code"] == "M00", str(r1["cells"][0]))
+    check("rank1 格带当日涨跌幅（fixture 口径 pct/5 → 8.0）",
+          r1["cells"][0]["pct_chg"] == 8.0, str(r1["cells"][0]))
+    check("同 rank 跨日可比（前两日第一名都是 T00）",
+          r1["cells"][1]["code"] == "T00" and r1["cells"][2]["code"] == "T00",
+          f'{r1["cells"][1]} | {r1["cells"][2]}')
+    all_cells = [c for r in m["rows"] for c in r["cells"] if c]
+    check("属性板块不占矩阵任何名次",
+          all(c.get("code") != "SB01" for c in all_cells), f"{len(all_cells)} cells")
+
+    # 某日有效板块只有 2 个 → rank>=3 该日格=None（缺失≠0）
+    sparse = pd.DataFrame([
+        {"date": "20260830", "code": "S1", "name": "题材_S1", "close": 100.0,
+         "pct_chg": 1.0, "pct_5d": 2.0, "pct_10d": 3.0, "pct_20d": 4.0,
+         "pct_60d": 5.0, "amount_yi": 10.0, "turnover": 1.0, "up_count": 5, "down_count": 1},
+        {"date": "20260830", "code": "S2", "name": "题材_S2", "close": 90.0,
+         "pct_chg": 0.5, "pct_5d": 1.0, "pct_10d": 2.0, "pct_20d": 3.0,
+         "pct_60d": 4.0, "amount_yi": 10.0, "turnover": 1.0, "up_count": 4, "down_count": 2},
+    ])
+    m2 = sr.build_rank_matrix(sparse)
+    check("板块不足 10 个时低名次格=None（不补 0）",
+          m2["rows"][2]["cells"][0] is None, str(m2["rows"][2]["cells"][0]))
+    check("板块不足时高名次格照常",
+          m2["rows"][0]["cells"][0]["code"] == "S1", str(m2["rows"][0]["cells"][0]))
+
+    check("矩阵：空历史 → no_data", sr.build_rank_matrix(None).get("status") == "no_data")
+    check("矩阵：空 DataFrame → no_data",
+          sr.build_rank_matrix(pd.DataFrame()).get("status") == "no_data")
+
+
 def test_layer_purity() -> None:
     path = os.path.join(os.path.dirname(__file__), "sector_rotation.py")
     tree = ast.parse(open(path, encoding="utf-8").read())
@@ -203,6 +250,18 @@ def test_wiring() -> None:
     daily = open(os.path.join(root, "daily_sector_rotation.py"), encoding="utf-8").read()
     check("跑批脚本字段映射含 f160=10日（勿与 f110=20日 对调）",
           '"f160": "pct_10d"' in daily and '"f110": "pct_20d"' in daily)
+
+    page = open(os.path.join(root, "page_sector_rotation.py"), encoding="utf-8").read()
+    check("页面已接排名矩阵（调用形式）", "render_rank_matrix(load_rank_matrix())" in page)
+    check("矩阵第 1/2/3 名加粗（rank<=3 → hot 类）",
+          "rank <= 3" in page and '"hot"' in page, "须为赋值/条件形式而非裸子串")
+    check("矩阵走 ui_compat.html_embed（页面不得裸用 components.v1）",
+          "html_embed(" in page and "components.v1" not in page)
+    check("矩阵缺失格显示 —（nm/pct 缺省渲染存在）",
+          '<div class="nm">—</div>' in page and '<div class="pct">—</div>' in page)
+
+    srsrc = open(os.path.join(root, "sector_rotation.py"), encoding="utf-8").read()
+    check("矩阵日期取最近 N 日并倒序（最新在左）", "[-days:][::-1]" in srsrc)
 
 
 def test_artifacts_fresh() -> None:
@@ -248,6 +307,7 @@ if __name__ == "__main__":
     test_overlap_verdicts()
     test_streaks()
     test_insufficient_and_no_data()
+    test_rank_matrix()
     test_layer_purity()
     test_wiring()
     test_artifacts_fresh()
