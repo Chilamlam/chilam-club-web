@@ -349,6 +349,43 @@ def check_order_alert() -> None:
        "「有效订阅但未绑微信」= 收了钱没交付，必须在名单说明里显式点出")
 
 
+# ================= 5.6 确认收款链路 =================
+
+def check_confirm_payment() -> None:
+    """确认收款是付费闭环的最后一环，而且是**人工**操作——出错时没有自动兜底。
+
+    这里最怕两种静默失败：
+    1) 订单状态 PATCH 失败却照样返回 ok=True → 订阅已续期、订单仍 pending，
+       管理员下次打开还看到这笔，再点一次就重复续期（收一笔钱发两次货）；
+    2) 提示紧跟 st.rerun() → 失败文案根本来不及显示，管理员只看到「点了没反应」，
+       而「不要重复确认」恰恰是最需要被看见的一句。
+    """
+    db = read("database.py")
+    seg = db[db.find("def confirm_payment"):]
+    seg = seg[:seg.find("\ndef ", 10)] if "\ndef " in seg[10:] else seg
+    ck(re.search(r'upd\s*=\s*_supabase_request\(\s*"PATCH",\s*f"payments\?id=eq', seg)
+       is not None,
+       "confirm_payment 的订单状态 PATCH 必须接住返回值")
+    ck(re.search(r"if\s+upd\s+is\s+None", seg) is not None,
+       "订单状态没更新成功时不得仍返回 ok=True（订阅已建 + 订单仍 pending = 重复续期）")
+    ck("不要重复确认" in seg,
+       "部分成功的文案必须说清「已经发生了什么」+「下一步千万别做什么」")
+
+    seg2 = db[db.find("def cancel_payment"):]
+    seg2 = seg2[:seg2.find("\ndef ", 10)] if "\ndef " in seg2[10:] else seg2
+    ck(re.search(r"len\(res\)\s*==\s*0", seg2) is not None,
+       "cancel_payment 零行命中须判失败（订单不存在也会被当成取消成功）")
+
+    adm = read(os.path.join("pages", "admin.py"))
+    # 必须校验「写入」而不是只看名字出现过：pop 那行也含这个字符串，
+    # 只判断 `"admin_flash" in adm` 的话，把两处赋值全删掉它照样通过。
+    ck('st.session_state["admin_flash"] =' in adm,
+       "admin.py 确认/取消结果须写入 flash（紧跟 st.rerun() 会吃掉瞬时提示）")
+    dash = read(os.path.join("pages", "dashboard.py"))
+    ck('st.session_state["cancel_flash"] =' in dash,
+       "dashboard.py 取消结果须写入 flash")
+
+
 # ================= 6. 联网真实断言 =================
 
 def check_live() -> None:
@@ -387,7 +424,7 @@ def check_live() -> None:
 def main() -> None:
     for fn in (check_module, check_digest, check_database,
                check_page, check_no_email_promise, check_sql,
-               check_order_alert, check_live):
+               check_order_alert, check_confirm_payment, check_live):
         try:
             fn()
         except Exception as e:

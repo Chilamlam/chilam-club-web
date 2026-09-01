@@ -271,8 +271,18 @@ if "last_order" in st.session_state and st.session_state["last_order"]:
                 f"🔄 确认后刷新本页即可看到 VIP 生效"
             )
 
+            # 取消结果用 flash 传递：按钮下面紧跟 st.rerun()，
+            # 直接 st.error 会在重跑时瞬间消失，用户会以为点了没反应
+            _cflash = st.session_state.pop("cancel_flash", None)
+            if _cflash:
+                (st.success if _cflash[0] == "ok" else st.error)(_cflash[1])
+
             if st.button("❌ 取消此订单", key="cancel_order"):
-                database.cancel_payment(order.get("id"))
+                ok = database.cancel_payment(order.get("id"))
+                st.session_state["cancel_flash"] = (
+                    ("ok", "已取消订单。") if ok else
+                    ("err", "⚠️ 取消未生效：云端没有更新到任何一行，订单仍是待处理。"
+                            "请刷新后再试，或联系管理员处理。"))
                 st.session_state["last_order"] = None
                 st.session_state.pop("last_order_alert", None)
                 st.rerun()

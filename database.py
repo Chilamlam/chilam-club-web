@@ -480,10 +480,17 @@ def get_user_pending_payments(user_id: int) -> List[Dict[str, Any]]:
     return res if isinstance(res, list) else []
 
 def cancel_payment(payment_id: int) -> bool:
-    """取消订单"""
+    """取消订单。
+
+    返回 False 表示**没改到任何一行**。调用方必须据此提示，不能显示成已取消：
+    订单仍在库里且状态不变，用户刷新后还会看到它等着付款。
+    """
     res = _supabase_request("PATCH", f"payments?id=eq.{payment_id}",
                             json_data={"status": "cancelled"})
-    return res is not None
+    if res is None:
+        return False
+    # 零行命中返回 []（不是 None），只判 None 会把「订单不存在」当成取消成功
+    return not (isinstance(res, list) and len(res) == 0)
 
 
 def confirm_payment(payment_id: int, admin_id: int = None) -> Optional[Dict[str, Any]]:
@@ -557,7 +564,18 @@ def confirm_payment(payment_id: int, admin_id: int = None) -> Optional[Dict[str,
     }
     if admin_id:
         update_data["confirmed_by"] = admin_id
-    _supabase_request("PATCH", f"payments?id=eq.{payment_id}", json_data=update_data)
+    upd = _supabase_request("PATCH", f"payments?id=eq.{payment_id}", json_data=update_data)
+    if upd is None or (isinstance(upd, list) and len(upd) == 0):
+        # 走到这里订阅已经建好了，但订单还停在 pending。此刻绝不能返回 ok=True：
+        # 管理员看到「确认成功」+ 库里仍是 pending，下次打开页面还会看到这笔订单，
+        # 再点一次就会再续一次期 —— 收一笔钱发两次货。
+        # 也不返回笼统的失败：必须说清**已经发生了什么**，否则管理员的第一反应
+        # 就是重试，而重试正是这里最糟的操作。
+        return {"ok": False,
+                "error": f"订单状态更新失败：订阅已创建（到期 "
+                         f"{new_expires.isoformat()}Z），但订单仍是 pending。"
+                         "请先刷新核对，**不要重复确认**，否则会重复续期；"
+                         "若确已收款，在 Supabase 里手动把该订单置为 completed。"}
 
     return {
         "ok": True,

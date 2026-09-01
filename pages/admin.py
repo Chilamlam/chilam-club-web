@@ -92,6 +92,15 @@ with tab_orders:
 
     # --- 待处理订单 ---
     st.subheader("⏳ 待确认订单")
+
+    # 操作结果用 flash 传递：确认/取消都紧跟 st.rerun()，
+    # 直接 st.error/st.success 会在重跑时瞬间消失，管理员看到的只是「点了没反应」。
+    # 失败提示尤其重要——「订阅已创建但订单仍 pending，不要重复确认」这句
+    # 看不见的话，下一步就是重复续期。
+    _flash = st.session_state.pop("admin_flash", None)
+    if _flash:
+        (st.success if _flash[0] == "ok" else st.error)(_flash[1])
+
     pending_list = database.get_pending_payments()
 
     if pending_list:
@@ -119,15 +128,18 @@ with tab_orders:
                         result = database.confirm_payment(p["id"], admin_id)
                         if result and result.get("ok"):
                             exp_date = result.get("expires_at", "")[:10]
-                            st.success(f"✅ 收款确认成功！{u_email} 的 {plan_d} 已激活，到期日：{exp_date}")
-                            st.balloons()
+                            st.session_state["admin_flash"] = (
+                                "ok", f"✅ 收款确认成功！{u_email} 的 {plan_d} 已激活，到期日：{exp_date}")
                         else:
                             err = result.get("error", "未知错误") if result else "操作失败"
-                            st.error(f"确认失败：{err}")
+                            st.session_state["admin_flash"] = ("err", f"确认失败：{err}")
                         st.rerun()
 
                     if st.button("❌ 取消订单", key=f"reject_{p.get('id')}", use_container_width=False):
-                        database.cancel_payment(p["id"])
+                        ok = database.cancel_payment(p["id"])
+                        st.session_state["admin_flash"] = (
+                            ("ok", f"已取消订单 {p.get('order_no', '')}。") if ok else
+                            ("err", "⚠️ 取消未生效：云端没有更新到任何一行，订单仍是原状态。请刷新后重试。"))
                         st.rerun()
     else:
         st.info("🎉 暂无待处理订单")
