@@ -79,6 +79,8 @@ STEPS: list[dict] = [
      "backfill": BACKFILL_NONE, "timeout": 1200},
     {"key": "breakout", "script": "daily_breakout.py", "label": "阶段新高突破池",
      "backfill": BACKFILL_NONE, "timeout": 1200},
+    {"key": "sector_rotation", "script": "daily_sector_rotation.py", "label": "板块轮动",
+     "backfill": BACKFILL_NONE, "timeout": 600},
     {"key": "sentiment", "script": "daily_sentiment.py", "label": "情绪派生指标",
      "backfill": BACKFILL_INLINE, "backfill_cap": 15, "timeout": 1800},
     {"key": "scorecard", "script": "daily_scorecard.py", "label": "战绩归档与绩效",
@@ -110,6 +112,9 @@ FRESHNESS: list[tuple[str, str]] = [
     ("收盘摘要", "import json;d=json.load(open('data/digest/latest.json',encoding='utf-8'));"
                  "print(d['date'],'有内容' if d['has_content'] else '无内容','| 缺失',"
                  "len(d.get('missing') or []),'项 |',d['plain'][:80])"),
+    ("板块轮动", "import json;d=json.load(open('data/sector_rotation/analysis.json',encoding='utf-8'));"
+                 "print(d['status'],d.get('date','—'),'| 重合',d.get('overlap_count','—'),"
+                 "'| 判读',d.get('verdict',{}).get('label','—'),'| Top',len(d.get('top') or []))"),
 ]
 
 

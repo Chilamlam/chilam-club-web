@@ -13,6 +13,7 @@ from page_live_quote import render_live_quote_page
 from page_scorecard import render_scorecard_page
 from page_sentiment import render_sentiment_block
 from page_digest import render_digest_page
+from page_sector_rotation import render_sector_rotation_page
 from ui_compat import image_stretch, html_embed
 import auth
 
@@ -676,6 +677,7 @@ def main():
         st.markdown("---")
         menu_items = [
             "🛸 全市场看板",
+            "🔄 板块轮动",
             "📮 收盘摘要",
             "⭐ 我的池子 (每日复盘)",
             "🎯 战绩回看",
@@ -703,6 +705,8 @@ def main():
     #   数据与时间积累，别处抄不走，也是唯一让人愿意按月付费的东西。
     if page == "🛸 全市场看板":
         render_market_dashboard()
+    elif page == "🔄 板块轮动":
+        render_sector_rotation_page()
     elif page == "📮 收盘摘要":
         # 摘要「内容」开放（最好的引流物），「投递」锁 VIP（页内自行处理）
         render_digest_page()
