@@ -1,6 +1,6 @@
 {
   "date": "2026-09-01",
-  "update_time": "2026-09-01 16:02:14",
+  "update_time": "2026-09-01 17:52:26",
   "total_count": 83,
   "max_height": 7,
   "stocks": [
@@ -546,7 +546,7 @@
       "industry": "工业金属",
       "limit_times": 1,
       "first_time": "09:30:15",
-      "reason": "封板资金 0.56 亿 | 炸板 2 次"
+      "reason": "封板资金 0.56 亿 | 炸板 3 次"
     },
     {
       "code": "603123",
