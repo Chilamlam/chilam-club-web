@@ -1,22 +1,29 @@
 """
-全市场实时行情与多周期 K 线看板 (A股/ETF/指数 · 港股 · 美股 · 大宗商品)
+全市场实时行情与多周期 K 线看板 (A股/ETF/指数 · 北交所 · 港股 · 美股 · 大宗商品)
 
 数据通道均为实测可用的公开接口，并且**每个市场只暴露真正取得到数据的周期**：
 
 | 市场      | 报价 | 分时 | 分钟K(5/15/30/60) | 日/周/月K |
 |-----------|------|------|-------------------|-----------|
 | A股/ETF/指数 | 腾讯 | 腾讯 | 腾讯 mkline        | 腾讯 fqkline |
+| 北交所    | 腾讯 | 腾讯 | ❌ mkline 返回空   | 腾讯 newfqkline (fqkline 只给 1 根!) |
 | 港股      | 腾讯 | 腾讯 | ❌ 无公开源        | 腾讯 hkfqkline |
 | 美股      | 腾讯 | 新浪 | 新浪 US_MinKService | 腾讯 usfqkline (需 .OQ/.N 后缀) |
 | 大宗商品  | 新浪 | 新浪 | ❌ 无公开源        | 新浪日K(周/月由日K聚合) |
 
 页面上的周期选项按上表动态生成，不会再出现「能选但没数据」的情况。
 
-两个容易踩的实测细节：
+四个容易踩的实测细节：
 1. 腾讯 `_TX_PERIOD` 里 "month" 也以 m 开头，判断分钟线必须白名单 m5/m15/m30/m60，
    否则月 K 会被误发到 mkline 接口而返回空。
 2. 美股指数(.IXIC/.DJI/.INX) 的分时与分钟 K 在新浪要带前导点，腾讯日/周/月 K 则用
    usIXIC 这种不带交易所后缀的写法；美股个股反过来必须带 .OQ/.N 后缀。
+3. 北交所日/周/月 K **必须走 newfqkline**：老的 fqkline 端点对 bj 代码只返回当天
+   1 根 K 线（不报错、不为空 —— 典型静默失败），足够骗过「df 非空」这类断言。
+4. 同一个 6 位代码在沪深两市常常各有标的（000831 = 沪市指数「500低贝」+ 深市个股
+   「中国稀土」），且**沪市指数在未开盘时依然返回价格**，只是 amount=0、high/low=0。
+   所以「取到数据」不等于「取对标的」，消歧必须看活跃度而不是看是否为空。
+   详见 `resolve_candidates()`。
 
 自动技术分析（K 线周期可用，分时不做结构识别）由两个模块提供：
   tech_analysis.py —— 纯计算（缠论包含处理/分型/笔/线段/中枢；帝纳波利 DMA/
@@ -28,6 +35,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import urllib.request
+import urllib.parse
 import json
 import re
 
@@ -41,6 +49,8 @@ _UA_SINA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
 # 各市场支持的周期（实测结论，改动前请先跑 tools_probe_quote_api.py 复验）
 MARKET_PERIODS = {
     "A_SHARE": ["分时走势", "5分钟", "15分钟", "30分钟", "60分钟", "日K", "周K", "月K"],
+    # 北交所: mkline 对 bj 代码返回 m5 键但列表恒为空，故不暴露分钟周期
+    "BJ_SHARE": ["分时走势", "日K", "周K", "月K"],
     "HK_SHARE": ["分时走势", "日K", "周K", "月K"],
     "US_SHARE": ["分时走势", "5分钟", "15分钟", "30分钟", "60分钟", "日K", "周K", "月K"],
     "FUTURES": ["分时走势", "日K", "周K", "月K"],
@@ -48,6 +58,7 @@ MARKET_PERIODS = {
 
 MARKET_LABEL = {
     "A_SHARE": "A股 / ETF / 指数",
+    "BJ_SHARE": "北交所",
     "HK_SHARE": "港股",
     "US_SHARE": "美股",
     "FUTURES": "国际大宗商品",
@@ -55,6 +66,8 @@ MARKET_LABEL = {
 
 # 缺失周期的说明，用于在页面上讲清楚为什么没有分钟 K
 MARKET_LIMIT_NOTE = {
+    "BJ_SHARE": "北交所标的的分钟级 K 线在公开接口返回为空，因此只提供分时与日/周/月 K；"
+                "部分老三板代码（430xxx / 83xxxx）连日 K 也没有历史，属数据源限制。",
     "HK_SHARE": "港股暂无稳定的公开分钟级 K 线数据源，因此只提供分时与日/周/月 K。",
     "FUTURES": "国际商品期货暂无稳定的公开分钟级 K 线数据源，周 K / 月 K 由日 K 聚合而成。",
 }
@@ -74,7 +87,7 @@ FUTURES_ALIAS = {"GOLD": "GC", "黄金": "GC", "SILVER": "SI", "白银": "SI",
 # 裸输入时不按商品解析，必须显式写 HF_ 前缀，例如 HF_HSI = 恒指期货
 _FUTURES_AMBIGUOUS = {"HSI", "C", "S", "W", "CT", "CAD"}
 
-_PRICE_DECIMALS = {"A_SHARE": 2, "HK_SHARE": 3, "US_SHARE": 2, "FUTURES": 3}
+_PRICE_DECIMALS = {"A_SHARE": 2, "BJ_SHARE": 2, "HK_SHARE": 3, "US_SHARE": 2, "FUTURES": 3}
 
 
 def _http_text(url: str, headers=None, encoding="utf-8", timeout=8) -> str:
@@ -106,15 +119,43 @@ def _f(v, default=0.0) -> float:
 _HK_INDEX = {"HSI": "恒生指数", "HSCEI": "恒生中国企业指数", "HSTECH": "恒生科技指数"}
 _US_INDEX = {"DJI": "道琼斯", "IXIC": "纳斯达克", "INX": "标普500"}
 
+_TX_PREFIX_MARKET = {"sh": "A_SHARE", "sz": "A_SHARE", "bj": "BJ_SHARE",
+                     "hk": "HK_SHARE", "us": "US_SHARE"}
+
+# 6 位代码的前缀先验。同一串数字沪深北最多同时存在三个标的，这里只决定
+# 「都活跃时优先谁」，真正的取舍靠 _rank_candidates 的活跃度判据。
+_PREFIX_PRIOR = [
+    # (代码前缀, 按优先级排列的市场前缀)
+    (("60", "68", "90", "58", "56", "51", "50", "11", "13", "20", "73"), ("sh", "sz")),
+    (("999",), ("sh",)),
+    (("000",), ("sh", "sz")),          # 000xxx: 上证指数系列 与 深市主板个股 撞号
+    (("39",), ("sz",)),                # 399xxx 深证指数
+    (("92", "43", "83", "87", "88"), ("bj", "sz", "sh")),
+    (("00", "30", "12", "15", "16", "18"), ("sz", "sh")),
+]
+
+
+def _prefixes_for(code6: str) -> tuple:
+    """给 6 位数字代码排出要探测的市场前缀顺序（长前缀优先匹配）。"""
+    for heads, order in sorted(_PREFIX_PRIOR,
+                               key=lambda x: -max(len(h) for h in x[0])):
+        if code6.startswith(heads):
+            return order
+    return ("sz", "sh", "bj")
+
 
 def resolve_symbol(raw: str) -> dict:
-    """把用户输入解析为统一的标的描述。
+    """把用户输入解析为统一的标的描述（纯语法解析，不联网）。
 
     返回 dict:
-      market   : A_SHARE / HK_SHARE / US_SHARE / FUTURES
+      market   : A_SHARE / BJ_SHARE / HK_SHARE / US_SHARE / FUTURES
       tx_code  : 腾讯行情代码 (商品市场为 None)
       sina_sym : 新浪符号 (美股为 ticker，商品为 GC 这类符号)
       display  : 展示用代码
+      probe    : 6 位裸数字时待探测的备选前缀（供 resolve_candidates 消歧）
+
+    注意：6 位裸数字存在沪深北撞号，本函数只给出「先验最可能」的一个，
+    页面与自检都应走 resolve_candidates() 拿到按活跃度排序的结果。
     """
     s = (raw or "").strip().upper().replace(" ", "")
     if not s:
@@ -130,15 +171,17 @@ def resolve_symbol(raw: str) -> dict:
     if s in FUTURES_SYMBOLS and s not in _FUTURES_AMBIGUOUS:
         return {"market": "FUTURES", "tx_code": None, "sina_sym": s, "display": s}
 
-    # A 股 / ETF / 指数：6 位数字
-    if re.fullmatch(r"\d{6}", s):
-        # 沪市: 6xxxxx 主板/688 科创、5xxxxx 基金、11xxxx 转债、000xxx & 999xxx 上证指数
-        sh = s.startswith(("60", "68", "51", "58", "56", "50", "11", "000", "999"))
-        prefix = "sh" if sh else "sz"
-        return {"market": "A_SHARE", "tx_code": f"{prefix}{s}", "sina_sym": None, "display": s}
+    # 显式市场前缀：sh600519 / sz000831 / bj920002
+    if re.fullmatch(r"(SH|SZ|BJ)\d{6}", s):
+        pfx = s[:2].lower()
+        return {"market": _TX_PREFIX_MARKET[pfx], "tx_code": f"{pfx}{s[2:]}",
+                "sina_sym": None, "display": s}
 
-    if re.fullmatch(r"(SH|SZ)\d{6}", s):
-        return {"market": "A_SHARE", "tx_code": s.lower(), "sina_sym": None, "display": s}
+    # A 股 / 北交所 / ETF / 指数：6 位裸数字 —— 沪深北都可能有同号标的
+    if re.fullmatch(r"\d{6}", s):
+        order = _prefixes_for(s)
+        return {"market": _TX_PREFIX_MARKET[order[0]], "tx_code": f"{order[0]}{s}",
+                "sina_sym": None, "display": s, "probe": order}
 
     # 港股：3~5 位数字 或 HK 前缀
     if re.fullmatch(r"\d{3,5}", s):
@@ -167,12 +210,18 @@ def resolve_symbol(raw: str) -> dict:
 
 # ==================== 2. 实时报价 ====================
 
-def _parse_tx_quote(parts: list, market: str) -> dict:
-    """腾讯行情 ~ 分隔字段解析。A股 88 段 / 港股 78 段 / 美股 71 段，
-    前 6 段与 30~45 段语义一致，可统一取值。"""
+def _parse_tx_quote(parts: list, market: str, tx_code: str = "") -> dict:
+    """腾讯行情 ~ 分隔字段解析。A股 88 段 / 北交所 87 段 / 港股 78 段 / 美股 71 段，
+    前 6 段与 30~45 段语义一致，可统一取值。
+
+    tx_code 是带市场前缀的请求代码（sh000831）。段位里的 parts[2] 只有裸代码
+    （000831），判类型时区分不出沪深，所以类型判定必须靠 tx_code。
+    """
     if len(parts) < 40:
         return {}
-    return {
+    pe_raw = (parts[39] or "").strip()
+    year_high = (parts[47] or "").strip() if len(parts) > 47 else ""
+    q = {
         "name": parts[1],
         "code": parts[2],
         "price": _f(parts[3]),
@@ -183,11 +232,70 @@ def _parse_tx_quote(parts: list, market: str) -> dict:
         "high": _f(parts[33]),
         "low": _f(parts[34]),
         "amount": _f(parts[37]),          # A股单位: 万元; 港股/美股: 元
-        "amount_unit": "万元" if market == "A_SHARE" else "元",
+        "amount_unit": "万元" if market in ("A_SHARE", "BJ_SHARE") else "元",
         "pe": _f(parts[39]),
         "mv_yi": _f(parts[45]) if len(parts) > 45 else 0.0,
         "update_time": parts[30],
+        "_pe_raw": pe_raw,
+        "_year_high_raw": year_high,
     }
+    # 当日是否真的在交易。沪市指数在未开盘时依然返回昨收价，只是没有成交也没有
+    # 当日高低价 —— 撞号消歧就靠这个判据，不能用「报价是否为空」。
+    q["alive"] = q["amount"] > 0 or (q["high"] > 0 and q["low"] > 0)
+    q["kind"] = _guess_kind(pe_raw, year_high, tx_code)
+    return q
+
+
+def _guess_kind(pe_raw: str, year_high_raw: str, tx_code: str) -> str:
+    """从行情段位判标的类型，不依赖外部字典。
+
+    **只对沪深北代码有效**：判据里的「52 周高/低恒为 -1」是 A 股行情段位的特性，
+    港股 / 美股 / 商品的同位段语义不同（实测 hkHSI、usIXIC 会被误判成基金），
+    所以非 sh/sz/bj 前缀直接返回空串 —— 宁可不标类型，也不给错的类型。
+
+    A 股实测口径（19 个样本全对）：
+      · 指数的「52 周高/低」(p47/p48) 恒为 -1，个股/基金有实值
+      · 基金 / ETF / LOF 的 PE(p39) 为空字符串，个股与指数都有值
+      · 转债的 p47 在沪市为 -1 且 PE 为空；深市转债 p47 有实值，故用代码段兜底
+    """
+    if not re.fullmatch(r"(sh|sz|bj)\d{6}", (tx_code or "").lower()):
+        return ""
+    digits = tx_code[2:]
+    if digits.startswith(("110", "111", "113", "118", "123", "127", "128")):
+        return "转债"
+    idx_like = year_high_raw in ("-1", "-1.00", "-1.000")
+    has_pe = pe_raw not in ("", "0", "0.00", "0.000")
+    if idx_like:
+        return "指数" if has_pe else "债券 / 其他"
+    return "个股" if has_pe else "基金 / ETF"
+
+
+def _fetch_tx_batch(tx_codes: list) -> dict:
+    """一次请求取多个腾讯代码。返回 {tx_code: quote}。
+
+    腾讯 q= 支持逗号拼接多个代码，不存在的标的**直接不返回该行**（既不是空串
+    也不报错），所以探三个前缀与探一个的网络开销基本相同。
+    注意：代码大小写必须与请求一致，全小写 usaapl 会整体返回 v_pv_none_match。
+    """
+    codes = [c for c in dict.fromkeys(tx_codes) if c]
+    if not codes:
+        return {}
+    try:
+        txt = _http_text("https://qt.gtimg.cn/q=" + ",".join(codes), encoding="gbk")
+    except Exception:
+        return {}
+    out = {}
+    for m in re.finditer(r'v_([a-zA-Z0-9\.\_]+)="([^"]*)"', txt):
+        code, body = m.group(1), m.group(2)
+        if not body or code not in codes:
+            continue
+        market = _TX_PREFIX_MARKET.get(code[:2].lower(), "A_SHARE")
+        q = _parse_tx_quote(body.split("~"), market, code)
+        if q and q.get("price", 0) > 0:
+            q["tx_code"] = code
+            q["market"] = market
+            out[code] = q
+    return out
 
 
 def _fetch_tx_quote(tx_code: str, market: str) -> dict:
@@ -196,7 +304,11 @@ def _fetch_tx_quote(tx_code: str, market: str) -> dict:
         m = re.search(r'="([^"]*)"', txt)
         if not m or not m.group(1):
             return {}
-        return _parse_tx_quote(m.group(1).split("~"), market)
+        q = _parse_tx_quote(m.group(1).split("~"), market, tx_code)
+        if q:
+            q["tx_code"] = tx_code
+            q["market"] = market
+        return q
     except Exception:
         return {}
 
@@ -240,14 +352,186 @@ def get_quote(sym: dict) -> dict:
         return _fetch_futures_quote(sym["sina_sym"])
 
     q = _fetch_tx_quote(sym["tx_code"], market)
-    # 6 位数字里 000xxx/300xxx 存在沪深前缀歧义，另一个前缀兜底
-    if not q and market == "A_SHARE":
-        code = sym["tx_code"]
-        alt = ("sz" + code[2:]) if code.startswith("sh") else ("sh" + code[2:])
-        q = _fetch_tx_quote(alt, market)
-        if q:
-            sym["tx_code"] = alt
+    if q:
+        return q
+
+    # 只在完全取不到时按前缀先验兜底探一圈。撞号消歧不在这里做 ——
+    # 那必须在 resolve_candidates() 里比较活跃度，否则「有报价但没成交」的
+    # 沪市指数会让兜底永不触发（这正是 000831 显示成 500低贝 的原因）。
+    probe = sym.get("probe")
+    if probe and len(sym.get("tx_code", "")) == 8:
+        code6 = sym["tx_code"][2:]
+        got = _fetch_tx_batch([f"{p}{code6}" for p in probe])
+        best = _rank_candidates(list(got.values()))
+        if best:
+            sym["tx_code"] = best[0]["tx_code"]
+            sym["market"] = best[0]["market"]
+            return best[0]
     return q
+
+
+# ==================== 2.5 撞号消歧 ====================
+
+# 沪市 000xxx 段**全部**是指数，但会被用户主动按裸代码查询的只有这一小撮宽基。
+# 其余（500低贝、上证周期、全R价值、180治理、上证商品…）是几乎无人主动查的衍生
+# 指数 —— 那些代码上，用户输入裸 6 位数字的意图必然是同号的深市个股。
+#
+# 为什么需要这层先验：实测 31 个 000xxx 样本里 21 个沪深两市都在交易，仅靠活跃度
+# 判据只能救 000831（沪市 500低贝 恰好无成交）这一类，救不了 000001 / 000063
+# 这种双活跃的情况。改动此表请同步 tools_probe_quote_api.py 的撞号断言。
+#
+# 刻意不收 000002：沪市「Ａ股指数」远不如深市「万科Ａ」常被查询。
+_MAJOR_SH_INDEX = {
+    "000001",   # 上证指数
+    "000010",   # 上证180
+    "000016",   # 上证50
+    "000300",   # 沪深300
+    "000688",   # 科创50
+    "000852",   # 中证1000
+    "000903",   # 中证100
+    "000905",   # 中证500
+    "000906",   # 中证800
+    "000922",   # 中证红利
+}
+
+
+def _prior_rank(q: dict) -> int:
+    """相同代码、同样活跃时的取舍先验。数字越小越优先。"""
+    code = q.get("tx_code", "")
+    if code.startswith("sh") and q.get("kind") == "指数":
+        return 0 if code[2:] in _MAJOR_SH_INDEX else 2
+    return 1                      # 个股 / 基金 / 北交所 / 深市指数
+
+
+def _rank_candidates(cands: list) -> list:
+    """撞号排序：当日是否在交易 → 主流宽基指数先验 → 成交额。
+
+    第一优先级必须是活跃度：沪市指数在未开盘时依然返回昨收价（amount=0、
+    high/low=0），「取到报价」不等于「取对标的」。
+    """
+    return sorted(cands, key=lambda q: (0 if q.get("alive") else 1,
+                                        _prior_rank(q),
+                                        -q.get("amount", 0.0)))
+
+
+@st.cache_data(ttl=8, show_spinner=False)
+def resolve_candidates(raw: str) -> list:
+    """把用户输入解析成**按活跃度排序**的候选标的列表。
+
+    这是页面应当调用的入口。返回 [{sym, quote}, ...]，第一个即推荐结果；
+    长度 > 1 说明确实存在撞号（如 000001 = 上证指数 + 平安银行），此时页面
+    必须把选择权交还用户，不能静默替他决定。
+
+    非 6 位裸数字的输入（sh000831 / 00700 / NVDA / GC）只会有 0 或 1 个候选。
+    """
+    sym = resolve_symbol(raw)
+    if not sym:
+        return []
+
+    probe = sym.get("probe")
+    if not probe:
+        q = get_quote(sym)
+        if not q or q.get("price", 0) <= 0:
+            return []
+        return [{"sym": sym, "quote": q}]
+
+    code6 = sym["display"]
+    got = _fetch_tx_batch([f"{p}{code6}" for p in probe])
+    out = []
+    for q in _rank_candidates(list(got.values())):
+        out.append({
+            "sym": {"market": q["market"], "tx_code": q["tx_code"],
+                    "sina_sym": None, "display": code6, "probe": probe},
+            "quote": q,
+        })
+    return out
+
+
+def candidate_label(item: dict) -> str:
+    """候选项的一行说明：市场 + 类型 + 名称 + 是否在交易。"""
+    q, sym = item["quote"], item["sym"]
+    mkt = {"sh": "沪市", "sz": "深市", "bj": "北交所"}.get(sym["tx_code"][:2], "")
+    state = "今日有成交" if q.get("alive") else "今日无成交"
+    return f"{mkt}{q.get('kind', '')} · {q.get('name', '')} · {state}"
+
+
+# ==================== 2.6 名称搜索 ====================
+
+_SEARCH_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                   "Referer": "https://stockapp.finance.qq.com/"}
+
+# smartbox 返回的类型码 → 站内可查询的输入。jj(场外基金)/QZ(窝轮) 本站无行情通道，
+# 直接过滤掉，避免用户点了个查不出东西的结果。
+_SEARCH_TYPE_LABEL = {
+    "GP-A": "A股", "GP-A-KCB": "科创板", "GP-B": "B股", "ZS": "指数",
+    "ETF": "ETF", "QDII-ETF": "QDII-ETF", "LOF": "LOF", "QDII-LOF": "QDII-LOF",
+    "GP": "股票",
+}
+_SEARCH_OK_PREFIX = {"sh", "sz", "bj", "hk", "us"}
+
+
+def _decode_search_name(name: str) -> str:
+    """smartbox 的名称字段是 \\uXXXX 转义，需二次解码。"""
+    if "\\u" not in name:
+        return name
+    try:
+        return name.encode("utf-8").decode("unicode_escape")
+    except (UnicodeDecodeError, UnicodeEncodeError):
+        return name
+
+
+@st.cache_data(ttl=600, show_spinner=False)
+def search_symbols(keyword: str, limit: int = 10) -> list:
+    """按名称 / 拼音 / 代码搜索标的。返回 [{query, name, market_hint, type_label}]。
+
+    数据源: smartbox.gtimg.cn（GBK，格式 `前缀~代码~名称~拼音~类型码`，^ 分隔）。
+    实测覆盖 A股 / 科创 / B股 / 北交所? / 港美股 / ETF / LOF / 指数，支持中文名与
+    拼音缩写（maotai → 贵州茅台）。
+
+    这是**纯增强功能**：接口曾出现瞬时空返回，故所有异常都吞掉返回空列表，
+    页面必须保证搜索挂掉时纯代码输入照常可用。
+    """
+    kw = (keyword or "").strip()
+    if not kw:
+        return []
+    try:
+        url = "https://smartbox.gtimg.cn/s3/?t=all&q=" + urllib.parse.quote(kw)
+        txt = _http_text(url, headers=_SEARCH_HEADERS, encoding="gbk", timeout=6)
+    except Exception:
+        return []
+    m = re.search(r'v_hint="([^"]*)"', txt)
+    if not m or not m.group(1):
+        return []
+
+    out, seen = [], set()
+    for item in m.group(1).split("^"):
+        f = item.split("~")
+        if len(f) < 3:
+            continue
+        pfx, code, tp = f[0].lower(), f[1], (f[4] if len(f) > 4 else "")
+        if pfx not in _SEARCH_OK_PREFIX or tp not in _SEARCH_TYPE_LABEL:
+            continue
+        # 站内查询用的输入：A股带显式前缀避免再次撞号；港美股用代码本身
+        if pfx in ("sh", "sz", "bj"):
+            query = f"{pfx}{code}"
+        elif pfx == "hk":
+            query = code if not code.isdigit() else code.zfill(5)
+        else:
+            query = code.split(".")[0].upper()
+        if query in seen:
+            continue
+        seen.add(query)
+        out.append({
+            "query": query,
+            "code": code,
+            "name": _decode_search_name(f[2]),
+            "market_hint": {"sh": "沪市", "sz": "深市", "bj": "北交所",
+                            "hk": "港股", "us": "美股"}[pfx],
+            "type_label": _SEARCH_TYPE_LABEL[tp],
+        })
+        if len(out) >= limit:
+            break
+    return out
 
 
 # ==================== 3. 分时走势 ====================
@@ -257,7 +541,7 @@ def get_minute_line(sym: dict) -> pd.DataFrame:
     """当日分时。A股/港股走腾讯，美股走新浪(腾讯只返回收盘一个点)，商品走新浪全球期货。"""
     market = sym.get("market")
     try:
-        if market in ("A_SHARE", "HK_SHARE"):
+        if market in ("A_SHARE", "BJ_SHARE", "HK_SHARE"):
             code = sym["tx_code"]
             d = _http_json(f"https://web.ifzq.gtimg.cn/appstock/app/minute/query?code={code}")
             raw = (((d.get("data") or {}).get(code) or {}).get("data") or {}).get("data") or []
@@ -345,7 +629,10 @@ def _tx_kline(code: str, period: str, market: str, limit: int = 240) -> pd.DataF
     if p in ("m5", "m15", "m30", "m60"):
         url = f"https://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},{p},,{limit}"
     else:
-        ep = {"A_SHARE": "fqkline", "HK_SHARE": "hkfqkline", "US_SHARE": "usfqkline"}[market]
+        # 北交所必须走 newfqkline: 老的 fqkline 对 bj 代码只返回当天 1 根 K 线，
+        # 既不报错也不为空 —— 是静默失败，画出来就是「一根孤零零的蜡烛」。
+        ep = {"A_SHARE": "fqkline", "BJ_SHARE": "newfqkline",
+              "HK_SHARE": "hkfqkline", "US_SHARE": "usfqkline"}[market]
         url = (f"https://web.ifzq.gtimg.cn/appstock/app/{ep}/get"
                f"?param={code},{p},,,{limit},qfq")
     try:
@@ -353,11 +640,12 @@ def _tx_kline(code: str, period: str, market: str, limit: int = 240) -> pd.DataF
         node = (d.get("data") or {}).get(code) or {}
         arr = node.get(p) or node.get(f"qfq{p}") or []
         if not arr:
-            # 有些标的返回 key 不带 qfq 前缀，兜底取第一个 list
+            # 有些标的返回 key 不带 qfq 前缀，兜底取最长的那个 list
+            best = []
             for v in node.values():
-                if isinstance(v, list) and v:
-                    arr = v
-                    break
+                if isinstance(v, list) and len(v) > len(best):
+                    best = v
+            arr = best
         return _tx_kline_records(arr)
     except Exception:
         return pd.DataFrame()
@@ -445,6 +733,10 @@ _SESSIONS = {
     "A_SHARE": ([("09:30", "11:30"), ("13:00", "15:00")],
                 ["09:30", "10:30", "11:30", "14:00", "15:00"],
                 ["09:30", "10:30", "11:30/13:00", "14:00", "15:00"]),
+    # 北交所与沪深同步，9:30-11:30 / 13:00-15:00
+    "BJ_SHARE": ([("09:30", "11:30"), ("13:00", "15:00")],
+                 ["09:30", "10:30", "11:30", "14:00", "15:00"],
+                 ["09:30", "10:30", "11:30/13:00", "14:00", "15:00"]),
     # 港股连续竞价 16:00 收盘，之后 16:01-16:10 是收市竞价(CAS)只有一个成交点，
     # 若把轴拉到 16:10 会让右侧出现一段空白 + 孤点，故轴止于 16:00，CAS 价并入收盘分钟。
     "HK_SHARE": ([("09:30", "12:00"), ("13:00", "16:00")],
@@ -504,9 +796,9 @@ def _align_to_timeline(df: pd.DataFrame, timeline: list) -> pd.DataFrame:
 # ==================== 6. 页面渲染 ====================
 
 PRESETS = [
-    ("贵州茅台", "600519"), ("上证指数", "sh000001"), ("纳指ETF", "513100"),
-    ("腾讯控股", "00700"), ("恒生指数", "HSI"), ("英伟达", "NVDA"),
-    ("纳斯达克", "IXIC"), ("纽约黄金", "GC"),
+    ("贵州茅台", "600519"), ("上证指数", "sh000001"), ("中国稀土", "sz000831"),
+    ("纳指ETF", "513100"), ("腾讯控股", "00700"), ("恒生指数", "HSI"),
+    ("英伟达", "NVDA"), ("纽约黄金", "GC"),
 ]
 
 
@@ -616,9 +908,55 @@ def _render_kline_chart(sym: dict, quote: dict, df: pd.DataFrame, period: str,
     return res
 
 
+def _render_search_box():
+    """名称 / 拼音搜索。纯增强：接口挂掉时不影响下方的代码输入。"""
+    kw = st.text_input(
+        "🔎 按名称搜索（可选）",
+        key="lq_search_kw",
+        placeholder="中国稀土 / maotai / 宁德时代 / 英伟达 / 恒生指数",
+        help="支持中文名、拼音缩写、代码。搜到结果后点一下即可切换标的，"
+             "省得记 6 位代码到底该配沪市还是深市。",
+    )
+    if not kw or not kw.strip():
+        return
+    hits = search_symbols(kw.strip())
+    if not hits:
+        st.caption("🔎 没搜到可查询的标的（场外基金、窝轮本站没有行情通道，已过滤）。"
+                   "也可能是搜索接口临时无响应 —— 直接在下面填代码同样可用。")
+        return
+    st.caption(f"🔎 找到 {len(hits)} 个，点一下切换：")
+    cols = st.columns(min(len(hits), 4))
+    for i, h in enumerate(hits):
+        with cols[i % len(cols)]:
+            if st.button(f"{h['name']}\n`{h['query']}`",
+                         key=f"sr_{h['market_hint']}_{h['query']}",
+                         use_container_width=True,
+                         help=f"{h['market_hint']} · {h['type_label']} · {h['code']}"):
+                st.session_state.active_symbol = h["query"]
+                st.rerun()
+
+
+def _pick_candidate(raw: str, cands: list) -> dict:
+    """撞号时把选择权交还用户；只有一个候选则直接返回。
+
+    绝不静默替用户决定 —— 000831 沪市是指数「500低贝」、深市是个股「中国稀土」，
+    两者都是真实标的，系统只能给出排序建议（谁在交易），不能假装另一个不存在。
+    """
+    if len(cands) == 1:
+        return cands[0]
+
+    key = f"lq_pick_{raw}"
+    labels = [candidate_label(c) for c in cands]
+    st.warning(f"代码 `{raw}` 在多个市场都有标的。默认选中当日有成交的那个，"
+               f"如需另一个请在下面切换 —— 或直接输入带市场前缀的写法"
+               f"（如 `{cands[0]['sym']['tx_code']}`）避免每次都要选。")
+    choice = st.radio("🧭 你要看哪一个？", labels, index=0, key=key, horizontal=False)
+    return cands[labels.index(choice)]
+
+
 def render_live_quote_page():
     st.header("⚡ 全市场实时行情与自动技术分析")
-    st.caption("A股 / ETF / 指数 · 港股 · 美股 · 国际大宗商品 —— 周期选项按各市场实际可取到的数据动态生成；"
+    st.caption("A股 / ETF / 指数 · 北交所 · 港股 · 美股 · 国际大宗商品 —— 周期选项按各市场实际可取到的数据动态生成；"
                "K 线周期支持自动画缠论结构（笔 / 线段 / 中枢）与帝纳波利位置（DMA / F3·F5 回撤 / COP·OP·XOP 目标位）")
 
     if "active_symbol" not in st.session_state:
@@ -632,12 +970,15 @@ def render_live_quote_page():
                 st.session_state.active_symbol = code
                 st.rerun()
 
+    _render_search_box()
+
     c_in, c_btn = st.columns([4, 1])
     with c_in:
         raw = st.text_input(
             "🔍 标的代码",
             value=st.session_state.active_symbol,
-            help="A股/ETF/指数: 600519、000001、513100、sh000001 ｜ 港股: 00700、HSI ｜ "
+            help="A股/ETF/指数: 600519、000001、513100 ｜ 显式指定市场: sh000831 沪市指数、"
+                 "sz000831 深市个股、bj920002 北交所 ｜ 港股: 00700、HSI ｜ "
                  "美股: NVDA、AAPL、IXIC、DJI ｜ 商品: GC 黄金、CL 原油、SI 白银、HG 铜、NG 天然气 ｜ "
                  "与股票撞名的商品需加 HF_ 前缀，如 HF_HSI 恒指期货、HF_C 美玉米",
         )
@@ -649,30 +990,36 @@ def render_live_quote_page():
             st.rerun()
 
     if not raw:
-        st.info("请输入标的代码。")
+        st.info("请输入标的代码，或用上面的名称搜索。")
         return
 
-    sym = resolve_symbol(raw)
-    if not sym:
-        st.error(f"无法识别代码 `{raw}`。A股填 6 位数字，港股 5 位数字，美股填字母代码，商品填 GC / CL 这类符号。")
+    if not resolve_symbol(raw):
+        st.error(f"无法识别代码 `{raw}`。A股/北交所填 6 位数字（或 sh/sz/bj 前缀），"
+                 f"港股 5 位数字，美股填字母代码，商品填 GC / CL 这类符号。")
         return
 
-    quote = get_quote(sym)
-    if not quote or quote.get("price", 0) <= 0:
-        st.error(f"未取到 `{raw}` 的行情。请确认代码是否正确（识别为{MARKET_LABEL[sym['market']]}）。")
+    cands = resolve_candidates(raw)
+    if not cands:
+        st.error(f"未取到 `{raw}` 的行情。沪深北三个市场都没有这个代码的有效报价，"
+                 f"请确认代码是否正确，或用上面的名称搜索。")
         return
+
+    picked = _pick_candidate(raw, cands)
+    sym, quote = picked["sym"], picked["quote"]
 
     market = sym["market"]
     pct = quote.get("pct_chg", 0.0)
 
     k = st.columns(5)
-    k[0].metric("标的", quote.get("name", sym["display"]), delta=MARKET_LABEL[market],
+    kind = quote.get("kind", "")
+    k[0].metric("标的", quote.get("name", sym["display"]),
+                delta=f"{MARKET_LABEL[market]}{' · ' + kind if kind else ''}",
                 delta_color="off")
     k[1].metric("最新价", _fmt(quote.get("price", 0), market), delta=f"{pct:+.2f}%")
     k[2].metric("最高 / 最低",
                 f"{_fmt(quote.get('high', 0), market)} / {_fmt(quote.get('low', 0), market)}")
     amt = quote.get("amount", 0.0)
-    if market == "A_SHARE" and amt:
+    if market in ("A_SHARE", "BJ_SHARE") and amt:
         k[3].metric("成交额", f"{amt / 10000:.2f} 亿")
     elif amt:
         k[3].metric("成交额", f"{amt / 1e8:.2f} 亿")
@@ -702,6 +1049,10 @@ def render_live_quote_page():
     df = get_kline(sym, period)
     if df.empty:
         st.info(f"暂未取到 {period} 数据，数据源可能临时无响应，稍后重试或换个周期。")
+        return
+    if len(df) < 2:
+        st.warning(f"{period} 只取到 {len(df)} 根 K 线，无法做结构分析。"
+                   f"这类情况多见于北交所老三板代码（430xxx / 83xxxx）—— 公开接口没有它们的历史行情。")
         return
 
     st.markdown("**🧠 自动技术分析**")
