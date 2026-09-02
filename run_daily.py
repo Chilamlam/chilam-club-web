@@ -208,6 +208,84 @@ def check_freshness() -> None:
             print(f"-- {label}: 读取失败 {type(exc).__name__}")
 
 
+# 跨产物日期一致性判据：(标签, 相对路径, 取值方式)。
+# 取值方式同看门狗：json:<key> / csv:<列名>（CSV 取最后一行）。
+DATE_PROBES: list[tuple[str, str, str]] = [
+    ("RPS 强势股", "data/strong_stocks.csv", "csv:更新日期"),
+    ("突破池", "data/breakout_stocks.csv", "csv:update_date"),
+    ("ETF 榜单", "data/strong_etfs.csv", "csv:更新日期"),
+    ("连板天梯", "data/limit_ladder.json", "json:date"),
+    ("收盘摘要", "data/digest/latest.json", "json:date"),
+]
+
+
+def _probe_date(path: str, spec: str) -> str:
+    """取产物日期，压成 YYYYMMDD。只用 stdlib：这段必须在最坏情况下也能跑。"""
+    import csv as _csv
+    import re as _re
+
+    full = os.path.join(REPO_ROOT, path)
+    if not os.path.exists(full):
+        raise FileNotFoundError(path)
+    kind, _, key = spec.partition(":")
+    with open(full, encoding="utf-8-sig") as f:
+        if kind == "json":
+            raw = json.load(f).get(key)
+        else:
+            rows = list(_csv.DictReader(f))
+            if not rows:
+                raise ValueError("无数据行")
+            if key not in rows[-1]:
+                raise KeyError(f"缺列 {key}（实际：{','.join(rows[-1].keys())[:60]}）")
+            raw = rows[-1][key]
+    digits = _re.sub(r"\D", "", str(raw or ""))[:8]
+    if len(digits) != 8:
+        raise ValueError(f"取不出日期：{raw!r}")
+    return digits
+
+
+def check_date_consistency() -> int:
+    """比对各产物的数据日期，落后的必须在跑批日志里被明确点名。
+
+    为什么单独做这一步：2026-09-01 那天 RPS 连续三班扑空，`strong_stocks.csv`
+    停在 08-31，而同一批其它产物全是 09-01。当时上面那份「数据新鲜度自检」
+    照样把每行打印出来了 —— 但人得逐行用眼睛比日期才能看出问题，
+    汇总里也没有任何异常标记。判据必须由机器给出结论，而不是把原始行摊给人看。
+
+    基准取「本批产物里最新的那个日期」，不引交易日历：跑批过零点、周末、
+    节假日都会让「今天」不等于「最新交易日」，跟日历比必然误报；而同一次跑批的
+    产物本该同日，用批内最大值当基准能精确抓出「某一步单独失败」。
+
+    返回落后的产物数量（0 = 全部一致）。不改变编排器恒 exit 0 的语义。
+    """
+    print("\n" + "=" * 60)
+    print("跨产物日期一致性")
+    print("=" * 60)
+    got: dict[str, str] = {}
+    for label, path, spec in DATE_PROBES:
+        try:
+            got[label] = _probe_date(path, spec)
+        except Exception as exc:  # noqa: BLE001
+            print(f"-- {label:10} 取不到日期：{type(exc).__name__}: {exc}")
+    if not got:
+        print("::warning::所有产物都取不到日期，无法判断新鲜度")
+        return 0
+
+    ref = max(got.values())
+    stale = []
+    for label, d in got.items():
+        if d < ref:
+            stale.append((label, d))
+            print(f"-- {label:10} {d}  ❌ 落后（批内最新 {ref}）")
+        else:
+            print(f"-- {label:10} {d}  ✅")
+    if stale:
+        detail = "、".join(f"{l}({d})" for l, d in stale)
+        print(f"::warning::日期落后的产物：{detail}；批内最新 {ref}。"
+              f"这说明对应步骤本次没有成功产出，需要补跑该步骤。")
+    return len(stale)
+
+
 def main() -> int:
     argv = sys.argv[1:]
     only = None
@@ -263,6 +341,7 @@ def main() -> int:
 
 def finish(results: list[tuple[str, int, float]]) -> int:
     check_freshness()
+    stale_n = check_date_consistency()
     print("\n" + "=" * 60)
     print("跑批汇总")
     print("=" * 60)
@@ -273,6 +352,11 @@ def finish(results: list[tuple[str, int, float]]) -> int:
     print(f"\n共 {len(results)} 趟，{len(results) - len(bad)} 成功，{len(bad)} 异常")
     if bad:
         print("::warning::异常步骤：" + "、".join(f"{l}({c})" for l, c, _ in bad))
+    # 退出码 0 不代表数据都对：日期落后必须在汇总末尾再喊一次。
+    # 2026-09-01 的教训是「汇总全 [OK] + 榜单停在昨天」，人只看汇总就会被骗。
+    if stale_n:
+        print(f"::warning::⚠️ 有 {stale_n} 项产物日期落后于本批最新日期，"
+              f"详见上方「跨产物日期一致性」，退出码 0 不代表数据完整")
     # 恒返回 0：yml 后面还要提交 data/，编排器绝不能因部分失败而阻断落盘。
     return 0
 

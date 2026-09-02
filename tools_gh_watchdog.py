@@ -43,7 +43,9 @@ GitHub Actions 的 `schedule` 事件是 **best-effort**，官方文档原文：
 """
 from __future__ import annotations
 
+import csv
 import datetime as dt
+import io
 import json
 import re
 import subprocess
@@ -58,11 +60,20 @@ WORKFLOW = "daily_update.yml"
 
 CST = dt.timezone(dt.timedelta(hours=8))
 
-# 判据取「必然每个交易日都会变」的两个产物。
-# 只看一个会误判：某个接口单独挂掉时另一个仍是新的。
+# 判据取「必然每个交易日都会变」的产物。
+# 只看一两个会漏判：2026-09-01 连板天梯与收盘摘要都是当日新数据，
+# 而 strong_stocks.csv 停在 08-31（RPS 跑批连续三班扑空），看门狗照样判「已就位」。
+# 教训是判据必须逐产物覆盖，不能用「相邻产物是新的」推断整批都新。
+#
+# 第四个字段是取日期的方式：
+#   "json:<key>"  —— JSON 文档取该键
+#   "csv:<列名>"   —— CSV 取该列最后一行（RPS 是中文列名，突破池是 update_date，
+#                     两张表列名不同，写死单一列名会静默漏判）
 PROBES = [
-    ("连板天梯", "data/limit_ladder.json", "date"),
-    ("收盘摘要", "data/digest/latest.json", "date"),
+    ("连板天梯", "data/limit_ladder.json", "json:date"),
+    ("收盘摘要", "data/digest/latest.json", "json:date"),
+    ("RPS 强势股", "data/strong_stocks.csv", "csv:更新日期"),
+    ("突破池", "data/breakout_stocks.csv", "csv:update_date"),
 ]
 
 
@@ -112,19 +123,38 @@ def is_trading_day(d: dt.date) -> bool:
     return d.weekday() < 5
 
 
+def _extract_date(body: str, spec: str) -> str:
+    """按 spec 从远端文件正文里取日期字符串。
+
+    不引 pandas：本脚本要能在只有 stdlib 的环境（计划任务、纯净 runner）里跑。
+    CSV 取「最后一行」而非第一行，与 run_daily.py 的 FRESHNESS 口径保持一致。
+    """
+    kind, _, key = spec.partition(":")
+    if kind == "json":
+        return _norm_date(json.loads(body).get(key))
+    if kind == "csv":
+        rows = list(csv.DictReader(io.StringIO(body)))
+        if not rows:
+            raise ValueError("CSV 无数据行")
+        if key not in rows[-1]:
+            raise KeyError(f"CSV 缺列 {key}（实际列：{','.join(rows[-1].keys())[:80]}）")
+        return _norm_date(rows[-1][key])
+    raise ValueError(f"未知取值方式 {spec!r}")
+
+
 def check_freshness(today: str) -> tuple[bool, list[str]]:
     lines = []
     ok = True
-    for label, path, key in PROBES:
+    for label, path, spec in PROBES:
         st, body = _get(f"{RAW}/{path}", raw=True)
         if st != 200:
             lines.append(f"  {label}: 取不到远端文件 HTTP={st}")
             ok = False
             continue
         try:
-            got = _norm_date(json.loads(body).get(key))
+            got = _extract_date(body, spec)
         except Exception as exc:  # noqa: BLE001
-            lines.append(f"  {label}: 解析失败 {type(exc).__name__}")
+            lines.append(f"  {label}: 解析失败 {type(exc).__name__}: {exc}")
             ok = False
             continue
         fresh = got == today

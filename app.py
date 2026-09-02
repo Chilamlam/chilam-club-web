@@ -15,6 +15,7 @@ from page_sentiment import render_sentiment_block
 from page_digest import render_digest_page
 from page_sector_rotation import render_sector_rotation_page
 from ui_compat import image_stretch, html_embed
+import data_freshness as freshness
 import auth
 
 # ================= 1. 基础配置 (必须放在最前面) =================
@@ -80,6 +81,52 @@ def load_json(path):
     try:
         with open(path, 'r', encoding='utf-8') as f: return json.load(f)
     except: return None
+
+
+# 站内参考日期：取同批产物里最新的日期戳。
+# 为什么需要一个「参考」而不是直接跟今天比：跑批时间跨零点、周末、节假日
+# 都会让「今天」不等于「最新交易日」，直接比日历必然误报。而同一次跑批的
+# 产物本该同日，用批内最新值当基准，能精确抓出「某一步单独失败」——
+# 2026-09-01 就是这种情况：突破池/连板/摘要都是 09-01，只有 RPS 停在 08-31。
+@st.cache_data(ttl=600)
+def site_reference_date():
+    cands = []
+    for path, cols in (
+        ("data/breakout_stocks.csv", ("update_date",)),
+        ("data/strong_etfs.csv", ("更新日期",)),
+        ("data/strong_stocks.csv", ("更新日期",)),
+    ):
+        df = load_data(path)
+        if df is not None:
+            cands.append(freshness.pick_date(df, cols))
+    d = load_json("data/digest/latest.json") or {}
+    cands.append(freshness.norm_date(d.get("date")))
+    cands = [c for c in cands if c]
+    return max(cands) if cands else ""
+
+
+def render_freshness_banner(df, label, date_cols=("更新日期", "update_date", "date")):
+    """在榜单上方显示数据日期，过期时给出明确警示。
+
+    刻意放在榜单渲染之前：一份过期一天的榜单看起来跟正常榜单一模一样，
+    提示放在页脚等于没放。返回判定结果供调用方决定是否继续渲染。
+    """
+    v = freshness.verdict(freshness.pick_date(df, date_cols),
+                          reference_date=site_reference_date())
+    shown = f"{v['date'][:4]}-{v['date'][4:6]}-{v['date'][6:]}" if v["date"] else "未知"
+    if v["status"] == "stale":
+        st.error(
+            f"⚠️ **{label}数据可能未更新：{v['reason']}。** "
+            f"请按 {shown} 这个日期理解表内所有数字——它不是最新交易日的结果。"
+            f"若持续多日如此，说明跑批该步骤失败，需要人工补跑。",
+            icon="🚨",
+        )
+    elif v["status"] == "unknown":
+        # 与 stale 分开报：缺日期列要改产物结构，跟跑批没跑成不是一回事。
+        st.warning(f"⚠️ {label}缺少日期戳，无法判断数据是否为最新，请谨慎使用。")
+    else:
+        st.caption(f"📅 {label}数据日期：**{shown}**")
+    return v
 
 def format_rps_show(df, rps_col='RPS_50', chg_col='rps_50_chg'):
     if df is None or df.empty: return df
@@ -304,6 +351,9 @@ def render_stock_content(df):
     if df is None or df.empty: 
         st.info("暂无数据，请等待每日更新")
         return
+    # 新鲜度横幅排在免责声明之前：「这份数据是哪天的」比「这份数据不构成建议」更基础。
+    # 2026-09-01 本表停在 08-31 而页面毫无提示，用户只能靠肉眼比对才发现。
+    render_freshness_banner(df, "强势股榜单")
     # 免责声明放在榜单「上方」而不是页脚：这份表格最容易被当成选股清单，
     # 声明必须出现在用户看到代码之前，放页脚等于没放。
     st.info(
@@ -370,7 +420,9 @@ def render_breakout_content(df):
     if df is None or df.empty: 
         st.info("💡 暂无阶段新高突破标的数据，将在每日收盘后计算生成。")
         return
-    
+
+    # 先说清数据日期，再说「今日共捕获」——否则「今日」二字本身就是误导。
+    render_freshness_banner(df, "突破池")
     st.success(f"🚀 **Stage 2 突破动量捕捉器**：今日共捕获 **{len(df)}** 只突破关键阻力位标的")
     
     with st.expander("🔍 突破维度筛选", expanded=True):
@@ -420,6 +472,7 @@ def render_etf_content(df):
     if df is None or df.empty: 
         st.info("暂无数据")
         return
+    render_freshness_banner(df, "ETF 榜单")
     st.success(f"📈 捕捉到 {len(df)} 只强势 ETF")
     kw = st.text_input("🔍 搜 ETF")
     show_df = df.copy()
