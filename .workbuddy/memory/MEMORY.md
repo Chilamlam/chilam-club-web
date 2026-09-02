@@ -18,6 +18,8 @@ Streamlit Cloud 投资驾驶舱 + 会员付费，仓库 `Chilamlam/chilam-club-w
 
 ## 假数据与自检铁律（最高优先级）
 - **严禁占位数据/前端硬编码字面量**；自检必含时间戳新鲜度断言。**一条永不失败的断言=没有断言**：须造错反向验证；反向测试目录别用 `/tmp`（Windows 解析成 `\tmp`）；断言匹配语法结构而非裸子串（校验落在「写入」如 `st.session_state["x"] =`）。
+- **反向验证三条铁律**（行情页撞号修复时各踩一次）：①**造错本身要先验证有效**（给 URL 加未知参数 smartbox 直接忽略照样返回 → 误判成假断言；须换不存在的 host）；②**探针里所有失败必须走 `bad()` 唯一出口** —— 曾有一段自己 `print("FAIL ...")`，反向脚本按 `[FAIL]` 过滤完全抓不到退化，造错生效但外部全绿；③**断言别被无关数据喂饱** —— 页面探针判「按钮标签含中国稀土」，而 `PRESETS` 里本就有该按钮，搜索挂掉照样通过。
+- `streamlit.testing.v1.AppTest` 可**无头渲染页面**做断言（`tools_probe_live_quote_page.py` 已用），能验「选择器真出现/按钮真生成」，值得推广到其他页面。探针临时文件写系统 temp，别写仓库根目录。
 - **缺失显示 `—` 绝不补 0**；fixture 单位与生产一致（alpha 存小数，展示层乘 100）。
 - **静默失败最致命**；归因错误的报错比未知错误更贵。`_supabase_request(return_error=True)` 透出 status/code + `explain_uid_write_error()` 分流。`bind_wxpusher_uid` 返回 `(ok,why)`。
 - **None(取数失败修配置) ≠ False/[](确实没有)**；PostgREST PATCH 零行命中返回 `[]` 而 `[] is not None` 为真 → 必须显式判空列表（写库「失败报成功」已堵 4 处）。**改返回值语义时 None/空/有值三出口一次列全**。
@@ -28,6 +30,9 @@ Streamlit Cloud 投资驾驶舱 + 会员付费，仓库 `Chilamlam/chilam-club-w
 - **涨停池**东财 `push2ex.../getTopicZTPool`（ut=7eea3...），回溯约补 12 交易日。**东财 `push2`/`push2his` 已放弃**（高频探测触发 IP 限流>10min）。
 - 指数 PE-TTM 走中证 `index-perf`（须 Referer: csindex.com.cn，PE 字段=`peg`）；10Y 国债走东财 `RPTA_WEB_TREASURYYIELD`(`EMM00166466`) 需分页。
 - 腾讯前缀：`bj`92xxx/43x/83x/87x、`sh`6/5/9、`sz`其余；沪深300=`sh000300`；判分钟线用 `m5/m15/m30/m60` 白名单（"month" 也 m 开头）；fqkline limit≈300。美股 `usfqkline` 须带 `.OQ/.N`；港股/国际商品分钟K 无免费源；`HF_` 前缀防撞名。
+- **沪深撞号（行情页已修）**：`q=sh000831,sz000831,bj000831` 单请求批量返回，不存在的代码**整行不出现**→探三前缀≈探一个开销；**请求键必须原样小写**（`usAAPL` 返回 `v_pv_none_match`）。活跃判据 `amount>0 or (high>0 and low>0)`；**但 31 个 `000xxx` 样本里 21 个沪深双活跃**（000001 上证指数vs平安银行）→ 必须再叠 `_MAJOR_SH_INDEX` 宽基白名单先验（`000002` 特意不列入）。兜底判据写 `if not q` 是错的：**沪市指数未开盘也返回昨收价**，有返回≠是用户要的。类型判定用**代码段确定性判定**（110/111/113/118/123/127/128=转债），段位启发式会把「立讯转债」错分基金；非 `sh/sz/bj` 前缀直接不标类型（`hkHSI`/`usIXIC` 会误判）。
+- **北交所 BJ_SHARE**：日/周/月K **必须走 `newfqkline`**，老 `fqkline` **静默只返回 1 根**（不报错不为空）；`mkline` 返回 `m5` 键但列表为空→不暴露分钟周期。
+- **名称搜索** `smartbox.gtimg.cn/s3/?t=all&q=<UTF-8 urlencode>`（UA + `Referer: stockapp.finance.qq.com`）：**响应 GBK 但查询词须 UTF-8 编码** —— 「中文挂英文通」先查参数编码别先怀疑限流；返回 `前缀~代码~名称~拼音~类型码`，`^` 分隔，名称是 `\uXXXX` 需 `unicode_escape` 二次解码；有瞬时空返回须重试+降级；搜不到北交所与转债。
 - **全球资产**：纳指100=`usNDX`/标普=`usINX`/道指=`usDJI`/恒生=`hkHSI`/A50=`hf_CHA50CFD`/现货金=`hf_XAU`/WTI=`hf_CL`/伦铜=`hf_CAD`/USDCNH=`fx_susdcnh`；美元指数与美债10Y 无免费源。`hf_*[7]`=昨收（幅自算），`fx_*`[8]价[10]幅。
 - **同花顺题材**：q.10jqka 需 hexin-v cookie(401)；akshare THS 历史函数真名 `stock_board_concept_index_ths`（无 period 参数）；**东财 clist 概念板块(fs=m:90+t:3) 一次请求组全量 ~504 个，f109=5日/f160=10日/f110=20日/f24=60日（f110≠10日！已用板块日K交叉验证）**，pz 上限 100 需翻页；本机高频探测 push2 半小时即 IP 限流，每日一次没事。板块轮动功能即基于此（`sector_rotation.py` 计算层 + `daily_sector_rotation.py` 跑批）。
 
