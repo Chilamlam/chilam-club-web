@@ -9,6 +9,8 @@ Streamlit Cloud 投资驾驶舱 + 会员付费，仓库 `Chilamlam/chilam-club-w
 ## Git / 部署
 - **`data/` 归 Actions 云端所有**；push 前 fetch+rebase；**严禁强推/重写 main**。`rejected (fetch first)`=远端有新提交须 rebase，非传输故障。
 - 传输不稳=HTTP/2 被打断 → `-c http.version=HTTP/1.1`(已进 config)+重试循环；**外呼一律 curl**（python urllib 会被 TLS 打断）；API curl 200 ≠ git 通。`git rev-parse origin/main` 是 fetch 缓存非实时 → 判是否落后用 API `/commits/main` + `git hash-object` 比对 blob sha。
+- **`CONNECT tunnel failed, response 502` = 环境变量里的本机代理（`HTTP(S)_PROXY=http://127.0.0.1:<随机端口>`）挂了，不是 GitHub 或网络问题**。curl 走系统栈不受影响，所以「curl 通但 git 502」是这个成因的典型指纹。解法：`env -u HTTP_PROXY -u HTTPS_PROXY -u http_proxy -u https_proxy git -c http.proxy= -c https.proxy= <子命令>`（`-c` 与 `-u` 必须同时给，git 会同时读两处）。重试循环不解决它——502 是确定性失败，重试三次也是三次 502。
+- **重试循环别写 `if cmd | tail -2`**：管道退出码取最后一个命令（`tail` 恒 0）→ 首次即 `break`，看着重试了三次实际只跑一次。要判就直接 `if cmd 2>&1; then`。
 - 兜底 `tools_gh_put_via_gitdata.py --msg "..." <路径...>`（多文件一 commit；`--rm` 删；重命名=同 commit 增+删）。**token 在 remote url 用户名位**。**API 推送须 CRLF→LF**（脚本 `_to_lf()` 已内置）。
 - **PAT 只有 repo scope，yml 改不了且已薄壳化（逻辑全在 run_daily.py，secrets 走 ALL_SECRETS 整体透传）→ 不再改 yml**。手动触发 dispatch body `{"ref":"main","inputs":{"backfill_days":"40"}}`。
 - **`run_daily.py`**：逐步 try 后继续、**恒 exit 0**；每步独立 timeout；**新增跑批只改 `STEPS` 表**（顺序：sentiment 在 market_monitor 后，digest 最后）。
