@@ -758,6 +758,22 @@ _TX_PERIOD = {"5分钟": "m5", "15分钟": "m15", "30分钟": "m30", "60分钟":
               "日K": "day", "周K": "week", "月K": "month"}
 _SINA_US_MIN = {"5分钟": "5", "15分钟": "15", "30分钟": "30", "60分钟": "60"}
 
+# 日/周/月 K 的端点选择。北交所必须走 newfqkline —— 老 fqkline 对 bj 代码只返回
+# 当天 1 根，既不报错也不为空。单点定义，勿在别处再写一份。
+_TX_KLINE_EP = {"A_SHARE": "fqkline", "BJ_SHARE": "newfqkline",
+                "HK_SHARE": "hkfqkline", "US_SHARE": "usfqkline"}
+
+# 前复权日K 单次请求的根数上限。**这是个静默悬崖**：limit<=800 如实返回，
+# limit>=801 会退回到 640 根（实测 sz300750/sh601869/sh600519/bj920982 一致，
+# 精确边界 800→800 根、801→640 根），limit>=3000 直接返回 0 根 —— 既不报错也不
+# 提示。传 1000 想要更多历史，实际拿到的比传 800 还少。
+# 只对 qfq 生效（不复权、指数不受此限），所以「换个标的试试」容易得出错误结论。
+_TX_QFQ_MAX_LIMIT = 800
+
+# 区间取数最多分几段往前补（每段 <=800 根，12 段 ≈ 39 年，覆盖任何 A 股完整历史）。
+# 设上限只为防接口异常时死循环，正常情况会因「拉不到更早数据」提前退出。
+_RANGE_MAX_SEGMENTS = 12
+
 
 def _tx_kline_records(arr: list) -> pd.DataFrame:
     rows = []
@@ -782,12 +798,9 @@ def _tx_kline(code: str, period: str, market: str, limit: int = 240) -> pd.DataF
     if p in ("m5", "m15", "m30", "m60"):
         url = f"https://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},{p},,{limit}"
     else:
-        # 北交所必须走 newfqkline: 老的 fqkline 对 bj 代码只返回当天 1 根 K 线，
-        # 既不报错也不为空 —— 是静默失败，画出来就是「一根孤零零的蜡烛」。
-        ep = {"A_SHARE": "fqkline", "BJ_SHARE": "newfqkline",
-              "HK_SHARE": "hkfqkline", "US_SHARE": "usfqkline"}[market]
+        ep = _TX_KLINE_EP[market]
         url = (f"https://web.ifzq.gtimg.cn/appstock/app/{ep}/get"
-               f"?param={code},{p},,,{limit},qfq")
+               f"?param={code},{p},,,{min(limit, _TX_QFQ_MAX_LIMIT)},qfq")
     try:
         d = _http_json(url, timeout=12)
         node = (d.get("data") or {}).get(code) or {}
@@ -867,6 +880,87 @@ def get_kline(sym: dict, period: str) -> pd.DataFrame:
         return df
 
     return _tx_kline(sym["tx_code"], period, market)
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def get_daily_kline_range(tx_code: str, market: str, start: str, end: str) -> pd.DataFrame:
+    """取指定日期区间的前复权日 K。**给「按区间画图」的页面用**（黄金分割等）。
+
+    与 get_kline 的区别：get_kline 只要「最近 N 根」，这里要「某年某月到某年某月」。
+    腾讯这两件事的参数语义完全不同，实测三条硬约束（每条都反复打了 3 轮排除抖动）：
+
+    1. `limit` 是**总根数上限、且有个静默悬崖**：limit<=800 如实返回，limit>=801
+       退回 640 根（比传 800 还少），limit>=3000 直接返回 0 根。fqkline 与
+       newfqkline 都是这样。所以覆盖长区间只能分段拉再合并，把 limit 调大反而更少
+       —— 这正是老实现「传 1000 却只拿到 641 根」的成因（2021 年至今应有 1374 根）。
+    2. `start` / `end` **都是闭合的**（`end=2026-08-28` 末根就是 08-28）。**但**
+       `end` 落在**当天**时，同一天里**有的 limit 给当天、有的不给**，而且是
+       **稳定可复现**的（同参数连打 4 次结果完全一致，不是网络抖动）：
+       2026-09-02 实测 `start=2026-06-01` 总共才 66 根、远没顶满，
+       `limit=200/800` 照样丢当天，`limit=100/300/400/700` 却都给 ——
+       所以**根本不是「顶满 limit 就丢一根」**（我第一版就是这么误判的），
+       更像服务端按 limit 分了若干缓存分片、部分分片当天还没刷新。
+       跨 6 标的 × 3 个 start × 5 个 limit 实测命中当天的比例：
+       `limit=300` 是 18/18、`100` 是 17/18、`800` 是 13/18、`640` 只有 10/18；
+       且**任何分片都只会少给最新一根、从不多给** —— 取各分片最大日期就是真实
+       最新交易日（6 个标的复核全部 == 当天）。
+       所以这里不猜规则，用**实得数据**判断：拉完一段后若 `max(实得) < end`，
+       就用 `[max(实得), end]` 这个窄区间补一次尾（窄区间走另一个分片，实测
+       `limit` 取 100/300/800 都能补到当天）。
+       `end` 写成过去某天（如 08-28）时不存在这个现象 —— 因此**验证补尾逻辑
+       必须用 `end=当天`**，用固定的过去日期根本触发不到。
+    3. 北交所必须走 newfqkline（老 fqkline 对 bj 代码静默只返回 1 根），
+       **newfqkline 同样认 start/end**，只是同样有 800 的悬崖 ——
+       所以两个端点走完全一样的分段逻辑，不必为北交所写特例。
+
+    分段拉取的复权基准实测不漂移（重叠段收盘价完全一致），因此合并是安全的。
+    **必须循环补到 start**：只补一段的话，请求 2015 年起的茅台会静默从 2020-02-05
+    才开始（800+800 去重恰好 1599 根），外观完全正常 —— 这正是本函数要消灭的那类
+    静默残缺，别在自己身上再犯一次。实测请求次数：5 年 3 次、25 年 9 次。
+    """
+    if not tx_code or not start or not end:
+        return pd.DataFrame()
+    ep = _TX_KLINE_EP.get(market, "fqkline")
+    merged = {}
+
+    def _pull(seg_start: str, seg_end: str) -> int:
+        u = (f"https://web.ifzq.gtimg.cn/appstock/app/{ep}/get"
+             f"?param={tx_code},day,{seg_start},{seg_end},{_TX_QFQ_MAX_LIMIT},qfq")
+        try:
+            d = _http_json(u, timeout=12)
+        except Exception:
+            return 0
+        node = (d.get("data") or {}).get(tx_code) or {}
+        arr = node.get("qfqday") or node.get("day") or []
+        if not arr:
+            # 有些标的返回 key 不带 qfq 前缀，兜底取最长的那个 list
+            best = []
+            for v in node.values():
+                if isinstance(v, list) and len(v) > len(best):
+                    best = v
+            arr = best
+        before = len(merged)
+        for it in arr:
+            if len(it) >= 6:
+                merged[str(it[0])] = it
+        return len(merged) - before
+
+    _pull(start, end)
+    # 补尾：`end` 落在当天时，某些 limit 分片当天还没刷新，末根会停在前一个交易日
+    # （见 docstring 第 2 条，与是否顶满 limit 无关）。窄区间走的是另一个分片，
+    # 实测能补到当天。
+    if merged and max(merged) < end:
+        _pull(max(merged), end)
+    # 往前回补，直到覆盖 start 或再拉不出更早的数据（已到上市日）
+    for _ in range(_RANGE_MAX_SEGMENTS):
+        if not merged or min(merged) <= start:
+            break
+        if _pull(start, min(merged)) == 0:
+            break
+
+    rows = [merged[k] for k in sorted(merged) if start <= str(k) <= end]
+    df = _tx_kline_records(rows)
+    return df.rename(columns={"datetime": "date"}) if not df.empty else df
 
 
 # ==================== 5. 交易时间轴 ====================
@@ -1061,8 +1155,12 @@ def _render_kline_chart(sym: dict, quote: dict, df: pd.DataFrame, period: str,
     return res
 
 
-def _render_search_hits(hits: list, key_tag: str):
-    """把搜索结果渲染成一排可点按钮。点击即切换标的。"""
+def _render_search_hits(hits: list, key_tag: str, state_key: str = "active_symbol"):
+    """把搜索结果渲染成一排可点按钮。点击即切换标的。
+
+    state_key 必须是**当前页面**真正读取的那个 session 键 —— 黄金分割页与行情页
+    各有自己的输入框，写错键会让按钮看着能点却毫无反应。
+    """
     cols = st.columns(min(len(hits), 4))
     for i, h in enumerate(hits):
         with cols[i % len(cols)]:
@@ -1070,15 +1168,16 @@ def _render_search_hits(hits: list, key_tag: str):
                          key=f"{key_tag}_{h['market_hint']}_{h['query']}",
                          use_container_width=True,
                          help=f"{h['market_hint']} · {h['type_label']} · {h['code']}"):
-                st.session_state.active_symbol = h["query"]
+                st.session_state[state_key] = h["query"]
                 st.rerun()
 
 
-def _render_search_box():
+def _render_search_box(key_tag: str = "sr", state_key: str = "active_symbol",
+                       widget_key: str = "lq_search_kw"):
     """名称 / 拼音搜索。纯增强：接口挂掉时不影响下方的代码输入。"""
     kw = st.text_input(
         "🔎 按名称搜索（可选）",
-        key="lq_search_kw",
+        key=widget_key,
         placeholder="中国稀土 / maotai / 宁德时代 / 锦波生物 / 立讯转债 / 英伟达",
         help="支持中文名、拼音缩写、代码。搜到结果后点一下即可切换标的，"
              "省得记 6 位代码到底该配沪市还是深市。",
@@ -1091,10 +1190,11 @@ def _render_search_box():
                    "也可能是搜索接口临时无响应 —— 直接在下面填代码同样可用。")
         return
     st.caption(f"🔎 找到 {len(hits)} 个，点一下切换：")
-    _render_search_hits(hits, "sr")
+    _render_search_hits(hits, key_tag, state_key)
 
 
-def _fallback_to_search(raw: str) -> bool:
+def _fallback_to_search(raw: str, key_tag: str = "fb",
+                        state_key: str = "active_symbol") -> bool:
     """代码框里填的其实是名字时，直接在原地把搜索结果递给用户。
 
     实测这是最容易踩的坑：搜索框与代码框上下紧邻，把「宁德时代」打进代码框只会
@@ -1107,21 +1207,24 @@ def _fallback_to_search(raw: str) -> bool:
     if not hits:
         return False
     st.info(f"「{raw}」看着像名称而不是代码。下面是搜到的标的，点一下直接切过去：")
-    _render_search_hits(hits, "fb")
+    _render_search_hits(hits, key_tag, state_key)
     return True
 
 
 
-def _pick_candidate(raw: str, cands: list) -> dict:
+def _pick_candidate(raw: str, cands: list, key_prefix: str = "lq") -> dict:
     """撞号时把选择权交还用户；只有一个候选则直接返回。
 
     绝不静默替用户决定 —— 000831 沪市是指数「500低贝」、深市是个股「中国稀土」，
     两者都是真实标的，系统只能给出排序建议（谁在交易），不能假装另一个不存在。
+
+    key_prefix 用于多页复用时隔离 widget key（同一进程里两页都渲染 000831 的
+    radio 会撞 key 直接抛 StreamlitDuplicateElementKey）。
     """
     if len(cands) == 1:
         return cands[0]
 
-    key = f"lq_pick_{raw}"
+    key = f"{key_prefix}_pick_{raw}"
     labels = [candidate_label(c) for c in cands]
     st.warning(f"代码 `{raw}` 在多个市场都有标的。默认选中当日有成交的那个，"
                f"如需另一个请在下面切换 —— 或直接输入带市场前缀的写法"

@@ -29,6 +29,7 @@
 """
 import subprocess
 import sys
+import os
 import types
 import pathlib
 
@@ -53,7 +54,9 @@ sys.modules.setdefault("streamlit", _st)
 PY = sys.executable
 PROBE = ROOT / "tools_probe_quote_api.py"
 PAGE_PROBE = ROOT / "tools_probe_live_quote_page.py"
+FIB_PROBE = ROOT / "tools_probe_fibonacci_page.py"
 TARGET = ROOT / "page_live_quote.py"
+FIB_TARGET = ROOT / "page_fibonacci.py"
 
 
 def run_with_patch(patch_src: str, label: str, expect_section: str):
@@ -90,21 +93,33 @@ exec(open(r"{PROBE}", encoding="utf-8").read().split('import page_live_quote as 
     return bool(hit)
 
 
-def run_with_source_patch(old: str, new: str, label: str, expect: str) -> bool:
-    """页面探针用：临时改 page_live_quote.py 源码再跑 AppTest，跑完**无条件还原**。
+def run_with_source_patch(old: str, new: str, label: str, expect: str,
+                          target=None, probe=None, only: str = "") -> bool:
+    """页面探针用：临时改源码再跑 AppTest，跑完**无条件还原**。
 
     为什么不能像上面那样 monkeypatch：AppTest 会另起一个 Streamlit runtime、
     在子解释器里重新 import 页面模块，父进程里打的补丁进不去 —— 只能改源码。
     还原写在 finally 里，且结尾会校验文件内容与备份完全一致。
+
+    only: 传给黄金分割页探针的 FIB_PROBE_ONLY —— 那边每个用例都要起一次 runtime
+    并真拉数据，全跑一轮几分钟，造错四轮就不可接受。**但只跑相关用例是有代价的**：
+    tag 写错会导致零用例执行、fail=0，此时下面按 expect 过滤抓不到东西，会被判成
+    「断言没抓住」而报警 —— 失败方向是安全的。
     """
-    backup = TARGET.read_text(encoding="utf-8")
+    tgt = target or TARGET
+    prb = probe or PAGE_PROBE
+    backup = tgt.read_text(encoding="utf-8")
     if old not in backup:
         print(f"--- {label}\n    !! 锚点未找到，造错未生效（视为失败）\n")
         return False
-    TARGET.write_text(backup.replace(old, new), encoding="utf-8")
+    tgt.write_text(backup.replace(old, new), encoding="utf-8")
+    env = dict(os.environ)
+    if only:
+        env["FIB_PROBE_ONLY"] = only
     try:
-        p = subprocess.run([PY, str(PAGE_PROBE)], capture_output=True, text=True,
-                           encoding="utf-8", errors="ignore", cwd=str(ROOT), timeout=600)
+        p = subprocess.run([PY, str(prb)], capture_output=True, text=True,
+                           encoding="utf-8", errors="ignore", cwd=str(ROOT),
+                           timeout=1800, env=env)
         out = (p.stdout or "") + (p.stderr or "")
         fails = [ln for ln in out.splitlines() if "[FAIL]" in ln]
         hit = [ln for ln in fails if expect in ln]
@@ -113,12 +128,16 @@ def run_with_source_patch(old: str, new: str, label: str, expect: str) -> bool:
               f"{'反向验证通过' if hit else '!! 断言没抓住 —— 这是假断言 !!'}")
         for ln in hit[:3]:
             print(f"      {ln.strip()[:150]}")
+        if not hit and fails:
+            print("      （抓到的是其它 FAIL，非目标断言）")
+            for ln in fails[:2]:
+                print(f"      {ln.strip()[:150]}")
         print()
         return bool(hit)
     finally:
-        TARGET.write_text(backup, encoding="utf-8")
-        if TARGET.read_text(encoding="utf-8") != backup:
-            print("!!! 源码还原失败，请立即 git checkout page_live_quote.py !!!")
+        tgt.write_text(backup, encoding="utf-8")
+        if tgt.read_text(encoding="utf-8") != backup:
+            print(f"!!! 源码还原失败，请立即 git checkout {tgt.name} !!!")
 
 
 ok = []
@@ -210,6 +229,52 @@ ok.append(run_with_source_patch(
     "        raise _SearchEmpty(kw)",
     "        return []",
     "造错10: 空搜索结果改回 return[]（页面层真缓存）", "空搜索结果被缓存了"))
+
+# ===== 以下四项检验黄金分割页探针 tools_probe_fibonacci_page.py =====
+# 这几项都改 page_live_quote.py 的取数层（黄金分割页复用它），只有造错 13 改
+# page_fibonacci.py 本身。每项都用 FIB_PROBE_ONLY 只跑相关用例 —— 全跑一轮
+# 要几分钟，四轮不可接受。
+
+# 造错 11：退回老实现的单段 limit=1000 —— 实测 5 年区间只得 640 根（比传 800 还少）
+ok.append(run_with_source_patch(
+    "    _pull(start, end)\n"
+    "    # 补尾：`end` 落在当天时，某些 limit 分片当天还没刷新",
+    "    _pull(start, end)\n"
+    "    if True:\n"
+    "        rows = [merged[k] for k in sorted(merged) if start <= str(k) <= end]\n"
+    "        df = _tx_kline_records(rows)\n"
+    "        return df.rename(columns={'datetime': 'date'}) if not df.empty else df\n"
+    "    # 补尾：`end` 落在当天时，某些 limit 分片当天还没刷新",
+    "造错11: 区间取数退回单段拉取（不分段回补、不补尾）",
+    "静默残缺", probe=FIB_PROBE, only="bars"))
+
+# 造错 12：只去掉补尾那两行 —— 长区间末根会停在前一个交易日（图上最新一天凭空消失）。
+# 期望文案是「最新交易日是」：探针拿**独立分片通道**取 max 当参照，不能拿同一函数的
+# 短区间 —— 去掉补尾后短区间也丢当天，两边一起错、对比恒等，断言就成了假断言。
+# 这正是本项造错第一次跑时抓不到东西的原因，改掉参照物后才真能抓住。
+ok.append(run_with_source_patch(
+    "    if merged and max(merged) < end:\n        _pull(max(merged), end)",
+    "    if False:\n        _pull(max(merged), end)",
+    "造错12: 去掉末根补齐（长区间少最新一天）",
+    "最新交易日是", probe=FIB_PROBE, only="tail"))
+
+# 造错 13：黄金分割页退回老的硬前缀规则（6/5/9 开头算沪市，否则算深市）。
+# 这是本轮真正修掉的那个 bug：000905 会被拼成 sz000905，而腾讯**对错前缀不容错**
+# —— 它返回的是「厦门港务」，图照样能画，只是画的是另一只标的。
+ok.append(run_with_source_patch(
+    "    cands = lq.resolve_candidates(raw)",
+    "    _pfx = 'sh' if raw[:1] in ('6', '5', '9') else 'sz'\n"
+    "    cands = lq.resolve_candidates(_pfx + raw) if raw.isdigit() and len(raw) == 6 \\\n"
+    "            else lq.resolve_candidates(raw)",
+    "造错13: 黄金分割页退回硬前缀规则（静默取错标的）",
+    "000905", target=FIB_TARGET, probe=FIB_PROBE, only="collide"))
+
+# 造错 14：北交所退回老 fqkline 端点 —— 静默只返回 1 根，图上就一根 K 线
+ok.append(run_with_source_patch(
+    '_TX_KLINE_EP = {"A_SHARE": "fqkline", "BJ_SHARE": "newfqkline",',
+    '_TX_KLINE_EP = {"A_SHARE": "fqkline", "BJ_SHARE": "fqkline",',
+    "造错14: 北交所日K 退回老 fqkline 端点（页面层）",
+    "920982", probe=FIB_PROBE, only="bj"))
 
 print("=" * 60)
 print("反向验证结论:", "全部断言真实有效" if all(ok) else "存在假断言，必须修!")
