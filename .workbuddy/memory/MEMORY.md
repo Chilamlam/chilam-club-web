@@ -8,10 +8,14 @@ Streamlit Cloud 投资驾驶舱 + 会员付费，仓库 `Chilamlam/chilam-club-w
 
 ## Git / 部署
 - **`data/` 归 Actions 云端所有**；push 前 fetch+rebase；**严禁强推 main**。`rejected (fetch first)`=远端有新提交，非传输故障。
-- **`CONNECT tunnel failed, 502` = 本机代理挂了**（`HTTP(S)_PROXY=127.0.0.1:<随机端口>`），非 GitHub 故障；「curl 通但 git 502」是其指纹。解法 `env -u HTTP_PROXY -u HTTPS_PROXY -u http_proxy -u https_proxy git -c http.proxy= -c https.proxy= <子命令>`（`-c` 与 `-u` 必须同给）。确定性失败，重试无用。
+- **【09-02 重大纠正】本机 `env` 被劫持成一个静默吞命令的壳**：PATH 里 `~/.local/bin/env` 排在 `/usr/bin/env` 前，内容只是「往 PATH 追加目录」的 sh 脚本，**完全忽略自己的参数**。于是 `env -u HTTP_PROXY ... git push` **什么都没执行却 exit 0** —— 我据此报过一次「PUSH_OK」而远端 HEAD 根本没动。判据：命令零输出且 exit 0（真 git 无论成败都有输出）。**要用绝对路径 `/usr/bin/env`**；此壳 Aug 20 就存在，早前所有「env -u ... git 成功」的记录都不可信，须以远端 sha 复核为准。
+- **代理变量当前为空**（`HTTP_PROXY`/`HTTPS_PROXY`/`no_proxy` 全空），不再需要 `env -u` 绕代理；旧的 `CONNECT tunnel failed 502` 是当时本机代理挂了的指纹，与现在的故障无关。
+- **`github.com:443` 间歇不可达（curl 三次一成，21s 超时）而 `api.github.com` 稳定 200** → git 传输通道（upload-pack/receive-pack）本身不可靠，**推送直接走 API 兜底 `tools_gh_put_via_gitdata.py --msg "$(git log -1 --format=%B <sha>)" <路径...>`** 比反复重试 push 划算。curl 通 ≠ git 通（两者主机不同）。
+- API 兜底推出的 commit 与本地 commit **tree 相同但 sha 不同**（作者时间戳不同）→ 本地会显示 `ahead 1`；等 fetch 通了 `git pull --rebase` 会因 diff 已应用而自动丢弃空提交、快进到远端 sha。**别强推去「对齐」**。
 - 传输不稳=HTTP/2 被打断 → `-c http.version=HTTP/1.1`(已进 config)+重试；**外呼一律 curl**（python urllib 会被 TLS 打断）。`git rev-parse origin/main` 是 fetch 缓存非实时 → 判落后用 API `/commits/main` + `git hash-object` 比 blob sha。
 - **重试循环别写 `if cmd | tail -2`**：退出码取最后一个命令（`tail` 恒 0）→ 首次即 break。
-- 兜底 `tools_gh_put_via_gitdata.py --msg "..." <路径...>`（多文件一 commit；`--rm` 删）。**token 在 remote url 用户名位**；**API 推送须 CRLF→LF**（已内置）。
+- 兜底脚本 `--rm` 删文件；**token 在 remote url 用户名位**；**API 推送须 CRLF→LF**（已内置，本次归一化 1266 处）。
+
 - PAT 只有 repo scope → **不再改 yml**（已薄壳化，逻辑全在 run_daily.py，secrets 走 ALL_SECRETS 透传）。dispatch body `{"ref":"main","inputs":{"backfill_days":"40"}}`。
 - `run_daily.py`：逐步 try 后继续、**恒 exit 0**、每步独立 timeout；**新增跑批只改 `STEPS` 表**（sentiment 在 market_monitor 后，digest 最后）。
 - cron **best-effort**（超时整条丢弃无痕迹）→ `tools_gh_watchdog.py` 按远端 `data/` 有无当日数据判缺失再 dispatch；只判周末不判节假日。
