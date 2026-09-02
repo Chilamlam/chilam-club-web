@@ -10,6 +10,13 @@
 1. 只统计超额收益 alpha（对沪深300），绝对收益在牛市里人人都对，没有信息量。
 2. 主口径用中位数而非均值——均值会被个别妖股拉飞，中位数才是「随手买一只」的体验。
 3. 样本不足就明写「基本是噪音，不构成参考」，绝不用小样本充当业绩证明。
+
+第 4 条与第 5 条是 2026-09-01 追加的，起因是有人指出「RPS 不该产生稳定反向超额」，
+排查后确认计算无误，问题出在解读口径上：
+4. 必须把 **beta 敞口** 从超额收益里剥出来。动量榜天然是高 beta 组合，
+   `ret - 1.0 × bench` 会把「波动放大的代价」误记成「选股能力为负」。
+5. 必须报 **有效样本量**。T+N 窗口逐日滚动重叠、同日上榜标的高度相关，
+   几千条记录折算后往往只剩个位数独立观测，此时任何方向结论都不成立。
 """
 from __future__ import annotations
 
@@ -52,6 +59,13 @@ def _render_caliber() -> None:
 即「个股涨幅 − 同期沪深300 涨幅」。为什么不看绝对涨幅？因为大盘涨 5% 的那周，
 随便买什么都赚钱，绝对收益证明不了榜单有用。
 
+**⚠️ 这个减法有个隐含假设，必须先说破**：`个股涨幅 − 1.0 × 基准涨幅`
+等于假定组合的 beta 恰好是 1。而 RPS 榜按定义筛的就是「涨幅排在全市场前 13%」
+的标的，天然扎堆在高波动的小盘成长股，实测 beta 远大于 1。
+于是在大盘下跌的区间里，组合按 beta 放大出来的跌幅会被**整笔算进「超额收益」**——
+那是承担了更高波动的代价，不是选股选错了。下面的「风险敞口拆解」就是把这两部分分开，
+只有 beta 调整后剩下的那一截，才勉强能称为选股能力。
+
 **T+N 的起点**：以**上榜当日收盘价**为基准点。你在当晚看到榜单，次日开盘才能买，
 所以这个口径**不等于你实际能拿到的收益**——它衡量的是「榜单的排序有没有信息量」，
 而不是「照着买能赚多少」。这一点必须先说清楚。
@@ -63,13 +77,92 @@ def _render_caliber() -> None:
 跟着大盘一起涨但没跑赢，记为错。
 
 **区分度检验**：如果排序真有信息量，前 10 名的表现应当好于 11-30 名，
-后者应当好于 31-50 名。若这个顺序不成立，说明排序本身没有区分能力——
+后者应当好于 31-50 名。若这个顺序不成立，说明当前样本里看不出区分能力——
 这条自检比任何漂亮数字都重要，不通过我也会照实写在下面。
 
 **样本门槛**：单组样本少于 {sc.MIN_SAMPLE} 条，一律标注为噪音。
-统计学上这个量级的样本什么都证明不了，拿来当业绩宣传是不诚实的。
+但更要紧的是「有效样本量」：T+N 窗口逐日滚动、相邻入选日的持有期高度重叠，
+同一天上榜的几十只票又同涨同跌，所以**几千条记录折算下来往往只有个位数独立观测**。
+低于 {sc.MIN_INDEPENDENT} 个独立观测时，无论数字是正是负都判不出方向，
+页面会直接标成「不显著」，而不是拿虚高的样本量说"稳定跑赢/跑输"。
             """
         )
+
+
+def _render_beta(entry: dict) -> None:
+    """风险敞口拆解：把「高 beta 在跌市放大跌幅」从「选股能力」里剥出来。"""
+    b = entry.get("beta") or {}
+    st.markdown("**风险敞口拆解（beta 校正）**")
+    status = b.get("status")
+    if not status:
+        st.info("⏳ 该项由跑批生成，下一次每日跑批后会出现在这里。")
+        return
+    if status == "failed":
+        # 归因明确的报错比「暂时无法计算」这种含混说法更有价值：
+        # failed 是数据缺失（要去修数据），insufficient 是样本不够（只需等），
+        # 两者的处置动作完全不同，混成一句话会让人往错的方向查。
+        st.error(f"❌ 无法分离 beta：{b.get('reason', '收益数据缺失')}")
+        return
+    if status != "ok":
+        st.info(f"⏳ {b.get('reason', '入选日不足，暂时无法分离 beta')}")
+        return
+
+    beta = float(b.get("beta", float("nan")))
+    c1, c2, c3 = st.columns(3)
+    c1.metric("组合隐含 beta", f"{beta:.2f}",
+              help="以入选日为观测单位，用「当日上榜组收益中位数」对「同期基准收益」做回归得到的斜率")
+    c2.metric("原始超额（假定 beta=1）", _pct(b.get("raw_alpha_median")),
+              help="就是上方表格里的那个数，隐含 beta=1 的假设")
+    c3.metric("beta 校正后超额", _pct(b.get("adj_alpha_median")),
+              help="个股涨幅 − beta × 基准涨幅，剔除了「因为波动更大而多跌/多涨」的那部分")
+
+    st.caption(
+        f"回归 R² = {float(b.get('r_squared', 0)):.2f}，覆盖 {b.get('n_days', 0)} 个入选日。"
+        f"beta 校正后的方向正确率 {float(b.get('adj_direction_accuracy', 0)) * 100:.1f}%；"
+        f"若只取互不重叠的独立窗口（{b.get('n_independent', 0)} 个），"
+        f"校正后超额中位数为 {_pct(b.get('adj_alpha_median_independent'))}、"
+        f"正确率 {float(b.get('adj_direction_accuracy_independent', 0)) * 100:.1f}%。"
+    )
+    if beta > 1.5:
+        st.warning(
+            f"⚠️ 这个组合的 beta ≈ {beta:.2f}，意味着基准跌 1% 时它大致跌 {beta:.1f}%。"
+            "所以上方的原始超额收益里，有相当大一块其实是**波动放大的代价**，"
+            "而不是选股不准。反过来说：大盘反弹时它也会放大涨幅——"
+            "这是同一枚硬币的两面，高 beta 组合本身就要求更强的择时与更小的仓位容忍度。",
+            icon="⚠️",
+        )
+
+
+def _render_effective_sample(entry: dict) -> None:
+    """有效样本量：把虚高的记录条数折算成真正独立的观测数。"""
+    e = entry.get("effective_sample") or {}
+    st.markdown("**有效样本量与统计显著性**")
+    status = e.get("status")
+    if not status:
+        st.info("⏳ 该项由跑批生成，下一次每日跑批后会出现在这里。")
+        return
+    if status == "failed":
+        st.error(f"❌ 无法折算有效样本量：{e.get('reason', '暂无可用样本')}")
+        return
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("记录条数", f"{e.get('raw_n', 0)} 条", help="每只票每个入选日算一条，会大幅重复计数")
+    c2.metric("折算独立观测", f"{e.get('n_independent', 0)} 个",
+              help="按互不重叠的持有窗口折算，这才是统计上真正能用的样本量")
+    p = e.get("p_value")
+    c3.metric("双侧检验 p 值",
+              "—" if p is None else f"{float(p):.2f}",
+              help="检验「跑赢概率是否等于 50%」。p > 0.05 即统计上看不出方向性")
+
+    st.caption(
+        f"覆盖 {e.get('n_days', 0)} 个入选日；独立窗口中 {e.get('win_independent', 0)}"
+        f"/{e.get('n_independent', 0)} 次跑赢，超额中位数 "
+        f"{_pct(e.get('alpha_median_independent'))}。"
+    )
+    if e.get("significant"):
+        st.success("✅ 该方向在统计上显著（p < 0.05），可以当作一个初步结论看待。")
+    else:
+        st.warning(f"⚠️ {e.get('reason', '统计上看不出方向性')}", icon="⚠️")
 
 
 def _render_strategy(key: str, entry: dict) -> None:
@@ -105,7 +198,18 @@ def _render_strategy(key: str, entry: dict) -> None:
             if status == "insufficient":
                 st.warning(blk.get("reason", "样本不足，基本是噪音"), icon="⚠️")
 
+    # --- 有效样本量：必须紧跟在上面那三个数字之后 ---
+    # 顺序是刻意的：先让人看到「这些数字其实只有个位数独立观测」，
+    # 再往下看区分度检验，否则很容易把噪音当结论。
+    st.markdown("---")
+    _render_effective_sample(entry)
+
+    # --- 风险敞口拆解 ---
+    st.markdown("---")
+    _render_beta(entry)
+
     # --- 区分度检验 ---
+    st.markdown("---")
     disc = entry.get("discrimination", {})
     st.markdown("**排序区分度检验**")
     if disc.get("status") == "ok":
@@ -120,11 +224,14 @@ def _render_strategy(key: str, entry: dict) -> None:
         if disc.get("monotonic"):
             st.success(f"✅ {disc.get('verdict')}")
         else:
-            st.error(
-                f"❌ {disc.get('verdict')}\n\n"
-                "这说明目前这份榜单更像是「一篮子强势股」，靠前名次并不代表更好，"
-                "取前 10 名和取前 50 名的预期差别不大。我把它照实写在这里，"
-                "而不是只挑好看的数字展示。"
+            st.warning(
+                f"⚠️ {disc.get('verdict')}\n\n"
+                "读法：这说明**在当前这段样本里**，取前 10 名和取前 50 名看不出差别，"
+                "榜单更接近「一篮子强势股」而不是一个有序的优先级列表。"
+                "但请对照上面的有效样本量——每档的样本同样存在窗口重叠与同日相关，"
+                "所以这只是「暂未观察到区分度」，不等于「排序一定没用」。"
+                "我把不好看的结果照实写在这里，而不是只挑好看的数字展示。",
+                icon="⚠️",
             )
     else:
         st.info(f"⏳ {disc.get('reason', '样本不足，暂时无法检验区分度')}")
@@ -136,6 +243,7 @@ def _render_strategy(key: str, entry: dict) -> None:
         df["alpha_median"] = pd.to_numeric(df["alpha_median"], errors="coerce").astype("float64")
         df = df.dropna(subset=["alpha_median"])
         if not df.empty:
+            st.markdown("---")
             fig = go.Figure()
             colors = ["#e74c3c" if v >= 0 else "#2ecc71" for v in df["alpha_median"]]
             fig.add_trace(go.Bar(
@@ -151,7 +259,11 @@ def _render_strategy(key: str, entry: dict) -> None:
                 template="plotly_white",
             )
             st.plotly_chart(fig, use_container_width=True)
-            st.caption("红柱=该日上榜组跑赢沪深300，绿柱=跑输。柱子越均匀分布在零轴上方，策略越稳定。")
+            st.caption(
+                "红柱=该日上榜组跑赢沪深300，绿柱=跑输。柱子越均匀分布在零轴上方，策略越稳定。"
+                "**注意相邻柱子高度重叠**（T+5 口径下相邻交易日共享 4 天持有期），"
+                "所以连续几根同色柱往往是同一段行情被数了多次，不是多次独立验证。"
+            )
 
 
 def render_scorecard_page() -> None:
@@ -207,6 +319,18 @@ def render_scorecard_page() -> None:
     st.markdown("---")
     st.caption(
         f"统计生成时间 {perf.get('generated_at', '—')} · 基准 {perf.get('benchmark')} · "
-        f"样本门槛 {perf.get('min_sample')} 条。"
-        "本页仅为历史统计，不构成投资建议，历史表现不代表未来收益。"
+        f"样本门槛 {perf.get('min_sample')} 条 · 独立观测门槛 {sc.MIN_INDEPENDENT} 个。"
+    )
+    st.warning(
+        "**风险提示与免责声明**\n\n"
+        "1. 本页为**历史数据的事后统计**，不是收益承诺，也不构成投资建议、"
+        "证券推荐或任何形式的买卖要约。历史表现不代表未来收益。\n"
+        "2. 统计口径以**上榜当日收盘价**为起点，而榜单在收盘后才生成，"
+        "因此这里的数字**不是可交易收益**，实际成交价、滑点、交易费用、"
+        "涨跌停无法成交等因素均未计入。\n"
+        "3. 当前归档区间很短、折算后的独立观测为个位数，"
+        "任何方向性结论（无论正负）都不具备统计显著性。\n"
+        "4. 榜单为程序按固定量化规则自动生成，不含人工判断，"
+        "不提供目标价、买卖点与仓位建议。据此操作的风险由投资者自行承担。",
+        icon="⚠️",
     )

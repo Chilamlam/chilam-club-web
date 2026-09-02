@@ -8,6 +8,10 @@
 4. 样本 < MIN_SAMPLE 时必须标 insufficient，并带上「基本是噪音」的说明
 5. 分档区分度检验：构造单调数据必须判 monotonic=True，构造反序必须判 False
 6. 计算层不得 import streamlit（托管环境下要能脱离 runtime 单测）
+7. beta 估计：构造 beta=2 必须估出 ≈2，构造 beta=1 必须估出 ≈1（反向验证，
+   防止函数恒定输出一个数还看起来"对"）；入选日不足时必须拒绝给 beta
+8. 有效样本量：独立观测数必须等于 ceil(入选日数/horizon) 而非原始记录条数；
+   全胜构造的 p 值必须显著、对开构造必须不显著（双向验证 p 真的在算）
 """
 from __future__ import annotations
 
@@ -148,6 +152,148 @@ def test_bucket_monotonic() -> None:
           f"{blk.get('direction_accuracy')}")
 
 
+def test_beta_estimation() -> None:
+    """
+    beta 估计的正反双向验证。
+
+    这是本次新增的核心保护：alpha = ret - 1.0×bench 隐含 beta=1，
+    高 beta 组合在下跌市会把放大的跌幅误记成选股能力为负。
+    所以既要验证「喂 beta=2 的数据能估出 2」，也要反向验证
+    「喂 beta=1 的数据不会误报成 2」——只会成功的断言等于没有断言。
+    """
+    days = [f"202601{i:02d}" for i in range(1, 41)]
+
+    def _build(beta_true: float, alpha_per_step: float = 0.0):
+        """构造 bench 有涨有跌、个股严格按 beta 放大的合成数据。"""
+        bench = [100.0]
+        # 交替涨跌，保证 bench 有方差，否则 beta 无法辨识
+        steps = [0.01, -0.015, 0.02, -0.01, 0.005, -0.02, 0.015, -0.005]
+        for i in range(1, len(days)):
+            bench.append(bench[-1] * (1 + steps[i % len(steps)]))
+        codes = {sc.BENCHMARK: bench}
+        for k in range(30):
+            s = [10.0]
+            for i in range(1, len(days)):
+                br = bench[i] / bench[i - 1] - 1
+                s.append(s[-1] * (1 + beta_true * br + alpha_per_step))
+            codes[f"9{k:05d}.SZ"] = s
+        prices = _mk_prices(days, codes)
+        picks = pd.DataFrame([
+            {"date": d, "strategy": "rps", "ts_code": f"9{k:05d}.SZ",
+             "name": f"股{k}", "rank": k + 1,
+             "bucket": sc.rank_bucket(k + 1), "ref_close": 10.0}
+            for d in days[:25] for k in range(30)
+        ])
+        return sc.compute_returns(picks, prices)
+
+    rets2 = _build(beta_true=2.0)
+    est2 = sc.estimate_beta(rets2, 5)
+    check("beta 回归状态 ok", est2.get("status") == "ok", str(est2.get("reason", "")))
+    b2 = est2.get("beta", float("nan"))
+    check("构造 beta=2 → 估出 ≈2", abs(b2 - 2.0) < 0.25, f"估得 {b2:.3f}")
+    check("beta=2 构造的 R² 接近 1", est2.get("r_squared", 0) > 0.9,
+          f"R²={est2.get('r_squared')}")
+
+    # 反向验证：beta=1 的数据不能被估成 2，否则说明回归压根没在算
+    rets1 = _build(beta_true=1.0)
+    est1 = sc.estimate_beta(rets1, 5)
+    b1 = est1.get("beta", float("nan"))
+    check("构造 beta=1 → 估出 ≈1（反向验证，防止恒定输出）",
+          abs(b1 - 1.0) < 0.25, f"估得 {b1:.3f}")
+    check("beta=1 与 beta=2 的估计值可区分",
+          abs(b2 - b1) > 0.5, f"beta1={b1:.3f} beta2={b2:.3f}")
+
+    # beta=1 时 beta 调整与原始 alpha 应基本一致；beta=2 时必须显著不同
+    check("beta≈1 时 beta 调整后 alpha 与原始 alpha 接近",
+          abs(est1.get("adj_alpha_median", 0) - est1.get("raw_alpha_median", 0)) < 0.02,
+          f"adj={est1.get('adj_alpha_median'):.4f} raw={est1.get('raw_alpha_median'):.4f}")
+    check("beta≈2 时 beta 调整确实改变了 alpha（不是原样透传）",
+          abs(est2.get("adj_alpha_median", 0) - est2.get("raw_alpha_median", 0)) > 1e-6,
+          f"adj={est2.get('adj_alpha_median'):.4f} raw={est2.get('raw_alpha_median'):.4f}")
+
+    # 入选日不足时必须拒绝给 beta，而不是硬算一个数出来
+    few = rets2[rets2["date"].isin(days[:5])]
+    est_few = sc.estimate_beta(few, 5)
+    check(f"入选日 < {sc.MIN_DAYS_BETA} 时拒绝给 beta",
+          est_few.get("status") == "insufficient" and "beta" not in est_few,
+          str(est_few.get("reason", "")))
+
+
+def test_effective_sample() -> None:
+    """
+    有效样本量折算的正反双向验证。
+
+    要防的错是「拿虚高的 n 谈稳定跑赢/跑输」：T+5 窗口逐日滚动重叠，
+    同日几十只票同涨同跌，2000+ 条记录其实只有个位数独立观测。
+    """
+    days = [f"202601{i:02d}" for i in range(1, 41)]
+    codes = {sc.BENCHMARK: [100.0 + i for i in range(len(days))]}
+    for k in range(40):
+        codes[f"8{k:05d}.SZ"] = [10.0 + i * 0.2 for i in range(len(days))]
+    prices = _mk_prices(days, codes)
+
+    n_days_pick = 25
+    picks = pd.DataFrame([
+        {"date": d, "strategy": "rps", "ts_code": f"8{k:05d}.SZ",
+         "name": f"股{k}", "rank": k + 1,
+         "bucket": sc.rank_bucket(k + 1), "ref_close": 10.0}
+        for d in days[:n_days_pick] for k in range(40)
+    ])
+    rets = sc.compute_returns(picks, prices)
+    eff = sc.effective_sample(rets, 5)
+
+    check("有效样本量返回非 failed", eff.get("status") in ("ok", "insufficient"),
+          str(eff.get("reason", "")))
+    check("原始记录数被如实记录",
+          eff.get("raw_n", 0) == len(rets.dropna(subset=["alpha_5"])),
+          f"raw_n={eff.get('raw_n')} 实际={len(rets.dropna(subset=['alpha_5']))}")
+    check("入选日数正确", eff.get("n_days") == n_days_pick,
+          f"n_days={eff.get('n_days')} 期望={n_days_pick}")
+
+    # 关键断言：独立观测数必须约等于 入选日数 / horizon，而不是原始条数
+    expect_indep = -(-n_days_pick // 5)   # ceil(25/5)
+    check("独立观测数 = ceil(入选日数 / horizon)",
+          eff.get("n_independent") == expect_indep,
+          f"实得 {eff.get('n_independent')} 期望 {expect_indep}")
+    check("独立观测数远小于原始记录数（折算真的生效了）",
+          eff.get("n_independent", 0) * 20 < eff.get("raw_n", 0),
+          f"{eff.get('n_independent')} vs {eff.get('raw_n')}")
+    check(f"独立观测 < {sc.MIN_INDEPENDENT} 时标 insufficient",
+          eff.get("status") == "insufficient", str(eff.get("status")))
+    check("insufficient 时说明「负数不等于策略失效」",
+          "不等于策略失效" in str(eff.get("reason", "")))
+
+    # 反向验证 1：p 值必须真的在算。构造全胜，p 应当显著
+    fake = pd.DataFrame([
+        {"date": f"202602{i:02d}", "strategy": "rps", "ts_code": "600000.SH",
+         "rank": 1, "bucket": "1-10", "alpha_5": 0.05}
+        for i in range(1, 41)
+    ])
+    eff_win = sc.effective_sample(fake, 5)
+    check("全胜构造 → 胜率 100%",
+          eff_win.get("direction_accuracy_independent") == 1.0,
+          f"{eff_win.get('direction_accuracy_independent')}")
+    check("全胜构造 → p 值显著（反向验证 p 值真的在算）",
+          eff_win.get("p_value", 1.0) < 0.05, f"p={eff_win.get('p_value')}")
+
+    # 反向验证 2：五五对开时 p 必须不显著
+    mixed = pd.DataFrame([
+        {"date": f"202602{i:02d}", "strategy": "rps", "ts_code": "600000.SH",
+         "rank": 1, "bucket": "1-10",
+         "alpha_5": 0.05 if (i // 5) % 2 == 0 else -0.05}
+        for i in range(1, 41)
+    ])
+    eff_mix = sc.effective_sample(mixed, 5)
+    check("对开构造 → p 不显著",
+          not eff_mix.get("significant", True), f"p={eff_mix.get('p_value')}")
+
+    # 二项检验本身的算例对账
+    p = sc._binom_p_two_sided(3, 8)
+    check("二项检验算例对账 (k=3,n=8) p≈0.7266", abs(p - 0.7265625) < 1e-9, f"{p:.7f}")
+    check("二项检验算例对账 (k=8,n=8) p≈0.0078",
+          abs(sc._binom_p_two_sided(8, 8) - 0.0078125) < 1e-9)
+
+
 def test_no_streamlit_import() -> None:
     """
     只校验真实的 import 语句行，不做全文字符串匹配——
@@ -185,6 +331,8 @@ if __name__ == "__main__":
     test_missing_benchmark()
     test_insufficient_sample()
     test_bucket_monotonic()
+    test_beta_estimation()
+    test_effective_sample()
     test_no_streamlit_import()
     test_dtype_safety()
     print("-" * 60)

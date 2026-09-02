@@ -347,6 +347,20 @@ def main() -> None:
               f"status={h5.get('status')} "
               f"5日alpha中位数={h5.get('alpha_median')} "
               f"方向正确率={h5.get('direction_accuracy')}")
+        # beta 与有效样本量必须一起打出来。只打原始 alpha 会让跑批日志本身
+        # 变成误读的源头——高 beta 组合在跌市里的放大跌幅会被当成选股失效。
+        b = v.get("beta", {})
+        if b.get("status") == "ok":
+            print(f"       └ beta={b['beta']:.2f} (R²={b['r_squared']:.2f}) "
+                  f"beta校正后alpha中位数={b['adj_alpha_median']:+.4f}")
+        else:
+            print(f"       └ beta: {b.get('status')} {b.get('reason', '')}")
+        e = v.get("effective_sample", {})
+        if e.get("status") in ("ok", "insufficient"):
+            print(f"       └ 有效样本 {e.get('raw_n')} 条 → {e.get('n_independent')} 个独立观测，"
+                  f"p={e.get('p_value')} 显著={e.get('significant')}")
+        else:
+            print(f"       └ 有效样本: {e.get('status')} {e.get('reason', '')}")
 
     if payload.get("status") == "failed":
         sys.exit(3)

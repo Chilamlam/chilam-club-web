@@ -8,6 +8,12 @@
 4. 样本不足时显式返回 insufficient 状态，由展示层如实标注「基本是噪音」，
    绝不用小样本充当业绩证明。
 5. 关键数据缺失就标 failed，不用旧值或猜测填空。
+6. **必须区分风险敞口与选股能力**：alpha = ret - 1.0×bench 隐含 beta=1 的假设，
+   而动量榜天然是高 beta 组合，下跌市里会把放大的跌幅误记成「选股能力为负」。
+   estimate_beta() 负责把这两部分拆开，展示层必须同时呈现。
+7. **必须报有效样本量**：T+N 窗口逐日滚动互相重叠、同日上榜标的高度相关，
+   记录条数会虚高一到两个数量级。effective_sample() 把它折算成独立观测数
+   并做二项检验，不显著就明写不显著，不许拿虚高的 n 谈「稳定跑赢/跑输」。
 
 归档文件：
     data/scorecard/picks.csv   date,strategy,ts_code,name,rank,bucket,ref_close
@@ -32,6 +38,8 @@ BENCHMARK = "000300.SH"          # 沪深300 作为超额收益基准
 HORIZONS = (1, 5, 10)            # 前瞻交易日数
 MIN_SAMPLE = 20                  # 样本下限，低于此值一律标 insufficient
 MIN_SAMPLE_BUCKET = 15           # 分档区分度检验的每档样本下限
+MIN_DAYS_BETA = 15               # beta 回归的最少入选日数，不足则不给 beta
+MIN_INDEPENDENT = 20             # 折算后的独立观测下限，不足则任何方向结论都不成立
 
 PICKS_COLS = ["date", "strategy", "ts_code", "name", "rank", "bucket", "ref_close"]
 PRICES_COLS = ["date", "ts_code", "adj_close"]
@@ -188,6 +196,127 @@ def compute_returns(picks: pd.DataFrame, prices: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+# ================= 风险敞口校正 =================
+
+def estimate_beta(rets: pd.DataFrame, horizon: int) -> dict:
+    """
+    估计组合对基准的隐含 beta，并给出 beta 调整后的超额收益。
+
+    为什么必须有这一步（这是本模块最容易出错的地方）：
+    RPS 榜按定义筛的是「区间涨幅排在全市场前 13%」的标的，天然集中在高波动的
+    小盘成长股。这种组合对基准的 beta 远大于 1。而 alpha = ret - 1.0 × bench
+    这个减法隐含假设 beta = 1，于是在基准下跌的区间里，组合按 beta 放大出来的
+    跌幅会被整笔记到「选股能力」头上。那不是选股失误，是风险敞口——
+    把两者混在一起报，等于用一个错的口径去否定策略，比不报更糟。
+
+    回归口径：以「入选日」为观测单位（同日 60 只票高度相关，逐条回归会虚增
+    样本量），y = 该日上榜组的收益中位数，x = 同期基准收益。
+    """
+    col_r, col_b = f"ret_{horizon}", f"bench_{horizon}"
+    if rets.empty or col_r not in rets.columns or col_b not in rets.columns:
+        return {"status": "failed", "reason": "缺少收益或基准收益列"}
+
+    df = rets.dropna(subset=[col_r, col_b])
+    if df.empty:
+        return {"status": "failed", "reason": "收益列全为空"}
+
+    grp = df.groupby("date").agg(ret=(col_r, "median"), bench=(col_b, "first"))
+    n_day = int(len(grp))
+    if n_day < MIN_DAYS_BETA:
+        return {"status": "insufficient", "n_days": n_day,
+                "reason": f"仅 {n_day} 个入选日（阈值 {MIN_DAYS_BETA}），回归结果不可信"}
+
+    x = grp["bench"].to_numpy(dtype="float64")
+    y = grp["ret"].to_numpy(dtype="float64")
+    if float(np.std(x)) < 1e-9:
+        return {"status": "insufficient", "n_days": n_day,
+                "reason": "区间内基准几乎没有波动，无法分离 beta"}
+
+    beta, intercept = (float(v) for v in np.polyfit(x, y, 1))
+    corr = float(np.corrcoef(x, y)[0, 1])
+
+    adj = df[col_r] - beta * df[col_b]
+    adj_day = (grp["ret"] - beta * grp["bench"]).iloc[::horizon]
+    return {
+        "status": "ok",
+        "n_days": n_day,
+        "beta": beta,
+        "r_squared": corr ** 2,
+        "intercept": intercept,
+        "raw_alpha_median": float(df[col_r].sub(df[col_b]).median()),
+        "adj_alpha_median": float(adj.median()),
+        "adj_direction_accuracy": float((adj > 0).mean()),
+        "adj_alpha_median_independent": float(adj_day.median()),
+        "adj_direction_accuracy_independent": float((adj_day > 0).mean()),
+        "n_independent": int(len(adj_day)),
+    }
+
+
+def _binom_p_two_sided(k: int, n: int, p: float = 0.5) -> float:
+    """双侧精确二项检验。手写而非依赖 scipy——本模块只允许 numpy/pandas。"""
+    if n <= 0 or not (0 <= k <= n):
+        return float("nan")
+    from math import comb
+    pmf = [comb(n, i) * (p ** i) * ((1 - p) ** (n - i)) for i in range(n + 1)]
+    return float(min(1.0, sum(v for v in pmf if v <= pmf[k] + 1e-15)))
+
+
+def effective_sample(rets: pd.DataFrame, horizon: int) -> dict:
+    """
+    有效样本量：把「看起来很多」的记录条数折算成真正独立的观测数。
+
+    为什么必须有这一步：
+    n = 2210 条这种数字会让人以为结论已经很稳，其实里面全是重复计数——
+    (1) T+5 窗口逐日滚动，相邻入选日的持有期重叠 4/5；
+    (2) 同一天上榜的几十只票同涨同跌，截面高度相关，本质接近 1 个观测。
+    真正独立的观测数 ≈ 入选日跨度 / horizon。拿虚高的 n 去谈「稳定跑输」
+    是统计学上的越界，必须把折算后的样本量和显著性一起报出来。
+    """
+    col = f"alpha_{horizon}"
+    if rets.empty or col not in rets.columns:
+        return {"status": "failed", "reason": "缺少超额收益列"}
+
+    df = rets.dropna(subset=[col])
+    if df.empty:
+        return {"status": "failed", "reason": "超额收益列全为空"}
+
+    cohort = df.groupby("date")[col].median().sort_index()
+    indep = cohort.iloc[::horizon]
+    n_indep = int(len(indep))
+    k = int((indep > 0).sum())
+    p_val = _binom_p_two_sided(k, n_indep)
+
+    same_day_std = float(df.groupby("date")[col].std().median())
+    across_day_std = float(cohort.std(ddof=1)) if len(cohort) > 1 else float("nan")
+
+    out = {
+        "status": "ok" if n_indep >= MIN_INDEPENDENT else "insufficient",
+        "raw_n": int(len(df)),
+        "n_days": int(len(cohort)),
+        "n_independent": n_indep,
+        "win_independent": k,
+        "alpha_median_independent": float(indep.median()),
+        "direction_accuracy_independent": float(k / n_indep) if n_indep else float("nan"),
+        "p_value": p_val,
+        "significant": bool(p_val == p_val and p_val < 0.05),
+        "same_day_std": same_day_std,
+        "across_day_std": across_day_std,
+    }
+    if out["status"] == "insufficient":
+        out["reason"] = (
+            f"记录条数 {out['raw_n']} 条看起来很多，但 T+{horizon} 窗口互相重叠、"
+            f"同日上榜标的又高度相关，折算后只有 {n_indep} 个独立观测"
+            f"（阈值 {MIN_INDEPENDENT}）。这个量级判不出策略方向，"
+            f"负数不等于策略失效，正数也不等于策略有效。"
+        )
+    elif not out["significant"]:
+        out["reason"] = (
+            f"{n_indep} 个独立观测中 {k} 次跑赢，双侧二项检验 p={p_val:.2f} > 0.05，"
+            f"统计上无法拒绝「胜率等于 50%」——即目前看不出方向性。"
+        )
+    return out
+
+
 # ================= 统计口径 =================
 
 def _stat_block(alpha: pd.Series) -> dict:
@@ -258,7 +387,9 @@ def bucket_monotonic(rets: pd.DataFrame, horizon: int) -> dict:
         "buckets": buckets,
         "verdict": ("排序具备区分度：档位越靠前，超额收益越高"
                     if monotonic else
-                    "排序未通过单调性检验：靠前档位并未更优，该榜单的排序信息量存疑"),
+                    "排序未通过单调性检验：靠前档位并未更优。注意这里的每档样本同样存在"
+                    "窗口重叠与同日相关，不单调只能说明「暂未观察到区分度」，"
+                    "不足以断定排序无信息量"),
     }
 
 
@@ -317,6 +448,8 @@ def summarize(picks: pd.DataFrame | None = None,
                 any_ok = True
         entry["discrimination"] = bucket_monotonic(g, HORIZONS[min(1, len(HORIZONS) - 1)])
         entry["daily_alpha"] = _daily_series(g, HORIZONS[min(1, len(HORIZONS) - 1)])
+        entry["beta"] = estimate_beta(g, HORIZONS[min(1, len(HORIZONS) - 1)])
+        entry["effective_sample"] = effective_sample(g, HORIZONS[min(1, len(HORIZONS) - 1)])
         result["strategies"][str(strat)] = entry
 
     result["status"] = "complete" if any_ok else "incomplete"
