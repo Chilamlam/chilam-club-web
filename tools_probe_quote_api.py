@@ -11,6 +11,10 @@
   B. K 线根数下限：北交所日 K 走错端点（老 fqkline）时只返回 1 根，
      「df 非空」这种断言抓不住，必须断言根数 >= _MIN_BARS。
   C. 名称搜索：中文名 / 拼音必须能搜到，且返回的 query 能被 resolve_candidates 查通。
+     另有三道守卫：① 北交所 / 可转债这几条是 smartbox 的盲区，只能靠东财兜底命中，
+     摘掉兜底源就会炸；② 搜索结果里不许出现站内查不到的标的（新三板 / 企业债 /
+     英股 / 场外基金），否则等于给用户一个点了报错的死按钮；③ 空搜索结果不许被
+     cache_data 缓存 —— 接口一次瞬时空返回会让用户十分钟内怎么搜都是空。
 """
 import sys
 import types
@@ -91,7 +95,24 @@ SEARCH_CASES = [
     ("maotai", "sh600519"),
     ("宁德时代", "sz300750"),
     ("英伟达", "NVDA"),
+    # 以下四条是 smartbox 主源的**盲区**，只能由东财兜底命中。
+    # 实测 smartbox 对北交所与可转债（中文名 / 拼音 / 纯代码三种写法）一律返回 0 条，
+    # 所以这几条同时也在守「兜底源没被摘掉」。
+    ("锦波生物", "bj920982"),
+    ("jbsw", "bj920982"),
+    ("北证50", "bj899050"),
+    ("立讯转债", "sz128136"),
+    ("兴业转债", "sh113052"),
 ]
+
+# 搜索结果里绝不该出现的东西：站内没有行情通道，给了就是死按钮。
+# 东财 suggest 会混进英股(LSE)/新三板/企业债/场外基金，这里逐类守住。
+SEARCH_NOISE_CASES = [
+    ("btr", ("bj831071", "bj838296", "BTRW")),      # 新三板 + 英股
+    ("平安银行", ("sh751240", "sh751241")),          # 企业债 751xxx
+    ("北证50", ("017512", "sh017512", "sz017512")),  # 场外基金
+]
+
 
 fail = 0
 
@@ -169,6 +190,88 @@ for kw, want_query in SEARCH_CASES:
         continue
     print(f"  OK   `{kw}` → {want_query} ({probe_cands[0]['quote']['name']})  "
           f"共 {len(hits)} 条: {queries[:4]}")
+
+print()
+for kw, forbidden in SEARCH_NOISE_CASES:
+    hits = q.search_symbols(kw)
+    if not hits:
+        bad(f"噪音用例 `{kw}`: 搜索无结果，本用例失去区分度（应有正常结果才谈过滤）")
+        continue
+    queries = {h["query"] for h in hits}
+    leaked = [f for f in forbidden if f in queries]
+    if leaked:
+        bad(f"搜索 `{kw}`: 混进了站内查不到的标的 {leaked} —— 死按钮（实得 {sorted(queries)}）")
+        continue
+    print(f"  OK   `{kw}` 未混入 {list(forbidden)}（{len(hits)} 条结果）")
+
+# 第二道网：_drop_unquotable 必须真丢掉站内取不到报价的候选。
+# 上面的噪音用例走的是「兜底源映射时就不认这类标的」，万一以后放宽了映射规则，
+# 这一层是最后的拦网 —— 单独喂假候选直接验它，不靠上游是否恰好过滤干净。
+print()
+_FAKE = [
+    {"query": "bj831071", "code": "831071", "name": "北塔软件(新三板)",
+     "market_hint": "北交所", "type_label": "个股"},
+    {"query": "sh751240", "code": "751240", "name": "平安银行企业债",
+     "market_hint": "沪市", "type_label": "债券"},
+    {"query": "BTRW", "code": "BTRW", "name": "BARRATT(英股)",
+     "market_hint": "美股", "type_label": "股票"},
+    {"query": "sz300750", "code": "300750", "name": "宁德时代",
+     "market_hint": "深市", "type_label": "A股"},
+    {"query": "bj920982", "code": "920982", "name": "锦波生物",
+     "market_hint": "北交所", "type_label": "个股"},
+]
+_kept = {h["query"] for h in q._drop_unquotable([dict(h) for h in _FAKE])}
+_leak = _kept - {"sz300750", "bj920982"}
+if _leak:
+    bad(f"_drop_unquotable 放过了站内查不到的标的 {sorted(_leak)} —— 死按钮")
+elif _kept != {"sz300750", "bj920982"}:
+    bad(f"_drop_unquotable 把能查的标的也丢了，实留 {sorted(_kept)}")
+else:
+    print("  OK   _drop_unquotable 丢掉新三板/企业债/英股，保留深A与北交所")
+
+# 报价接口整体失败时必须**降级放行**：那是网络问题，不该让校验步骤把搜索废掉。
+_fb = q._fetch_tx_batch
+q._fetch_tx_batch = lambda codes: (_ for _ in ()).throw(RuntimeError("net down"))
+try:
+    _degraded = q._drop_unquotable([dict(h) for h in _FAKE])
+finally:
+    q._fetch_tx_batch = _fb
+if len(_degraded) != len(_FAKE):
+    bad(f"报价接口挂掉时 _drop_unquotable 丢了结果（{len(_degraded)}/{len(_FAKE)}）—— "
+        f"网络抖一下就等于搜索功能整体不可用")
+else:
+    print("  OK   报价接口挂掉时降级放行，不会把搜索一起废掉")
+
+
+# 空结果绝不能被 cache_data 缓存：接口一次抖动会锁死 10 分钟。
+# **本探针里 st.cache_data 被 stub 成空装饰器，缓存根本没启用** —— 在这儿判
+# 「3 次调用发 3 次」无论实现是 raise 还是 return [] 都必然通过，是恒真断言。
+# 所以这里只验「内核抛的是 _SearchEmpty、且被 search_symbols 收敛成空列表」这个
+# 契约（改回 return [] 时它会炸），真正的缓存行为交给跑真 runtime 的页面探针。
+print()
+_calls = {"n": 0}
+_sb, _em = q._search_smartbox, q._search_eastmoney
+q._search_smartbox = lambda kw, limit: _calls.__setitem__("n", _calls["n"] + 1) or []
+q._search_eastmoney = lambda kw, limit: []
+try:
+    _empty_res = q.search_symbols("空结果契约自检用词zzz")
+    try:
+        q._search_kernel("空结果契约自检用词zzz", 10)
+        _raised = False
+    except q._SearchEmpty:
+        _raised = True
+    except Exception as e:                        # noqa: BLE001
+        _raised = f"其它异常 {type(e).__name__}"
+finally:
+    q._search_smartbox, q._search_eastmoney = _sb, _em
+if _empty_res != []:
+    bad(f"搜索无结果时未收敛成空列表，实得 {_empty_res!r} —— 页面会拿它去渲染")
+elif _raised is not True:
+    bad(f"_search_kernel 无结果时没抛 _SearchEmpty（{_raised}）—— "
+        f"cache_data 会把空列表按 ttl 整整缓存 10 分钟，接口抖一下用户就十分钟白搜")
+else:
+    print("  OK   无结果时内核抛 _SearchEmpty、外层收敛成 []（空结果不进缓存）")
+
 
 # ---------- B. 各市场周期通道 ----------
 print()

@@ -4,14 +4,19 @@
 用法: /c/Users/Lenovo/.workbuddy/binaries/python/envs/stcheck/Scripts/python.exe tools_probe_quote_reverse.py
 退出码 0 = 全部断言真实有效；3 = 存在假断言（改完消歧/K线/搜索逻辑后必跑）。
 
-一条永不失败的断言等于没有断言。这里用五种「造错」方式分别检验：
+一条永不失败的断言等于没有断言。这里用十种「造错」方式分别检验：
   数据层探针（进程内 monkeypatch）
     1) 退回旧的 000xxx→sh 硬编码 + `if not q` 兜底  → A 段撞号断言必须炸
     2) 北交所日K 退回老 fqkline 端点（只返回 1 根）  → B 段根数下限必须炸
     3) 搜索接口打成必然失败                          → C 段搜索断言必须炸
+    6) 摘掉东财兜底源                                → C 段北交所/转债用例必须炸
+    7) 摘掉 _drop_unquotable 的报价校验              → C 段死按钮断言必须炸
+    8) 无结果时把 _SearchEmpty 吞成 []               → C 段空结果契约断言必须炸
   页面层探针（临时改源码再还原 —— AppTest 另起 runtime，monkeypatch 进不去）
     4) 搜索接口整体不可达                            → 搜索结果按钮断言必须炸
     5) 去掉撞号排序、只取先验第一个前缀              → 选择器断言必须炸
+    9) 去掉代码框的名称回落                          → 回落按钮断言必须炸
+   10) 无结果时 return [] 而非抛异常                 → 空结果不缓存断言必须炸
 每一项都必须报出 [FAIL]；若某项仍然全绿，说明该断言是假断言。
 
 两条历史教训（都是真实踩过的）：
@@ -154,7 +159,32 @@ ok.append(run_with_patch('''
 q.search_symbols = lambda kw, limit=10: []
 ''', "造错3: 搜索接口返回空", "搜索"))
 
-# ===== 以下两项检验页面层探针 tools_probe_live_quote_page.py =====
+# 造错 6：摘掉东财兜底源 —— 北交所 / 转债那几条只能靠它命中，必须炸。
+# smartbox 对「锦波生物 / jbsw / 北证50 / 立讯转债 / 兴业转债」全返回 0 条，
+# 所以这几条用例天然在守「兜底源还在」。
+ok.append(run_with_patch('''
+q._search_eastmoney = lambda kw, limit: []
+''', "造错6: 摘掉东财兜底源", "锦波生物"))
+
+# 造错 7：摘掉 _drop_unquotable 的报价校验 —— 死按钮就会漏进结果里。
+# 期望抓到的是 _drop_unquotable 那条独立断言（它直接喂假候选，不依赖上游过滤）。
+ok.append(run_with_patch('''
+q._drop_unquotable = lambda hits: hits
+''', "造错7: 摘掉搜索结果的报价校验", "_drop_unquotable"))
+
+# 造错 8：无结果时退回 return [] —— cache_data 会把空列表缓存整整 10 分钟。
+# 数据层探针里 cache_data 被 stub 掉，验的是「内核抛 _SearchEmpty」这个契约。
+ok.append(run_with_patch('''
+_orig_kernel = q._search_kernel
+def _bad_kernel(keyword, limit):
+    try:
+        return _orig_kernel(keyword, limit)
+    except q._SearchEmpty:
+        return []
+q._search_kernel = _bad_kernel
+''', "造错8: 搜索无结果时退回 return []（会被缓存）", "_SearchEmpty"))
+
+# ===== 以下三项检验页面层探针 tools_probe_live_quote_page.py =====
 
 # 造错 4：搜索接口整体不可达 —— 页面上搜索结果按钮必须消失
 ok.append(run_with_source_patch(
@@ -167,6 +197,19 @@ ok.append(run_with_source_patch(
     "for q in _rank_candidates(list(got.values())):",
     "for q in [got[k] for k in sorted(got)][:1]:",
     "造错5: 撞号消歧被去掉（页面层）", "没有出现候选选择器"))
+
+# 造错 9：把代码框的名称回落打成空操作 —— 此时「宁德时代」打进代码框只剩一句报错
+ok.append(run_with_source_patch(
+    "    hits = search_symbols(raw.strip())",
+    "    return False\n    hits = search_symbols(raw.strip())",
+    "造错9: 去掉代码框的名称回落（页面层）", "没给出回落搜索按钮"))
+
+# 造错 10：搜索无结果时退回 return [] —— 真 runtime 下 cache_data 会把空列表缓存
+# 10 分钟。这条必须走页面探针：底层探针的 cache_data 是空 stub，验不出缓存行为。
+ok.append(run_with_source_patch(
+    "        raise _SearchEmpty(kw)",
+    "        return []",
+    "造错10: 空搜索结果改回 return[]（页面层真缓存）", "空搜索结果被缓存了"))
 
 print("=" * 60)
 print("反向验证结论:", "全部断言真实有效" if all(ok) else "存在假断言，必须修!")

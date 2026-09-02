@@ -25,6 +25,11 @@
    所以「取到数据」不等于「取对标的」，消歧必须看活跃度而不是看是否为空。
    详见 `resolve_candidates()`。
 
+名称搜索是双源的（见 `_search_kernel`）：smartbox 覆盖沪深主板 / 科创 / B股 /
+港美股 / ETF / 指数，但**对北交所与可转债一律返回 0 条**（中文名、拼音、纯代码
+三种写法全搜不到），这块由东财 suggest 兜底。合并后统一用腾讯批量报价校验，
+保证「搜出来的每一条都点得开」。
+
 自动技术分析（K 线周期可用，分时不做结构识别）由两个模块提供：
   tech_analysis.py —— 纯计算（缠论包含处理/分型/笔/线段/中枢；帝纳波利 DMA/
                       Fibnode/COP·OP·XOP/汇聚区/MACD 8-17-9 背离），不依赖 Streamlit
@@ -468,6 +473,24 @@ _SEARCH_TYPE_LABEL = {
     "GP": "股票",
 }
 _SEARCH_OK_PREFIX = {"sh", "sz", "bj", "hk", "us"}
+_MARKET_HINT = {"sh": "沪市", "sz": "深市", "bj": "北交所", "hk": "港股", "us": "美股"}
+
+# 东财 suggest —— 只用来补 smartbox 的盲区，见 _search_eastmoney。
+_SEARCH_EM_URL = ("https://searchapi.eastmoney.com/api/suggest/get?input={kw}"
+                  "&type=14&token=D43BF722C8E33BDC906FB84D85E326E8&count={n}")
+# 北交所与北证指数的代码段。**注意 43x/83x/87x/88x 同时也是新三板段**，
+# 所以段位必须叠加东财的 SecurityTypeName（京A / 指数）才能用，见 _em_search_hit。
+_EM_BJ_SEGMENTS = ("92", "43", "83", "87", "88", "899")
+
+
+class _SearchEmpty(Exception):
+    """搜索无结果。
+
+    **刻意用异常而不是返回空列表**：实测 st.cache_data 会把空列表按 ttl 整整缓存
+    10 分钟（连打 3 次只实际联网 1 次），但对抛异常的调用完全不缓存（3 次调用
+    联网 3 次）。搜索接口有过瞬时空返回，若首次搜索正好撞上而返回 []，用户之后
+    十分钟内怎么搜都是空 —— 「一次抖动锁死十分钟」比多打一次请求糟得多。
+    """
 
 
 def _decode_search_name(name: str) -> str:
@@ -481,19 +504,58 @@ def _decode_search_name(name: str) -> str:
 
 
 @st.cache_data(ttl=600, show_spinner=False)
-def search_symbols(keyword: str, limit: int = 10) -> list:
-    """按名称 / 拼音 / 代码搜索标的。返回 [{query, name, market_hint, type_label}]。
+def _search_kernel(keyword: str, limit: int) -> list:
+    """搜索内核。无结果时**抛 _SearchEmpty**（原因见该异常的说明），不返回空列表。
 
-    数据源: smartbox.gtimg.cn（GBK，格式 `前缀~代码~名称~拼音~类型码`，^ 分隔）。
-    实测覆盖 A股 / 科创 / B股 / 北交所? / 港美股 / ETF / LOF / 指数，支持中文名与
-    拼音缩写（maotai → 贵州茅台）。
+    两个源，职责分明：
+      1. smartbox.gtimg.cn —— 主源，覆盖 A股 / 科创 / B股 / 港美股 / ETF / LOF / 指数，
+         支持中文名与拼音缩写（maotai → 贵州茅台，ndsd → 宁德时代）。
+      2. 东财 suggest —— **只补主源的盲区**：实测 smartbox 对北交所（锦波生物 /
+         贝特瑞 / 武汉蓝电 / 920982 / 899050）与可转债（立讯转债 / 南银转债 /
+         128136 / 113050）一律返回 0 条，中文名、拼音、纯代码三种写法全都搜不到。
 
-    这是**纯增强功能**：接口曾出现瞬时空返回，故所有异常都吞掉返回空列表，
-    页面必须保证搜索挂掉时纯代码输入照常可用。
+    补完再用腾讯批量报价统一校验一遍：**搜索结果必须是站内真能查出行情的标的**，
+    否则等于给用户一个点了报错的按钮。这一步顺手挡掉东财会混进来的新三板
+    （831071 北塔软件）、企业债（751240）、英股（BTRW）—— 它们在腾讯没有报价。
     """
     kw = (keyword or "").strip()
     if not kw:
+        raise _SearchEmpty("empty keyword")
+
+    hits = _search_smartbox(kw, limit)
+    if len(hits) < limit:
+        seen = {h["query"] for h in hits}
+        for h in _search_eastmoney(kw, limit - len(hits)):
+            if h["query"] not in seen:
+                seen.add(h["query"])
+                hits.append(h)
+
+    hits = _drop_unquotable(hits)
+    if not hits:
+        raise _SearchEmpty(kw)
+    return hits[:limit]
+
+
+def search_symbols(keyword: str, limit: int = 10) -> list:
+    """按名称 / 拼音 / 代码搜索标的。返回 [{query, code, name, market_hint, type_label}]。
+
+    这是**纯增强功能**：所有失败都收敛成空列表，页面必须保证搜索挂掉时纯代码
+    输入照常可用。缓存策略与空结果的处理见 `_search_kernel` 与 `_SearchEmpty`。
+    """
+    try:
+        return _search_kernel(keyword, limit)
+    except _SearchEmpty:
         return []
+    except Exception:
+        return []
+
+
+def _search_smartbox(kw: str, limit: int) -> list:
+    """主源。格式 `前缀~代码~名称~拼音~类型码`，^ 分隔，GBK 编码。
+
+    坑：**响应是 GBK，但查询词必须按 UTF-8 百分号编码**，否则中文一律搜不到而
+    英文正常 —— 这种「中文挂英文通」先查参数编码，别先怀疑限流。
+    """
     try:
         url = "https://smartbox.gtimg.cn/s3/?t=all&q=" + urllib.parse.quote(kw)
         txt = _http_text(url, headers=_SEARCH_HEADERS, encoding="gbk", timeout=6)
@@ -525,13 +587,104 @@ def search_symbols(keyword: str, limit: int = 10) -> list:
             "query": query,
             "code": code,
             "name": _decode_search_name(f[2]),
-            "market_hint": {"sh": "沪市", "sz": "深市", "bj": "北交所",
-                            "hk": "港股", "us": "美股"}[pfx],
+            "market_hint": _MARKET_HINT[pfx],
             "type_label": _SEARCH_TYPE_LABEL[tp],
+            "source": "smartbox",
         })
         if len(out) >= limit:
             break
     return out
+
+
+def _em_search_hit(row: dict) -> dict:
+    """东财 suggest 的一行 → 站内候选。不属于要补的盲区则返回 {}。
+
+    只认北交所与可转债两类。其余（沪深A股、港美股、ETF、指数）主源已覆盖，
+    放进来只会引入东财特有的噪音：场外基金 OTCFUND、英股 LSE、粉单 OTCBB、
+    板块 BK、新三板三板 —— 搜「btr」东财一次就能返 4 条这类干扰项。
+
+    字段坑：北交所的 `MktNum` 也是 0，与深A 完全一样，**只看 MktNum 会把北交所
+    当深市**，必须靠 `SecurityTypeName`（京A / 指数）+ 代码段一起判。
+    """
+    code = str(row.get("QuoteID") or "").split(".")[-1]
+    if not re.fullmatch(r"\d{6}", code):
+        return {}
+    name = (row.get("Name") or "").strip()
+    if not name:
+        return {}
+    classify = row.get("Classify") or ""
+    type_name = (row.get("SecurityTypeName") or "").strip()
+    mkt = str(row.get("MktNum") or "")
+
+    # 可转债：Classify=Bond 且落在转债代码段（企业债 751xxx 同为 Bond，段位挡掉）。
+    # 前缀直接用 MktNum（1=沪 / 0=深），比按段位推更稳 —— 段位只负责「是不是转债」。
+    if classify == "Bond" and code.startswith(("110", "111", "113", "118",
+                                               "123", "127", "128")):
+        pfx = "sh" if mkt == "1" else "sz"
+        return {"query": f"{pfx}{code}", "code": code, "name": name,
+                "market_hint": "沪市" if pfx == "sh" else "深市",
+                "type_label": "转债", "source": "eastmoney"}
+
+    # 北交所个股与北证指数：新三板同为 NEEQ 但 SecurityTypeName 是「三板」，
+    # 且不在 92/899 段 —— 两道判据叠加才不会把三板放进来。
+    is_bj_stock = type_name == "京A" and classify == "NEEQ"
+    is_bj_index = type_name == "指数" and code.startswith("899") and mkt == "0"
+    if (is_bj_stock or is_bj_index) and code.startswith(_EM_BJ_SEGMENTS):
+        return {"query": f"bj{code}", "code": code, "name": name,
+                "market_hint": "北交所",
+                "type_label": "指数" if is_bj_index else "个股",
+                "source": "eastmoney"}
+    return {}
+
+
+def _search_eastmoney(kw: str, limit: int) -> list:
+    """兜底源。只取北交所 / 可转债，见 _em_search_hit 的过滤理由。"""
+    if limit <= 0:
+        return []
+    try:
+        url = _SEARCH_EM_URL.format(kw=urllib.parse.quote(kw), n=10)
+        data = _http_json(url, headers=_UA, timeout=6)
+    except Exception:
+        return []
+    rows = (data.get("QuotationCodeTable") or {}).get("Data") or []
+    out, seen = [], set()
+    for row in rows:
+        hit = _em_search_hit(row)
+        if not hit or hit["query"] in seen:
+            continue
+        seen.add(hit["query"])
+        out.append(hit)
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _drop_unquotable(hits: list) -> list:
+    """丢掉腾讯取不到报价的候选 —— 搜索结果必须点了真能查出东西。
+
+    一次请求批量校验（实测 30 个代码一发没问题，不存在的标的直接不返回该行）。
+    **报价接口整体失败时原样放行**：那是网络问题，不该让校验步骤把搜索废掉；
+    宁可放一个可能查不出的按钮，也不能让所有人都搜不到东西。
+    """
+    if not hits:
+        return []
+    probe, order = [], []
+    for h in hits:
+        sym = resolve_symbol(h["query"])
+        code = sym.get("tx_code") if sym else None
+        order.append(code)
+        if code:
+            probe.append(code)
+    if not probe:
+        return hits
+    try:
+        got = _fetch_tx_batch(probe)
+    except Exception:
+        return hits
+    if not got:                       # 接口整体挂了，降级放行
+        return hits
+    return [h for h, code in zip(hits, order) if code and code in got]
+
 
 
 # ==================== 3. 分时走势 ====================
@@ -908,12 +1061,25 @@ def _render_kline_chart(sym: dict, quote: dict, df: pd.DataFrame, period: str,
     return res
 
 
+def _render_search_hits(hits: list, key_tag: str):
+    """把搜索结果渲染成一排可点按钮。点击即切换标的。"""
+    cols = st.columns(min(len(hits), 4))
+    for i, h in enumerate(hits):
+        with cols[i % len(cols)]:
+            if st.button(f"{h['name']}\n`{h['query']}`",
+                         key=f"{key_tag}_{h['market_hint']}_{h['query']}",
+                         use_container_width=True,
+                         help=f"{h['market_hint']} · {h['type_label']} · {h['code']}"):
+                st.session_state.active_symbol = h["query"]
+                st.rerun()
+
+
 def _render_search_box():
     """名称 / 拼音搜索。纯增强：接口挂掉时不影响下方的代码输入。"""
     kw = st.text_input(
         "🔎 按名称搜索（可选）",
         key="lq_search_kw",
-        placeholder="中国稀土 / maotai / 宁德时代 / 英伟达 / 恒生指数",
+        placeholder="中国稀土 / maotai / 宁德时代 / 锦波生物 / 立讯转债 / 英伟达",
         help="支持中文名、拼音缩写、代码。搜到结果后点一下即可切换标的，"
              "省得记 6 位代码到底该配沪市还是深市。",
     )
@@ -921,19 +1087,29 @@ def _render_search_box():
         return
     hits = search_symbols(kw.strip())
     if not hits:
-        st.caption("🔎 没搜到可查询的标的（场外基金、窝轮本站没有行情通道，已过滤）。"
+        st.caption("🔎 没搜到可查询的标的（场外基金、窝轮、新三板本站没有行情通道，已过滤）。"
                    "也可能是搜索接口临时无响应 —— 直接在下面填代码同样可用。")
         return
     st.caption(f"🔎 找到 {len(hits)} 个，点一下切换：")
-    cols = st.columns(min(len(hits), 4))
-    for i, h in enumerate(hits):
-        with cols[i % len(cols)]:
-            if st.button(f"{h['name']}\n`{h['query']}`",
-                         key=f"sr_{h['market_hint']}_{h['query']}",
-                         use_container_width=True,
-                         help=f"{h['market_hint']} · {h['type_label']} · {h['code']}"):
-                st.session_state.active_symbol = h["query"]
-                st.rerun()
+    _render_search_hits(hits, "sr")
+
+
+def _fallback_to_search(raw: str) -> bool:
+    """代码框里填的其实是名字时，直接在原地把搜索结果递给用户。
+
+    实测这是最容易踩的坑：搜索框与代码框上下紧邻，把「宁德时代」打进代码框只会
+    得到「无法识别代码」，而「ndsd」更糟 —— 它符合美股 ticker 的语法，会被解析
+    成 usNDSD 然后报「未取到行情」，两种情况下用户都看不出该改用上面那个框。
+
+    返回是否给出了候选（给出了就不必再让用户自己找搜索框）。
+    """
+    hits = search_symbols(raw.strip())
+    if not hits:
+        return False
+    st.info(f"「{raw}」看着像名称而不是代码。下面是搜到的标的，点一下直接切过去：")
+    _render_search_hits(hits, "fb")
+    return True
+
 
 
 def _pick_candidate(raw: str, cands: list) -> dict:
@@ -996,12 +1172,14 @@ def render_live_quote_page():
     if not resolve_symbol(raw):
         st.error(f"无法识别代码 `{raw}`。A股/北交所填 6 位数字（或 sh/sz/bj 前缀），"
                  f"港股 5 位数字，美股填字母代码，商品填 GC / CL 这类符号。")
+        _fallback_to_search(raw)
         return
 
     cands = resolve_candidates(raw)
     if not cands:
         st.error(f"未取到 `{raw}` 的行情。沪深北三个市场都没有这个代码的有效报价，"
-                 f"请确认代码是否正确，或用上面的名称搜索。")
+                 f"请确认代码是否正确。")
+        _fallback_to_search(raw)
         return
 
     picked = _pick_candidate(raw, cands)
