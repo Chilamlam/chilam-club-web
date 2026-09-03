@@ -461,15 +461,21 @@ def scan_creds(text: str) -> list[str]:
 
 # 元断言：拿"必然命中"的合成样本校准每一条正则。
 # 这些是**编造的**假样本（形态对、值是假的），只用于证明扫描器活着。
+#
+# 所有样本一律用**拼接**构造，不写完整字面量。原因：本文件自己也进了 git 跟踪
+# 清单，会被下面 A31 的扫描扫到 —— 若把 `eyJhbGci...` / `-----BEGIN RSA PRIVATE
+# KEY-----` 这类完整串写在这里，扫描器会**把自己的样本当成真凭据报出来**。
+# 拼接后源文本里不存在能触发正则的完整形态，A31 才能既扫自己又不自伤：
+# 真有人把凭据粘进本文件，照样会被抓到（那不是样本形态）。
 _FAKE = {
     "GitHub PAT": "ghp_" + "A" * 36,
     "WxPusher app_token": "AT_" + "b" * 20,
     "WxPusher UID": "UID_" + "c" * 16,
     "Server酱 SendKey": "SCT12345T" + "d" * 20,
     "Google API Key": "AIza" + "e" * 35,
-    "JWT/Supabase anon key": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ4In0",
-    "Supabase 项目域名": "https://abcdefghijklmnop.supabase.co",
-    "私钥块": "-----BEGIN RSA PRIVATE KEY-----",
+    "JWT/Supabase anon key": "eyJhbGciOiJIUzI1NiJ9" + "." + "eyJzdWIiOiJ4In0",
+    "Supabase 项目域名": "https://" + "abcdefghijklmnop" + ".supabase.co",
+    "私钥块": "-----BEGIN " + "RSA " + "PRIVATE KEY-----",
 }
 _miss = [k for k, v in _FAKE.items() if k not in scan_creds(v)]
 ck("A29", not _miss, f"【元断言】每条凭据正则都能命中对应形态的样本（失效的：{_miss}）")
