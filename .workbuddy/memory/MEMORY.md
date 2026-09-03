@@ -20,7 +20,7 @@ Streamlit Cloud 投资驾驶舱+会员付费，`Chilamlam/chilam-club-web`。Str
 
 ## 自检铁律（最高优先级）
 - **严禁占位数据/前端硬编码字面量**；必含新鲜度断言。**永不失败的断言=没有断言**，必须造错反验。反验目录别用 `/tmp`（Windows→`\tmp`）。
-- **反向验证七铁律**：①造错本身先验有效（smartbox 忽略未知 URL 参数 → 须换不存在的 host）；②探针失败只走 `bad()` 唯一出口（自己 print FAIL 会漏抓）；③断言别被无关数据喂饱（PRESETS 本就有「中国稀土」按钮 → 搜索挂了照样过）；④别 monkey-patch 整函数（那是换实现）→ 改源码字符串，锚点先验唯一、失配即报「造错未生效」；⑤断言要放在**能验出它**的环境（stub 掉 `cache_data` 后「空结果不缓存」恒真；`end` 用固定过去日期验不出「end=当天才丢末根」）；⑥按 tag 跑子集时 tag 写错=零用例=fail 0 → 须判「没抓住」；⑦**参照物不能与被测对象共享故障模式**（拿「同一函数的短区间」当参照，造错后两边一起错、对比恒等=假断言）→ 参照须独立通道，通道自己挂了报「本次什么都没验到」而非 PASS。
+- **反向验证七铁律**：①造错本身先验有效（smartbox 忽略未知 URL 参数 → 须换不存在的 host；**等价改动也算没造**：`minutes=RUNTIME_MIN+MARGIN_MIN` 造成 `minutes=53` 而 18+35 恰好 53 → 行为逐位相同）；②探针失败只走 `bad()` 唯一出口（自己 print FAIL 会漏抓）；**`expect` 须在 `[FAIL]` 行里命中而非全量输出**——`ck(cond,msg)` 成败都打印同一句 msg，「别的断言挂了+msg 出现在 PASS 行」会被算成 caught；期望关键字要取**失败分支才打印**的文案（`try: f(); bad("必须抛错") except: ck(True,"带列名")` 造错后走 `bad()`，写「带列名」永远命中不了）；③断言别被无关数据喂饱（PRESETS 本就有「中国稀土」按钮 → 搜索挂了照样过）；④别 monkey-patch 整函数（那是换实现）→ 改源码字符串，锚点先验唯一、失配即报「造错未生效」；⑤断言要放在**能验出它**的环境（stub 掉 `cache_data` 后「空结果不缓存」恒真；`end` 用固定过去日期验不出「end=当天才丢末根」）；⑥按 tag 跑子集时 tag 写错=零用例=fail 0 → 须判「没抓住」；⑦**参照物不能与被测对象共享故障模式**（拿「同一函数的短区间」当参照，造错后两边一起错、对比恒等=假断言）→ 参照须独立通道，通道自己挂了报「本次什么都没验到」而非 PASS。**副作用型被测对象**（会派发跑批/发消息/写库）：所有触达副作用的用例必须把副作用函数换成计数器并**显式断言不该触发处为 0 次**，「跑完没出事」不是证据。
 - **元断言**：断言旁要有「确实进入被测路径」的守卫（长区间须 >2800 根才算触发分段+补尾；「有结果须命中缓存 1/3」；两页壳须出现 2 个 radio）。**跨站 iframe 场景须真的出现 OOPIF；模拟隐私模式须真的观测到 `blockedCookies>0`**，否则报「本次什么都没验到」。
 - **修 UI 类线上问题要做 A/B 双向反验**：同一套浏览器+同一套判据同时测「线上现状」与「修复版」，**旧的必须 FAIL、新的必须 PASS**；旧的也 PASS 就说明判据抓不住该故障（假断言），结论作废。判据不能只判「有没有渲染」，还要判**量**（app 高度 ≥ 视口 80%），否则 150px 灰条能蒙过 hasApp。放宽判据后必须重跑造错组。
 - `AppTest` 可**无头渲染页面**（`tools_probe_live_quote_page.py`/`tools_probe_fibonacci_page.py`）。断言落在**页面对用户的承诺**（caption「共 N 根」「实际区间」）而非渲染细节；临时文件写系统 temp。**AppTest 证不到线上白屏**——它只验 Python 侧，白屏可能全在部署链路/平台侧。
@@ -29,7 +29,8 @@ Streamlit Cloud 投资驾驶舱+会员付费，`Chilamlam/chilam-club-web`。Str
 - **缺失显示 `—` 绝不补 0**；fixture 单位与生产一致。**静默失败最致命**，归因错误的报错比未知错误更贵。依赖外部接口的断言失败要**重试+带外复核**，分开给「通道抖动」与「逻辑失效」结论。
 - **None（取数失败）≠ `[]`（确实没有）**；PostgREST PATCH 零行返回 `[]` 而 `[] is not None` 为真 → 必须显式判空列表。**改返回值语义时 None/空/有值三出口一次列全**。
 - 等待态≠错误态；顶层成功≠单个成功（WxPusher 逐 UID code；Server酱 200 也可能额度耗尽）。失败文案须说清「已发生什么+下一步千万别做什么」。
-- 一份规则两处实现必漂移 → **修一个坑先横向 grep 同类实现**，且**必须按规则本身 grep**（`startswith(("6","5","9"))`、`fqkline`）**而不是按调用入口 grep**：只搜 `text_input`/`resolve_symbol` 会漏掉「入口正常但下游自己抄了一份取数」的页面 —— 我据此误判 `page_watchlist.py` 无坑，实测它 `000905` 静默取成「厦门港务」、`bj920982` 老 fqkline 只 1 根却报「K 线不足 30 根」（归因错误的报错）。**沪深撞号+北交所端点这一份规则目前三处实现**：行情页与黄金分割页已收口，`page_watchlist.py:46 _tx_code()` / `:279 _fetch_daily_kline()` **仍未修**。
+- 一份规则两处实现必漂移 → **修一个坑先横向 grep 同类实现**，且**必须按规则本身 grep**（`startswith(("6","5","9"))`、`fqkline`）**而不是按调用入口 grep**：只搜 `text_input`/`resolve_symbol` 会漏掉「入口正常但下游自己抄了一份取数」的页面 —— 我据此误判 `page_watchlist.py` 无坑，实测它 `000905` 静默取成「厦门港务」、`bj920982` 老 fqkline 只 1 根却报「K 线不足 30 根」（归因错误的报错）。**沪深北撞号+北交所端点已于 09-03 收口到唯一真源 `symbol_resolve.py`**（四处实现全部改为调用它，横向 grep 确认无第五处；`_tx_code` 仅存作退路并标注勿新增调用）。
+- **监控/看门狗自己的两条铁律**（09-03 实测踩出）：①**「测不到」与「被测对象坏了」必须是两个结论**——取数通道全灭时报「数据缺失」会让下游执行修复动作，是拿测量工具的故障当被测对象的故障；判据要出三态（正常/确实坏了/什么都没验到），第三态单独退出码且**禁止触发修复动作**。②**「修复动作已派发」≠「已修复」**——派发成功就返回 0，会让「出过事且结果无人复核」与「很太平」共用一个信号（09-01 的 RPS 正是派发成功、退出码 0、数据仍停在前一天）；须给「已动作、结果未验证」单独退出码，并安排一次晚于修复耗时的复核。
 - **下游「保护逻辑生效」证不到上游没出事** → 查静默失败须回溯最上游。**AST 断言必须认对人**（「第一个 `st.info`」抓到的是早退分支）。
 
 ## 跑批可靠性（09-01 四班全灭换来的）
@@ -38,6 +39,8 @@ Streamlit Cloud 投资驾驶舱+会员付费，`Chilamlam/chilam-club-web`。Str
 - **装饰性字段绝不挡在主产物前**（判据：缺了它主产物是否失去意义）。两阶段落盘，装饰字段带独立时间预算；线程池 `shutdown(wait=False, cancel_futures=True)` 且不能用 `with`。
 - **退出码必须如实+监控判据逐产物覆盖+结论由机器给**。`main_job` 恒 return None=exit 0=汇总 `[OK]`；「打印日期让人肉眼比对」不算监控。`check_date_consistency()` 取批内最大日期当基准（**刻意不引交易日历**），落后者点名+`::warning::`。
 - `run_daily.py` 逐步 try 后继续、恒 exit 0、每步独立 timeout；**新增跑批只改 `STEPS` 表**。cron best-effort → `tools_gh_watchdog.py` 按远端 `data/` 有无当日数据判缺失再 dispatch。
+- **看门狗的定时调用已于 09-03 闭环：走 WorkBuddy 自动化（不需要 workflow scope）**，两条周一至五 recurring：**20:40 CST 主班**跑 `tools_gh_watchdog.py`（缺数据会真派发补跑，排在主 cron 19:37 + 全量 18 分钟 + 余量之后）、**23:10 CST 兜底班**跑 `--check`（只查不补——此时再派发，12~18 分钟后就过零点，跑批会按「数据是否已发布」重锚定，很可能把昨天数据再写一遍）。退出码：0 就位 / 1 无需跑批（非交易日或早于判定线）/ 2 确实缺失或派发失败 / 3 凭据问题 / **4 已派发但结果未验证** / **9 什么都没验到（通道失效，绝不据此补跑）**。判定线 `judge_after()` = 主 cron + `RUNTIME_MIN` + `JUDGE_MARGIN_MIN` **三常量联动**，改 cron 不会漏改判定线。取数**主通道 curl 落盘再读、urllib 退为备用**（实测 urllib 四产物全 HTTP=0 耗时 4m13s，同刻 curl 四个全 200）。探针 `tools_probe_gh_watchdog.py` 正向 47/47 + 反向 9/9，`dispatch` 全程被计数替身接管。
+- **跑批 workflow 无 `concurrency` 段**（改不了 yml）→ 20:40 派发的补跑若拖到 22:20 会与兜底 cron 并跑，两个 run 同时写 `data/`；提交步骤 `git pull --rebase && git push` 三次重试多半自愈，但覆盖风险仍在，记着。
 - **cron 派发是「被丢弃」而非「延后」**：09-02 实测 07-29~09-02 计划 72 条只产生 40 条（**丢 44%**，不依赖归因的下界；GitHub API 不暴露 run 是哪条 cron 触发的，按「最近计划时刻」硬归因会张冠李戴，别据此说「某班失灵」）。延迟 08-26 前 +0.2~2.3h，08-27 骤增到 +9.5h、08-28 +12.0h，之后长期 +3.6~6.5h。被丢弃时**无邮件、不进状态页、Actions 列表无痕迹** → 现象=数据停更且查不到失败记录。`tools_gh_watchdog.py` 逻辑齐备但**没有任何东西定时调用它**，这才是停更事故的真缺口。
 - **判数据新鲜度只认文件内的交易日字段**，别看 commit 时间（只能证明写过，不能证明写的是今天）。且**日期正则必须限定列**：扫全文取最大日期会把 `20271027` 这类 ID 数字认成 2027-10-27，直接产出假 PASS。
 
@@ -48,6 +51,8 @@ Streamlit Cloud 投资驾驶舱+会员付费，`Chilamlam/chilam-club-web`。Str
 - **Streamlit widget key 四铁律**：①**带 key 的 widget rerun 时用自己存的旧值、忽略 `value=`** → 搜索按钮改了 session_state 也刷不进输入框（点了没反应）；要让 `value=` 生效就**别给 key**。②**key 写死会跨标的串值** → `number_input` 的 key 必须绑「标的+区间」，否则 601869(≈400) 换 600519(≈1300) 后基准价还是上一只的、图面看不出异常。③**同组件多页复用必须传 `key_prefix`/`key_tag`/`state_key` 隔离**，否则两页同进程渲染抛 `StreamlitDuplicateElementKey`，单跑任一页都不暴露。④`date_input` 别同时给 `value=` 和 session_state（触发警告且探针无法注入）→ 只用 session_state 存默认值。
 - 前端 UI：禁 `st.image(use_column_width=)`→`ui_compat.image_stretch()`；禁 `components.v1.html`→`ui_compat.html_embed()`；排查 `tools_check_st_api.py`。
 - 本机跑 `python -c` 别在字符串里写裸 `\u`（转义失败报 unicode error）→ 落成临时 `.py` 文件。
+- **Git Bash 无 tzdata**：`TZ=Asia/Shanghai date` 与 `TZ=Foo/Bar date` 都返回 GMT（`/usr/share/zoneinfo` 不存在）→ 判北京时间一律用 Python `timezone(timedelta(hours=8))`，别信 shell 的 `TZ=`。本机时钟本身可信（epoch 与 GitHub 响应头 `Date` 只差 1s）。
+- **依赖清单必须机器化校验**：`tech_analysis`/`scorecard`/`sentiment`/`page_macro_erp` 顶层 `import numpy` 却长期没进 requirements，不崩只因 pandas 与 streamlit 都 Requires numpy——借来的运气。`tools_probe_requirements.py` 双通道（AST 闭包扫描「顶层裸 import」vs「软 import」+ `MUST_DECLARE` 点名），改依赖或加顶层 import 后必跑。
 
 ## 分册索引（主文件有注入上限，明细已拆出，别再往主文件塞长内容）
 - **外部数据接口全部细节** → `.workbuddy/memory/topics/data-apis.md`

@@ -216,7 +216,9 @@ def sec_decide() -> None:
     ck("已就位" in out, "输出说明「已就位」")
 
     code, out, n = run_main([], at(2026, 9, 3, 21, 0), old)
-    ck((code, n) == (0, 1), "21:00 数据是昨天的 -> 派发 1 次、派发成功 exit 0")
+    ck((code, n) == (4, 1), "21:00 数据是昨天的 -> 派发 1 次；退出码 4（已派发但结果未验证）")
+    ck(code != 0, "派发后绝不能返回 0（「出过事且未复核」不等于「一切正常」）")
+    ck("未验证" in out, "输出明说派发成功 ≠ 数据落盘")
 
     code, out, n = run_main(["--check"], at(2026, 9, 3, 21, 0), old)
     ck((code, n) == (2, 0), "--check 数据缺失 -> exit 2 且绝不派发")
@@ -249,7 +251,7 @@ def sec_decide() -> None:
 
     # --force：跳过交易日与时间窗守卫，无条件派发
     code, out, n = run_main(["--force"], at(2026, 9, 5, 10, 0), day)
-    ck((code, n) == (0, 1), "--force 在周六早上、数据已就位时也派发")
+    ck((code, n) == (4, 1), "--force 在周六早上、数据已就位时也派发（退出码 4）")
 
     # 派发失败必须如实报 2（恒 return 0 = 监控失明）
     code, out, n = run_main([], at(2026, 9, 3, 21, 0), old, dispatch_ret=False)
@@ -334,6 +336,11 @@ MUTATIONS: list[tuple[str, str, str, str]] = [
      "return d.weekday() < 5",
      "return True",
      "非交易日"),
+    # ⑨ 派发成功后返回 0，把「出过事且未复核」伪装成「一切正常」（旧版行为）
+    ("tools_gh_watchdog.py",
+     '20 分钟后再查一次。")\n        return 4',
+     '20 分钟后再查一次。")\n        return 0',
+     "绝不能返回 0"),
 ]
 
 
