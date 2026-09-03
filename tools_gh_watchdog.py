@@ -62,7 +62,8 @@ GitHub Actions 的 `schedule` 事件是 **best-effort**，官方文档原文：
 设计约束
 --------
 * 不 import streamlit（要能在纯命令行 / 计划任务里跑）。
-* token 从 remote.origin.url 解析，**绝不回显明文**。
+* token 优先取环境变量 `GH_TOKEN`（GitHub Actions 用），否则从 remote.origin.url 解析，
+  **绝不回显明文**。
 * 数据新鲜度一律读**远端 raw**，不读本地文件——本地可能落后于远端，
   用本地判断会误以为「没跑」而重复补跑。
 * 判「今天」用北京时间。跑批产物的 date 字段是 CST 口径。
@@ -115,6 +116,11 @@ PROBES = [
 
 
 def _token() -> str:
+    # 环境变量优先：GitHub Actions runner 上 checkout 后 remote 不带内嵌凭据，
+    # workflow 里注入 GH_TOKEN=<GITHUB_TOKEN>。本机（PAT 内嵌在 remote url）不受影响。
+    env_tok = (os.environ.get("GH_TOKEN") or "").strip()
+    if env_tok:
+        return env_tok
     url = subprocess.check_output(
         ["git", "config", "--get", "remote.origin.url"], text=True
     ).strip()
