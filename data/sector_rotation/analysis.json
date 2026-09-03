@@ -1,6 +1,6 @@
 {
   "status": "ok",
-  "date": "2026-09-04",
+  "date": "2026-09-03",
   "prev_date": "2026-09-02",
   "trade_days_available": 3,
   "first_date": "2026-09-01",
@@ -131,6 +131,7 @@
     ],
     "watch": "明日重合回升至 ≥7 则转向主升判读；仍 ≤3 则轮动延续。"
   },
-  "generated_at": "2026-09-04 00:53:10 CST",
-  "source": "eastmoney_concept_boards"
+  "generated_at": "2026-09-04 01:10:00 CST",
+  "source": "eastmoney_concept_boards",
+  "note": "2026-09-04 00:51 快照错标 09-04，已改标为 09-03（数据实为 09-03 收盘）"
 }
