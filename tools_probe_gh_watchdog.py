@@ -92,13 +92,14 @@ def run_main(argv, now, remote, dispatch_ret=True):
 
 
 def payload(date: str) -> dict:
-    """四个产物全为同一天的正常远端。列名刻意用真实的（RPS 中文列 / 突破池英文列）。"""
+    """五个产物全为同一天的正常远端。列名刻意用真实的（RPS 中文列 / 突破池英文列）。"""
     return {
         "data/limit_ladder.json": '{"date": "%s", "rows": []}' % date,
         "data/digest/latest.json": '{"date": "%s-%s-%s 22:05:08"}'
         % (date[:4], date[4:6], date[6:]),
         "data/strong_stocks.csv": "code,\u66f4\u65b0\u65e5\u671f\n600519,%s\n" % date,
         "data/breakout_stocks.csv": "code,update_date\n000001,%s\n" % date,
+        "data/sector_rotation/analysis.json": '{"status": "ok", "date": "%s"}' % date,
     }
 
 
@@ -140,11 +141,13 @@ def sec_pure() -> None:
                         "csv:\u66f4\u65b0\u65e5\u671f") == "20260903",
        "CSV 中文列名可取（RPS 表）")
 
-    # 判据必须逐产物覆盖：四个产物一个都不能少（2026-09-01 漏判 RPS 的教训）。
-    ck(len(wd.PROBES) == 4, "PROBES 覆盖 4 个产物")
+    # 判据必须逐产物覆盖：五个产物一个都不能少（2026-09-01 漏判 RPS、
+    # 2026-09-03 漏判板块轮动的教训——掉队的产物必须先在清单里）。
+    ck(len(wd.PROBES) == 5, "PROBES 覆盖 5 个产物")
     ck({p[1] for p in wd.PROBES} == {
         "data/limit_ladder.json", "data/digest/latest.json",
-        "data/strong_stocks.csv", "data/breakout_stocks.csv"}, "PROBES 路径与跑批产物一致")
+        "data/strong_stocks.csv", "data/breakout_stocks.csv",
+        "data/sector_rotation/analysis.json"}, "PROBES 路径与跑批产物一致")
 
 
 # ------------------------------------------------- 2. verdict 三态（核心判据）
@@ -152,12 +155,12 @@ def sec_verdict() -> None:
     print("\n[2] check_freshness 必须给出三态，而不是 True/False")
     orig = wd.fetch_remote
     try:
-        # fresh：四个全今日
+        # fresh：五个全今日
         rem = payload("20260903")
         wd.fetch_remote = lambda p: (True, rem[p], "curl")
         v, lines = wd.check_freshness("20260903")
-        ck(v == "fresh", "四产物全今日 -> fresh")
-        ck(len(lines) == 4, "元断言：明细逐产物 4 行（确实每个都查了）")
+        ck(v == "fresh", "五产物全今日 -> fresh")
+        ck(len(lines) == 5, "元断言：明细逐产物 5 行（确实每个都查了）")
 
         # stale：三个今日、一个落后（2026-09-01 真实事故形状）
         rem2 = payload("20260903")
@@ -170,8 +173,8 @@ def sec_verdict() -> None:
         # blind：一个都取不到 —— 这是本次改动的核心，绝不能变成 stale
         wd.fetch_remote = lambda p: (False, "", "通道挂")
         v, lines = wd.check_freshness("20260903")
-        ck(v == "blind", "四产物全取不到 -> blind（不是 stale）")
-        ck(len(lines) == 4, "元断言：blind 时也逐产物留痕")
+        ck(v == "blind", "五产物全取不到 -> blind（不是 stale）")
+        ck(len(lines) == 5, "元断言：blind 时也逐产物留痕")
 
         # 部分取到 + 取到的那个是旧的 -> stale（有真实读数支撑）
         def half(p):

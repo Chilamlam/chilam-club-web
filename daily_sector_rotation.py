@@ -50,7 +50,19 @@ HISTORY_PATH = os.path.join(OUT_DIR, "history.csv")
 ANALYSIS_PATH = os.path.join(OUT_DIR, "analysis.json")
 MAX_HISTORY_DAYS = 60
 
-CLIST_URL = ("https://push2.eastmoney.com/api/qt/clist/get"
+# push2 对数据中心 IP（GitHub Actions runner）按边缘拒绝：2026-09-02/03 连续
+# 三班 Actions 跑批全部 HTTP 502，本机同一时刻 5 个域名全通——是 IP 级封锁。
+# 分片域名（1/23/99）与延迟域名（push2delay）走不同 CDN 边缘，重试时逐次换域名。
+# 收盘后跑批对延迟容忍（快照=当日收盘态），故 push2delay 也可作为兜底。
+EM_HOSTS = (
+    "push2.eastmoney.com",
+    "1.push2.eastmoney.com",
+    "23.push2.eastmoney.com",
+    "99.push2.eastmoney.com",
+    "push2delay.eastmoney.com",
+)
+
+CLIST_URL = ("https://{host}/api/qt/clist/get"
              "?pn={pn}&pz=100&po=1&np=1&fltt=2&invt=2&fid=f3&fs=m:90+t:3"
              "&fields=f12,f14,f2,f3,f109,f160,f110,f24,f6,f8,f104,f105")
 
@@ -79,20 +91,24 @@ def _cst_now() -> datetime.datetime:
     return datetime.datetime.utcnow() + datetime.timedelta(hours=8)
 
 
-def fetch_page(pn: int, retries: int = 3) -> dict | None:
-    """拉一页 clist。瞬时传输失败重试，最终失败返回 None。"""
-    url = CLIST_URL.format(pn=pn)
-    for attempt in range(1, retries + 1):
+def fetch_page(pn: int, retries: int = len(EM_HOSTS)) -> dict | None:
+    """拉一页 clist。每次重试换一个域名，最终失败返回 None。
+
+    为什么换域名：502 是东财对机房 IP 的边缘级拒绝，同一域名重试无意义；
+    轮换分片/延迟域名才可能落到不同边缘。"""
+    for attempt in range(retries):
+        host = EM_HOSTS[attempt % len(EM_HOSTS)]
+        url = CLIST_URL.format(host=host, pn=pn)
         try:
             req = urllib.request.Request(url, headers=HEADERS)
             with urllib.request.urlopen(req, timeout=20) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
             if data and isinstance(data.get("data"), dict):
                 return data["data"]
-            print(f"⚠️ 第 {pn} 页返回结构异常（第 {attempt} 次）")
+            print(f"⚠️ {host} 第 {pn} 页返回结构异常（第 {attempt + 1} 次）")
         except Exception as exc:  # noqa: BLE001
-            print(f"⚠️ 第 {pn} 页请求失败（第 {attempt} 次）：{type(exc).__name__}: {exc}")
-        time.sleep(1.5 * attempt)
+            print(f"⚠️ {host} 第 {pn} 页请求失败（第 {attempt + 1} 次）：{type(exc).__name__}: {exc}")
+        time.sleep(1.5 * (attempt + 1))
     return None
 
 

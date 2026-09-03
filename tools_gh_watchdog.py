@@ -112,6 +112,9 @@ PROBES = [
     ("收盘摘要", "data/digest/latest.json", "json:date"),
     ("RPS 强势股", "data/strong_stocks.csv", "csv:更新日期"),
     ("突破池", "data/breakout_stocks.csv", "csv:update_date"),
+    # 2026-09-03 板块轮动在 Actions 上连续三班取数失败、页面停在 09-02 无人报警，
+    # 根因之一就是它不在巡检清单里——补入。
+    ("板块轮动", "data/sector_rotation/analysis.json", "json:date"),
 ]
 
 

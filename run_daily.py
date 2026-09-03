@@ -216,6 +216,9 @@ DATE_PROBES: list[tuple[str, str, str]] = [
     ("ETF 榜单", "data/strong_etfs.csv", "csv:更新日期"),
     ("连板天梯", "data/limit_ladder.json", "json:date"),
     ("收盘摘要", "data/digest/latest.json", "json:date"),
+    # 板块轮动必须入列：2026-09-03 它在 Actions 上连续三班取数失败，页面停在
+    # 09-02 无人报警——因为之前它不在一致性判据里，掉队了没机器点名。
+    ("板块轮动", "data/sector_rotation/analysis.json", "json:date"),
 ]
 
 

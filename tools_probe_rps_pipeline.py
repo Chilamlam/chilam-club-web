@@ -424,10 +424,15 @@ def test_watchdog_probes() -> None:
             if url.endswith("breakout_stocks.csv"):
                 return 200, "ts_code,update_date\n600000.SH,2026-09-01\n"
             return 200, '{"date": "20260901"}'
+        # stub 必须打在主通道（curl 在前）与备用通道两处，
+        # 否则主通道直连真实网络，测试变成对线上现状的「复读」。
         wd._get = fake_get
+        wd._get_via_curl = lambda url: fake_get(url)
         fresh, lines = wd.check_freshness("20260901")
-        ck("只有 RPS 落后时看门狗判「不新鲜」（09-01 漏判已堵）", not fresh,
-           " | ".join(l.strip() for l in lines))
+        # check_freshness 返回三态 verdict（fresh/stale/blind），不是布尔——
+        # 任一产物落后即 "stale"（RPS 落后、其余同日）。
+        ck("只有 RPS 落后时看门狗判「不新鲜」（09-01 漏判已堵）", fresh == "stale",
+           f"verdict={fresh} | " + " | ".join(l.strip() for l in lines))
         ck("日志逐产物列出实际日期（便于人工定位是哪一步失败）",
            any("RPS" in l and "20260831" in l for l in lines), str(lines))
     finally:
@@ -658,10 +663,14 @@ def reverse_checks() -> None:
             ck(f"看门狗探针覆盖 {need}", need in paths)
         # 事故当天的判定：两个 JSON 都是新的 → 旧代码判「已就位」
         saved_get = wd._get
+        saved_curl = wd._get_via_curl
         wd._get = lambda url, tok=None, raw=False: (200, '{"date": "20260901"}')
+        wd._get_via_curl = lambda url: (200, '{"date": "20260901"}')
         fresh, _ = wd.check_freshness("20260901")
-        ck("只有 RPS 落后时看门狗判「不新鲜」（09-01 漏判已堵）", not fresh)
+        ck("只有 RPS 落后时看门狗判「不新鲜」（09-01 漏判已堵）", fresh == "stale",
+           f"verdict={fresh}")
         wd._get = saved_get
+        wd._get_via_curl = saved_curl
     rev("R5 看门狗只探 2 个产物 → 覆盖与漏判断言炸", len(box) >= 3, f"抓到 {len(box)} 条")
     wd.PROBES = saved_probes
 
