@@ -48,6 +48,14 @@ on:
         required: false
         default: ''
 
+# ★ 并发保护（2026-09-03 加）：本文件没有 concurrency 段时，两个 run 可同时写
+#   data/（实例：20:40 看门狗派发的补跑若拖长，会与 22:20 兜底 cron 并跑，
+#   双方提交步骤互相 rebase 踩踏）。排队不取消：取消一个写到一半的跑批
+#   比等它跑完更糟（半成品 data/ 比迟到更危险）。
+concurrency:
+  group: daily-update
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
