@@ -6,6 +6,7 @@ import json
 import base64
 import hmac
 import hashlib
+import secrets as _pysecrets
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 from functools import wraps
@@ -16,13 +17,73 @@ except ImportError:
     st = None
 import database
 
-# 密钥配置
-JWT_SECRET = os.environ.get("JWT_SECRET", "chilam_club_secret_key_2026_invest_secure")
-try:
-    if hasattr(st, "secrets") and "auth" in st.secrets:
-        JWT_SECRET = st.secrets["auth"].get("jwt_secret", JWT_SECRET)
-except Exception:
-    pass
+# ==================== JWT 签名密钥 ====================
+#
+# 这里**绝不能**放可用的默认密钥。原实现写的是
+#     JWT_SECRET = os.environ.get("JWT_SECRET", "<一个固定常量>")
+# 而本仓库是 **public** —— 那个常量对所有人可见，而它就是 HS256 的签名密钥。
+# 后果不是「泄露一点信息」，而是**任何人都能离线自签一个
+# {"user_id":1,"is_admin":true} 的 token 直接拿到后台管理权**（确认收款、
+# 手动开通 VIP、看全部用户）。这类洞的特征是：功能完全正常、日志毫无异常，
+# 所以只能靠「代码里不许有可用默认值」这条规则挡住，不能靠事后发现。
+#
+# 现在的规则：env / st.secrets 都没配 → 生成**进程级随机密钥**并显式告警。
+# 代价只有「进程重启后旧 token 失效」，而 token 本来只存在 st.session_state
+# （全仓无 cookie、无 URL 回填 —— 已 grep 确认），刷新页面就已经丢了，
+# 所以这个代价用户其实感知不到。**宁可让人重新登录，也不要给一把公开的钥匙。**
+#
+# 下面这串不是密钥，是**已泄露旧常量的 sha256 前 12 位**：用来在有人把那个
+# 旧值填进 Secrets 时**拒绝使用它**（而不只是告警 —— 见 _load_jwt_secret）。
+# 指纹不可逆，写在公开仓库无损失；而旧常量本身已在 git 历史里公开，藏也没意义。
+_LEAKED_SECRET_FP = "e4af8b5b44d4"
+
+
+def _fingerprint(s: str) -> str:
+    return hashlib.sha256(s.encode("utf-8")).hexdigest()[:12]
+
+
+REJECTED_PREFIX = "ephemeral-random(rejected-leaked"
+
+
+def _load_jwt_secret() -> tuple[str, str]:
+    """返回 (密钥, 来源)。来源用于启动告警，绝不打印密钥本身。"""
+    val = os.environ.get("JWT_SECRET", "")
+    src = "env:JWT_SECRET"
+    if not val:
+        try:
+            if hasattr(st, "secrets") and "auth" in st.secrets:
+                val = st.secrets["auth"].get("jwt_secret", "") or ""
+                src = "st.secrets[auth].jwt_secret"
+        except Exception:
+            val = ""
+    if not val:
+        # 进程级随机：够强、不落盘、不可预测。
+        return _pysecrets.token_urlsafe(48), "ephemeral-random"
+    # 「配了」不等于「能用」：如果配的正是那个已在公开仓库里躺过的旧常量，
+    # 它对全网都是已知值，等价于**没有密钥**。此时必须**拒用**，
+    # 而不是打一行告警然后继续拿它签名 ——
+    # 告警只会进日志，洞照样开着；何况本仓库真实情况就是 Secrets 里填的
+    # 就是那个旧常量（指纹 e4af8b5b44d4），"仅告警"等于什么都没做。
+    # 拒用的代价仅是「重启后需重新登录」，堵住的是「全网可自签管理员」。
+    if _fingerprint(val) == _LEAKED_SECRET_FP:
+        return _pysecrets.token_urlsafe(48), f"{REJECTED_PREFIX} from {src})"
+    return val, src
+
+
+JWT_SECRET, JWT_SECRET_SOURCE = _load_jwt_secret()
+
+if JWT_SECRET_SOURCE.startswith(REJECTED_PREFIX):
+    print("[Auth] ⚠️ 配置里的 JWT_SECRET 正是**曾硬编码进公开仓库的旧常量** —— "
+          "它对全网都是已知值，谁都能用它自签管理员 token。"
+          f"已**拒绝使用**并改用进程级随机密钥（来源：{JWT_SECRET_SOURCE}）。"
+          "站点功能正常，但服务每次重启都要重新登录；"
+          "**请立刻在 Secrets 里换成新的高强度随机值**以恢复正常会话。")
+elif JWT_SECRET_SOURCE == "ephemeral-random":
+    print("[Auth] 未配置 JWT_SECRET（env 或 st.secrets[auth].jwt_secret），"
+          "已启用进程级随机密钥：功能正常，但服务重启后需要重新登录。"
+          "生产环境请在 Secrets 里配一个高强度随机值。")
+elif len(JWT_SECRET) < 32:
+    print(f"[Auth] JWT_SECRET 长度仅 {len(JWT_SECRET)}，偏短，建议 ≥32 位随机字符。")
 
 JWT_EXPIRATION_HOURS = 24 * 7  # 7 天有效期
 

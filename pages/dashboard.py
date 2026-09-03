@@ -89,8 +89,29 @@ def get_payment_config():
 pay_config = get_payment_config()
 WECHAT_QR = pay_config.get("wechat_qr", "")
 ALIPAY_QR = pay_config.get("alipay_qr", "")
-ADMIN_WX = pay_config.get("admin_wechat", "chilam_club")
-ADMIN_EMAIL = pay_config.get("admin_email", "chilam@admin.com")
+ADMIN_WX = pay_config.get("admin_wechat", "")
+# 对外联系邮箱：**没配就不显示**，绝不回落到某个真实账号。
+# 原实现把管理员的**登录邮箱**当默认值写死在这里（public 仓库），
+# 等于对所有访客公布「后台账号是谁」—— 配上口令就是完整入侵链。
+# 这一项要填的是专门的客服邮箱，**不能复用任何能登录本站的账号**。
+ADMIN_EMAIL = pay_config.get("admin_email", "")
+
+
+def _contact_hint(prefix: str = "") -> str:
+    """拼「怎么联系管理员」这句话。渠道一个都没配时**不能装作有** ——
+    否则用户看到「请联系 ``」这种空反引号，会以为页面坏了，
+    更糟的是他会以为自己已经通知过了、然后一直等。"""
+    ways = []
+    if ADMIN_WX:
+        ways.append(f"微信 `{ADMIN_WX}`")
+    if ADMIN_EMAIL:
+        ways.append(f"邮箱 `{ADMIN_EMAIL}`")
+    if not ways:
+        # 注意不要拼上 prefix（"付款后" + "⚠️ 尚未配置…" 读起来是病句）。
+        return ("⚠️ 本站尚未配置管理员联系方式（Secrets 的 "
+                "`[payment].admin_wechat` / `admin_email`），"
+                "**你的付款暂时没有渠道可以告知** —— 请先不要付款。")
+    return f"{prefix}请通过 {' 或 '.join(ways)} 告知订单号。"
 
 # ================= 1. 当前 VIP 状态 =================
 st.markdown("---")
@@ -280,13 +301,13 @@ if "last_order" in st.session_state and st.session_state["last_order"]:
                 else:
                     st.warning(
                         "⚠️ 自动通知管理员**未成功**，这笔订单可能不会被及时看到。"
-                        f"付款后请务必微信联系 `{ADMIN_WX}` 告知订单号。")
+                        + _contact_hint("付款后务必主动"))
                     with st.expander("通知失败详情（管理员排查用）", expanded=False):
                         st.code(str(note_alert), language=None)
 
             st.info(
                 f"📋 **付款流程**：扫码付款（备注订单号）→ 管理员确认收款 → VIP 自动激活\n\n"
-                f"💬 付款后请微信联系管理员（`{ADMIN_WX}`）或发邮件至 `{ADMIN_EMAIL}` 告知已付款\n\n"
+                f"💬 {_contact_hint('付款后')}\n\n"
                 f"🔄 确认后刷新本页即可看到 VIP 生效"
             )
 

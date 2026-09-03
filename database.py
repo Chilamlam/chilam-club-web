@@ -125,15 +125,27 @@ def verify_password(user: Dict[str, Any], password: str) -> bool:
         dk = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, iterations)
         return hmac.compare_digest(dk.hex(), target_dk)
     
-    # 兼容初始默认账号明文/老哈希
-    if pw_hash.startswith("$2b$") or pw_hash.startswith("$2a$"):
+    # 兼容历史 bcrypt 哈希（早期版本留下的）
+    #
+    # 这里**绝不能**再放「特定邮箱 + 特定明文口令直接返回 True」的兜底。
+    # 原实现在 bcrypt 缺失时用 `email == "..." and password == "..."` 放行，
+    # 三重问题叠加：①明文口令比对；②口令字面量必须写进源码，而本仓库是
+    # public，等于把管理员口令公开；③它伪装成「依赖缺失时的容错」，
+    # 让人以为只是兼容代码 —— 实际是一条后门。
+    # 依赖缺失就如实失败：让人看见「装 bcrypt 或重置口令」，
+    # 比悄悄放行一个已公开的口令安全得多。
+    if pw_hash.startswith(("$2b$", "$2a$", "$2y$")):
         try:
             import bcrypt
-            return bcrypt.checkpw(password.encode("utf-8"), pw_hash.encode("utf-8"))
         except ImportError:
-            # 如果没装 bcrypt 且是初始管理员 chilam666
-            if user.get("email") == "chilam@admin.com" and password == "chilam666":
-                return True
+            print("[Auth] 该账号是历史 bcrypt 哈希，但运行环境未安装 bcrypt，"
+                  "无法校验口令。请在 requirements.txt 保留 bcrypt，"
+                  "或让该用户走「重置口令」改成 pbkdf2。")
+            return False
+        try:
+            return bcrypt.checkpw(password.encode("utf-8"), pw_hash.encode("utf-8"))
+        except (ValueError, TypeError) as e:
+            print(f"[Auth] bcrypt 校验失败（哈希格式异常）：{type(e).__name__}")
             return False
 
     return False
