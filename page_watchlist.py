@@ -27,6 +27,7 @@ import streamlit as st
 import auth
 import database
 import push_binding as pb
+import symbol_resolve as sr
 
 # 中国市场配色：涨红跌绿
 C_UP = "#e74c3c"
@@ -44,14 +45,12 @@ _BJ_PREFIX = ("92", "43", "83", "87")
 # ================= 实时报价 =================
 
 def _tx_code(raw: str) -> str:
-    """
-    把用户输入的代码规范成腾讯行情代码。
+    """纯代码 → 腾讯行情代码（**只做语法猜测，撞号会猜错**）。
 
-    号段规则（2026-08-29 实测）：
-      bj  北交所 92xxxx（新号段）/ 43x / 83x / 87x（老号段）
-      sh  沪市股票 6xxxxx、沪市 ETF/LOF 5xxxxx、B股 9xxxxx
-      sz  其余（000/001/002/003/300 等 + 深市 ETF 15xxxx/16xxxx）
-    注意 000001 走 sz（平安银行）；上证指数 sh000001 属指数，不从这里解析。
+    保留它只为「取不到报价时还能拼个 K 线地址」这一条退路。它按号段猜前缀，
+    对 000905 / 000016 / 000300 这类沪深同号代码会猜成深市 —— 000905 会变成
+    深市「厦门港务」。**正常路径请用 fetch_quotes 回填的 tx_code**，那是探过
+    沪深北、按当日活跃度取舍后的真值。
     """
     c = str(raw).strip().upper().split(".")[0]
     if not c.isdigit():
@@ -63,55 +62,72 @@ def _tx_code(raw: str) -> str:
     return f"sz{c}"
 
 
+def _num(v, default=None):
+    """None 保持 None，绝不折成 0 —— 0 会被当成「今天真的没换手」。"""
+    try:
+        return float(v) if v is not None else default
+    except (TypeError, ValueError):
+        return default
+
+
 @st.cache_data(ttl=15, show_spinner=False)
 def fetch_quotes(codes: tuple) -> dict:
     """
     批量取实时报价。返回 {纯代码: {...}}，取不到的代码直接不出现在结果里
     （由调用方显示「暂无数据」，不做任何补值）。
     沪深300 基准始终随批请求，键为 '000300'。
-    腾讯报价字段（2026-08-29 实测）：
-      [1]名称 [2]代码 [3]现价 [4]昨收 [30]时间 [32]涨跌幅%
-      [33]最高 [34]最低 [38]换手率% [43]振幅% [44]流通市值(亿)
+
+    **市场前缀走 symbol_resolve 消歧，不再按号段猜**（2026-09-03 修）：
+    原先「6/5/9 开头算沪市，否则算深市」会让 000905 静默取到深市「厦门港务」
+    8.90 元 —— 页面照样画表、涨跌幅照样有数字，只是全是另一只标的的。
+    现在沪深北都探，再按「当日是否真在交易 + 宽基指数白名单」取舍。
+
+    每条报价额外带 `tx_code`（消歧后的真值，供 K 线与雪球链接复用）与
+    `ambiguous`（是否还有同号活跃标的，供页面标注）。
     """
-    tx = [t for t in (_tx_code(c) for c in codes) if t]
-    tx.append(BENCH_TX)
-    tx = list(dict.fromkeys(tx))
-    if not tx:
-        return {}
-    out = {}
-    # 每批 50 个，避免 URL 过长
-    for i in range(0, len(tx), 50):
-        batch = ",".join(tx[i:i + 50])
-        try:
-            req = urllib.request.Request(
-                f"https://qt.gtimg.cn/q={batch}",
-                headers={"User-Agent": "Mozilla/5.0"},
-            )
-            txt = urllib.request.urlopen(req, timeout=8).read().decode("gbk", "ignore")
-        except Exception:
+    probe: dict[str, list[str]] = {}
+    for c in codes:
+        b = _bare(c)
+        if not b:
             continue
-        for line in txt.strip().split(";"):
-            line = line.strip()
-            if "~" not in line:
-                continue
-            p = line.split("~")
-            if len(p) < 45 or not p[3]:
-                continue
-            try:
-                out[p[2]] = {
-                    "name": p[1],
-                    "price": float(p[3]),
-                    "prev": float(p[4]) if p[4] else 0.0,
-                    "pct": float(p[32]) if p[32] else 0.0,
-                    "high": float(p[33]) if p[33] else 0.0,
-                    "low": float(p[34]) if p[34] else 0.0,
-                    "turnover": float(p[38]) if p[38] else 0.0,
-                    "amplitude": float(p[43]) if p[43] else 0.0,
-                    "mv": float(p[44]) if p[44] else 0.0,
-                    "time": p[30],
-                }
-            except (ValueError, IndexError):
-                continue
+        if b.isdigit() and len(b) == 6:
+            probe[b] = [f"{p}{b}" for p in sr.prefixes_for(b)]
+        else:
+            t = _tx_code(b)
+            if t:
+                probe[b] = [t]
+    probe.setdefault(BENCH_BARE, [BENCH_TX])      # 基准始终随批，且写死沪市
+
+    flat = [t for lst in probe.values() for t in lst]
+    got = sr.fetch_quotes(flat)
+    if not got:                                   # None(失败) 与 {}(全不存在) 都无可展示
+        return {}
+
+    out = {}
+    for b, tx_list in probe.items():
+        cands = [got[t] for t in tx_list if t in got]
+        if not cands:
+            continue
+        cands.sort(key=sr.rank_key)
+        q = cands[0]
+        out[b] = {
+            "name": q["name"],
+            "price": q["price"],
+            "prev": q["last_close"],
+            "pct": q["pct_chg"],
+            "high": q["high"],
+            "low": q["low"],
+            "turnover": _num(q.get("turnover")),
+            "amplitude": _num(q.get("amplitude")),
+            "mv": q.get("float_mv_yi") or 0.0,
+            "time": q["update_time"],
+            "tx_code": q["tx_code"],
+            "kind": q.get("kind", ""),
+            # 撞号判据与文案都在 symbol_resolve 单点定义，页面不再自己写一份
+            # ——「候选>1 才算撞号，且不掺 alive」这条规则一旦两处实现必漂移。
+            "ambiguous": sr.is_ambiguous(cands),
+            "alternatives": sr.describe_alternatives(cands),
+        }
     return out
 
 
@@ -275,9 +291,13 @@ def _render_sector(rows: list[dict], df_sector: pd.DataFrame) -> None:
 
 @st.cache_data(ttl=900, show_spinner=False)
 def _fetch_daily_kline(tx_code: str, limit: int = 260) -> pd.DataFrame:
-    """取前复权日K（腾讯）。失败返回空表，由调用方标注失败原因。"""
-    url = (f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get"
-           f"?param={tx_code},day,,,{limit},qfq")
+    """取前复权日K（腾讯）。失败返回空表，由调用方标注失败原因。
+
+    URL 由 symbol_resolve.kline_url 生成：北交所必须走 newfqkline（老 fqkline 对
+    bj 代码只返回当天 1 根，既不报错也不为空，会被误判成「K线不足」），
+    limit 也在那里夹到 800（>=801 静默退回 640 根）。
+    """
+    url = sr.kline_url(tx_code, limit=limit)
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
         d = json.loads(urllib.request.urlopen(req, timeout=12).read().decode("utf-8", "ignore"))
@@ -318,6 +338,9 @@ def _render_key_levels(rows: list[dict]) -> None:
 
     options = [f"{r['名称'] or r['代码']} ({r['代码']})" for r in rows]
     code_of = {opt: r["代码"] for opt, r in zip(options, rows)}
+    # 报价阶段已经探过沪深北并按活跃度定了市场，这里直接复用那个真值。
+    # 若再按号段猜一遍，000905 的日K会拉成深市厦门港务的，缠论结论跟着一起错。
+    tx_of = {opt: r.get("_tx_code") or "" for opt, r in zip(options, rows)}
     picked = st.multiselect(
         "选择要扫描的自选标的（建议一次不超过 8 只）",
         options, default=options[:min(3, len(options))],
@@ -340,7 +363,7 @@ def _render_key_levels(rows: list[dict]) -> None:
     prog = st.progress(0.0, text="正在扫描…")
     for i, opt in enumerate(picked, 1):
         code = code_of[opt]
-        tx = _tx_code(code)
+        tx = tx_of.get(opt) or _tx_code(code)
         prog.progress(i / len(picked), text=f"正在扫描 {opt}…")
         if not tx:
             recs.append({"标的": opt, "结论": "代码无法识别", "最近关键位": "—", "距离": None})
@@ -456,10 +479,15 @@ def _build_rows(watchlist: list[str]) -> tuple[list[dict], float | None, dict]:
             "行业": industry,
             "现价": float(q["price"]) if q else None,
             "涨跌幅": float(q["pct"]) if q else 0.0,
-            "换手率": float(q["turnover"]) if q else None,
-            "振幅": float(q["amplitude"]) if q else None,
-            "雪球": f"https://xueqiu.com/S/{'SH' if b.startswith(('6', '5')) else 'SZ'}{b}",
+            "换手率": _num((q or {}).get("turnover")),
+            "振幅": _num((q or {}).get("amplitude")),
+            # 雪球前缀取自消歧后的 tx_code，不再按 6/5 开头猜 —— 猜错会跳到
+            # 另一只同号标的的页面（000905 会跳到深市厦门港务）。
+            "雪球": sr.xueqiu_url((q or {}).get("tx_code") or _tx_code(b)),
             "_has_quote": q is not None,
+            "_tx_code": (q or {}).get("tx_code") or "",
+            "_ambiguous": bool((q or {}).get("ambiguous")),
+            "_alternatives": (q or {}).get("alternatives") or [],
             "_signals": signals,
         })
 
@@ -570,6 +598,9 @@ def render_watchlist_page() -> None:
     st.markdown("#### 📋 我的池子明细")
     df_show = pd.DataFrame([{
         "代码": r["代码"], "名称": r["名称"], "行业": r["行业"],
+        # 撞号代码把实际取到的市场写进表里。不标出来的话，用户看到「000905
+        # 中证500」和「000905 厦门港务」都只会以为是自己那只。
+        "市场": (sr.market_label(r["_tx_code"]) or "—"),
         "现价": r["现价"], "涨跌幅": r["涨跌幅"] if r["_has_quote"] else None,
         "换手率": r["换手率"], "振幅": r["振幅"],
         "策略命中": "　".join(s.split("（")[0] for s in r["_signals"]) or "—",
@@ -588,6 +619,13 @@ def render_watchlist_page() -> None:
     missing = [r["代码"] for r in rows if not r["_has_quote"]]
     if missing:
         st.caption(f"⚠️ 以下代码未取到实时报价，相关数值留空而非补 0：{', '.join(missing)}")
+    # 撞号必须说出口：沪深北同号标的都在交易时，本页按「宽基指数优先 + 当日活跃度」
+    # 替用户选了一个。选得对不对只有用户知道，所以要把另一个选项也列出来。
+    amb = [r for r in rows if r.get("_ambiguous")]
+    if amb:
+        st.caption("ℹ️ 以下代码沪深两市同时存在标的，已按「宽基指数优先 + 当日活跃度」取值：　"
+                   + "　".join(f"{r['代码']}→{sr.market_label(r['_tx_code'])}{r['名称']}"
+                               f"（另有 {'/'.join(r['_alternatives'])}）" for r in amb))
 
     st.markdown("---")
     _render_key_levels(rows)

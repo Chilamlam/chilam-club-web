@@ -49,6 +49,7 @@ from __future__ import annotations
 import datetime
 import json
 import os
+import re
 import smtplib
 import sys
 import urllib.error
@@ -59,6 +60,7 @@ from email.mime.text import MIMEText
 
 import admin_notify as an
 import digest as dg
+import symbol_resolve as sr
 
 DIGEST_DIR = os.path.join("data", "digest")
 HIST_DIR = os.path.join(DIGEST_DIR, "history")
@@ -105,7 +107,13 @@ _BJ_PREFIX = ("92", "43", "83", "87")
 
 
 def _tx_code(raw: str) -> str:
-    """纯代码 → 腾讯行情代码。与 page_watchlist._tx_code 同一套号段规则。"""
+    """纯代码 → 腾讯行情代码。**已废弃，勿新增调用**。
+
+    保留只为不破坏可能存在的外部引用。它按「6/5/9 开头算沪市」猜前缀，对
+    000905 / 000016 / 000300 这类沪深撞号代码会静默取到另一只标的。
+    正确做法是 `symbol_resolve.resolve_candidates()` —— 探沪深北后按当日是否
+    真在交易取舍，并如实上报 ambiguous。
+    """
     c = str(raw).strip().upper().split(".")[0]
     if not c.isdigit():
         return ""
@@ -127,39 +135,55 @@ def fallback_pct_map(codes: list[str], date_key: str = "") -> dict:
     **兜底不等于放宽真实性要求**：腾讯返回的是「最近一个交易日收盘」，
     如果它的日期与摘要日期不一致，说明拿到的是别的交易日的涨幅，
     此时整段放弃而不是拿错日期的数字冒充今日——宁可没有，不可有错。
+
+    **市场前缀必须走 symbol_resolve 消歧**（2026-09-03 修）：这里原先用
+    「6/5/9 开头算沪市，否则算深市」的朴素规则，自选里出现 000905 会静默取到
+    深市「厦门港务」的涨幅，然后以「中证500」的名义推进用户微信——
+    数字合法、格式正常、日志平静，用户毫无识别可能。这是全站最贵的一处静默取错。
     """
     codes = [c for c in {str(x).strip().upper().split(".")[0] for x in codes if x} if c]
     if not codes:
         return {}
     out: dict[str, float] = {}
     stale = set()
+    ambiguous: list[str] = []
     for i in range(0, len(codes), 60):
         chunk = codes[i:i + 60]
-        tx = [t for t in (_tx_code(c) for c in chunk) if t]
-        if not tx:
+        # 撞号代码要把沪深北都探到，再按「当日是否真在交易」取舍。腾讯对不存在
+        # 的标的直接不返回该行，所以多探两个前缀几乎不增加成本。
+        probe: dict[str, list[str]] = {}
+        for c in chunk:
+            if re.fullmatch(r"\d{6}", c):
+                probe[c] = [f"{p}{c}" for p in sr.prefixes_for(c)]
+            elif re.fullmatch(r"(SH|SZ|BJ)\d{6}", c):
+                probe[c] = [c.lower()]
+        if not probe:
             continue
-        try:
-            url = "https://qt.gtimg.cn/q=" + ",".join(tx)
-            raw = urllib.request.urlopen(url, timeout=15).read().decode("gbk", "ignore")
-        except Exception as e:
-            print(f"⚠️ 兜底涨幅取数失败（{len(tx)} 个代码）：{type(e).__name__}: {e}")
+        flat = [t for lst in probe.values() for t in lst]
+        got = sr.fetch_quotes(flat, timeout=15)
+        if got is None:
+            print(f"⚠️ 兜底涨幅取数失败（{len(flat)} 个代码）")
             continue
-        for line in raw.strip().split(";"):
-            if "~" not in line:
+        for bare_code, tx_list in probe.items():
+            cands = [got[t] for t in tx_list if t in got]
+            if not cands:
                 continue
-            f = line.split("~")
-            if len(f) < 33:
-                continue
-            try:
-                code, pct, day = f[2].strip(), float(f[32]), f[30][:8]
-            except (ValueError, IndexError):
-                continue
+            cands.sort(key=sr.rank_key)
+            q = cands[0]
+            day = str(q.get("update_time") or "")[:8]
             if date_key and day and day != date_key:
                 stale.add(day)
                 continue
-            out[code] = pct
+            out[bare_code] = q["pct_chg"]
+            if sr.is_ambiguous(cands):
+                ambiguous.append(f"{bare_code}→{sr.market_label(q['tx_code'])}{q.get('name')}"
+                                 f"（另有 {'/'.join(sr.describe_alternatives(cands))}）")
     if stale:
         print(f"⚠️ 兜底行情日期为 {'/'.join(sorted(stale))}，与摘要日期 {date_key} 不符，已丢弃")
+    if ambiguous:
+        # 撞号本身不是错误（已按活跃度取到正确的那只），但必须留痕：日志里看得见，
+        # 将来若先验判错，能直接从这行定位是哪个代码取歪了。
+        print(f"ℹ️ 撞号代码已按活跃度消歧：{'；'.join(ambiguous)}")
     if out:
         print(f"↩️ 个性化段落改用腾讯行情兜底，命中 {len(out)}/{len(codes)} 个代码")
     return out

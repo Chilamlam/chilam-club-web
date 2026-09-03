@@ -157,3 +157,168 @@ def parse_quote(parts: list, market: str, tx_code: str = "") -> dict:
     q["alive"] = q["amount"] > 0 or (q["high"] > 0 and q["low"] > 0)
     q["kind"] = guess_kind(pe_raw, year_high, tx_code)
     return q
+
+
+# ================= 联网取报价 =================
+
+def _http_gbk(url: str, timeout: int = 8) -> str:
+    req = urllib.request.Request(url, headers=_UA)
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return resp.read().decode("gbk", errors="ignore")
+
+
+def fetch_quotes(tx_codes, timeout: int = 8):
+    """批量取腾讯报价。返回 {tx_code: quote}；**取数失败返回 None**。
+
+    三个出口必须分清（`{}` 兼表两种含义就会把「接口挂了」误报成「无此代码」）：
+      None  取数失败（网络异常 / 接口变更），调用方不得据此下任何结论
+      {}    请求成功但一个都没匹配上 —— 这些代码确实不存在
+      {...} 命中的部分。**不存在的标的腾讯直接不返回该行**（既不是空串也不
+            报错），所以「传 3 个回 1 个」是正常的，缺的那几个就是不存在
+
+    代码大小写必须与请求一致（全小写 usaapl 会整体返回 v_pv_none_match）。
+    """
+    codes = [c for c in dict.fromkeys(str(c or "") for c in tx_codes) if c]
+    if not codes:
+        return {}
+    out, ok_any = {}, False
+    for i in range(0, len(codes), _BATCH):
+        batch = codes[i:i + _BATCH]
+        try:
+            txt = _http_gbk(_QUOTE_URL + ",".join(batch), timeout=timeout)
+        except Exception:
+            continue                       # 单批失败不连坐其它批
+        ok_any = True
+        for m in re.finditer(r'v_([a-zA-Z0-9\.\_]+)="([^"]*)"', txt):
+            code, body = m.group(1), m.group(2)
+            if not body or code not in batch:
+                continue
+            market = market_of(code)
+            q = parse_quote(body.split("~"), market, code)
+            if q and q["price"] > 0:
+                q["tx_code"], q["market"] = code, market
+                out[code] = q
+    return out if ok_any else None
+
+
+# ================= 撞号消歧 =================
+
+def is_major_sh_index(tx_code: str) -> bool:
+    """是否为白名单里的沪市宽基指数。
+
+    **刻意不看 kind**：kind 由 guess_kind 从 PE 段推断，PE 段偶发为空时
+    sh000905 会被判成「债券 / 其他」，跟着连宽基身份一起丢掉。代码已在白名单、
+    前缀又是 sh，身份就已确定，不该再让一个会抖动的推断值来否决它。
+    """
+    c = str(tx_code or "").lower()
+    return c[:2] == "sh" and c[2:] in MAJOR_SH_INDEX
+
+
+def _prior_rank(q: dict) -> int:
+    """同样活跃时的取舍先验，数字越小越优先。"""
+    code = str(q.get("tx_code", ""))
+    if code.startswith("sh") and q.get("kind") == "指数":
+        return 0 if code[2:] in MAJOR_SH_INDEX else 2
+    return 1                              # 个股 / 基金 / 北交所 / 深市指数
+
+
+def rank_key(q: dict) -> tuple:
+    """撞号排序键：白名单宽基指数 → 当日是否在交易 → 类型先验 → 成交额。
+
+    两条判据的顺序是权衡过的，反过来都会出静默取错：
+
+    · **白名单宽基排在活跃度之前**。用户输 000905 想看中证500 的概率远高于
+      深市厦门港务，而「沪市那只不存在」这种情况腾讯本来就直接不返回该行、
+      根本进不了候选。真正的风险是接口偶发对指数返回 amount=0 —— 若让活跃度
+      压过白名单，那一刻 000905 就会静默滑向厦门港务，图能画、涨跌幅有数字。
+    · **活跃度仍是非白名单撞号的第一判据**。沪市有些同号标的返回昨收但久无
+      成交，「取到报价」不等于「取对标的」，这时得让位给真正在交易的那只。
+    """
+    return (0 if is_major_sh_index(q.get("tx_code")) else 1,
+            0 if q.get("alive") else 1,
+            _prior_rank(q),
+            -_f(q.get("amount")))
+
+
+def resolve_candidates(raw, timeout: int = 8):
+    """把输入解析成**按活跃度排序**的候选列表。**取数失败返回 None**。
+
+    返回 [quote, ...]（每个 quote 里带 tx_code / market / kind / alive）：
+      None  联网失败，调用方必须显示「取数失败」而不是「无此代码」
+      []    请求成功但沪深北都没有这个代码
+      len>1 确实撞号（000001 = 上证指数 + 平安银行，两边都活跃）
+            → 调用方**必须**把选择权交还用户或显式标注取了哪个市场
+
+    仅接受 6 位裸数字与带 sh/sz/bj 前缀的代码；港股 / 美股 / 商品请走
+    page_live_quote.resolve_symbol（本模块只解决撞号这一件事）。
+    """
+    s = str(raw or "").strip().upper().split(".")[0]
+    if re.fullmatch(r"(SH|SZ|BJ)\d{6}", s):          # 已显式指定市场，无歧义
+        got = fetch_quotes([s.lower()], timeout=timeout)
+        if got is None:
+            return None
+        return list(got.values())
+    if not re.fullmatch(r"\d{6}", s):
+        return []
+    got = fetch_quotes([f"{p}{s}" for p in prefixes_for(s)], timeout=timeout)
+    if got is None:
+        return None
+    return sorted(got.values(), key=rank_key)
+
+
+def is_ambiguous(cands: list) -> bool:
+    """沪深北是否存在多个同号标的。
+
+    **判据刻意只看候选个数，不看 alive**。2026-09-03 09:15 实测：开盘前全市场
+    amount=0、high/low=0，alive 一律 False；若要求「另一只也在交易」才算撞号，
+    盘前就一条都标不出来 —— 而撞号是结构事实，跟当刻有没有成交无关。
+    腾讯对不存在的标的直接不返回该行，所以「候选 > 1」本身已是充分证据。
+    """
+    return len(cands) > 1
+
+
+def describe_alternatives(cands: list) -> list:
+    """把除首选之外的候选描述成「市场+类型·名称」，供 UI 与推送文案标注。"""
+    return [f"{market_label(q.get('tx_code'))}{q.get('kind', '')}·{q.get('name', '')}"
+            for q in cands[1:]]
+
+
+def resolve(raw, timeout: int = 8):
+    """取**最可能**的那一个候选。**取数失败返回 None，无此代码返回 {}**。
+
+    结果里附 `ambiguous`（沪深北是否还有别的同号标的）与 `alternatives`
+    （其余候选的「市场+名称」，供 UI 或推送文案标注）。调用方**不得**忽略
+    ambiguous 就直接展示 —— 那就退回成静默取错了。
+    """
+    cands = resolve_candidates(raw, timeout=timeout)
+    if cands is None:
+        return None
+    if not cands:
+        return {}
+    best = dict(cands[0])
+    best["ambiguous"] = is_ambiguous(cands)
+    best["alternatives"] = describe_alternatives(cands)
+    return best
+
+
+def market_label(tx_code: str) -> str:
+    return {"sh": "沪市", "sz": "深市", "bj": "北交所",
+            "hk": "港股", "us": "美股"}.get(str(tx_code or "")[:2].lower(), "")
+
+
+def kline_url(tx_code: str, limit: int = 260, period: str = "day",
+              adjust: str = "qfq") -> str:
+    """前复权 K 线 URL。北交所自动切 newfqkline（老端点对 bj 只返回 1 根）。
+
+    limit 上限 800：>=801 会**静默退回 640 根**，>=3000 直接返回 0 根。
+    """
+    ep = KLINE_EP.get(market_of(tx_code), "fqkline")
+    return (f"https://web.ifzq.gtimg.cn/appstock/app/{ep}/get"
+            f"?param={tx_code},{period},,,{min(int(limit), 800)},{adjust}")
+
+
+def xueqiu_url(tx_code: str) -> str:
+    """雪球个股页。前缀必须取自解析结果，不能再按 6/5/9 猜 —— 猜错就跳到
+    另一只同号标的的页面（000905 会跳到厦门港务）。"""
+    pfx = str(tx_code or "")[:2].upper()
+    return f"https://xueqiu.com/S/{pfx}{str(tx_code)[2:]}" if pfx else ""

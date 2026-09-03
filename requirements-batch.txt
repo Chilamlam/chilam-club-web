@@ -6,6 +6,10 @@
 # 为什么不写在 yml 里：PAT 不带 workflow scope 时改不了 yml，
 # 而「加一个依赖」是最常发生的变更之一。放到普通文件里就能自由推送。
 pandas
+# numpy 必须显式声明：scorecard.py / sentiment.py 顶层 `import numpy as np`，
+# 缺它整步跑批直接 ImportError（当日战绩与情绪产物都不落盘）。目前靠 pandas 的
+# 传递依赖侥幸装上，不是保证。见 requirements.txt 同处注释。
+numpy>=1.26
 tushare
 akshare
 requests

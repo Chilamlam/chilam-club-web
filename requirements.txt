@@ -1,5 +1,13 @@
+# 前端运行依赖（Streamlit Cloud 装这份）。跑批依赖另见 requirements-batch.txt。
 streamlit>=1.49,<2.0
 pandas
+# numpy 必须显式声明：tech_analysis / page_macro_erp / scorecard / sentiment 四个模块
+# 顶层就是 `import numpy as np`，缺它是**模块加载即 ImportError**（整页白屏，
+# 2026-09-02 那次白屏的代价是全天不可用）。此前一直没崩，只是 pandas 与 streamlit
+# 把 numpy 当自己的依赖顺带装上了 —— 那是借来的运气，pip 哪天解出不带 numpy 的
+# 组合就翻车。下界 1.26 与 pandas 3.x 的要求一致；不设上界以免与 pandas 解析冲突。
+# 代码已核对不含 np.NaN / np.float_ 等 numpy 2.0 移除的 API，1.x/2.x 均可。
+numpy>=1.26
 akshare
 plotly
 google-generativeai

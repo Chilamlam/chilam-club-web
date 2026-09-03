@@ -12,8 +12,10 @@
 3. 报价时间戳必须在最近 5 天内（拦过期/写死数据）
 4. 沪深300 基准必须可取（否则「vs 大盘」无从计算）
 5. 代码规范化 _tx_code 对沪/深/ETF 的前缀判断正确
-6. 日K 通道可用且行数足够跑技术分析
-7. 取不到报价时必须返回缺失而不是补 0
+6. 沪深撞号代码必须取到用户想看的那只（000905=中证500 而非深市厦门港务），
+   且如实标出 ambiguous —— 这是本页最贵的静默取错，两只都返回合法报价
+7. 日K 通道可用且行数足够跑技术分析；北交所必须走 newfqkline
+8. 取不到报价时必须返回缺失而不是补 0
 """
 from __future__ import annotations
 
@@ -82,10 +84,12 @@ def test_quote_channel() -> None:
 def test_code_normalize() -> None:
     import page_watchlist as wl
 
-    # 2026-08-29 逐个实测腾讯 qt.gtimg.cn 的前缀要求，勿凭猜测改动
+    # 2026-08-29 逐个实测腾讯 qt.gtimg.cn 的前缀要求，勿凭猜测改动。
+    # 注意 _tx_code 已降级为「猜测型退路」：它对沪深撞号代码会猜错（000905→sz），
+    # 所以这里只校验它在无歧义号段上的行为，撞号由 test_collision_codes 负责。
     cases = {
         "600519": "sh600519", "600519.SH": "sh600519",
-        "000001": "sz000001", "300750": "sz300750",
+        "300750": "sz300750",
         "159915": "sz159915", "510300": "sh510300",
         "920895": "bj920895",            # 北交所新号段必须 bj 前缀，sh/sz 返回空
         "430139": "bj430139",            # 北交所老号段
@@ -94,6 +98,67 @@ def test_code_normalize() -> None:
     for raw, want in cases.items():
         got = wl._tx_code(raw)
         check(f"代码规范化 {raw} → {want or '(空)'}", got == want, f"实得 {got!r}")
+
+
+# 沪深同号实测错例（2026-09-03）。左边是用户输入，右边是**正确**结果；
+# 第三列是「猜前缀会取到的那只」——断言必须能把这两者区分开，
+# 只判「取到了报价」是拦不住的：两只都返回合法报价，图能画、涨跌幅有数字。
+COLLISION_CASES = [
+    ("000905", "sh000905", "中证500", 1000.0, 20000.0, "厦门港务"),
+    ("000016", "sh000016", "上证50",   500.0, 10000.0, "*ST康佳A"),
+    ("000300", "sh000300", "沪深300", 1000.0, 20000.0, None),   # sz000300 腾讯不返回
+]
+
+
+def test_collision_codes() -> None:
+    """沪深撞号：必须取到用户想看的那只，且如实标出 ambiguous。
+
+    这是本页最贵的一处静默取错——原实现按「6/5/9 开头算沪市」猜前缀，
+    000905 会取成深市「厦门港务」8.90，页面照常渲染，用户毫无识别可能。
+    """
+    import page_watchlist as wl
+
+    codes = tuple(c for c, *_ in COLLISION_CASES)
+    q = wl.fetch_quotes(codes)
+    if not q:
+        check("撞号用例取数可用", False, "报价通道整体失败，本组什么都没验到")
+        return
+    for bare, want_tx, want_name, lo, hi, wrong_name in COLLISION_CASES:
+        v = q.get(bare)
+        if not v:
+            check(f"{bare} 取到报价", False, "沪深都没返回")
+            continue
+        check(f"{bare} 解析到 {want_tx}（{want_name}）",
+              v.get("tx_code") == want_tx and want_name in v.get("name", ""),
+              f"实得 {v.get('tx_code')}「{v.get('name')}」")
+        # 量级断言：写死数字明天必假红，量级足以区分 7729 与 8.90
+        check(f"{bare} 价格量级属于 {want_name}",
+              lo <= v.get("price", 0) <= hi,
+              f"{v.get('price')} 应在 [{lo}, {hi}]")
+        if wrong_name:
+            check(f"{bare} 没有取成同号的「{wrong_name}」",
+                  wrong_name not in v.get("name", ""), f"{v.get('name')}")
+            check(f"{bare} 已标记 ambiguous 并列出另一只",
+                  v.get("ambiguous") is True and any(wrong_name in a
+                                                     for a in v.get("alternatives", [])),
+                  f"ambiguous={v.get('ambiguous')} alt={v.get('alternatives')}")
+
+    # 元断言：确认真的走了消歧路径（撞号例子必须至少有一条被标 ambiguous），
+    # 否则上面几条在「探测被跳过」时也能全绿。
+    check("元断言: 撞号消歧路径确实执行",
+          any(q.get(c, {}).get("ambiguous") for c, *_ in COLLISION_CASES),
+          f"{[(c, q.get(c, {}).get('ambiguous')) for c, *_ in COLLISION_CASES]}")
+
+
+def test_bj_kline_endpoint() -> None:
+    """北交所日K必须走 newfqkline：老 fqkline 只返回当天 1 根，既不报错也不为空，
+    页面会把它误报成「K线不足 30 根」——归因错误的报错比未知错误更贵。"""
+    import page_watchlist as wl
+
+    df = wl._fetch_daily_kline("bj920982", limit=260)
+    check("北交所日K 根数足够（老端点只给 1 根）", len(df) >= 100, f"{len(df)} 根")
+    if not df.empty:
+        check("北交所日K 收盘价全为正", bool((df["close"] > 0).all()))
 
 
 def test_benchmark_present() -> None:
@@ -168,10 +233,12 @@ if __name__ == "__main__":
     print("=" * 60)
     test_no_hardcoded_prices()
     test_code_normalize()
+    test_collision_codes()
     test_quote_channel()
     test_benchmark_present()
     test_missing_quote_is_none()
     test_daily_kline_channel()
+    test_bj_kline_endpoint()
     test_tech_layer_contract()
     print("-" * 60)
     if FAIL:

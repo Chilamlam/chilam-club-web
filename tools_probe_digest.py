@@ -42,6 +42,7 @@ SRC_DIGEST = open(os.path.join(ROOT, "digest.py"), encoding="utf-8").read()
 SRC_DAILY = open(os.path.join(ROOT, "daily_digest.py"), encoding="utf-8").read()
 SRC_PAGE = open(os.path.join(ROOT, "page_digest.py"), encoding="utf-8").read()
 SRC_APP = open(os.path.join(ROOT, "app.py"), encoding="utf-8").read()
+SRC_SYMRES = open(os.path.join(ROOT, "symbol_resolve.py"), encoding="utf-8").read()
 
 # ---------- 在临时目录里造一套完整产物，避免污染真实 data/ ----------
 WORK = tempfile.mkdtemp(prefix="digest_probe_")
@@ -329,8 +330,31 @@ ck("def fallback_pct_map" in SRC_DAILY, "提供个性化涨幅兜底通道（不
 ck("if not pct_map:" in SRC_DAILY, "仅在全市场取数失败时才走兜底（正常路径不变）")
 ck("day != date_key" in _SEG_FB,
    "兜底必须校验行情日期：拿到别的交易日的涨幅要整段丢弃，不可冒充今日")
-ck("qt.gtimg.cn" in _SEG_FB, "兜底走腾讯行情（纯 stdlib，无额外依赖）")
+# 兜底走腾讯行情（纯 stdlib）。URL 已收进 symbol_resolve，这里改判「用了那个模块」
+# 而不是判 URL 字面量——否则收口之后断言会误报。
+ck("qt.gtimg.cn" in SRC_SYMRES and "import symbol_resolve" in SRC_DAILY,
+   "兜底走腾讯行情（URL 收在 symbol_resolve，纯 stdlib 无额外依赖）")
 ck("import tushare" not in _SEG_FB, "兜底通道不复用失效的 tushare 依赖")
+# 撞号是这条通道最贵的坑：兜底文案会以「中证500」的名义把深市厦门港务的涨幅推进
+# 用户微信，数字合法、日志平静，用户毫无识别可能。所以必须走消歧而不是猜前缀。
+ck("_tx_code(" not in _SEG_FB,
+   "兜底不得再用朴素前缀规则 _tx_code（000905 会静默取成深市厦门港务）")
+ck("sr.prefixes_for" in _SEG_FB and "sr.rank_key" in _SEG_FB,
+   "兜底探沪深北全部前缀并按当日活跃度取舍（symbol_resolve 单点规则）")
+# 留痕断言必须用 AST 认「真有一条 print 把 ambiguous 打出来」。
+# 判 `"撞号" in _SEG_FB` 是假断言：函数 docstring 本身就写了「撞号」二字，
+# 把 print 整条删掉照样通过（2026-09-03 反验实测抓到）。
+_fb_ast = next((n for n in ast.walk(ast.parse(SRC_DAILY))
+                if isinstance(n, ast.FunctionDef) and n.name == "fallback_pct_map"), None)
+if _fb_ast is None:
+    ck(False, "fallback_pct_map 未找到（AST 断言什么都没验到）")
+else:
+    _amb_printed = any(
+        isinstance(c, ast.Call) and isinstance(c.func, ast.Name) and c.func.id == "print"
+        and any(isinstance(x, ast.Name) and x.id == "ambiguous" for x in ast.walk(c))
+        for c in ast.walk(_fb_ast))
+    ck(_amb_printed,
+       "撞号消歧结果要打进日志留痕，将来先验判错时能直接定位是哪个代码取歪了")
 
 # 「投递成功 N/N」这行读不出用户收到的是个性化版还是通用版：个性化渲染成空时，
 # 用户照样收到一条计入成功的通用摘要，日志毫无异常 → 付费独占内容静默消失。
@@ -344,9 +368,13 @@ try:
     _dd_fb = importlib.import_module("daily_digest")
     ck(_dd_fb.fallback_pct_map([], "20260828") == {},
        "兜底空输入返回空 dict（不发请求）")
-    ck(_dd_fb._tx_code("603259") == "sh603259" and _dd_fb._tx_code("000506") == "sz000506"
-       and _dd_fb._tx_code("920099") == "bj920099",
-       "兜底代码前缀规则与 page_watchlist._tx_code 一致（沪/深/北三段）")
+    # 撞号真值：000905 必须解析到沪市中证500，而不是深市厦门港务。
+    # 这里只验解析（不联网也能跑的那半），联网真值由 tools_probe_symbol_resolve.py 验。
+    ck(_dd_fb.sr.prefixes_for("000905")[0] == "sh"
+       and "sz" in _dd_fb.sr.prefixes_for("000905"),
+       "兜底对 000905 这类撞号代码会探沪深两市（沪市优先）")
+    ck(_dd_fb.sr.prefixes_for("920099")[0] == "bj",
+       "兜底对北交所号段首选 bj 前缀")
 except Exception as _e:                                     # noqa: BLE001
     ck(False, f"兜底通道可调用（{type(_e).__name__}: {_e}）")
 try:
