@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-03 23:09:56",
+  "date": "2026-09-04 00:41:20",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -255,7 +255,7 @@
       "change": 3.31,
       "vol_yi": 2.46,
       "tag": "📈 强势",
-      "premium_rate": 1.86
+      "premium_rate": -0.65
     },
     {
       "code": "159286.SZ",
@@ -264,7 +264,7 @@
       "change": 3.24,
       "vol_yi": 0.9,
       "tag": "📈 强势",
-      "premium_rate": 1.7
+      "premium_rate": -0.8
     },
     {
       "code": "513780.SH",
@@ -273,7 +273,7 @@
       "change": 3.17,
       "vol_yi": 6.78,
       "tag": "📈 强势",
-      "premium_rate": 2.08
+      "premium_rate": 0.05
     },
     {
       "code": "520970.SH",
@@ -282,7 +282,7 @@
       "change": 3.01,
       "vol_yi": 0.96,
       "tag": "📈 强势",
-      "premium_rate": 1.33
+      "premium_rate": -0.71
     },
     {
       "code": "520500.SH",
@@ -300,7 +300,7 @@
       "change": 2.91,
       "vol_yi": 5.04,
       "tag": "📈 强势",
-      "premium_rate": 2.01
+      "premium_rate": -0.04
     },
     {
       "code": "159567.SZ",
@@ -327,7 +327,7 @@
       "change": 2.86,
       "vol_yi": 2.34,
       "tag": "🏗️ LOF套利",
-      "premium_rate": 11.52
+      "premium_rate": 9.69
     },
     {
       "code": "159316.SZ",
@@ -354,7 +354,7 @@
       "change": 2.78,
       "vol_yi": 0.08,
       "tag": "📈 强势",
-      "premium_rate": 1.21
+      "premium_rate": -0.6
     },
     {
       "code": "513280.SH",
@@ -372,7 +372,7 @@
       "change": 2.73,
       "vol_yi": 5.35,
       "tag": "📈 强势",
-      "premium_rate": 1.11
+      "premium_rate": -0.75
     },
     {
       "code": "159132.SZ",
