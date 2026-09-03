@@ -469,18 +469,123 @@ ck(not re.search(r"\$\{\{\s*toJSON\s*\(\s*secrets\s*\)\s*\}\}", _wf_code),
    "yml 不得用 toJSON(secrets) 整体透传（会被 GitHub 供应链保护挂起，导致定时跑批静默不执行）")
 # 逐个点名的代价是「漏点名」会让功能静默失效（引用不存在的 secret 只得到空字符串，
 # 不报错）。所以这里反过来断言：代码里实际读取的每个密钥名，yml 都必须点到。
-_env_names = set()
-for _f in sorted(glob.glob(os.path.join(ROOT, "daily_*.py")) +
-                 [os.path.join(ROOT, "database.py")]):
+#
+# ★ 2026-09-03 判据收口，堵三个洞：
+#   洞 1（漏抓形态）：原先只抓 `_env("XXX")` / `getenv("XXX")` 这种**名字直接
+#       写在调用括号里**的形态，抓不到把名字放进元组再遍历的写法：
+#           for k in ("DIGEST_LEDGER_SALT", "SUPABASE_KEY"): v = _env(k)
+#       daily_digest 的账本盐正是这么写的 —— 断言在、但覆盖不到，等于没有。
+#       → 补一条按**命名约定**（已知前缀）抓字面量的判据。宁可多抓（多点一个
+#         不存在的 secret 无害，只得到空串），也不能漏抓。
+#   洞 2（假通过）：原先判「名字 in yml 全文」。而这个 yml 的注释里正当地写满了
+#       secret 名（解释为何回退 toJSON 透传），于是「注释里提过」也算点名 ——
+#       注释不会变成环境变量。这个洞随时会放过一个真·漏点名的 secret。
+#       → 改为严格匹配 `NAME: ${{ secrets.NAME }}`，顺带能抓出「映射到错误
+#         secret」这种手滑（如 DIGEST_SMTP_HOST: ${{ secrets.SMTP_HOST }}）。
+#   洞 3（过度报警）：`_ledger_salt()` 是「首个非空即用」的**回落链**，链上任一
+#       成员在 yml 点到就不会静默失效 —— 这是设计意图，不是疏漏。一律报缺会
+#       训练人忽略自检输出，和漏抓一样有害（8/30 已因同类假失败踩过三次）。
+#       → 用 AST 识别「元组遍历 + 短路返回」的回落链，链上**至少一个**成员被
+#         严格点名时豁免其余成员；一个都没点到则照旧报缺（豁免不是无条件的），
+#         且**被直接读取的名字永不豁免**（它有自己的独立用途，缺了照样失效）。
+_SECRET_PREFIXES = ("DIGEST", "WXPUSHER", "SUPABASE", "TUSHARE", "GEMINI")
+_SECRET_FILES = sorted(glob.glob(os.path.join(ROOT, "daily_*.py")) +
+                       [os.path.join(ROOT, "database.py"),
+                        os.path.join(ROOT, "wxpusher.py")])
+
+
+def _yml_maps(name: str) -> bool:
+    """yml 是否把这个 secret 真正注入了环境（注释里提到一句不算）。"""
+    return bool(re.search(rf"^\s*{re.escape(name)}\s*:\s*"
+                          rf"\$\{{\{{\s*secrets\.{re.escape(name)}\s*\}}\}}\s*$",
+                          _wf_code, re.M))
+
+
+def _fallback_chains(src: str) -> list[list[str]]:
+    """找出「for k in (A, B, C): ...; 短路返回」这种密钥回落链。
+
+    必须要求短路（return / break）：不短路的遍历语义是「这些都要用到」，
+    缺一个就是缺一个，不能豁免。
+
+    只认 `ast.For` 语句，不认生成器表达式 —— daily_digest 里
+    `any(_env(k) for k in ("WXPUSHER_APP_TOKEN", ...))` 那句是
+    「任一渠道已配置吗」的探测，三个名字各有独立用途，本就不该豁免。
+    """
+    out = []
+    for node in ast.walk(ast.parse(src)):
+        if not (isinstance(node, ast.For) and isinstance(node.target, ast.Name)
+                and isinstance(node.iter, (ast.Tuple, ast.List))):
+            continue
+        elts = node.iter.elts
+        mem = [e.value for e in elts if isinstance(e, ast.Constant)
+               and isinstance(e.value, str)
+               and re.fullmatch(r"[A-Z][A-Z0-9_]{3,}", e.value)]
+        if len(mem) < 2 or len(mem) != len(elts):
+            continue        # 混了非密钥字面量的元组不当回落链看
+        _var = node.target.id
+        _short = any(isinstance(s, (ast.Return, ast.Break)) for s in ast.walk(node))
+        _reads = any(isinstance(s, ast.Call)
+                     and (getattr(s.func, "id", None)
+                          or getattr(s.func, "attr", None)) in ("_env", "getenv", "get")
+                     and any(isinstance(a, ast.Name) and a.id == _var for a in s.args)
+                     for s in ast.walk(node))
+        if _short and _reads:
+            out.append(mem)
+    return out
+
+
+# 检测器自测：这三条不依赖生产代码当前长什么样 —— 就算回落链被删掉、
+# 检测器退化成「什么都认」或「什么都不认」，它们也会立刻变红。
+#
+# ★ _FIX_ALL 必须是**真的 for 语句**。第一版写成 `any(_env(k) for k in (...))`，
+#   而生成器表达式在 AST 里是 GeneratorExp、根本走不到 ast.For 分支 ——
+#   于是不管检测器怎么改（哪怕把 _short 条件整个删掉）它都返回 []，
+#   这条断言永不失败 = 没有断言。改成无短路的 for 语句后才真正验到 _short。
+# ★ _FIX_NOREAD 是反验补出来的：只有前两条 fixture 时，把 _reads 条件删掉
+#   （变成「任何元组遍历 + 短路都算密钥回落链」）两条依然全绿 ——
+#   一个没有断言守卫的条件等于随时会失效。这条专门守 _reads。
+_FIX_CHAIN = ('def f():\n    for k in ("AAA_ONE", "BBB_TWO"):\n'
+              '        v = _env(k)\n        if v:\n            return v\n    return ""\n')
+_FIX_ALL = ('def g():\n    for k in ("AAA_ONE", "BBB_TWO"):\n'
+            '        print(_env(k))\n')
+_FIX_NOREAD = ('def h():\n    for k in ("AAA_ONE", "BBB_TWO"):\n'
+               '        if k in TABLE:\n            return k\n    return ""\n')
+ck(_fallback_chains(_FIX_CHAIN) == [["AAA_ONE", "BBB_TWO"]],
+   "【元断言】回落链检测器认得「元组遍历 + 短路返回」")
+ck(_fallback_chains(_FIX_ALL) == [],
+   "【元断言】回落链检测器不把「全都要用」的遍历误判成回落链（否则缺一个也被豁免）")
+ck(_fallback_chains(_FIX_NOREAD) == [],
+   "【元断言】回落链检测器要求循环变量真被当密钥名读取（否则任意字符串元组都能豁免 secret）")
+_env_names, _direct_names, _chains = set(), set(), []
+for _f in _SECRET_FILES:
     _src = open(_f, encoding="utf-8").read()
-    _env_names |= set(re.findall(
+    _d = set(re.findall(
         r"(?:getenv|environ\.get)\(\s*[\"']([A-Z][A-Z0-9_]{3,})[\"']", _src))
-    _env_names |= set(re.findall(r"_env\(\s*[\"']([A-Z][A-Z0-9_]{3,})[\"']", _src))
+    _d |= set(re.findall(r"_env\(\s*[\"']([A-Z][A-Z0-9_]{3,})[\"']", _src))
+    _direct_names |= _d
+    _env_names |= _d
+    _env_names |= set(re.findall(
+        rf"[\"']((?:{'|'.join(_SECRET_PREFIXES)})_[A-Z0-9_]{{2,}})[\"']", _src))
+    _chains += _fallback_chains(_src)
 # ALL_SECRETS 是已废弃的透传入口，BACKFILL_DAYS/ONLY_STEPS 来自 workflow 输入而非 secrets
 _env_names -= {"ALL_SECRETS", "BACKFILL_DAYS", "ONLY_STEPS"}
-_missing = sorted(n for n in _env_names if n not in wf)
+_direct_names -= {"ALL_SECRETS", "BACKFILL_DAYS", "ONLY_STEPS"}
+# 元断言：判据必须真的抓到东西，否则上面那段扩容是空话
+ck(len(_env_names) >= 15,
+   f"【元断言】密钥名扫描覆盖面（实际 {len(_env_names)} 个，含元组内的间接引用）")
+# 回落链成员豁免：链上有人被点名 → 其余成员缺失不会静默失效（这是设计）。
+# 但「另有直接读取处」的名字永不豁免，且链上一个都没点名时照旧全员报缺。
+_optional = set()
+for _mem in _chains:
+    if any(_yml_maps(_m) for _m in _mem):
+        _optional |= {_m for _m in _mem if _m not in _direct_names}
+_missing = sorted(n for n in _env_names - _optional if not _yml_maps(n))
 ck(not _missing,
-   f"代码读取的密钥必须都在 yml 里点名，否则静默变空字符串。缺：{_missing}")
+   f"代码读取的密钥必须在 yml 里真正注入（NAME: ${{{{ secrets.NAME }}}}，"
+   f"注释里提到不算），否则静默变空字符串。缺：{_missing}")
+ck(_optional == {"DIGEST_LEDGER_SALT"},
+   f"【元断言】豁免集合必须恰好是已知的可选回落项，实际：{sorted(_optional)}"
+   f"（多出来说明有 secret 被误豁免，此断言即形同虚设）")
 ck("backfill_days" in wf, "workflow_dispatch 支持首次历史回溯入参")
 # 注意用正则匹配「行首缩进 + 键」而非裸字符串：yml 的注释里正当地提到了
 # continue-on-error（解释失败语义搬去了哪里），裸 in 判断会被注释误伤。

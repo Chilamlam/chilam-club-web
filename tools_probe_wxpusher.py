@@ -94,12 +94,50 @@ def check_digest() -> None:
     # 「无人可投」必须算问题
     ck("有效订阅 0 位" in src, "「有效订阅 0 位」必须触发告警——这是最易被忽略的失败形态")
 
-    # 主流程渠道顺序：wxpusher 在 email 之前，且 serverchan 不在投递列表里
-    m = re.search(r"for f in \(send_wxpusher\(.*?send_email\(.*?\)\)", src, re.S)
-    ck(m is not None, "主流程投递列表须为 (send_wxpusher, send_wecom, send_email)")
+    # 主流程渠道分工：三个用户投递渠道都要在，serverchan 不得混进失败汇总。
+    #
+    # ★ 这条断言 2026-09-03 修过一次：原写法是
+    #     re.search(r"for f in \(send_wxpusher\(.*?send_email\(.*?\)\)")
+    #   即把「三渠道内联在同一个 for 元组里」这个**形状**当成了规则。
+    #   加账本去重后渠道要先接返回值（`f_wx, m_wx = send_wxpusher(...)`）再汇总，
+    #   形状一变断言就红，而规则本身一点没破。
+    #   断言必须落在规则上（谁参与投递、谁不参与），不能落在写法上。
+    seg_main = src[src.find("\ndef main("):]
+    ck(len(seg_main) > 500, f"【元断言】main() 段切到了（{len(seg_main)} 字符）")
+    for fn in ("send_wxpusher(", "send_email(", "send_wecom("):
+        ck(fn in seg_main, f"main() 必须调用 {fn.rstrip('(')}（用户投递渠道）")
+    i_wx, i_mail = seg_main.find("send_wxpusher("), seg_main.find("send_email(")
+    ck(0 < i_wx < i_mail, "WxPusher 排在邮件之前（主通道优先，邮件只兜未绑微信的）")
+
+    # 失败汇总元组：三渠道的返回值都要进，serverchan 绝不能进
+    #
+    # ★ 正则用 (.*?) 而不是 ([^)]*)：元组里一旦出现函数调用（正是「把 serverchan
+    #   混进投递列表」这个 bug 的形态），`[^)]*` 会在内层右括号处断掉、整条失配，
+    #   于是报出来的是「缺失败汇总」而不是「serverchan 不该在这里」——
+    #   归因错误的报错比未知错误更贵。
+    m = re.search(r"for f in \((.*?)\):", seg_main, re.S)
+    ck(m is not None, "main() 须有统一的渠道失败汇总（否则某渠道失败会被吞掉）")
     if m:
-        ck("send_serverchan" not in m.group(0),
-           "send_serverchan 不得出现在用户投递列表里")
+        tup = m.group(1)
+        ck(tup.count(",") >= 2,
+           f"失败汇总须覆盖三个渠道（实际元组：{tup}）")
+        ck("serverchan" not in tup.lower(),
+           "send_serverchan 不得出现在用户投递失败汇总里（它只是管理员告警）")
+        # 汇总项必须**至少有一处**从 send_* 调用取值。
+        # ★ 这里不能把 `= None` 算作合法来源（第一版就是这么写的，等于亲手放过
+        #   `f_wx, m_wx = None, []` 这个「恒判成功」的 bug）。f_wecom 确实存在
+        #   `f_wecom = None` 的跳过分支，但它另有 `f_wecom = send_wecom(base)`，
+        #   所以「存在一处 send_ 赋值」才是正确判据，而不是「所有赋值都来自 send_」。
+        names = [x.strip() for x in tup.split(",") if x.strip().isidentifier()]
+        ck(len(names) >= 3, f"【元断言】汇总项解析出 {len(names)} 个变量名（须≥3）")
+        for v in names:
+            ck(re.search(rf"\b{re.escape(v)}\b\s*(,\s*\w+\s*)?=\s*send_\w+\(",
+                         seg_main) is not None,
+               f"失败汇总项 {v} 至少有一处取自 send_* 返回值"
+               f"（只赋硬编码值 = 永不失败的断言）")
+    # serverchan 在 main 里只允许通过 _admin_alert 间接调用
+    ck("send_serverchan(" not in seg_main,
+       "main() 不得直接调 send_serverchan（告警组装统一走 _admin_alert）")
 
     # configured 判定必须包含 WXPUSHER_APP_TOKEN，且不再把 SERVERCHAN 当投递渠道
     m2 = re.search(r"configured = any\(_env\(k\) for k in \(([^)]*)\)", src, re.S)

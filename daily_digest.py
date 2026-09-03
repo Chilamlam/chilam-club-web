@@ -32,6 +32,23 @@
      承诺一个不存在的通道，用户会守着邮箱等一封永远不来的信，
      而日志跟「这个人没订阅」完全一样，谁都发现不了。
 
+5. **同一天不重复轰炸**（9/3 新增，实测踩出来的）。GitHub Actions 的 schedule
+   被平台延迟 1~9 小时已成常态，加上看门狗补跑，实测 08-30~09-02 每天有
+   2~3 条 run 落地，每条都会走到这里 —— 付费用户同一份摘要连收 3 遍，
+   最后一遍常在凌晨 01:5x。半夜被推醒是直接退订的理由。
+   现在按 `data/digest/push_ledger.json` 逐目标记录「已经收到过哪份内容」，
+   **指纹一致则跳过，内容有更新则补推**。为什么不按日期去重：那会让
+   「当天第一次推的是坏版本」永远无法补救（2026-09-01 RPS 扑空正是这形状），
+   把防轰炸做成了防修复。
+
+   ★ 账本里的目标键必须是 **HMAC 摘要，不是 UID/邮箱原文**。本仓库是
+   **公开**的，而账本随 data/ 被 Actions 提交：存原文等于把 WxPusher UID
+   （配上同样在跑批环境里的 app_token 就能冒名推送）和付费用户邮箱
+   （PII，且"出现在账本里"本身就等于"此人是会员"）挂到公网上。
+   裸 sha256 也不行 —— 邮箱可枚举，那等于提供一个"输入邮箱查是否会员"的接口。
+   一个 secret 都取不到时**放弃记账**（当天多推一次），绝不退化成硬编码盐：
+   盐写在仓库里，"已脱敏"就只是自我安慰。
+
 环境变量（GitHub Secrets）：
   WXPUSHER_APP_TOKEN     WxPusher 应用 token（用户投递主通道，AT_ 开头）
   DIGEST_SERVERCHAN_KEY  Server酱 SendKey —— **仅管理员告警**
@@ -41,12 +58,17 @@
   DIGEST_TEST_TO         调试收件邮箱，逗号分隔
   WXPUSHER_TEST_UID      调试推送 UID，逗号分隔（自测用，无需真实订阅）
   DIGEST_DRY_RUN=1       只归档不发送
+  DIGEST_LEDGER_SALT     账本目标键的 HMAC 密钥（可选；未配则回落到
+                         SUPABASE_KEY / WXPUSHER_APP_TOKEN，全无则不记账）
 
-退出码：0 正常（含全渠道未配置）/ 2 部分渠道失败 / 3 摘要无内容或归档失败
+退出码：0 正常（含全渠道未配置、含全员已收到而整体跳过）
+        2 部分渠道失败 / 3 摘要无内容或归档失败
 """
 from __future__ import annotations
 
 import datetime
+import hashlib
+import hmac
 import json
 import os
 import re
@@ -64,6 +86,11 @@ import symbol_resolve as sr
 
 DIGEST_DIR = os.path.join("data", "digest")
 HIST_DIR = os.path.join(DIGEST_DIR, "history")
+# 已投递账本：记录「哪一天、哪份内容、已经推给谁了」。
+# 放在 data/ 下随 Actions 一起提交，这样多次 run 之间能互相看见彼此推过什么。
+# 不能放 data/digest/history/（那里 page_digest._history_dates() 会按
+# 「纯数字 .md」筛选，.json 不会被误收，但同目录混放两类语义的文件迟早出事）。
+LEDGER_PATH = os.path.join(DIGEST_DIR, "push_ledger.json")
 
 
 def _bj_now() -> datetime.datetime:
@@ -245,6 +272,174 @@ def archive(payload: dict, date_key: str) -> None:
     print(f"✅ 摘要已归档 → {DIGEST_DIR}/latest.md 与 history/{date_key}.md")
 
 
+# ================= 已投递账本（防重复轰炸） =================
+#
+# 为什么需要它（2026-09-03 实测）：
+#   跑批一天真的会跑好几次 —— schedule 两条 cron（19:37 / 22:20）都在被平台
+#   延迟 1~9 小时，实测 08-30 起每天 2~3 条 run 落地，加上看门狗补跑派发，
+#   最多一天 4 次。每一次都会走到 send_wxpusher，于是付费用户同一份摘要
+#   连收 3 遍，最后一遍常在凌晨 01:5x —— 半夜被推醒，是直接退订的理由。
+#   实测 08-30 / 08-31 / 09-01 / 09-02 四天全部重复推送（3、3、2、3 次）。
+#
+# 幂等键为什么取「内容指纹」而不是「日期」：
+#   按日期去重 = 当天第一次推完就永久闭嘴。而第一次很可能是坏的
+#   （2026-09-01 RPS 连续三班扑空、摘要缺失项一堆），修好后补跑本该补推一次，
+#   按日期去重会让用户手里永远留着坏版本 —— 把「防轰炸」做成了「防修复」。
+#   按内容指纹：内容一字不变才跳过，变好了就补推。实测同一 date_key 的
+#   2~3 条 run 摘要正文逐字相同，故指纹去重能完全消掉这批重复。
+#
+# 指纹取 markdown 全文而不是摘要行：摘要行只有几个指标，个性化段落、
+# 新股池、战绩段变了它照样不变，会把「内容已更新」误判成「还是那份」。
+#
+# 账本按 UID / email 逐个记录，而不是只记一个全局标记：
+#   同一天里新用户可能刚订阅、或某个 UID 上次失败了。逐个记录才能做到
+#   「已经收到这版内容的人跳过，没收到的人照发」。只记全局标记会让
+#   新订阅用户当天什么都收不到，而日志显示「已推送，跳过」，无人发现。
+
+def _fingerprint(markdown: str) -> str:
+    return hashlib.sha256(markdown.encode("utf-8")).hexdigest()[:16]
+
+
+def _ledger_salt() -> str:
+    """目标键摘要用的 HMAC 密钥。取任一已配置的 secret，绝不落盘。
+
+    为什么要带密钥而不是裸 sha256：邮箱是**可枚举**的。裸 sha256 的账本等于
+    「输入一个邮箱就能查他是不是付费会员」的在线查询接口 —— 公开仓库里放这个
+    等于公开会员名单。HMAC 的密钥不在仓库里，这条路直接断掉。
+
+    一个都取不到时返回空串，调用方据此**放弃写账本**（见 main）。
+    绝不能退化成硬编码常量：常量就在仓库里，等于把密钥公开，
+    「带了密钥」变成纯粹的心理安慰 —— 这种假安全比不做更危险。
+
+    轮换 secret 的后果是所有键变了一次 → 当天最多多推一遍，之后自愈。
+    这个代价远小于泄露名单，故不为它引入新的 secret（PAT 无 workflow scope，
+    加 secret 就得人工改 yml）。
+
+    残余暴露面（已知并接受）：账本仍会泄露「某天有多少个目标收到了推送」，
+    即会员规模的下限。要连这个都藏起来只能把账本移出仓库（存 Supabase），
+    代价是建表 + 改取数层，暂不做。
+    """
+    for k in ("DIGEST_LEDGER_SALT", "SUPABASE_KEY", "WXPUSHER_APP_TOKEN"):
+        v = _env(k)
+        if v:
+            return v
+    return ""
+
+
+def _target_key(target) -> str:
+    """账本里的目标键必须是**不可逆摘要**，不能是 UID / 邮箱原文。
+
+    2026-09-03 收口：账本随 data/ 被 Actions 提交，而本仓库是**公开**的。
+      · WxPusher UID 是投递凭据 —— 拿到 app_token（也在跑批环境里）+ UID
+        就能冒名给这个人推消息；
+      · 邮箱是 PII，且「出现在账本里」本身就等于「此人是付费会员」。
+    账本只需回答「这个目标今天收过这份内容吗」，查询时目标已知，
+    现算一次摘要比对即可，完全不需要存原文。
+
+    群维度标记（__wecom__）不含个人信息，保留原文以便人工看账本时能读懂。
+    """
+    t = str(target)
+    if t.startswith("__") and t.endswith("__"):
+        return t
+    salt = _ledger_salt()
+    if not salt:
+        # 没有密钥就没有可用的摘要。此处**绝不**退化成裸 sha256 或硬编码盐：
+        # 那会把「已脱敏」的假象写进公开仓库。返回空串让调用方跳过记账。
+        return ""
+    return "t_" + hmac.new(salt.encode("utf-8"),
+                           t.encode("utf-8"), hashlib.sha256).hexdigest()[:16]
+
+
+def ledger_seen(done: dict | None, target) -> str | None:
+    """这个目标已收到过的内容指纹（没收到过则 None）。
+
+    渠道函数只认原始 UID / 邮箱，键的摘要化收在这一个函数里 ——
+    否则「查的时候忘了摘要」就会全员判成未推过，去重静默失效。
+
+    无密钥时 `_target_key` 返回空串 → 这里恒返 None → 全员按未推过处理。
+    即「宁可重复推一次，也不把原文写进公开仓库」。
+    """
+    k = _target_key(target)
+    if not k:
+        return None
+    return (done or {}).get(k)
+
+
+def load_ledger() -> dict:
+    """读已投递账本。**读不到与「确实没推过」必须区分**：
+
+    读失败（文件损坏、IO 错误）时返回 None 而不是 {}。调用方据此选择
+    「宁可重复推一次，也不要因为读不到账本就把所有人都当成已推过而集体漏推」。
+    集体漏推是静默失败，用户与日志都看不出异常；重复推一次至少是可见的。
+    """
+    if not os.path.exists(LEDGER_PATH):
+        return {}                                  # 确实没有账本 = 谁都没推过
+    try:
+        with open(LEDGER_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else None
+    except Exception as e:                         # noqa: BLE001
+        print(f"⚠️ 账本读取失败（{type(e).__name__}: {e}）—— 本次按「未推过」处理，"
+              f"可能重复推送一次；这比因读不到账本而集体漏推安全")
+        return None
+
+
+def save_ledger(ledger: dict) -> None:
+    try:
+        os.makedirs(DIGEST_DIR, exist_ok=True)
+        tmp = LEDGER_PATH + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(ledger, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, LEDGER_PATH)                # 原子替换，避免半截文件
+    except Exception as e:                          # noqa: BLE001
+        print(f"⚠️ 账本写入失败（{type(e).__name__}: {e}）—— 下次跑批会重复推送")
+
+
+def ledger_delivered(ledger: dict | None, date_key: str) -> dict:
+    """返回「这一天已经成功投递过的 目标 → 内容指纹」映射。
+
+    记录逐目标的指纹而不是一个全局指纹，是因为个性化段落是一人一份：
+    base 正文没变、但某个用户中途改了自选股时，他那份内容其实变了，
+    用全局指纹会把他判成「已推过」而永远收不到更新版。
+
+    ledger 为 None（读取失败）时返回空 dict = 全部当作没推过（宁可重复不可漏）。
+    """
+    if not ledger:
+        return {}
+    rec = ledger.get(date_key) or {}
+    d = rec.get("delivered")
+    return dict(d) if isinstance(d, dict) else {}
+
+
+def ledger_mark(ledger: dict, date_key: str, pairs) -> None:
+    """pairs: [(target, fingerprint), ...] —— 只记**真正投递成功**的目标。
+
+    target 在这里统一过 `_target_key()` 摘要，所以调用方传原始 UID / 邮箱即可，
+    落盘的永远是不可逆摘要。一处摘要、一处比对，不给「一边摘要一边原文」
+    留缝隙 —— 那种分叉的表现是去重静默失效（全员重复推、日志毫无异常）。
+    """
+    rec = ledger.get(date_key) or {}
+    d = rec.get("delivered")
+    d = dict(d) if isinstance(d, dict) else {}
+    dropped = 0
+    for t, fp in pairs:
+        k = _target_key(t)
+        if not k:                     # 无密钥 → 宁可不记账，也不写原文
+            dropped += 1
+            continue
+        d[k] = fp
+    if dropped:
+        print(f"⚠️ 账本跳过 {dropped} 个目标：未配置任何可用作摘要密钥的 secret，"
+              f"不能把 UID/邮箱原文写进公开仓库。后果是明天同一份内容会再推一次；"
+              f"要根治请配 DIGEST_LEDGER_SALT")
+    rec["delivered"] = d
+    rec["last_push_at"] = _bj_now().strftime("%Y-%m-%d %H:%M:%S")
+    ledger[date_key] = rec
+    # 只留最近 30 天，避免账本无限增长（history/ 已经承担长期归档）
+    for k in sorted(ledger.keys())[:-30]:
+        ledger.pop(k, None)
+
+
 # ================= 渠道 =================
 
 def _post_json(url: str, body: dict, timeout: int = 15) -> tuple[bool, str]:
@@ -265,19 +460,25 @@ def _post_json(url: str, body: dict, timeout: int = 15) -> tuple[bool, str]:
         return False, str(e)
 
 
-def send_wxpusher(rec: list[dict], pct_map: dict, base: dict) -> str | None:
-    """用户投递主通道。返回失败说明或 None。
+def send_wxpusher(rec: list[dict], pct_map: dict, base: dict,
+                  done: dict | None = None) -> tuple[str | None, list]:
+    """用户投递主通道。返回 (失败说明或 None, [(uid, 内容指纹), ...] 成功清单)。
 
     分两批发，原因是内容不同而不是为了省请求数：
       · 有自选股的用户 → 每人单独渲染（个性化段是付费的核心价值，必须一人一份）
       · 无自选股的用户 → 共用 base 正文，可以合并成一次请求（最多 2000 UID）
 
     未绑定微信的用户在这里被跳过而不是报错——他们只是还没扫码，不是故障。
+
+    `done` 是「今天已经收到过这份内容的 uid → 指纹」映射（来自账本）。
+    指纹一致的 uid 会被跳过，避免同一天被平台重复触发的跑批反复轰炸；
+    指纹不同（内容更新了、或他改了自选股）则照发。
     """
     import wxpusher as wx
     if not wx.app_token():
-        return None                                   # 未配置 = 跳过，不算失败
+        return None, []                               # 未配置 = 跳过，不算失败
 
+    done = done or {}
     extra = [u.strip() for u in _env("WXPUSHER_TEST_UID").split(",") if u.strip()]
     targets = [(r["wxpusher_uid"], r.get("watchlist") or [])
                for r in (rec or []) if r.get("wxpusher_uid")]
@@ -292,9 +493,10 @@ def send_wxpusher(rec: list[dict], pct_map: dict, base: dict) -> str | None:
 
     if not dedup:
         print("ℹ️ WxPusher 已配置但没有可投递对象（无人绑定微信，且未设 WXPUSHER_TEST_UID）")
-        return None
+        return None, []
 
-    ok_all, bad_all = [], []
+    ok_all, bad_all, marks = [], [], []
+    skipped = []
     # 个性化段是付费用户唯一独占的内容。只打「投递成功 N/N」看不出他们收到的是
     # 个性化版还是通用版——个性化渲染成空时，用户照样收到一条「成功」的通用摘要，
     # 日志毫无异常。故两类分别计数，并单独记录「本该个性化却降级」。
@@ -303,6 +505,10 @@ def send_wxpusher(rec: list[dict], pct_map: dict, base: dict) -> str | None:
     # 个性化：一人一份
     for uid, wl in [(u, w) for u, w in dedup if w]:
         p = dg.build_markdown(watchlist=wl, pct_map=pct_map)
+        fp = _fingerprint(p["markdown"])
+        if ledger_seen(done, uid) == fp:
+            skipped.append(uid)
+            continue
         # 有自选股却没渲染出自选段 = 已降级为通用版，必须显式记录而不是静默投递
         if "你的池子" not in p["markdown"]:
             degraded.append(f"…{uid[-6:]}（自选 {len(wl)} 只）")
@@ -310,23 +516,33 @@ def send_wxpusher(rec: list[dict], pct_map: dict, base: dict) -> str | None:
         ok_all += o
         bad_all += b
         n_person_ok += len(o)
+        marks += [(u, fp) for u in o]
 
     # 通用：合并一次
-    plain_uids = [u for u, w in dedup if not w]
+    base_fp = _fingerprint(base["markdown"])
+    plain_uids = [u for u, w in dedup if not w and ledger_seen(done, u) != base_fp]
+    skipped += [u for u, w in dedup if not w and ledger_seen(done, u) == base_fp]
     if plain_uids:
         o, b = wx.send_to_uids(plain_uids, base["markdown"], base["plain"])
         ok_all += o
         bad_all += b
         n_plain_ok += len(o)
+        marks += [(u, base_fp) for u in o]
 
-    print(f"{'✅' if not bad_all else '⚠️'} WxPusher 投递成功 {len(ok_all)}/{len(dedup)}"
+    # 分母用「本次实际需要投递的人数」，跳过的单独报。
+    # 若把跳过的也算进分母，日志会显示「投递成功 0/3」看起来像全挂了。
+    need = len(dedup) - len(skipped)
+    print(f"{'✅' if not bad_all else '⚠️'} WxPusher 投递成功 {len(ok_all)}/{need}"
           f"（个性化 {n_person_ok} 位｜通用 {n_plain_ok} 位）")
+    if skipped:
+        print(f"   ⏭️ 跳过 {len(skipped)} 位：今天已收到过完全相同的内容"
+              f"（防重复轰炸，内容有更新会自动补推）")
     if degraded:
         print("   ⚠️ 有自选股但个性化段落为空，已降级为通用版："
               + "、".join(degraded[:8]))
     for b in bad_all[:8]:
         print(f"   ❌ {b}")
-    return None if not bad_all else f"wxpusher: {len(bad_all)} 个 UID 失败"
+    return (None if not bad_all else f"wxpusher: {len(bad_all)} 个 UID 失败"), marks
 
 
 def send_wecom(payload: dict) -> str | None:
@@ -403,15 +619,19 @@ def _md_to_html(md: str) -> str:
             + "\n".join(out) + "</div>")
 
 
-def send_email(rec: list[dict], pct_map: dict, base: dict) -> str | None:
-    """邮件兜底通道。
+def send_email(rec: list[dict], pct_map: dict, base: dict,
+               done: dict | None = None) -> tuple[str | None, list]:
+    """邮件兜底通道。返回 (失败说明或 None, [(email, 指纹), ...] 成功清单)。
 
     只发给「有效订阅但**没绑微信**」的用户 + 调试收件人。已绑微信的走 WxPusher，
     不重复轰炸——同一条摘要收两遍会让人直接退订。
+
+    `done` 同 send_wxpusher：今天已收到过相同内容的收件人跳过。
     """
     conf = _smtp_conf()
     if not conf:
-        return None
+        return None, []
+    done = done or {}
     extra = [e.strip() for e in _env("DIGEST_TEST_TO").split(",") if e.strip()]
     targets = [(r["email"], r.get("watchlist") or [])
                for r in (rec or [])
@@ -419,9 +639,23 @@ def send_email(rec: list[dict], pct_map: dict, base: dict) -> str | None:
     targets += [(e, []) for e in extra]
     if not targets:
         print("ℹ️ 邮件渠道已配置但无收件人（订阅用户都已绑微信，且未设 DIGEST_TEST_TO）")
-        return None
+        return None, []
 
-    sent, failed = 0, []
+    # 先算指纹再决定要不要连 SMTP：全员都已收到时不该白连一次服务器
+    plan = []
+    skipped = 0
+    for email, wl in targets:
+        p = dg.build_markdown(watchlist=wl, pct_map=pct_map) if wl else base
+        fp = _fingerprint(p["markdown"])
+        if ledger_seen(done, email) == fp:
+            skipped += 1
+            continue
+        plan.append((email, p, fp))
+    if not plan:
+        print(f"   ⏭️ 邮件跳过 {skipped} 位：今天已收到过完全相同的内容")
+        return None, []
+
+    sent, failed, marks = 0, [], []
     try:
         srv = (smtplib.SMTP_SSL(conf["host"], conf["port"], timeout=25)
                if conf["port"] == 465 else
@@ -431,11 +665,9 @@ def send_email(rec: list[dict], pct_map: dict, base: dict) -> str | None:
         srv.login(conf["user"], conf["pwd"])
     except Exception as e:
         print(f"❌ SMTP 登录失败：{e}")
-        return f"smtp-login: {e}"
+        return f"smtp-login: {e}", []
 
-    for email, wl in targets:
-        # 每人单独组装：自选股不同，个性化段落也不同
-        p = dg.build_markdown(watchlist=wl, pct_map=pct_map) if wl else base
+    for email, p, fp in plan:
         msg = MIMEMultipart("alternative")
         msg["Subject"] = Header(p["title"], "utf-8")
         msg["From"] = conf["sender"]
@@ -445,6 +677,7 @@ def send_email(rec: list[dict], pct_map: dict, base: dict) -> str | None:
         try:
             srv.sendmail(conf["sender"], [email], msg.as_string())
             sent += 1
+            marks.append((email, fp))
         except Exception as e:
             failed.append(f"{email}: {e}")
     try:
@@ -452,12 +685,13 @@ def send_email(rec: list[dict], pct_map: dict, base: dict) -> str | None:
     except Exception:
         pass
 
-    print(f"✅ 邮件发送 {sent}/{len(targets)} 成功")
+    print(f"✅ 邮件发送 {sent}/{len(plan)} 成功"
+          + (f"（跳过 {skipped} 位已收到相同内容）" if skipped else ""))
     if failed:
         for f in failed[:5]:
             print(f"   ❌ {f}")
-        return f"smtp: {len(failed)} 封失败"
-    return None
+        return f"smtp: {len(failed)} 封失败", marks
+    return None, marks
 
 
 # ================= 主流程 =================
@@ -523,13 +757,40 @@ def main() -> None:
         if wanted:
             pct_map = fallback_pct_map(wanted, date_key)
 
-    failures = []
+    # 已投递账本：同一天被平台重复触发的多次跑批不该把同一份摘要反复推给用户。
+    # 读失败返回 None → ledger_delivered 给空 dict → 全员当作未推过（宁可重复不可漏）。
+    ledger = load_ledger()
+    done = ledger_delivered(ledger, date_key)
+    if done:
+        print(f"📒 账本：{date_key} 今天已投递 {len(done)} 个目标，"
+              f"内容指纹一致者本次跳过")
+
+    failures, marks = [], []
     # WxPusher 是用户投递主通道，放在最前面；企业微信是可选的内部群播报
-    for f in (send_wxpusher(rec, pct_map, base),
-              send_wecom(base),
-              send_email(rec, pct_map, base)):
+    f_wx, m_wx = send_wxpusher(rec, pct_map, base, done)
+    f_mail, m_mail = send_email(rec, pct_map, base, done)
+    marks += m_wx + m_mail
+    # 企业微信是「内部群播报」而非逐人投递，账本按目标去重那套不适用；
+    # 它自己带一个群维度的键，避免同一天群里被刷 3 遍。
+    wecom_fp = _fingerprint(base["markdown"])
+    if ledger_seen(done, "__wecom__") == wecom_fp:
+        print("   ⏭️ 企业微信跳过：今天已播报过完全相同的内容")
+        f_wecom = None
+    else:
+        f_wecom = send_wecom(base)
+        if f_wecom is None and _env("DIGEST_WECOM_WEBHOOK"):
+            marks.append(("__wecom__", wecom_fp))
+    for f in (f_wx, f_wecom, f_mail):
         if f:
             failures.append(f)
+
+    # 只把**真正投递成功**的目标写进账本。失败的不写 → 下次跑批会重试，
+    # 这正是「派发成功 ≠ 数据落盘」那条教训的同型处理：结果导向。
+    if marks:
+        ledger = ledger if isinstance(ledger, dict) else {}
+        ledger_mark(ledger, date_key, marks)
+        save_ledger(ledger)
+        print(f"📒 账本已更新：本次新增 {len(marks)} 条投递记录 → {LEDGER_PATH}")
 
     # Server酱 不参与用户投递，只在有问题时告警（放最后，才能把上面的失败带上）
     _admin_alert(date_key, failures, rec_msg, base)
