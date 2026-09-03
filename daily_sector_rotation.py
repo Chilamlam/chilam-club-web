@@ -205,9 +205,44 @@ def append_history(today: str, df_today: pd.DataFrame) -> pd.DataFrame:
     return full
 
 
+def _snapshot_trade_date() -> str:
+    """快照内容对应的交易日（YYYY-MM-DD）。
+
+    clist 是实时盘口：收盘后到次日开盘前，内容都是最近一个已完成
+    交易日的收盘态。之前直接拿日历「今天」当标签，过零点跑批会多标
+    一天（2026-09-04 00:51 实测：标签 09-04、内容是 09-03 收盘）。
+    锚定规则对齐 daily_breakout.get_latest_trade_date：从今天往回找
+    第一个 Tushare 有日线数据的日期；token 不可用时退化为
+    「CST 15:00 收盘前算昨天 + 周末回退到周五」（节假日不识别，
+    与原 weekday 判断同级，由数据停滞守卫兜底）。
+    """
+    now = _cst_now()
+    token = os.getenv("TUSHARE_TOKEN", "")
+    if token:
+        try:
+            import tushare as ts  # noqa: PLC0415
+
+            ts.set_token(token)
+            pro = ts.pro_api()
+            for i in range(10):
+                d = now - datetime.timedelta(days=i)
+                ds = d.strftime("%Y%m%d")
+                try:
+                    if not pro.daily(trade_date=ds).empty:
+                        return d.strftime("%Y-%m-%d")
+                except Exception:  # noqa: BLE001
+                    pass
+        except Exception:  # noqa: BLE001
+            pass
+    d = now if now.hour >= 15 else now - datetime.timedelta(days=1)
+    while d.weekday() >= 5:  # 周六=5 周日=6，回退到周五
+        d -= datetime.timedelta(days=1)
+    return d.strftime("%Y-%m-%d")
+
+
 def main() -> int:
     os.makedirs(OUT_DIR, exist_ok=True)
-    today = _cst_now().strftime("%Y-%m-%d")
+    today = _snapshot_trade_date()
     weekday = _cst_now().weekday()
 
     rows, total = fetch_snapshot()

@@ -250,6 +250,10 @@ def test_wiring() -> None:
     daily = open(os.path.join(root, "daily_sector_rotation.py"), encoding="utf-8").read()
     check("跑批脚本字段映射含 f160=10日（勿与 f110=20日 对调）",
           '"f160": "pct_10d"' in daily and '"f110": "pct_20d"' in daily)
+    check("快照标签用交易日锚定（过零点跑批不得拿日历今天当标签——09-04 00:51 错标事故）",
+          "today = _snapshot_trade_date()" in daily)
+    check("东财取数多域名轮换（Actions 机房 IP 被单域名 502 拒绝）",
+          "EM_HOSTS" in daily and "push2delay" in daily)
 
     page = open(os.path.join(root, "page_sector_rotation.py"), encoding="utf-8").read()
     check("页面已接排名矩阵（调用形式）", "render_rank_matrix(load_rank_matrix())" in page)
