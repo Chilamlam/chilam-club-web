@@ -50,7 +50,15 @@ def html_embed(html: str, width: int = 10, height: int = 10) -> None:
         try:
             import base64
             b64 = base64.b64encode(html.encode("utf-8")).decode("ascii")
-            st.iframe(f"data:text/html;base64,{b64}", width=width, height=height)
+            # charset 必须显式声明：data URI 文档无编码声明时，浏览器可能按
+            # 本地遗留码页（如中文 Windows 的 GBK）解码 → 中文全变乱码
+            # （2026-09-03 板块轮动排名矩阵实测）。meta 兜一层，双保险。
+            payload = '<meta charset="utf-8">' + html
+            b64 = base64.b64encode(payload.encode("utf-8")).decode("ascii")
+            st.iframe(
+                f"data:text/html;charset=utf-8;base64,{b64}",
+                width=width, height=height,
+            )
             return
         except Exception:
             pass

@@ -263,6 +263,12 @@ def test_wiring() -> None:
     srsrc = open(os.path.join(root, "sector_rotation.py"), encoding="utf-8").read()
     check("矩阵日期取最近 N 日并倒序（最新在左）", "[-days:][::-1]" in srsrc)
 
+    uisrc = open(os.path.join(root, "ui_compat.py"), encoding="utf-8").read()
+    check("html_embed data URI 显式声明 charset=utf-8（缺声明→浏览器按本地码页解码中文乱码）",
+          "data:text/html;charset=utf-8;base64" in uisrc)
+    check("html_embed 文档头部注入 <meta charset>（双保险）",
+          '<meta charset="utf-8">' in uisrc)
+
 
 def test_artifacts_fresh() -> None:
     root = os.path.dirname(os.path.abspath(__file__))
