@@ -131,6 +131,7 @@
     ],
     "watch": "明日重合 ≥7 转主升判读；≤3 转轮动判读。"
   },
-  "generated_at": "2026-09-04 23:17:43 CST",
-  "source": "eastmoney_concept_boards"
+  "generated_at": "2026-09-05 01:52:38 CST",
+  "source": "eastmoney_concept_boards",
+  "note": "今日非交易日/数据停滞，未新增归档，以下为最近交易日的分析"
 }
