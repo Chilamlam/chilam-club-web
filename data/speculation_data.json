@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-05 22:00:23",
+  "date": "2026-09-06 00:53:04",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -183,15 +183,6 @@
       "premium_rate": 0.04
     },
     {
-      "code": "516670.SH",
-      "name": "畜牧养殖ETF招商",
-      "price": 0.64,
-      "change": 4.58,
-      "vol_yi": 0.77,
-      "tag": "📈 强势",
-      "premium_rate": 0.16
-    },
-    {
       "code": "159165.SZ",
       "name": "养殖ETF永赢",
       "price": 0.913,
@@ -199,6 +190,15 @@
       "vol_yi": 0.17,
       "tag": "📈 强势",
       "premium_rate": -0.04
+    },
+    {
+      "code": "516670.SH",
+      "name": "畜牧养殖ETF招商",
+      "price": 0.64,
+      "change": 4.58,
+      "vol_yi": 0.77,
+      "tag": "📈 强势",
+      "premium_rate": 0.16
     },
     {
       "code": "159023.SZ",
@@ -273,6 +273,15 @@
       "premium_rate": -0.13
     },
     {
+      "code": "159275.SZ",
+      "name": "农牧渔ETF华宝",
+      "price": 0.916,
+      "change": 4.21,
+      "vol_yi": 0.19,
+      "tag": "📈 强势",
+      "premium_rate": -0.02
+    },
+    {
       "code": "159011.SZ",
       "name": "养殖ETF华安",
       "price": 1.114,
@@ -289,15 +298,6 @@
       "vol_yi": 0.16,
       "tag": "📈 强势",
       "premium_rate": -0.25
-    },
-    {
-      "code": "159275.SZ",
-      "name": "农牧渔ETF华宝",
-      "price": 0.916,
-      "change": 4.21,
-      "vol_yi": 0.19,
-      "tag": "📈 强势",
-      "premium_rate": -0.02
     },
     {
       "code": "159007.SZ",
