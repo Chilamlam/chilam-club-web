@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-07 01:09:27",
+  "date": "2026-09-07 19:07:48",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -12,346 +12,376 @@
       "double_low": 99.43
     },
     {
-      "ts_code": "123112.SZ",
-      "bond_short_name": "万讯转债",
-      "tag": "🛡️ 袖珍小盘",
-      "desc": "规模:1.3亿",
-      "close": 137.016,
-      "pct_chg": 1.4933,
-      "premium_rate": 0.23,
-      "double_low": 137.25
-    },
-    {
       "ts_code": "123072.SZ",
       "bond_short_name": "乐歌转债",
       "tag": "🛡️ 袖珍小盘",
       "desc": "规模:1.42亿",
-      "close": 119.778,
-      "pct_chg": 0.0317,
-      "premium_rate": 257.69,
-      "double_low": 377.47
+      "close": 119.759,
+      "pct_chg": -0.0159,
+      "premium_rate": 260.6,
+      "double_low": 380.36
     },
     {
       "ts_code": "123080.SZ",
       "bond_short_name": "海波转债",
       "tag": "🛡️ 袖珍小盘",
       "desc": "规模:1.49亿",
-      "close": 124.201,
-      "pct_chg": -0.3386,
-      "premium_rate": 25.99,
-      "double_low": 150.19
+      "close": 125.202,
+      "pct_chg": 0.806,
+      "premium_rate": 20.3,
+      "double_low": 145.5
     },
     {
       "ts_code": "123229.SZ",
       "bond_short_name": "艾录转债",
       "tag": "🛡️ 袖珍小盘",
       "desc": "规模:1.78亿",
-      "close": 130.853,
-      "pct_chg": -0.3382,
-      "premium_rate": 75.0,
-      "double_low": 205.85
+      "close": 130.718,
+      "pct_chg": -0.1032,
+      "premium_rate": 74.58,
+      "double_low": 205.3
     },
     {
       "ts_code": "111003.SH",
       "bond_short_name": "聚合转债",
       "tag": "🛡️ 袖珍小盘",
       "desc": "规模:2.04亿",
-      "close": 142.858,
-      "pct_chg": -0.4911,
-      "premium_rate": 44.16,
-      "double_low": 187.02
+      "close": 142.083,
+      "pct_chg": -0.5425,
+      "premium_rate": 46.21,
+      "double_low": 188.29
     },
     {
       "ts_code": "123223.SZ",
       "bond_short_name": "九典转02",
       "tag": "🛡️ 袖珍小盘",
       "desc": "规模:2.05亿",
-      "close": 132.1,
-      "pct_chg": 0.0758,
-      "premium_rate": 73.78,
-      "double_low": 205.88
+      "close": 132.101,
+      "pct_chg": 0.0008,
+      "premium_rate": 74.26,
+      "double_low": 206.36
     },
     {
       "ts_code": "123173.SZ",
       "bond_short_name": "恒锋转债",
       "tag": "🛡️ 袖珍小盘",
       "desc": "规模:2.33亿",
-      "close": 138.3,
-      "pct_chg": 0.4722,
-      "premium_rate": 31.21,
-      "double_low": 169.51
+      "close": 137.69,
+      "pct_chg": -0.4411,
+      "premium_rate": 30.76,
+      "double_low": 168.45
     },
     {
       "ts_code": "123157.SZ",
       "bond_short_name": "科蓝转债",
       "tag": "🛡️ 袖珍小盘",
       "desc": "规模:2.34亿",
-      "close": 140.1,
-      "pct_chg": 2.2419,
-      "premium_rate": 37.29,
-      "double_low": 177.39
+      "close": 140.064,
+      "pct_chg": -0.0257,
+      "premium_rate": 36.19,
+      "double_low": 176.25
     },
     {
       "ts_code": "123138.SZ",
       "bond_short_name": "丝路转债",
       "tag": "🛡️ 袖珍小盘",
       "desc": "规模:2.39亿",
-      "close": 126.967,
-      "pct_chg": -0.1753,
-      "premium_rate": 102.67,
-      "double_low": 229.64
+      "close": 127.136,
+      "pct_chg": 0.1331,
+      "premium_rate": 97.59,
+      "double_low": 224.73
+    },
+    {
+      "ts_code": "127093.SZ",
+      "bond_short_name": "章鼓转债",
+      "tag": "🛡️ 袖珍小盘",
+      "desc": "规模:2.42亿",
+      "close": 128.565,
+      "pct_chg": 0.0233,
+      "premium_rate": 51.15,
+      "double_low": 179.72
+    },
+    {
+      "ts_code": "113706.SH",
+      "bond_short_name": "金帝转债",
+      "tag": "🔥 活跃妖债",
+      "desc": "规模:9.7亿",
+      "close": 190.924,
+      "pct_chg": 12.266,
+      "premium_rate": 73.53,
+      "double_low": 264.45
+    },
+    {
+      "ts_code": "118064.SH",
+      "bond_short_name": "联瑞转债",
+      "tag": "🔥 活跃妖债",
+      "desc": "规模:6.95亿",
+      "close": 380.122,
+      "pct_chg": 7.159,
+      "premium_rate": 36.56,
+      "double_low": 416.68
     },
     {
       "ts_code": "118075.SH",
       "bond_short_name": "奥普转债",
       "tag": "🔥 活跃妖债",
       "desc": "规模:12.7亿",
-      "close": 236.356,
-      "pct_chg": 10.2942,
-      "premium_rate": 148.44,
-      "double_low": 384.8
+      "close": 244.796,
+      "pct_chg": 3.5709,
+      "premium_rate": 141.34,
+      "double_low": 386.14
     },
     {
-      "ts_code": "113709.SH",
-      "bond_short_name": "振26转债",
+      "ts_code": "123112.SZ",
+      "bond_short_name": "万讯转债",
       "tag": "🔥 活跃妖债",
-      "desc": "规模:8.78亿",
-      "close": 169.795,
-      "pct_chg": 2.71,
-      "premium_rate": 85.33,
-      "double_low": 255.12
+      "desc": "规模:1.29亿",
+      "close": 164.419,
+      "pct_chg": 19.9999,
+      "premium_rate": 0.21,
+      "double_low": 164.63
+    },
+    {
+      "ts_code": "123284.SZ",
+      "bond_short_name": "强达转债",
+      "tag": "🔥 活跃妖债",
+      "desc": "规模:5.5亿",
+      "close": 197.66,
+      "pct_chg": 4.715,
+      "premium_rate": 48.97,
+      "double_low": 246.63
+    },
+    {
+      "ts_code": "111012.SH",
+      "bond_short_name": "福新转债",
+      "tag": "🔥 活跃妖债",
+      "desc": "规模:1.02亿",
+      "close": 351.189,
+      "pct_chg": 11.7294,
+      "premium_rate": 30.32,
+      "double_low": 381.51
+    },
+    {
+      "ts_code": "123241.SZ",
+      "bond_short_name": "欧通转债",
+      "tag": "🔥 活跃妖债",
+      "desc": "规模:2.6亿",
+      "close": 931.529,
+      "pct_chg": 7.3544,
+      "premium_rate": 32.68,
+      "double_low": 964.21
     },
     {
       "ts_code": "127053.SZ",
       "bond_short_name": "豪美转债",
       "tag": "🔥 活跃妖债",
       "desc": "规模:2.57亿",
-      "close": 192.0,
-      "pct_chg": 5.4945,
-      "premium_rate": 26.51,
-      "double_low": 218.51
+      "close": 212.8,
+      "pct_chg": 10.8333,
+      "premium_rate": 27.44,
+      "double_low": 240.24
     },
     {
-      "ts_code": "123261.SZ",
-      "bond_short_name": "普联转债",
+      "ts_code": "123258.SZ",
+      "bond_short_name": "胜蓝转02",
       "tag": "🔥 活跃妖债",
-      "desc": "规模:2.43亿",
-      "close": 157.495,
-      "pct_chg": 1.7738,
-      "premium_rate": 45.7,
-      "double_low": 203.2
+      "desc": "规模:4.5亿",
+      "close": 247.28,
+      "pct_chg": 4.7797,
+      "premium_rate": 5.1,
+      "double_low": 252.38
     },
     {
-      "ts_code": "127115.SZ",
-      "bond_short_name": "炬申转债",
+      "ts_code": "118058.SH",
+      "bond_short_name": "微导转债",
       "tag": "🔥 活跃妖债",
-      "desc": "规模:3.8亿",
-      "close": 184.526,
-      "pct_chg": 2.5321,
-      "premium_rate": 77.56,
-      "double_low": 262.09
-    },
-    {
-      "ts_code": "123107.SZ",
-      "bond_short_name": "温氏转债",
-      "tag": "🔥 活跃妖债",
-      "desc": "规模:77.06亿",
-      "close": 116.0,
-      "pct_chg": 2.0678,
-      "premium_rate": 21.51,
-      "double_low": 137.51
-    },
-    {
-      "ts_code": "113646.SH",
-      "bond_short_name": "永吉转债",
-      "tag": "🔥 活跃妖债",
-      "desc": "规模:1.37亿",
-      "close": 167.177,
-      "pct_chg": 1.5366,
-      "premium_rate": 33.25,
-      "double_low": 200.43
+      "desc": "规模:11.7亿",
+      "close": 362.156,
+      "pct_chg": 6.4595,
+      "premium_rate": 13.92,
+      "double_low": 376.08
     }
   ],
   "fund_list": [
     {
-      "code": "159865.SZ",
-      "name": "养殖ETF国泰",
-      "price": 0.568,
-      "change": 4.6,
-      "vol_yi": 5.92,
-      "tag": "📈 强势",
-      "premium_rate": 0.04
+      "code": "501085.SH",
+      "name": "财通科创LOF",
+      "price": 3.256,
+      "change": 8.68,
+      "vol_yi": 0.38,
+      "tag": "🏗️ LOF套利",
+      "premium_rate": 8.18
     },
     {
-      "code": "516670.SH",
-      "name": "畜牧养殖ETF招商",
-      "price": 0.64,
-      "change": 4.58,
-      "vol_yi": 0.77,
-      "tag": "📈 强势",
-      "premium_rate": 0.16
+      "code": "501015.SH",
+      "name": "财通升级混合LOF",
+      "price": 3.07,
+      "change": 7.8,
+      "vol_yi": 0.08,
+      "tag": "🏗️ LOF套利",
+      "premium_rate": 6.67
     },
     {
-      "code": "159165.SZ",
-      "name": "养殖ETF永赢",
-      "price": 0.913,
-      "change": 4.58,
-      "vol_yi": 0.17,
+      "code": "159994.SZ",
+      "name": "通信ETF银华",
+      "price": 1.288,
+      "change": 6.36,
+      "vol_yi": 2.98,
       "tag": "📈 强势",
-      "premium_rate": -0.04
+      "premium_rate": 6.41
     },
     {
-      "code": "159023.SZ",
-      "name": "养殖ETF万家",
-      "price": 1.123,
-      "change": 4.47,
-      "vol_yi": 0.12,
+      "code": "515050.SH",
+      "name": "通信ETF华夏",
+      "price": 1.049,
+      "change": 6.28,
+      "vol_yi": 13.33,
       "tag": "📈 强势",
-      "premium_rate": 0.02
+      "premium_rate": 6.26
     },
     {
-      "code": "516760.SH",
-      "name": "养殖ETF平安",
-      "price": 0.611,
-      "change": 4.44,
-      "vol_yi": 0.16,
+      "code": "515880.SH",
+      "name": "通信ETF国泰",
+      "price": 0.677,
+      "change": 5.95,
+      "vol_yi": 35.81,
       "tag": "📈 强势",
-      "premium_rate": 0.07
+      "premium_rate": 5.95
     },
     {
-      "code": "560210.SH",
-      "name": "农牧渔ETF景顺",
-      "price": 0.872,
-      "change": 4.43,
-      "vol_yi": 0.25,
+      "code": "159583.SZ",
+      "name": "通信ETF富国",
+      "price": 1.669,
+      "change": 5.83,
+      "vol_yi": 5.83,
       "tag": "📈 强势",
-      "premium_rate": 0.07
+      "premium_rate": 5.85
     },
     {
-      "code": "159020.SZ",
-      "name": "养殖ETF易方达",
-      "price": 0.962,
-      "change": 4.34,
-      "vol_yi": 0.18,
+      "code": "159259.SZ",
+      "name": "成长ETF易方达",
+      "price": 1.349,
+      "change": 5.8,
+      "vol_yi": 5.44,
       "tag": "📈 强势",
-      "premium_rate": -0.12
+      "premium_rate": 5.7
     },
     {
-      "code": "159867.SZ",
-      "name": "养殖ETF鹏华",
-      "price": 0.579,
-      "change": 4.32,
-      "vol_yi": 0.93,
+      "code": "159967.SZ",
+      "name": "创业板成长ETF华夏",
+      "price": 0.782,
+      "change": 5.68,
+      "vol_yi": 8.09,
       "tag": "📈 强势",
-      "premium_rate": 0.07
+      "premium_rate": 5.73
     },
     {
-      "code": "512450.SH",
-      "name": "畜牧养殖ETF广发",
-      "price": 0.946,
-      "change": 4.3,
-      "vol_yi": 0.09,
+      "code": "588850.SH",
+      "name": "科创机械ETF嘉实",
+      "price": 1.813,
+      "change": 5.65,
+      "vol_yi": 0.39,
       "tag": "📈 强势",
-      "premium_rate": -0.18
+      "premium_rate": 5.63
     },
     {
-      "code": "159173.SZ",
-      "name": "农牧ETF南方",
-      "price": 0.95,
-      "change": 4.28,
-      "vol_yi": 0.1,
-      "tag": "📈 强势",
-      "premium_rate": 0.39
-    },
-    {
-      "code": "561470.SH",
-      "name": "畜牧养殖ETF天弘",
-      "price": 1.086,
-      "change": 4.22,
-      "vol_yi": 0.15,
-      "tag": "📈 强势",
-      "premium_rate": -0.13
-    },
-    {
-      "code": "159011.SZ",
-      "name": "养殖ETF华安",
-      "price": 1.114,
-      "change": 4.21,
-      "vol_yi": 0.09,
-      "tag": "📈 强势",
-      "premium_rate": -0.03
-    },
-    {
-      "code": "561400.SH",
-      "name": "畜牧养殖ETF鑫元",
-      "price": 1.064,
-      "change": 4.21,
-      "vol_yi": 0.16,
-      "tag": "📈 强势",
-      "premium_rate": -0.25
-    },
-    {
-      "code": "159275.SZ",
-      "name": "农牧渔ETF华宝",
-      "price": 0.916,
-      "change": 4.21,
+      "code": "159295.SZ",
+      "name": "创业综指ETF西部利得",
+      "price": 1.045,
+      "change": 5.56,
       "vol_yi": 0.19,
       "tag": "📈 强势",
-      "premium_rate": -0.02
+      "premium_rate": 6.23
     },
     {
-      "code": "159007.SZ",
-      "name": "养殖ETF华泰柏瑞",
-      "price": 0.93,
-      "change": 4.14,
-      "vol_yi": 0.19,
+      "code": "588020.SH",
+      "name": "科创成长ETF易方达",
+      "price": 0.86,
+      "change": 5.52,
+      "vol_yi": 3.38,
       "tag": "📈 强势",
-      "premium_rate": -0.04
+      "premium_rate": 5.61
     },
     {
-      "code": "159027.SZ",
-      "name": "畜牧养殖ETF大成",
-      "price": 0.955,
-      "change": 4.14,
-      "vol_yi": 0.12,
+      "code": "588070.SH",
+      "name": "科创成长ETF万家",
+      "price": 2.2,
+      "change": 5.47,
+      "vol_yi": 0.16,
       "tag": "📈 强势",
-      "premium_rate": -0.25
+      "premium_rate": 5.6
     },
     {
-      "code": "562900.SH",
-      "name": "农业ETF易方达",
-      "price": 0.737,
-      "change": 4.1,
-      "vol_yi": 0.27,
-      "tag": "📈 强势",
-      "premium_rate": -0.08
-    },
-    {
-      "code": "520790.SH",
-      "name": "港股通互联网ETF兴业",
-      "price": 0.83,
-      "change": 4.01,
-      "vol_yi": 0.13,
-      "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": -0.11
-    },
-    {
-      "code": "508080.SH",
-      "name": "中金亦庄产业园REIT",
-      "price": 2.674,
-      "change": 3.97,
-      "vol_yi": 0.09,
-      "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 0.0
-    },
-    {
-      "code": "159172.SZ",
-      "name": "养殖ETF汇添富",
-      "price": 0.879,
-      "change": 3.9,
+      "code": "159811.SZ",
+      "name": "5GETF博时",
+      "price": 3.009,
+      "change": 5.43,
       "vol_yi": 0.32,
       "tag": "📈 强势",
-      "premium_rate": -0.01
+      "premium_rate": 5.77
+    },
+    {
+      "code": "501026.SH",
+      "name": "财通福享混合LOF",
+      "price": 2.455,
+      "change": 5.37,
+      "vol_yi": 0.08,
+      "tag": "🏗️ LOF套利",
+      "premium_rate": 4.96
+    },
+    {
+      "code": "501205.SH",
+      "name": "鹏华创新未来LOF",
+      "price": 0.973,
+      "change": 5.3,
+      "vol_yi": 0.11,
+      "tag": "🏗️ LOF套利",
+      "premium_rate": 5.71
+    },
+    {
+      "code": "159382.SZ",
+      "name": "创业板人工智能ETF南方",
+      "price": 2.661,
+      "change": 5.18,
+      "vol_yi": 7.6,
+      "tag": "📈 强势",
+      "premium_rate": 5.22
+    },
+    {
+      "code": "588110.SH",
+      "name": "科创成长ETF广发",
+      "price": 0.631,
+      "change": 5.17,
+      "vol_yi": 0.96,
+      "tag": "📈 强势",
+      "premium_rate": 5.61
+    },
+    {
+      "code": "589700.SH",
+      "name": "科创成长ETF南方",
+      "price": 2.18,
+      "change": 5.16,
+      "vol_yi": 0.12,
+      "tag": "📈 强势",
+      "premium_rate": 5.52
+    },
+    {
+      "code": "159243.SZ",
+      "name": "创业板人工智能ETF招商",
+      "price": 1.278,
+      "change": 5.1,
+      "vol_yi": 0.59,
+      "tag": "📈 强势",
+      "premium_rate": 5.13
+    },
+    {
+      "code": "159363.SZ",
+      "name": "创业板人工智能ETF华宝",
+      "price": 1.252,
+      "change": 5.03,
+      "vol_yi": 11.96,
+      "tag": "📈 强势",
+      "premium_rate": 4.99
     }
   ],
   "ai_analysis": ""
