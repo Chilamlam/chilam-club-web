@@ -595,6 +595,143 @@ _steps_yml = re.findall(r"^\s*-\s*name:\s*(.+)$", wf, re.M)
 ck(len(_steps_yml) == 5,
    f"yml 应只剩 5 步（装环境→跑编排器→提交），实际 {len(_steps_yml)}：{_steps_yml}")
 
+# ---- 7. 快讯抓取 time_col 不能选错（财联社「发布日期」会污染切片）
+# 根因记录：220 条原始数据 → 时间过滤后 0 条 → Gemini 拿空快讯 + 涨停股硬撑出
+# 一段「缺快讯」声明但又展开主线逻辑的别扭文案，读者一眼读出矛盾。
+# 修复：先精确匹配「发布时间」，无则排除「日期」前缀再退而求其次。
+_mm = open(os.path.join(ROOT, "daily_market_monitor.py"), encoding="utf-8").read()
+_mm_ast = ast.parse(_mm)
+_pick_calls = []
+for node in ast.walk(_mm_ast):
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "next":
+        # 抓所有的 next((c for c in cols if ...)) 调用
+        try:
+            src = ast.unparse(node)
+            _pick_calls.append(src)
+        except Exception:
+            pass
+ck(any('c == \'发布时间\'' in s for s in _pick_calls),
+   "time_col 优先精确匹配「发布时间」（防财联社「发布日期」污染）")
+ck(any("'时间' in c and '日期' not in c" in s for s in _pick_calls),
+   "time_col 退一步匹配时排除「日期」列")
+ck(any("'时间' in c" in s for s in _pick_calls),
+   "time_col 最末一档退化匹配仍走「时间」关键字")
+
+# ---- 8. 实测：模拟整条切片流程（不 import daily_market_monitor，避开 tushare 依赖）----
+# 但函数体的选取逻辑必须从源码里**提取**并校验——这样若 daily_market_monitor.py
+# 里改坏了，测试函数的行为也会跟着错（而不是测试函数自带「正确版」逻辑造成假绿）。
+import pandas as _pd
+
+# 8.1 财联社：双时间列 → 必须选「发布时间」（不能选「发布日期」）
+_cls_df = _pd.DataFrame({
+    '标题':  ['标题1', '标题2'],
+    '内容':  ['09:42 某板块拉升', '09:45 某股涨停'],
+    '发布日期': [_pd.Timestamp('2026-09-08').date()] * 2,
+    '发布时间': ['09:42:00', '09:45:38'],
+})
+
+# 8.2 用从源码里抽出的 time_col 选择器（关键：选择器代码来自被测文件，不是测试自己写的）
+# 如果源码的选择器被改成前缀匹配，下列行为断言会立刻翻红。
+def _slice_time(t):
+    t = str(t)
+    if len(t) >= 8 and ':' in t[-8:]: return t[-8:-3]
+    if len(t) >= 5 and ':' in t[:5]: return t[:5]
+    return t
+
+# 用从源码里抓到的 next(...) 选择器，按顺序回退——只跑 time_col 的三档（不是全部 5 个）
+def _run_pipeline(df):
+    """最小复刻 clean_and_add 的核心：列选 + 切片。"""
+    cols = df.columns.tolist()
+    tc = None
+    ns = {'cols': cols}
+    # 只取 3 档 time_col 的 next 调用（不是 content_col 的两个）
+    tc_calls = [s for s in _mm_next_lines if "'发布时间'" in s or ("'时间' in c" in s)]
+    for src in tc_calls:
+        try:
+            tc = eval(src, ns)
+            if tc is not None: break
+        except Exception:
+            pass
+    if tc is None: return [], None
+    out = []
+    for _, row in df.iterrows():
+        out.append((tc, _slice_time(row[tc])))
+    return out, tc
+
+# 把源码里三档 next(...) 原样抽出来给 eval 用（保证选择器是「被测的代码」而不是「测试员的抄写」）
+# clean_and_add 是嵌套函数（def get_akshare_data 内的 def），body 范围从 98 行起到下个平级 def
+# 用 AST 拿到精确的 body 范围，避免按字符串切片踩坑
+import ast as _ast
+_mm_mod = _ast.parse(_mm)
+_clean_add_body = None
+for _node in _mm_mod.body:
+    if isinstance(_node, _ast.FunctionDef) and _node.name == "get_akshare_data":
+        for _inner in _node.body:
+            if isinstance(_inner, _ast.FunctionDef) and _inner.name == "clean_and_add":
+                _clean_add_body = _inner.body
+                break
+        break
+ck(_clean_add_body is not None, "AST 找到了 clean_and_add 函数体")
+
+def _extract_next_calls(node, target="time_col"):
+    """递归展开：IfExp、If 块、Assign 值、Call（含嵌套 next 的所有 next() 调用）。
+    target 限定 Assign 的左值——只收集赋给该名的 next 调用。"""
+    found = []
+    if isinstance(node, _ast.Call):
+        if isinstance(node.func, _ast.Name) and node.func.id == "next":
+            try: found.append(_ast.unparse(node))
+            except Exception: pass
+        for a in node.args: found.extend(_extract_next_calls(a, target))
+    elif isinstance(node, _ast.IfExp):
+        found.extend(_extract_next_calls(node.body, target))
+        found.extend(_extract_next_calls(node.orelse, target))
+    elif isinstance(node, _ast.If):
+        for s in node.body: found.extend(_extract_next_calls(s, target))
+        if node.orelse:
+            for s in node.orelse: found.extend(_extract_next_calls(s, target))
+    elif isinstance(node, _ast.Assign):
+        # 只接受赋给目标变量名（如 time_col）的 next 调用
+        if (len(node.targets) == 1 and isinstance(node.targets[0], _ast.Name)
+                and node.targets[0].id == target):
+            found.extend(_extract_next_calls(node.value, target))
+    return found
+
+def _walk(stmts):
+    """扫一个语句列表（含 if 块嵌套），只找给 time_col 赋值的 next(...) 调用。"""
+    found = []
+    for s in stmts or []:
+        found.extend(_extract_next_calls(s, target="time_col"))
+    return list(dict.fromkeys(found))
+
+_mm_next_lines = _walk(_clean_add_body)
+ck(len(_mm_next_lines) == 3,
+   f"clean_and_add 内 time_col 选取应有三档（精确→去日期→退化），实测 {len(_mm_next_lines)} 档")
+ck(all("'发布时间'" in s or "'时间' in c" in s for s in _mm_next_lines),
+   f"三档选择器覆盖三种匹配规则（实测={_mm_next_lines}）")
+
+_out_cls, _tc_cls = _run_pipeline(_cls_df)
+ck(_tc_cls == '发布时间',
+   f"财联社双时间列下 time_col 必须=「发布时间」（实测={_tc_cls!r}）")
+ck(all(t[1] in ('09:42', '09:45') for t in _out_cls),
+   f"财联社切片应得到 HH:MM（实测={[t[1] for t in _out_cls]}）")
+
+# 8.3 东财：完整时间戳
+_em_df = _pd.DataFrame({
+    '标题': ['标题1'], '摘要': ['10:10 内容'],
+    '发布时间': ['2026-09-08 10:10:38'], '链接': ['x'],
+})
+_out_em, _tc_em = _run_pipeline(_em_df)
+ck(_tc_em == '发布时间',
+   f"东财单时间列下 time_col 必须=「发布时间」（实测={_tc_em!r}）")
+ck(_out_em and _out_em[0][1] == '10:10',
+   f"东财完整时间戳切片得到 HH:MM（实测={_out_em[0][1] if _out_em else '空'}）")
+
+# 8.4 退化：只有「时间」列（无「发布时间」）
+_fb_df = _pd.DataFrame({'标题': ['x'], '时间': ['14:00:00'], '其它': ['y']})
+_out_fb, _tc_fb = _run_pipeline(_fb_df)
+ck(_tc_fb == '时间',
+   f"无「发布时间」时退化匹配含「时间」列（实测={_tc_fb!r}）")
+
 print("-" * 60)
 print(f"通过 {len(PASS)} 项，失败 {len(FAIL)} 项")
 if FAIL:

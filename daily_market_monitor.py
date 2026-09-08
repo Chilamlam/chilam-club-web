@@ -100,16 +100,27 @@ def get_akshare_data(trade_date_str):
         cols = df.columns.tolist()
         content_col = next((c for c in cols if '内容' in c), None)
         if not content_col: content_col = next((c for c in cols if '标题' in c), None)
-        time_col = next((c for c in cols if '时间' in c), None)
-        
+        # ★ 财联社返回两列：「发布日期」(date) 与「发布时间」(time)，前缀匹配会撞上
+        #   「发布日期」导致 str(date)='2026-09-08' 长度 10 既不命中 [-8:-3] 也不命中 [:5]，
+        #   全表时间字段被污染成日期，过滤区间 09:00-15:30 必然一条不剩（220→0 事故根因）。
+        #   优先选「发布时间」；无则退到非「日期」前缀的任何含「时间」列。
+        time_col = next((c for c in cols if c == '发布时间'), None)
+        if time_col is None:
+            time_col = next((c for c in cols if '时间' in c and '日期' not in c), None)
+        if time_col is None:
+            time_col = next((c for c in cols if '时间' in c), None)
+
         if content_col and time_col:
-            print(f"   -> {source_name} 获取到 {len(df)} 条数据")
+            print(f"   -> {source_name} 获取到 {len(df)} 条数据 (时间列={time_col})")
             for _, row in df.iterrows():
                 t_val = str(row[time_col])
                 c_val = str(row[content_col]).strip()
-                if len(t_val) > 10: t_val = t_val[-8:-3]
-                elif len(t_val) == 8: t_val = t_val[:5]
-                if len(c_val) > 5:
+                # 解析出 HH:MM：完整时间戳取 [-8:-3]，纯 HH:MM:SS 取 [:5]
+                if len(t_val) >= 8 and ':' in t_val[-8:]:
+                    t_val = t_val[-8:-3]
+                elif len(t_val) >= 5 and ':' in t_val[:5]:
+                    t_val = t_val[:5]
+                if len(c_val) > 5 and t_val:
                     all_news.append({'time': t_val, 'content': c_val})
 
     try:
