@@ -131,6 +131,6 @@
     ],
     "watch": "明日重合仍 ≥7 则维持主升判读；若掉到 ≤3 则转向轮动判读。"
   },
-  "generated_at": "2026-09-09 19:19:17 CST",
+  "generated_at": "2026-09-09 23:28:15 CST",
   "source": "eastmoney_concept_boards"
 }
