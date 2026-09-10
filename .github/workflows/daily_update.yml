@@ -87,6 +87,7 @@ jobs:
         # ---- 行情与数据源 ----
         TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         # ---- 会员库（两者缺一即无法取投递名单，届时只归档不投递）----
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
