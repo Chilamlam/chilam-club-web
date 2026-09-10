@@ -2,24 +2,36 @@
 """
 引导式复盘 - AI 答卷生成（跑批层）
 
-职责：读当日全产物，让 Gemini 按模板逐题作答，每题带数据依据，
-结果写 data/review/ai_answers/YYYYMMDD.json（落盘归档，不入库——
-入库由应用层在读到时懒同步，或后续按需加步骤）。
+职责：读当日全产物，让大模型按模板逐题作答，每题带数据依据，
+结果两路落盘：
+  1. data/review/ai_answers/YYYYMMDD.json —— 跑批归档（可追溯）
+  2. Supabase review_ai_answers 表 —— 页面对比视图与回验脚本的数据源
+     （只在 1 成功后写库；库写失败不回滚文件——文件是归档事实，库可补）
+
+模型：DeepSeek（deepseek-chat，OpenAI 兼容格式，api.deepseek.com）。
+为什么从 Gemini 换成 DeepSeek（2026-09-10 用户决策，成本考量）：
+  - 答卷一次调用约 6K tokens，deepseek-chat 输入 2 元/M、输出 3 元/M，
+    单次成本不到 2 分钱，比 Gemini 便宜一个数量级；
+  - 国内直连，Actions runner 与本地访问都稳定（Gemini 的
+    generativelanguage.googleapis.com 在部分网络下不可达）；
+  - OpenAI 兼容格式，requests 直发 chat/completions 即可，无 SDK 依赖。
+  - deepseek-chat 支持 JSON Output：response_format={"type":"json_object"}，
+    结构化答卷场景用它，非法 JSON 概率大幅低于 Gemini。
 
 设计原则：
   1. **每题必须带 basis**（引用哪个产物、什么数值）——AI 答卷的说服力
      全在「有数据背书」，没有 basis 的题宁可不答。
   2. **合规口径**：明日预期只做结构描述（延续/分歧/修复/加剧），
      严禁个股推荐、目标价、买卖点。prompt 里显式约束。
-  3. **失败语义**：任何产物缺失或 Gemini 失败 → 本脚本退出码 0
+  3. **失败语义**：任何产物缺失或模型调用失败 → 本脚本退出码 0
      （跑批编排器约定：任一步失败不阻断当日数据落盘），但
-     ai_answers 不写文件，页面显示「今日 AI 答卷未生成」——
+     ai_answers 不写文件也不写库，页面显示「今日 AI 答卷未生成」——
      绝不写半份答卷冒充完整。
   4. **幂等**：同日重跑覆盖写（以最新数据重答），不影响已交卷用户
      的解锁逻辑（解锁条件是用户交卷时间，不是 AI 答卷时间）。
 
-分层约束：不 import streamlit；联网仅 Gemini 一次调用；产物读取
-全部走本地 data/（跑批顺序保证 digest 之后执行）。
+分层约束：不 import streamlit；联网仅模型 API 一次调用 + Supabase 写库一次；
+产物读取全部走本地 data/（跑批顺序保证 digest 之后执行）。
 """
 from __future__ import annotations
 
@@ -33,7 +45,9 @@ import requests
 from review_template import DEFAULT_TEMPLATE
 
 OUT_DIR = os.path.join("data", "review", "ai_answers")
-GEMINI_KEY = os.getenv("GEMINI_API_KEY", "")
+DEEPSEEK_KEY = os.getenv("DEEPSEEK_API_KEY", "")
+DEEPSEEK_URL = "https://api.deepseek.com/chat/completions"
+DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 CST = timezone(timedelta(hours=8))
 
 # AI 不答的题（主观题）由模板 ai_checkable=False 且 prompt 注明；
@@ -151,36 +165,35 @@ def build_prompt(trade_date: str, ctx: dict) -> str:
 """
 
 
-def call_gemini(prompt: str) -> dict | None:
-    """调 Gemini（模型嗅探逻辑与 daily_market_monitor 一致，独立实现避免 import 跑批层）。"""
-    if not GEMINI_KEY:
-        print("⚠️ GEMINI_API_KEY 未配置，AI 答卷跳过")
+def call_deepseek(prompt: str) -> dict | None:
+    """调 DeepSeek（OpenAI 兼容 chat/completions + JSON Output）。
+    返回解析后的 dict；任何失败返回 None（宁可整份不作答，不出半份）。"""
+    if not DEEPSEEK_KEY:
+        print("⚠️ DEEPSEEK_API_KEY 未配置，AI 答卷跳过")
         return None
     try:
-        models_url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_KEY}"
-        resp = requests.get(models_url, timeout=10)
-        model = "models/gemini-1.5-flash"
-        if resp.status_code == 200:
-            for m in resp.json().get("models", []):
-                if "generateContent" in m.get("supportedGenerationMethods", []):
-                    model = m["name"]
-                    break
-        url = f"https://generativelanguage.googleapis.com/v1beta/{model}:generateContent?key={GEMINI_KEY}"
         resp = requests.post(
-            url, headers={"Content-Type": "application/json"},
-            json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=60)
+            DEEPSEEK_URL,
+            headers={"Authorization": f"Bearer {DEEPSEEK_KEY}",
+                     "Content-Type": "application/json"},
+            json={
+                "model": DEEPSEEK_MODEL,
+                "messages": [
+                    {"role": "system", "content": "你是严谨的A股短线复盘助手，只输出合法 JSON。"},
+                    {"role": "user", "content": prompt},
+                ],
+                "response_format": {"type": "json_object"},
+                "temperature": 0.3,   # 事实性作答：低温度减少发挥
+                "max_tokens": 3000,
+            },
+            timeout=90)
         if resp.status_code != 200:
-            print(f"⚠️ Gemini 调用失败 HTTP {resp.status_code}")
+            print(f"⚠️ DeepSeek 调用失败 HTTP {resp.status_code}: {resp.text[:200]}")
             return None
-        text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
-        # 剥掉可能的 markdown 代码块包裹
-        text = text.strip()
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1] if "\n" in text else text
-            text = text.rsplit("```", 1)[0].strip()
+        text = resp.json()["choices"][0]["message"]["content"]
         return json.loads(text)
     except Exception as exc:
-        print(f"⚠️ Gemini 环节异常：{type(exc).__name__}: {exc}")
+        print(f"⚠️ DeepSeek 环节异常：{type(exc).__name__}: {exc}")
         return None
 
 
@@ -235,8 +248,8 @@ def main() -> int:
         print(f"⚠️ 当日（{trade_date}）情绪派生指标缺失，AI 答卷不生成（宁缺毋滥）")
         return 0
 
-    print(f"🧠 AI 答卷生成：交易日 {trade_date}，上下文键：{sorted(ctx.keys())}")
-    payload = call_gemini(build_prompt(trade_date, ctx))
+    print(f"🧠 AI 答卷生成：交易日 {trade_date}，模型 {DEEPSEEK_MODEL}，上下文键：{sorted(ctx.keys())}")
+    payload = call_deepseek(build_prompt(trade_date, ctx))
     cleaned, problems = validate_answer(payload, ctx)
     if not cleaned:
         print("❌ AI 答卷作废：", "; ".join(problems[:5]))
@@ -249,15 +262,59 @@ def main() -> int:
         "date": trade_date,
         "template_version": __import__("review_template").TEMPLATE_VERSION,
         "generated_at": datetime.now(CST).strftime("%Y-%m-%d %H:%M:%S"),
-        "model": "gemini",
+        "model": DEEPSEEK_MODEL,
         "answers": cleaned["answers"],
         "plan_text": cleaned["plan_text"],
         "problems": problems,
     }
+    # 文件先落（归档事实），再写库（页面与回验的数据源）
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(doc, f, ensure_ascii=False, indent=2)
     print(f"✅ AI 答卷落盘 {out_path}（{len(cleaned['answers'])} 题）")
+
+    db_err = _upsert_to_supabase(trade_date, doc)
+    if db_err:
+        print(f"⚠️ 写库失败（{db_err}）——文件已归档，页面暂不可见；"
+              "下次跑批同日覆盖会重试写库")
+    else:
+        print("✅ AI 答卷已写库（review_ai_answers）")
     return 0
+
+
+def _upsert_to_supabase(trade_date: str, doc: dict) -> str | None:
+    """写/覆盖当日 AI 答卷到 Supabase。返回错误描述或 None。
+    幂等：先查当日行，有则 PATCH 无则 POST。库写失败不影响文件归档。"""
+    try:
+        import database as db
+    except Exception as exc:
+        return f"database 不可用：{type(exc).__name__}"
+    # 空配置直接跳过（本地开发态），不算错误
+    try:
+        url, key = db._get_config()
+    except Exception:
+        return "配置读取失败"
+    if not url or not key:
+        return "Supabase 未配置（本地开发态，跳过写库）"
+    try:
+        date_iso = f"{trade_date[:4]}-{trade_date[4:6]}-{trade_date[6:]}"
+        payload = {"answers": doc["answers"], "plan_text": doc.get("plan_text", ""),
+                  "model_name": doc.get("model", ""), "data_digest": ""}
+        existing = db._supabase_request(
+            "GET", "review_ai_answers",
+            params={"trade_date": f"eq.{date_iso}", "select": "id", "limit": "1"})
+        if isinstance(existing, list) and existing:
+            row_id = existing[0].get("id")
+            res = db._supabase_request(
+                "PATCH", f"review_ai_answers?id=eq.{row_id}", json_data=payload)
+        else:
+            res = db._supabase_request(
+                "POST", "review_ai_answers",
+                json_data={"trade_date": date_iso, **payload})
+        if res is None or (isinstance(res, list) and not res and not existing):
+            return "写入返回空"
+        return None
+    except Exception as exc:
+        return f"{type(exc).__name__}: {exc}"
 
 
 if __name__ == "__main__":

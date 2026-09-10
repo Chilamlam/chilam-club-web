@@ -48,7 +48,9 @@ def _current_trade_date() -> str:
 
 
 def _load_local_ai(trade_date: str) -> dict | None:
-    """读本地 AI 答卷产物（跑批归档）。线上查库为准，本地兜底开发态。"""
+    """本地 AI 答卷产物（开发态预览用）。**生产数据源是 Supabase**
+    （database.get_ai_review，带后端解锁门禁），不要把这函数接进
+    页面对比流程——本地文件没有门禁，接了等于绕过后端解锁判定。"""
     p = os.path.join(AI_DIR, f"{trade_date}.json")
     if not os.path.exists(p):
         return None

@@ -64,7 +64,7 @@ ck(q03["ai_checkable"], "情绪周期题可判分（次日晋级率/溢价回验
 ck(set(q03["options"]) == {"启动", "发酵", "高潮", "退潮", "冰点"},
    "情绪周期五档选项完整")
 
-# ---- 2. AI 答卷脚本：不 import streamlit、锚定、宁缺毋滥 ----
+# ---- 2. AI 答卷脚本：不 import streamlit、DeepSeek、宁缺毋滥 ----
 drai_src = open(os.path.join(ROOT, "daily_review_ai.py"), encoding="utf-8").read()
 # AST 查 import 语句（子串匹配会误命中 docstring 里的「不 import streamlit」）
 _drai_ast0 = ast.parse(drai_src)
@@ -75,6 +75,34 @@ for _n in _drai_ast0.body:
     elif isinstance(_n, ast.ImportFrom):
         _imports.append(_n.module or "")
 ck("streamlit" not in _imports, "AI 答卷脚本不 import streamlit（跑批层纪律，AST 判定）")
+# 模型已切 DeepSeek（2026-09-10 用户决策，成本考量）
+ck("DEEPSEEK_KEY" in drai_src and "api.deepseek.com" in drai_src,
+   "模型为 DeepSeek（env 取 key + 官方端点）")
+# 不再残留 Gemini 调用（docstring 里的决策记录允许提及，代码不允许）
+_drai_code = "\n".join(
+    ast.unparse(n) for n in _drai_ast0.body
+    if not isinstance(n, ast.Expr) and not (isinstance(n, ast.Assign) and False))
+ck("generativelanguage" not in _drai_code and "GEMINI" not in _drai_code,
+   "代码区不再有 Gemini 端点/变量（AST 剥离 docstring 后判定）")
+ck('"response_format": {"type": "json_object"}' in drai_src,
+   "DeepSeek 调用启用 JSON Output（结构化答卷降低非法 JSON 概率）")
+ck("call_deepseek" in drai_src and "def call_deepseek" in drai_src,
+   "DeepSeek 调用函数存在")
+# 答卷必须双路落盘：文件归档 + Supabase（页面对比视图与回验的数据源）
+# 锚 main() 里的真实调用点（锚函数名子串会被「删调用留定义」的突变骗过——反验实锤）
+ck("def _upsert_to_supabase" in drai_src, "AI 答卷写库函数存在")
+_main_fn = next((n for n in _drai_ast0.body
+                if isinstance(n, ast.FunctionDef) and n.name == "main"), None)
+ck(_main_fn is not None, "AI 答卷脚本有 main 入口")
+_upsert_called = False
+if _main_fn is not None:
+    for _n in ast.walk(_main_fn):
+        if (isinstance(_n, ast.Call) and isinstance(_n.func, ast.Name)
+                and _n.func.id == "_upsert_to_supabase"):
+            _upsert_called = True
+            break
+ck(_upsert_called, "main() 实际调用写库（AST 判定调用点，非定义）")
+ck("文件已归档" in drai_src, "写库失败不回滚文件归档（文件是事实，库可补）")
 drai_ast = ast.parse(drai_src)
 func_names = [n.name for n in drai_ast.body if isinstance(n, ast.FunctionDef)]
 ck("validate_answer" in func_names, "有答卷校验函数（选项合法性+覆盖率）")
