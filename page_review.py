@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import datetime, timedelta, timezone
 
 import streamlit as st
 
@@ -32,11 +33,15 @@ AI_DIR = os.path.join("data", "review", "ai_answers")
 # 读不到时该题降级为「无法判断」而不是编一个选项列表。
 SECTOR_PATH = os.path.join("data", "sector_rotation", "analysis.json")
 
+_CST = timezone(timedelta(hours=8))
+
 
 def _current_trade_date() -> str:
-    """答卷针对的交易日（CST 口径，与跑批锚定同套规则）。"""
-    from datetime import datetime, timezone, timedelta
-    now = datetime.now(timezone(timedelta(hours=8)))
+    """答卷针对的交易日（CST 口径，与跑批锚定同套规则）。
+    错误防线：datetime 与 timezone 都从模块顶层导入，不做函数内
+    重新 import——Streamlit Cloud 重载时偶有局部导入失败归到下一行 st.markdown
+    报错，把 import 挪到顶部能彻底消除这类错觉归因。"""
+    now = datetime.now(_CST)
     if now.weekday() == 5:
         return (now - timedelta(days=1)).strftime("%Y%m%d")
     if now.weekday() == 6:
@@ -247,6 +252,19 @@ def render_review_page() -> None:
             st.switch_page("pages/auth.py")
         return
 
+    try:
+        _render_after_login()
+    except Exception as exc:
+        # 调试期：把真实异常显示给用户，避免 Streamlit 把 AttributeError
+        # 归到下一个 st.markdown 看不到真错点。Phase 2 上线时改成静默或
+        # 写日志。修法见 page_review.py 顶部 2026-09-10 的修复说明。
+        import traceback
+        st.error(f"答卷页内部错误：{type(exc).__name__}: {exc}")
+        with st.expander("栈详情", expanded=False):
+            st.code(traceback.format_exc())
+
+
+def _render_after_login() -> None:
     user = auth.get_current_user() or {}
     uid = user.get("user_id")
     trade_date = _current_trade_date()
