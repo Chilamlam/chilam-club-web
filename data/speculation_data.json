@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-10 23:08:10",
+  "date": "2026-09-11 01:46:18",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -288,7 +288,7 @@
       "change": 1.3,
       "vol_yi": 1.06,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 0.61
+      "premium_rate": -1.22
     },
     {
       "code": "515290.SH",
@@ -297,7 +297,7 @@
       "change": 1.26,
       "vol_yi": 0.89,
       "tag": "📈 强势",
-      "premium_rate": 1.49
+      "premium_rate": -0.03
     },
     {
       "code": "512700.SH",
@@ -306,7 +306,7 @@
       "change": 1.26,
       "vol_yi": 1.08,
       "tag": "📈 强势",
-      "premium_rate": 1.54
+      "premium_rate": 0.01
     },
     {
       "code": "516210.SH",
