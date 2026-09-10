@@ -64,7 +64,11 @@ def main() -> int:
         ck(idx["scorecard"] > idx[k], f"scorecard 必须在 {k} 之后（读当日榜单）")
     ck(idx["digest"] > idx["sentiment"] and idx["digest"] > idx["scorecard"],
        "digest 必须在 sentiment 与 scorecard 之后（读它们的产物）")
-    ck(idx["digest"] == len(rd.STEPS) - 1, "digest 应是最后一步")
+    # digest 不再是绝对最后（2026-09-10 起复盘答卷两步排在它后面，读同批产物），
+    # 但 digest 必须仍在 sentiment/scorecard 之后，且复盘两步不早于 digest。
+    ck(idx["digest"] > idx["sentiment"], "digest 仍在 sentiment 之后")
+    ck(idx.get("review_ai", -1) > idx["digest"], "review_ai 在 digest 之后（读同批产物）")
+    ck(idx.get("review_score", -1) > idx.get("review_ai", -1), "review_score 在 review_ai 之后")
 
     # ---- 3. 覆盖原 yml 的全部跑批 ----
     for k in ("rps", "etf", "market_monitor", "speculation", "guru", "radar",

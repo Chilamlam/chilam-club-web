@@ -443,7 +443,10 @@ ck(_i["sentiment"] > _i["market_monitor"],
    "sentiment 排在 market_monitor 之后（依赖 limit_ladder.json）")
 ck(_i["sentiment"] < _i["scorecard"] < _i["digest"],
    "顺序 sentiment → scorecard → digest")
-ck(_i["digest"] == len(_keys) - 1, "digest 是最后一步（读前两者产物）")
+# digest 之后只允许复盘答卷两步（2026-09-10 起），不允许其他依赖反转
+_tail_after_digest = _keys[_i["digest"]+1:] if _i["digest"] + 1 < len(_keys) else []
+ck(set(_tail_after_digest) <= {"review_ai", "review_score"},
+   f"digest 之后只能跟复盘答卷步骤（实际：{_tail_after_digest}）")
 # finish() 内部会打印新鲜度与汇总，这里只关心返回码，故临时静默以免污染自检输出
 _buf = io.StringIO()
 with contextlib.redirect_stdout(_buf):

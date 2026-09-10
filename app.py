@@ -13,6 +13,7 @@ from page_live_quote import render_live_quote_page
 from page_scorecard import render_scorecard_page
 from page_sentiment import render_sentiment_block
 from page_digest import render_digest_page
+from page_review import render_review_page
 from page_sector_rotation import render_sector_rotation_page
 from ui_compat import image_stretch, html_embed
 import data_freshness as freshness
@@ -769,6 +770,7 @@ def main():
             "🛸 全市场看板",
             "🔄 板块轮动",
             "📮 收盘摘要",
+            "📝 复盘答卷",
             "⭐ 我的池子 (每日复盘)",
             "🎯 战绩回看",
             "⚡ 实时行情 + 技术分析",
@@ -808,6 +810,9 @@ def main():
     elif page == "📮 收盘摘要":
         # 摘要「内容」开放（最好的引流物），「投递」锁 VIP（页内自行处理）
         render_digest_page()
+    elif page == "📝 复盘答卷":
+        # 填卷免费养成每日习惯；历史对比+命中率是 VIP（页内自行处理付费墙）
+        render_review_page()
     elif page == "⭐ 我的池子 (每日复盘)":
         if not auth.is_logged_in():
             render_login_lock("⭐ 我的池子 (个人每日复盘)")

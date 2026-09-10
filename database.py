@@ -10,7 +10,7 @@ import urllib.error
 import hashlib
 import hmac
 import base64
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, List, Dict, Any
 try:
     import streamlit as st
@@ -629,3 +629,117 @@ def check_payments_table() -> bool:
     params = {"id": "eq.0", "select": "id", "limit": "1"}
     res = _supabase_request("GET", "payments", params=params)
     return isinstance(res, list)
+
+
+# ==================== 引导式复盘答卷 ====================
+
+
+def get_user_review(user_id: int, trade_date: str) -> Optional[Dict[str, Any]]:
+    """取用户某交易日的答卷（含未交卷的草稿）。trade_date 形如 20260909。"""
+    params = {"user_id": f"eq.{user_id}", "trade_date": f"eq.{trade_date}",
+              "select": "*", "limit": "1"}
+    res = _supabase_request("GET", "review_answers", params=params)
+    if isinstance(res, list) and res:
+        return res[0]
+    return None
+
+
+def upsert_review_answer(user_id: int, trade_date: str, answers: Dict[str, Any],
+                         plan_text: str = "") -> tuple:
+    """创建或更新答卷草稿（不交卷）。返回 (行, err)。
+    err 里带「已交卷不可改」的判定——交卷后答案锁定，只能看不能改，
+    这是「先交卷后解锁 AI 答卷」门禁的数据侧另一半。"""
+    existing = get_user_review(user_id, trade_date)
+    if existing and existing.get("submitted"):
+        return None, {"code": "LOCKED", "message": "该日答卷已交卷，锁定不可修改"}
+    if existing:
+        res, err = _supabase_request(
+            "PATCH", f"review_answers?id=eq.{existing['id']}",
+            json_data={"answers": answers, "plan_text": plan_text},
+            return_error=True)
+    else:
+        res, err = _supabase_request(
+            "POST", "review_answers", return_error=True,
+            json_data={"user_id": user_id, "trade_date": trade_date,
+                       "answers": answers, "plan_text": plan_text,
+                       "submitted": False})
+    if err:
+        return None, err
+    # upsert 冲突（两人并发首建）时 PostgREST 返 409——如实透出给调用方
+    if isinstance(res, list) and res:
+        return res[0], None
+    return None, {"code": "UNKNOWN", "message": "答卷写入返回空"}
+
+
+def submit_review(user_id: int, trade_date: str) -> tuple:
+    """交卷：submitted=True 后答案锁定。返回 (行, err)。"""
+    existing = get_user_review(user_id, trade_date)
+    if not existing:
+        return None, {"code": "NO_DRAFT", "message": "没有可交的答卷草稿"}
+    if existing.get("submitted"):
+        return existing, None  # 幂等：重复交卷不报错
+    res, err = _supabase_request(
+        "PATCH", f"review_answers?id=eq.{existing['id']}",
+        json_data={"submitted": True,
+                   "submitted_at": datetime.now(timezone.utc).isoformat()},
+        return_error=True)
+    if err:
+        return None, err
+    return (res[0] if isinstance(res, list) and res else existing), None
+
+
+def get_ai_review(trade_date: str, user_id: int) -> tuple:
+    """取 AI 答卷——**解锁门禁在后端**：用户当日未交卷时拒绝返回。
+    返回 (答卷|None, err)。err.code 含义：
+      NOT_SUBMITTED —— 用户还没交卷（前端据此显示「先交卷」）
+      NO_AI —— 当日 AI 答卷尚未生成（跑批未跑或作废）
+      TABLE_MISSING —— review 表未建（提示管理员执行 SQL）
+    门禁必须在此层而不是页面层：页面藏起来的数据，开发者工具照样抓得到。"""
+    own = get_user_review(user_id, trade_date)
+    if not own or not own.get("submitted"):
+        return None, {"code": "NOT_SUBMITTED",
+                      "message": "先完成当日答卷，AI 答卷才对你解锁"}
+    params = {"trade_date": f"eq.{trade_date}", "select": "*", "limit": "1"}
+    res, err = _supabase_request("GET", "review_ai_answers", params=params,
+                                 return_error=True)
+    if err:
+        if err.get("status") == 404:
+            return None, {"code": "TABLE_MISSING",
+                          "message": "review 表未创建（管理员执行 init_review_tables.sql）"}
+        return None, err
+    if isinstance(res, list) and res:
+        return res[0], None
+    return None, {"code": "NO_AI", "message": "当日 AI 答卷尚未生成"}
+
+
+def get_user_scoring(user_id: int, trade_date: str) -> List[Dict[str, Any]]:
+    """取用户某交易日的回验明细（次日跑批生成）。"""
+    params = {"user_id": f"eq.{user_id}", "trade_date": f"eq.{trade_date}",
+              "select": "*", "order": "question_id"}
+    res = _supabase_request("GET", "review_scoring", params=params)
+    return res if isinstance(res, list) else []
+
+
+def get_scoring_stats(user_id: int, limit_days: int = 30) -> Dict[str, Any]:
+    """用户命中率统计（近 N 个交易日）。VIP 权益之一。"""
+    params = {"user_id": f"eq.{user_id}", "select": "trade_date,question_id,user_hit,ai_hit",
+              "order": "trade_date.desc", "limit": str(limit_days * 15)}
+    res = _supabase_request("GET", "review_scoring", params=params)
+    if not isinstance(res, list) or not res:
+        return {"days": 0, "user_hits": 0, "ai_hits": 0, "total": 0}
+    by_date = {}
+    for r in res:
+        d = str(r.get("trade_date", ""))[:10].replace("-", "")
+        by_date.setdefault(d, {"user": 0, "ai": 0, "n": 0})
+        by_date[d]["n"] += 1
+        if r.get("user_hit"):
+            by_date[d]["user"] += 1
+        if r.get("ai_hit"):
+            by_date[d]["ai"] += 1
+    total_n = sum(v["n"] for v in by_date.values())
+    return {
+        "days": len(by_date),
+        "user_hits": sum(v["user"] for v in by_date.values()),
+        "ai_hits": sum(v["ai"] for v in by_date.values()),
+        "total": total_n,
+    }

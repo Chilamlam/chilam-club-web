@@ -87,6 +87,10 @@ STEPS: list[dict] = [
      "backfill": BACKFILL_EXTRA_PASS, "timeout": 2400},
     {"key": "digest", "script": "daily_digest.py", "label": "收盘摘要与推送",
      "backfill": BACKFILL_NONE, "timeout": 900},
+    {"key": "review_ai", "script": "daily_review_ai.py", "label": "复盘 AI 答卷",
+     "backfill": BACKFILL_NONE, "timeout": 300},
+    {"key": "review_score", "script": "daily_review_score.py", "label": "复盘答卷回验",
+     "backfill": BACKFILL_NONE, "timeout": 300},
 ]
 
 # 数据新鲜度自检：(标签, 单行 python 表达式脚本)。
