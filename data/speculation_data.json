@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-11 19:06:49",
+  "date": "2026-09-11 23:13:10",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -210,7 +210,7 @@
       "change": 3.62,
       "vol_yi": 6.87,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 1.92
+      "premium_rate": -2.08
     },
     {
       "code": "501018.SH",
@@ -219,7 +219,7 @@
       "change": 2.96,
       "vol_yi": 10.64,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 2.81
+      "premium_rate": -1.01
     },
     {
       "code": "501046.SH",
@@ -228,7 +228,7 @@
       "change": 2.91,
       "vol_yi": 0.28,
       "tag": "📈 强势",
-      "premium_rate": 25.7
+      "premium_rate": 22.52
     },
     {
       "code": "508020.SH",
@@ -246,7 +246,7 @@
       "change": 1.97,
       "vol_yi": 1.68,
       "tag": "📈 强势",
-      "premium_rate": 2.62
+      "premium_rate": 0.97
     },
     {
       "code": "501026.SH",
@@ -255,7 +255,7 @@
       "change": 1.65,
       "vol_yi": 0.07,
       "tag": "🏗️ LOF套利",
-      "premium_rate": -0.04
+      "premium_rate": -0.28
     },
     {
       "code": "159511.SZ",
@@ -273,7 +273,7 @@
       "change": 1.2,
       "vol_yi": 0.88,
       "tag": "📈 强势",
-      "premium_rate": 1.64
+      "premium_rate": 1.14
     },
     {
       "code": "161129.SZ",
@@ -282,7 +282,7 @@
       "change": 1.02,
       "vol_yi": 22.95,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 3.5
+      "premium_rate": -1.04
     },
     {
       "code": "159811.SZ",
@@ -291,7 +291,7 @@
       "change": 0.97,
       "vol_yi": 0.33,
       "tag": "📈 强势",
-      "premium_rate": 1.01
+      "premium_rate": 0.24
     },
     {
       "code": "159985.SZ",
@@ -300,7 +300,7 @@
       "change": 0.91,
       "vol_yi": 11.52,
       "tag": "📈 强势",
-      "premium_rate": 3.97
+      "premium_rate": 3.27
     },
     {
       "code": "159179.SZ",
@@ -318,7 +318,7 @@
       "change": 0.77,
       "vol_yi": 3.16,
       "tag": "📈 强势",
-      "premium_rate": 0.74
+      "premium_rate": 0.41
     },
     {
       "code": "520650.SH",
@@ -336,7 +336,7 @@
       "change": 0.69,
       "vol_yi": 2.9,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": -0.64
+      "premium_rate": -0.92
     },
     {
       "code": "520630.SH",
@@ -345,7 +345,7 @@
       "change": 0.64,
       "vol_yi": 0.11,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": -0.52
+      "premium_rate": -0.81
     },
     {
       "code": "159695.SZ",
@@ -375,13 +375,13 @@
       "premium_rate": 0.6
     },
     {
-      "code": "159568.SZ",
-      "name": "港股互联网ETF博时",
-      "price": 1.067,
+      "code": "159507.SZ",
+      "name": "通信ETF广发",
+      "price": 0.879,
       "change": 0.57,
-      "vol_yi": 0.57,
-      "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": -0.74
+      "vol_yi": 0.67,
+      "tag": "📈 强势",
+      "premium_rate": 0.18
     }
   ],
   "ai_analysis": ""
