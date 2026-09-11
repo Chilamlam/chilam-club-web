@@ -43,6 +43,7 @@ from datetime import datetime, timezone, timedelta
 import requests
 
 from review_template import DEFAULT_TEMPLATE
+from review_evidence import ladder_snapshot, sector_snapshot, build_evidence
 
 OUT_DIR = os.path.join("data", "review", "ai_answers")
 DEEPSEEK_KEY = os.getenv("DEEPSEEK_API_KEY", "")
@@ -88,7 +89,13 @@ def _snapshot_trade_date() -> str:
 
 
 def build_context(trade_date: str) -> dict:
-    """组装当日数据上下文（AI 答卷的依据全集）。"""
+    """组装当日数据上下文（AI 答卷的依据全集）。
+
+    天梯与板块取数走 review_evidence（一处实现）——本函数历史版本取
+    板块涨幅用 pct_1d 字段，实际字段名是 pct_chg，恒 None 的静默 bug
+    在收口到 ladder_snapshot/sector_snapshot 时一并修复（2026-09-11）。
+    另注入每题标的参考（qid → evidence），与页面填卷看到同一份素材，
+    「看盘面作答」两侧对齐。"""
     derived = _load_json(DERIVED_PATH)
     ladder = _load_json(LADDER_PATH)
     ai_analysis = _load_json(ANALYSIS_PATH)
@@ -103,15 +110,11 @@ def build_context(trade_date: str) -> dict:
             "ladder_gap": derived.get("ladder_gap"),
         }
     if ladder and str(ladder.get("date")).replace("-", "") == trade_date:
-        stocks = ladder.get("stocks") or []
+        snap = ladder_snapshot(ladder)
         ctx["ladder"] = {
-            "total_count": ladder.get("total_count"),
-            "max_height": ladder.get("max_height"),
-            "top5": [
-                {"name": s.get("name"), "limit_times": s.get("limit_times"),
-                 "industry": s.get("industry")}
-                for s in sorted(stocks, key=lambda x: -(x.get("limit_times") or 0))[:5]
-            ],
+            "total_count": snap["total"],
+            "max_height": snap["max_height"],
+            "top5": snap["top5"],
         }
     if ai_analysis and str(ai_analysis.get("date")).replace("-", "") == trade_date:
         ctx["ai_analysis_main_logic"] = (ai_analysis.get("main_logic") or "")[:600]
@@ -120,11 +123,15 @@ def build_context(trade_date: str) -> dict:
             for r in (ai_analysis.get("limit_reasons") or [])[:10]
         ]
     if sector and str(sector.get("date")).replace("-", "") == trade_date:
-        top = sector.get("top") or []
-        ctx["sector_top10"] = [
-            {"name": t.get("name"), "pct": t.get("pct_1d")}
-            for t in top[:10]
-        ]
+        ctx["sector_top10"] = sector_snapshot(sector)
+    # 每题当日标的/数据参考（用户 2026-09-11 反馈：题目下要有对应标的）。
+    # evidence 与页面共用；里含的板块 pct 已是正确字段（pct_chg）。
+    ev = build_evidence(trade_date)
+    if ev:
+        ctx["evidence"] = {
+            qid: {"title": e["title"], "lines": e["lines"]}
+            for qid, e in ev.items()
+        }
     return ctx
 
 

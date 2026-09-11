@@ -26,6 +26,7 @@ import streamlit as st
 import auth
 import database
 from review_template import DEFAULT_TEMPLATE, get_checkable_ids
+import review_evidence
 
 AI_DIR = os.path.join("data", "review", "ai_answers")
 
@@ -78,6 +79,20 @@ def _sector_options() -> list[str]:
         return []
 
 
+def _render_evidence(qid: str, evidence: dict) -> None:
+    """单题的当日标的/数据参考（expander，默认收起）。
+    素材来自 review_evidence（计算层，只给事实名单/数字，不给站内定性
+    判读——那是考题本身，亮出来等于泄题）。缺数据时静默跳过，不占位。"""
+    ev = evidence.get(qid)
+    if not ev:
+        return
+    with st.expander(f"📌 当日参考 · {ev['title']}", expanded=False):
+        for line in ev.get("lines") or []:
+            st.markdown(f"<div style='font-size:0.86em'>{line}</div>",
+                        unsafe_allow_html=True)
+        st.caption(f"来源：{ev.get('source', '')}")
+
+
 def _render_form(trade_date: str, existing: dict | None) -> None:
     """填卷表单（草稿可反复保存，交卷后锁定）。"""
     saved = (existing or {}).get("answers") or {}
@@ -89,6 +104,9 @@ def _render_form(trade_date: str, existing: dict | None) -> None:
     saved_plan = (existing or {}).get("plan_text") or ""
 
     sector_opts = _sector_options()
+    # 每题标的参考一次构建，循环内复用（2026-09-11 用户反馈：题目下
+    # 要有对应标的选择参考——纯选择题没有盘面锚点，退化成闭眼猜）
+    evidence = review_evidence.build_evidence(trade_date)
     with st.form("review_form"):
         st.caption("草稿自动随「保存」更新；**交卷后锁定**，AI 答卷随即解锁。")
         answers: dict[str, str] = {}
@@ -103,6 +121,7 @@ def _render_form(trade_date: str, existing: dict | None) -> None:
                     continue
                 qid, qtype = q["id"], q["type"]
                 prev = saved.get(qid, "")
+                _render_evidence(qid, evidence)
                 if qtype == "single" or qtype == "yn":
                     opts = q["options"]
                     idx = opts.index(prev) if prev in opts else None
@@ -183,6 +202,8 @@ def _render_compare(trade_date: str, user_row: dict) -> None:
         except Exception:
             user_answers = {}
     checkable = set(get_checkable_ids())
+    # 对比视图同样展示当日参考（复盘回看：当时看到的盘面素材是什么）
+    evidence = review_evidence.build_evidence(trade_date)
 
     same, diff = 0, 0
     for q in DEFAULT_TEMPLATE:
@@ -197,6 +218,7 @@ def _render_compare(trade_date: str, user_row: dict) -> None:
         icon = "🟢" if is_same else ("🟡" if u == "—" or a_choice == "未答" else "🔵")
         with st.expander(f"{icon} {q['prompt']}　你：{u} ｜ AI：{a_choice}",
                          expanded=not is_same):
+            _render_evidence(qid, evidence)
             if a_basis:
                 st.caption(f"AI 依据：{a_basis}")
             if not is_same and qid in checkable:

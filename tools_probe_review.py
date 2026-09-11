@@ -240,6 +240,123 @@ for t in ("review_answers", "review_ai_answers", "review_scoring"):
 ck("ENABLE ROW LEVEL SECURITY" in sql_src, "RLS 已启用")
 ck("UNIQUE (user_id, trade_date)" in sql_src, "答卷每人每日一份（唯一约束）")
 
+# ---- 9. 每题标的参考（review_evidence）：泄题红线 + 一处实现 + 不编造 ----
+# 用户 2026-09-11 反馈：纯选择题没有盘面锚点。要求每题下挂当日真实标的。
+# 但素材必须止于事实（名单/数值）——站内的定性判读（情绪周期 phase、
+# 梯队 verdict、轮动定性）正是考题答案，出现在 evidence 里就是泄题。
+rev_src = open(os.path.join(ROOT, "review_evidence.py"), encoding="utf-8").read()
+rev_ast = ast.parse(rev_src)
+_rev_imports = []
+for _n in rev_ast.body:
+    if isinstance(_n, ast.Import):
+        _rev_imports.extend(a.name for a in _n.names)
+    elif isinstance(_n, ast.ImportFrom):
+        _rev_imports.append(_n.module or "")
+ck("streamlit" not in _rev_imports, "evidence 层不 import streamlit（计算层纪律，AST 判定）")
+
+# 泄题红线（AST 判定，覆盖两种取值形态）：
+#   形态 1：derived.phase / x.verdict（属性访问）
+#   形态 2：derived.get("phase") / x.get("verdict")（get 调用 + 常量键）
+# 只查属性会漏掉 get 形态——后者恰是 Python 更惯用的写法
+_leak_attr, _leak_get = [], []
+for _n in ast.walk(rev_ast):
+    if isinstance(_n, ast.Attribute):
+        _leak_attr.append(_n.attr)
+    if (isinstance(_n, ast.Call) and isinstance(_n.func, ast.Attribute)
+            and _n.func.attr == "get"):
+        for _a in _n.args:
+            if isinstance(_a, ast.Constant) and isinstance(_a.value, str):
+                _leak_get.append(_a.value)
+ck("phase" not in _leak_attr and "verdict" not in _leak_attr
+   and "phase" not in _leak_get and "verdict" not in _leak_get,
+   "evidence 不读取 phase/verdict 定性字段（属性与 get 两种形态均查，泄题红线）")
+
+# 一处实现：daily_review_ai 的天梯/板块上下文必须走 review_evidence
+ck("from review_evidence import" in drai_src,
+   "AI 答卷天梯/板块取数走 review_evidence（一处实现，杜绝两处漂移）")
+# pct_1d 判定锚「实际取值调用」.get("pct_1d")的 AST 结构——docstring 里的
+# 决策记录（「历史版本用 pct_1d」）是纯字符串，不可能形成取值调用节点
+_pct1d_called = False
+for _n in ast.walk(_drai_ast0):
+    if (isinstance(_n, ast.Call) and isinstance(_n.func, ast.Attribute)
+            and _n.func.attr == "get"):
+        for _a in _n.args:
+            if isinstance(_a, ast.Constant) and _a.value == "pct_1d":
+                _pct1d_called = True
+ck(not _pct1d_called, "AI 答卷不再有 pct_1d 取值调用（字段错配恒 None 的 bug 已修）")
+
+# 页面渲染每题参考——锚定 _render_form / _render_compare 内部的**调用点**
+# （子串断言被「删调用留定义」骗过——mutation 反验实锤，AST 锚调用。
+#  调用形态两种都要认：裸函数 _render_evidence(...) 是 ast.Name；
+#  模块函数 review_evidence.build_evidence(...) 是 ast.Attribute——
+#  只认 Name 会把正确代码误报成失败，第一版就栽在这）
+prv_ast = ast.parse(prv_src)
+def _calls_in(fn_name: str, callee: str) -> bool:
+    for node in prv_ast.body:
+        if isinstance(node, ast.FunctionDef) and node.name == fn_name:
+            for sub in ast.walk(node):
+                if not isinstance(sub, ast.Call):
+                    continue
+                f = sub.func
+                if ((isinstance(f, ast.Name) and f.id == callee)
+                        or (isinstance(f, ast.Attribute) and f.attr == callee)):
+                    return True
+    return False
+ck("def _render_evidence" in prv_src and "build_evidence" in prv_src,
+   "页面有参考渲染函数与素材构建接线（build_evidence）")
+ck(_calls_in("_render_form", "_render_evidence"),
+   "填卷表单每题渲染标的参考（AST 锚定调用点，删调用留定义会被抓）")
+ck(_calls_in("_render_compare", "_render_evidence"),
+   "对比视图每题渲染标的参考（AST 锚定调用点）")
+ck(_calls_in("_render_form", "build_evidence"),
+   "填卷前构建当日素材（build_evidence 调用点在 _render_form）")
+
+# ---- 10. evidence 实测（真实产物，非 mock）----
+import csv as _csv
+_ev_spec = importlib.util.spec_from_file_location(
+    "rev_ev", os.path.join(ROOT, "review_evidence.py"))
+rev_ev = importlib.util.module_from_spec(_ev_spec)
+_ev_spec.loader.exec_module(rev_ev)
+
+# 站内真实产物日期锚定：derived/ladder/sector 里最新的共同交易日
+_derived_real = rev_ev._load_json(rev_ev.DERIVED_PATH)
+_ladder_real = rev_ev._load_json(rev_ev.LADDER_PATH)
+_td_real = str((_derived_real or {}).get("date") or "")
+ck(bool(_td_real and len(_td_real) == 8), f"本地有当日情绪派生产物（date={_td_real}）")
+_ev_real = rev_ev.build_evidence(_td_real)
+ck(len(_ev_real) >= 12,
+   f"真实产物生成 {len(_ev_real)} 题参考 ≥ 12（标的覆盖面）")
+# 泄题红线实测：任何参考文本里不得出现情绪周期五档词/梯队定性判语
+_ev_all_text = json.dumps(_ev_real, ensure_ascii=False)
+_leaked = [w for w in rev_ev.PHASE_WORDS + rev_ev.LADDER_VERDICT_MARKS
+           if w in _ev_all_text]
+ck(not _leaked, f"真实素材文本无泄题词（检出 {len(_leaked)} 个即失败）")
+# 天梯题素材含真实标的（连板股名）
+_q7 = _ev_real.get("q07_ladder") or {}
+ck(any("只" in ln or "板" in ln for ln in _q7.get("lines", [])),
+   "天梯题参考含分层标的名单")
+# 板块题素材含 Top10 板块名
+_q10 = _ev_real.get("q10_strongest_theme") or {}
+ck(len(_q10.get("lines", [])) >= 8, "板块题参考含 Top10 完整榜单")
+# 缺数据不编造：不存在的日期 → 所有**日期锚定**类素材（天梯/板块/新高/
+# 转债/辨识度/模式）必须缺位，不得拿别的日期产物冒充当日。q04/q05 指数
+# 尾序列不算（它是「近期历史」性质素材，非当日锚定）
+_ev_empty = rev_ev.build_evidence("19990101")
+_gated = ["q06_hot_money", "q07_ladder", "q08_trend_new_high", "q09_convertible",
+          "q10_strongest_theme", "q11_new_theme", "q12_main_pattern",
+          "q13_recognition", "q01_sentiment", "q03_emotion_cycle"]
+_fabricated = [q for q in _gated if q in _ev_empty]
+ck(not _fabricated,
+   f"无数据日期不编造素材（日期锚定题缺位 {len(_gated) - len(_fabricated)}/{len(_gated)}，宁缺毋滥）")
+
+# AI 上下文（build_context 同源复用 evidence）——用真实产物验证字段修复
+_ctx_real = drai.build_context(_td_real)
+ck("evidence" in _ctx_real, "AI 答卷上下文注入每题标的参考（build_context）")
+_sec_names = [t.get("name") for t in _ctx_real.get("sector_top10") or []]
+ck(bool(_sec_names), "AI 上下文板块榜有真实板块名（pct_chg 字段修复生效）")
+_sec_pcts = [t.get("pct") for t in _ctx_real.get("sector_top10") or []]
+ck(any(p is not None for p in _sec_pcts), "AI 上下文板块涨幅不再恒 None")
+
 print("-" * 60)
 print(f"通过 {len(PASS)} 项，失败 {len(FAIL)} 项")
 if FAIL:
