@@ -131,7 +131,7 @@
     ],
     "watch": "明日重合回升至 ≥7 则转向主升判读；仍 ≤3 则轮动延续。"
   },
-  "generated_at": "2026-09-12 01:55:51 CST",
+  "generated_at": "2026-09-12 22:28:06 CST",
   "source": "eastmoney_concept_boards",
   "note": "今日非交易日/数据停滞，未新增归档，以下为最近交易日的分析"
 }

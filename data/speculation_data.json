@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-12 01:48:13",
+  "date": "2026-09-12 22:20:37",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -375,13 +375,13 @@
       "premium_rate": -0.13
     },
     {
-      "code": "159507.SZ",
-      "name": "通信ETF广发",
-      "price": 0.879,
+      "code": "159568.SZ",
+      "name": "港股互联网ETF博时",
+      "price": 1.067,
       "change": 0.57,
-      "vol_yi": 0.67,
-      "tag": "📈 强势",
-      "premium_rate": 0.18
+      "vol_yi": 0.57,
+      "tag": "🌍 跨境(注意溢价风险)",
+      "premium_rate": -1.03
     }
   ],
   "ai_analysis": ""
