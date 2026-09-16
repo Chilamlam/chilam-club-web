@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-16 23:32:32",
+  "date": "2026-09-17 02:15:22",
   "cb_list": [
     {
       "ts_code": "123112.SZ",
@@ -213,15 +213,6 @@
       "premium_rate": 0.3
     },
     {
-      "code": "589020.SH",
-      "name": "科创半导体设备ETF鹏华",
-      "price": 1.189,
-      "change": 5.97,
-      "vol_yi": 9.01,
-      "tag": "📈 强势",
-      "premium_rate": 0.27
-    },
-    {
       "code": "588170.SH",
       "name": "科创半导体ETF华夏",
       "price": 0.977,
@@ -231,13 +222,13 @@
       "premium_rate": 0.27
     },
     {
-      "code": "562590.SH",
-      "name": "半导体设备ETF华夏",
-      "price": 0.997,
-      "change": 5.61,
-      "vol_yi": 5.72,
+      "code": "589020.SH",
+      "name": "科创半导体设备ETF鹏华",
+      "price": 1.189,
+      "change": 5.97,
+      "vol_yi": 9.01,
       "tag": "📈 强势",
-      "premium_rate": 0.38
+      "premium_rate": 0.27
     },
     {
       "code": "501085.SH",
@@ -247,6 +238,15 @@
       "vol_yi": 0.23,
       "tag": "🏗️ LOF套利",
       "premium_rate": -1.7
+    },
+    {
+      "code": "562590.SH",
+      "name": "半导体设备ETF华夏",
+      "price": 0.997,
+      "change": 5.61,
+      "vol_yi": 5.72,
+      "tag": "📈 强势",
+      "premium_rate": 0.38
     },
     {
       "code": "560780.SH",
@@ -348,15 +348,6 @@
       "premium_rate": 0.1
     },
     {
-      "code": "588200.SH",
-      "name": "科创芯片ETF嘉实",
-      "price": 1.147,
-      "change": 5.04,
-      "vol_yi": 35.23,
-      "tag": "📈 强势",
-      "premium_rate": -0.03
-    },
-    {
       "code": "159582.SZ",
       "name": "半导体ETF博时",
       "price": 0.751,
@@ -364,6 +355,15 @@
       "vol_yi": 1.37,
       "tag": "📈 强势",
       "premium_rate": 0.19
+    },
+    {
+      "code": "588200.SH",
+      "name": "科创芯片ETF嘉实",
+      "price": 1.147,
+      "change": 5.04,
+      "vol_yi": 35.23,
+      "tag": "📈 强势",
+      "premium_rate": -0.03
     },
     {
       "code": "588890.SH",
