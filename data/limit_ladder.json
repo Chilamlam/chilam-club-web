@@ -1,6 +1,6 @@
 {
   "date": "2026-09-16",
-  "update_time": "2026-09-16 11:06:18",
+  "update_time": "2026-09-16 15:31:54",
   "total_count": 89,
   "max_height": 6,
   "stocks": [
@@ -34,7 +34,7 @@
       "industry": "半导体",
       "limit_times": 2,
       "first_time": "09:32:12",
-      "reason": "封板资金 1.07 亿 | 炸板 2 次"
+      "reason": "封板资金 1.07 亿 | 炸板 3 次"
     },
     {
       "code": "601579",

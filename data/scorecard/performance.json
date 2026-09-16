@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-16 19:31:47",
+  "generated_at": "2026-09-16 23:56:59",
   "benchmark": "000300.SH",
   "horizons": [
     1,
@@ -10,8 +10,8 @@
   "strategies": {
     "breakout": {
       "label": "阶段新高突破池",
-      "total_picks": 741,
-      "days": 13,
+      "total_picks": 801,
+      "days": 14,
       "horizons": {
         "1": {
           "n": 739,
@@ -424,8 +424,8 @@
     }
   },
   "archive": {
-    "pick_rows": 4418,
-    "price_rows": 16085,
+    "pick_rows": 4478,
+    "price_rows": 16110,
     "date_from": "20260706",
     "date_to": "20260916",
     "trade_days": 53
