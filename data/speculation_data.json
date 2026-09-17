@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-17 23:38:51",
+  "date": "2026-09-18 02:21:55",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -285,15 +285,6 @@
       "premium_rate": 0.11
     },
     {
-      "code": "159031.SZ",
-      "name": "粮食ETF博时",
-      "price": 0.983,
-      "change": 2.61,
-      "vol_yi": 0.1,
-      "tag": "📈 强势",
-      "premium_rate": 0.22
-    },
-    {
       "code": "159698.SZ",
       "name": "粮食ETF鹏华",
       "price": 0.945,
@@ -301,6 +292,15 @@
       "vol_yi": 2.81,
       "tag": "📈 强势",
       "premium_rate": 0.38
+    },
+    {
+      "code": "159031.SZ",
+      "name": "粮食ETF博时",
+      "price": 0.983,
+      "change": 2.61,
+      "vol_yi": 0.1,
+      "tag": "📈 强势",
+      "premium_rate": 0.22
     },
     {
       "code": "508099.SH",
