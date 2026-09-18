@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-18 19:06:42",
+  "date": "2026-09-18 23:07:28",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -210,7 +210,7 @@
       "change": 6.5,
       "vol_yi": 0.07,
       "tag": "🏗️ LOF套利",
-      "premium_rate": 3.66
+      "premium_rate": -1.62
     },
     {
       "code": "159707.SZ",
@@ -219,7 +219,7 @@
       "change": 5.79,
       "vol_yi": 1.29,
       "tag": "📈 强势",
-      "premium_rate": 5.98
+      "premium_rate": 0.45
     },
     {
       "code": "159768.SZ",
@@ -240,15 +240,6 @@
       "premium_rate": 4.63
     },
     {
-      "code": "589420.SH",
-      "name": "科创芯片设计ETF永赢",
-      "price": 0.765,
-      "change": 4.65,
-      "vol_yi": 0.24,
-      "tag": "📈 强势",
-      "premium_rate": 4.47
-    },
-    {
       "code": "562820.SH",
       "name": "集成电路ETF嘉实",
       "price": 0.968,
@@ -256,6 +247,15 @@
       "vol_yi": 0.41,
       "tag": "📈 强势",
       "premium_rate": 4.46
+    },
+    {
+      "code": "589420.SH",
+      "name": "科创芯片设计ETF永赢",
+      "price": 0.765,
+      "change": 4.65,
+      "vol_yi": 0.24,
+      "tag": "📈 强势",
+      "premium_rate": 4.47
     },
     {
       "code": "589260.SH",
@@ -300,7 +300,7 @@
       "change": 4.33,
       "vol_yi": 2.4,
       "tag": "📈 强势",
-      "premium_rate": 4.35
+      "premium_rate": 0.23
     },
     {
       "code": "526050.SH",
@@ -309,7 +309,7 @@
       "change": 4.32,
       "vol_yi": 0.37,
       "tag": "📈 强势",
-      "premium_rate": 2.96
+      "premium_rate": -1.39
     },
     {
       "code": "526060.SH",
@@ -336,7 +336,7 @@
       "change": 4.25,
       "vol_yi": 0.21,
       "tag": "📈 强势",
-      "premium_rate": 4.13
+      "premium_rate": 0.03
     },
     {
       "code": "159198.SZ",
@@ -381,7 +381,7 @@
       "change": 4.17,
       "vol_yi": 2.24,
       "tag": "📈 强势",
-      "premium_rate": 3.01
+      "premium_rate": -1.36
     }
   ],
   "ai_analysis": ""
