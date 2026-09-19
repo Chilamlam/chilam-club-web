@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-19 22:43:53",
+  "date": "2026-09-20 01:20:22",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -240,15 +240,6 @@
       "premium_rate": 0.45
     },
     {
-      "code": "562820.SH",
-      "name": "集成电路ETF嘉实",
-      "price": 0.968,
-      "change": 4.65,
-      "vol_yi": 0.41,
-      "tag": "📈 强势",
-      "premium_rate": 0.27
-    },
-    {
       "code": "589420.SH",
       "name": "科创芯片设计ETF永赢",
       "price": 0.765,
@@ -256,6 +247,15 @@
       "vol_yi": 0.24,
       "tag": "📈 强势",
       "premium_rate": 0.33
+    },
+    {
+      "code": "562820.SH",
+      "name": "集成电路ETF嘉实",
+      "price": 0.968,
+      "change": 4.65,
+      "vol_yi": 0.41,
+      "tag": "📈 强势",
+      "premium_rate": 0.27
     },
     {
       "code": "589260.SH",
