@@ -42,17 +42,6 @@
     },
     {
       "rank": 4,
-      "code": "BK0877",
-      "name": "PCB",
-      "pct_chg": 0.29,
-      "pct_5d": 4.85,
-      "pct_10d": 8.66,
-      "pct_20d": 13.06,
-      "pct_60d": -15.38,
-      "streak": 1
-    },
-    {
-      "rank": 5,
       "code": "BK0885",
       "name": "VPN",
       "pct_chg": 3.01,
@@ -63,7 +52,7 @@
       "streak": 1
     },
     {
-      "rank": 6,
+      "rank": 5,
       "code": "BK1177",
       "name": "荣耀概念",
       "pct_chg": 0.87,
@@ -74,7 +63,7 @@
       "streak": 1
     },
     {
-      "rank": 7,
+      "rank": 6,
       "code": "BK0969",
       "name": "汽车芯片",
       "pct_chg": 0.95,
@@ -85,7 +74,7 @@
       "streak": 1
     },
     {
-      "rank": 8,
+      "rank": 7,
       "code": "BK1127",
       "name": "AI芯片",
       "pct_chg": 2.63,
@@ -96,18 +85,7 @@
       "streak": 1
     },
     {
-      "rank": 9,
-      "code": "BK1048",
-      "name": "IGBT概念",
-      "pct_chg": 0.43,
-      "pct_5d": 6.93,
-      "pct_10d": 6.18,
-      "pct_20d": 4.32,
-      "pct_60d": -18.6,
-      "streak": 1
-    },
-    {
-      "rank": 10,
+      "rank": 8,
       "code": "BK1637",
       "name": "东方财富热股",
       "pct_chg": 1.75,
@@ -116,21 +94,43 @@
       "pct_20d": 16.17,
       "pct_60d": 33.84,
       "streak": 2
+    },
+    {
+      "rank": 9,
+      "code": "BK1658",
+      "name": "创新医疗服务",
+      "pct_chg": 1.08,
+      "pct_5d": 8.82,
+      "pct_10d": 4.85,
+      "pct_20d": 4.12,
+      "pct_60d": 19.89,
+      "streak": 2
+    },
+    {
+      "rank": 10,
+      "code": "BK0915",
+      "name": "WiFi",
+      "pct_chg": 1.15,
+      "pct_5d": 8.97,
+      "pct_10d": 4.85,
+      "pct_20d": 7.46,
+      "pct_60d": -3.38,
+      "streak": 1
     }
   ],
-  "overlap_count": 3,
+  "overlap_count": 4,
   "overlap_denominator": 10,
-  "top_median_pct": 6.75,
-  "universe_median_pct": 1.25,
-  "universe_count": 190,
+  "top_median_pct": 6.72,
+  "universe_median_pct": 1.63,
+  "universe_count": 94,
   "verdict": {
-    "label": "快速轮动",
+    "label": "过渡/混合",
     "reasons": [
-      "Top10 与上一交易日（2026-09-21）重合仅 3/10，领涨板块快速换脸；",
-      "Top10 10d涨幅中位数 6.8%，全市场概念板块中位数 1.2%。"
+      "Top10 与上一交易日（2026-09-21）重合 4/10，介于主升（≥7）与轮动（≤3）之间，主线与轮动并存；",
+      "Top10 10d涨幅中位数 6.7%，全市场概念板块中位数 1.6%。"
     ],
-    "watch": "明日重合回升至 ≥7 则转向主升判读；仍 ≤3 则轮动延续。"
+    "watch": "明日重合 ≥7 转主升判读；≤3 转轮动判读。"
   },
-  "generated_at": "2026-09-22 19:20:54 CST",
+  "generated_at": "2026-09-23 02:21:14 CST",
   "source": "eastmoney_concept_boards"
 }
