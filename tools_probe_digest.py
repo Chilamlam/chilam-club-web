@@ -492,9 +492,21 @@ ck(not re.search(r"\$\{\{\s*toJSON\s*\(\s*secrets\s*\)\s*\}\}", _wf_code),
 #         严格点名时豁免其余成员；一个都没点到则照旧报缺（豁免不是无条件的），
 #         且**被直接读取的名字永不豁免**（它有自己的独立用途，缺了照样失效）。
 _SECRET_PREFIXES = ("DIGEST", "WXPUSHER", "SUPABASE", "TUSHARE", "GEMINI")
+# 扫描名单 = 所有「读环境变量当凭据」的模块。
+#
+# ★ 这份名单必须随**代码搬家**一起更新，否则会出现最隐蔽的一种失效：
+#   读取点被重构到名单外的文件里 → 这个名字从此不再被扫到 →
+#   它没进 yml 也没人报警 → 跑批静默拿空串。
+#   2026-09-23 就真发生过一次：SMTP 五个键的读取从 daily_digest.py 搬到
+#   新建的 mailer.py（密码找回也要发信，收口成唯一实现），当场把
+#   `len(_env_names) >= 15` 的覆盖面元断言打红 —— 这正是那条元断言存在的意义。
+#   mailer.py / auth.py 因此必须在内：它们现在分别持有 SMTP 与
+#   WxPusher/ServerChan 通道凭据名。
 _SECRET_FILES = sorted(glob.glob(os.path.join(ROOT, "daily_*.py")) +
                        [os.path.join(ROOT, "database.py"),
-                        os.path.join(ROOT, "wxpusher.py")])
+                        os.path.join(ROOT, "wxpusher.py"),
+                        os.path.join(ROOT, "mailer.py"),
+                        os.path.join(ROOT, "auth.py")])
 
 
 def _yml_maps(name: str) -> bool:
@@ -537,6 +549,28 @@ def _fallback_chains(src: str) -> list[list[str]]:
     return out
 
 
+def _defaulted_names(src: str) -> set[str]:
+    """读出「带**非空**默认值」的环境变量名。
+
+    为什么要区分：本探针的判据是「代码读了它，却没在 yml 里注入 → 静默变空
+    字符串」。而 `os.getenv("DEEPSEEK_MODEL", "deepseek-chat")` 缺 env 时
+    回落成一个**可用**的值，功能不会坏，它不是凭据而是带默认的配置项。
+    把它一并报缺，只会训练人忽略自检输出（同 8/30 踩过的假失败）。
+
+    关键在「非空」二字：`getenv(k, "")` 与 `getenv(k)` 在「缺了就坏」这点上
+    完全等价（回落成空串 = 与没读到一样），所以**空默认值仍按必配密钥对待**。
+    这条边界由下面的 _FIX_EMPTY_DEFAULT fixture 守着。
+    """
+    return {
+        m.group(1)
+        for m in re.finditer(
+            r"(?:getenv|environ\.get)\(\s*[\"']([A-Z][A-Z0-9_]{3,})[\"']\s*,"
+            r"\s*[\"']([^\"']+)[\"']",
+            src)
+        if m.group(2).strip()
+    }
+
+
 # 检测器自测：这三条不依赖生产代码当前长什么样 —— 就算回落链被删掉、
 # 检测器退化成「什么都认」或「什么都不认」，它们也会立刻变红。
 #
@@ -559,7 +593,17 @@ ck(_fallback_chains(_FIX_ALL) == [],
    "【元断言】回落链检测器不把「全都要用」的遍历误判成回落链（否则缺一个也被豁免）")
 ck(_fallback_chains(_FIX_NOREAD) == [],
    "【元断言】回落链检测器要求循环变量真被当密钥名读取（否则任意字符串元组都能豁免 secret）")
-_env_names, _direct_names, _chains = set(), set(), []
+# ★ 默认值检测器同样要有 fixture 守着（2026-09-23 加）：
+#   没有它的话，把「非空」判断删掉、退化成「任何带默认值的都豁免」，
+#   下面全部断言照样全绿 —— 而那条退化的后果是**该报的缺全被豁免**。
+_FIX_DEFAULT = 'import os\ndef f():\n    return os.getenv("AAA_ONE", "fallback")\n'
+_FIX_EMPTY_DEFAULT = 'import os\ndef g():\n    return os.getenv("BBB_TWO", "")\n'
+ck(_defaulted_names(_FIX_DEFAULT) == {"AAA_ONE"},
+   "【元断言】默认值检测器认得「非空默认」（那是配置项，不是必配密钥）")
+ck(_defaulted_names(_FIX_EMPTY_DEFAULT) == set(),
+   "【元断言】空串默认值不算有默认（缺了照样坏，仍须报警）")
+
+_env_names, _direct_names, _defaulted, _chains = set(), set(), set(), []
 for _f in _SECRET_FILES:
     _src = open(_f, encoding="utf-8").read()
     _d = set(re.findall(
@@ -569,10 +613,14 @@ for _f in _SECRET_FILES:
     _env_names |= _d
     _env_names |= set(re.findall(
         rf"[\"']((?:{'|'.join(_SECRET_PREFIXES)})_[A-Z0-9_]{{2,}})[\"']", _src))
+    _defaulted |= _defaulted_names(_src)
     _chains += _fallback_chains(_src)
 # ALL_SECRETS 是已废弃的透传入口，BACKFILL_DAYS/ONLY_STEPS 来自 workflow 输入而非 secrets
 _env_names -= {"ALL_SECRETS", "BACKFILL_DAYS", "ONLY_STEPS"}
 _direct_names -= {"ALL_SECRETS", "BACKFILL_DAYS", "ONLY_STEPS"}
+# 带非空默认值的按「配置项」摘出去（见 _defaulted_names 文档）。
+# 注意顺序：必须先摘再跑覆盖面元断言，否则阈值会因为混进配置项而虚高。
+_env_names -= _defaulted
 # 元断言：判据必须真的抓到东西，否则上面那段扩容是空话
 ck(len(_env_names) >= 15,
    f"【元断言】密钥名扫描覆盖面（实际 {len(_env_names)} 个，含元组内的间接引用）")

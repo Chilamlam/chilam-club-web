@@ -7,7 +7,7 @@ import base64
 import hmac
 import hashlib
 import secrets as _pysecrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 from functools import wraps
 
@@ -278,3 +278,362 @@ def get_plan_info(plan_key: str) -> Optional[Dict[str, Any]]:
 def get_all_plans() -> Dict[str, Any]:
     """获取全部套餐配置"""
     return VIP_PLANS
+
+
+# ==================== 密码修改 与 忘记密码 ====================
+#
+# 这一节是**唯一**把「谁有资格改这个账号的口令」写成代码的地方。两条路径的
+# 信任前提完全不同，改动前务必分清，不要把其中一条的判断顺手用到另一条上：
+#
+#   change_password              —— 已登录。靠「知道当前密码」证明身份。
+#                                   所以它必须真的拿当前密码去 verify，
+#                                   而不能因为「token 有效」就放行：token 可能是
+#                                   在别人没锁屏的机器上捡到的，而改密码是
+#                                   **夺取账号**的动作，门槛必须比「看一眼数据」高。
+#
+#   reset_password_with_code     —— 未登录。靠「能收到发往该账号的消息」证明身份。
+#                                   所以码必须一次性、短效、限次，且**邮箱与码要同时
+#                                   对得上**（另一重弱因子，见 password_reset.reset_link
+#                                   的注释：链接里刻意不带邮箱）。
+#
+# 两条路径的公共红线：
+#   · 新口令一律走 database.hash_password（PBKDF2 + 随机盐），绝不自己拼哈希；
+#   · 改密/重置成功后，作废该账号所有未消费的重置码；
+#   · 提示文案里**永远不出现口令或重置码**。
+
+MIN_PASSWORD_LENGTH = 6
+
+# 需要从 st.secrets 桥到环境变量的通道凭据。
+# mailer / wxpusher / admin_notify 都不 import streamlit（它们要在
+# GitHub Actions 里跑），只认环境变量；而站内运行时凭据在 st.secrets。
+_CHANNEL_KEYS = (
+    "DIGEST_SMTP_HOST", "DIGEST_SMTP_PORT", "DIGEST_SMTP_USER",
+    "DIGEST_SMTP_PASS", "DIGEST_SMTP_FROM",
+    "WXPUSHER_APP_TOKEN", "DIGEST_SERVERCHAN_KEY",
+    "SITE_URL",
+)
+
+# 允许「收在子表里」的写法（有人习惯 [smtp] host=… 而不是一堆平铺键）。
+# 用显式映射而不是按名字猜：猜出来的键名一旦对不上，表现是「配了却不生效」。
+_NESTED_KEYS = {
+    "WXPUSHER_APP_TOKEN": ("wxpusher", "app_token"),
+    "DIGEST_SMTP_HOST": ("smtp", "host"),
+    "DIGEST_SMTP_PORT": ("smtp", "port"),
+    "DIGEST_SMTP_USER": ("smtp", "user"),
+    "DIGEST_SMTP_PASS": ("smtp", "pass"),
+    "DIGEST_SMTP_FROM": ("smtp", "from"),
+}
+
+
+def bridge_channel_secrets() -> None:
+    """把通道凭据从 st.secrets 桥到环境变量。**全站唯一实现**。
+
+    已存在则不覆盖：在 GitHub Actions 里环境变量才是唯一来源，
+    Secrets 若也塞了同名键，不该反过来盖掉运行环境的值。
+    """
+    if st is None:
+        return
+    for name in _CHANNEL_KEYS:
+        if os.environ.get(name):
+            continue
+        val = ""
+        try:
+            val = str(st.secrets.get(name, "") or "").strip()
+        except Exception:
+            val = ""
+        if not val and name in _NESTED_KEYS:
+            sec, key = _NESTED_KEYS[name]
+            try:
+                if sec in st.secrets:
+                    val = str((st.secrets[sec] or {}).get(key, "") or "").strip()
+            except Exception:
+                val = ""
+        if val:
+            os.environ[name] = val
+
+
+def validate_new_password(password: str, confirm: str) -> Optional[str]:
+    """校验新口令。返回错误文案；None 表示通过。"""
+    if len(password or "") < MIN_PASSWORD_LENGTH:
+        return f"新密码长度至少 {MIN_PASSWORD_LENGTH} 位"
+    if password != confirm:
+        return "两次输入的新密码不一致"
+    return None
+
+
+def change_password(current_password: str, new_password: str,
+                    confirm: str) -> tuple[bool, str]:
+    """已登录用户修改密码。返回 (成功, 说明)。
+
+    为什么必须重新拉一次用户行，而不是直接用 token 里的信息：
+    token 里只有 user_id/email/is_admin，**没有 password_hash**，
+    没法比对当前密码。而「不验当前密码就允许改密码」等价于
+    「任何拿到有效 token 的人都能夺号」——本文件开头已说明这个门槛
+    必须高于普通操作。
+    """
+    user = get_current_user()
+    if not user:
+        return False, "登录状态已失效，请重新登录后再试"
+    email_val = user.get("email") or ""
+    row = database.get_user_by_email(email_val) if email_val else None
+    if not row:
+        # 有 token 但库里读不到账号：这**不是**「密码错误」。
+        # 混为一谈会让用户反复重输旧密码，而真实原因在账号/取数侧。
+        return False, "读取账号信息失败（可能是云端取数异常），请稍后重试；持续失败请联系管理员"
+
+    if not database.verify_password(row, current_password or ""):
+        return False, "当前密码不正确"
+
+    err = validate_new_password(new_password, confirm)
+    if err:
+        return False, err
+    if database.verify_password(row, new_password or ""):
+        return False, "新密码不能与当前密码相同"
+
+    ok, werr = database.update_user_password(row["id"], new_password)
+    if not ok:
+        detail = (werr or {}).get("message") or "未知原因"
+        return False, f"密码写入失败：{detail}"
+
+    # 改完顺手作废所有未消费的重置码：否则「我改过密码了」和
+    # 「之前发出去的那枚码还有效」可以同时成立——用户会认为改密码没生效。
+    database.invalidate_reset_codes(row["id"])
+    return True, "密码已修改。请用新密码登录（本机当前会话保持有效）。"
+
+
+def _code_expired(expires_at) -> bool:
+    """过期判定。**解析失败按已过期处理（fail closed）**：
+    宁可让用户重新取一枚码，也不要因为解析异常把一枚状态未知的码放行。"""
+    s = str(expires_at or "").strip()
+    if not s:
+        return True
+    try:
+        return datetime.now(timezone.utc) >= datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except Exception:
+        return True
+
+
+def _notify_admins_reset_request(email_val: str, user_id: int, reason: str) -> tuple[bool, str]:
+    """把人工重置申请推给管理员。返回 (是否送达, 说明)。"""
+    try:
+        import admin_notify
+    except Exception as e:
+        return False, f"告警模块不可用：{type(e).__name__}"
+    body = (
+        "## 有用户需要人工重置密码\n\n"
+        f"- 账号：`{email_val}`（user_id={user_id}）\n"
+        f"- 原因：{reason}\n\n"
+        "自助通道（微信推送 / 邮件）没能送达。请到「后台管理 → 密码重置」"
+        "为该账号生成一枚重置码，通过你与用户既有的联系渠道告知对方。"
+    )
+    try:
+        return admin_notify.notify_admins("🔑 密码重置申请 · 需人工处理", body)
+    except Exception as e:
+        return False, f"{type(e).__name__}: {e}"
+
+
+def request_manual_reset(email: str, reason: str = "用户主动申请") -> tuple[str, str]:
+    """记一条人工重置申请并通知管理员。返回 (status, 文案)，status 恒为 'manual'。
+
+    返回三态字符串（而不是 bool）是为了让页面能选对颜色：
+    「已转人工」既不是成功（码没发出去）也不是失败（申请确实记下了），
+    用 bool 会把这种情况逼成二者之一，提示语气必然错一半。
+    """
+    bridge_channel_secrets()
+    email_clean = (email or "").strip().lower()
+    if not email_clean or "@" not in email_clean:
+        return "failed", "请输入有效的邮箱地址"
+    row = database.get_user_by_email(email_clean)
+    if not row:
+        return "failed", "该邮箱尚未注册。请检查是否输错，或先注册一个新账号。"
+
+    _, derr = database.create_password_reset_request(row["id"], note=reason[:200])
+    if derr:
+        return "failed", (f"申请登记失败：{derr.get('message') or '未知原因'}。"
+                          "请通过站点页脚的联系方式直接联系管理员。")
+
+    delivered, note = _notify_admins_reset_request(email_clean, row["id"], reason)
+    if delivered:
+        return "manual", ("已将人工重置申请提交给管理员，并已通知到位。\n\n"
+                          "管理员会通过你注册时留下的联系方式与你确认，请留意。")
+    # 申请已落库但没通知到——必须说清「下一步要你自己去找管理员」，
+    # 否则用户会安心地等一个没人知道的申请。
+    return "manual", ("人工重置申请已登记，但**自动通知管理员失败了**"
+                      f"（{note}）。\n\n请主动通过站点页脚的联系方式联系管理员，"
+                      "否则没人会看到这条申请。")
+
+
+def request_password_reset(email: str) -> tuple[str, str]:
+    """发起「忘记密码」。返回 (status, 文案)，status ∈ sent / manual / failed。
+
+    通道选择顺序：**已绑微信 → 微信推送；否则 → 邮件（若已配置）**。
+    两条都试，先成功者算送达；全失败则转人工。顺序依据是到达率：
+    微信推送是用户自己扫码绑的，比「注册邮箱是否还在收信」可靠得多 ——
+    而「去垃圾邮件箱翻一翻」正是这类流程最常见的失败点。
+    """
+    bridge_channel_secrets()
+    import password_reset as pr
+    import mailer
+
+    email_clean = (email or "").strip().lower()
+    if not email_clean or "@" not in email_clean:
+        return "failed", "请输入有效的邮箱地址"
+
+    row = database.get_user_by_email(email_clean)
+    if not row:
+        # 口径与登录/注册保持一致：如实告知。注册接口本来就会回
+        # 「该邮箱已被注册」，邮箱是否存在并非秘密；在这里假装中立，
+        # 只会让打错一个字符的用户永远收不到码、还以为是系统坏了。
+        return "failed", "该邮箱尚未注册。请检查是否输错，或先注册一个新账号。"
+
+    uid = row["id"]
+
+    # ---- 限流：先查计数，再决定要不要生成码 ----
+    # count 返回 -1 表示取数失败。此时**放行**并如实提示限流未生效：
+    # 云端抖一下就锁住所有人的密码找回，代价远大于少拦一次。
+    per_min = database.count_reset_requests(uid, 1)
+    per_hour = database.count_reset_requests(uid, 60)
+    limit_note = ""
+    if per_min == -1 or per_hour == -1:
+        limit_note = "（当前无法核对请求频率，频率限制本次未生效）"
+    elif per_min >= 1:
+        return "failed", f"请求过于频繁，请 {pr.RESEND_COOLDOWN_SECONDS} 秒后再试。"
+    elif per_hour >= pr.MAX_REQUESTS_PER_HOUR:
+        return "failed", (f"一小时内最多请求 {pr.MAX_REQUESTS_PER_HOUR} 次，"
+                          "已达上限。请稍后再试，或联系管理员人工重置。")
+
+    wx_uid = database.get_user_wxpusher_uid(uid)
+    email_ready = mailer.is_configured()
+
+    if not wx_uid and not email_ready:
+        return request_manual_reset(
+            email_clean, "站点未配置可用的自助投递通道（无微信绑定且未配 SMTP）")
+
+    code = pr.generate_code()
+    salt = pr.new_salt()
+
+    # 发新码前作废旧的：让「一个账号同时存在多枚有效码」不可能出现。
+    database.invalidate_reset_codes(uid)
+
+    # **先落库再投递**：投递失败也要计入限流，否则一个坏通道会被无限重试，
+    # 把发信配额和推送额度打光。未投递的码本身无法被任何人使用，留着无害。
+    rec, derr = database.create_password_reset_code(
+        uid, "wxpusher" if wx_uid else "email", salt,
+        pr.hash_code(code, salt), pr.CODE_TTL_MINUTES)
+    if derr:
+        return "failed", (f"重置码写入失败：{derr.get('message') or '未知原因'}。"
+                          "请稍后重试或联系管理员。")
+    code_id = rec.get("id")
+
+    plan = []
+    if wx_uid:
+        plan.append(("wxpusher", lambda: pr.deliver_wxpusher(wx_uid, code)))
+    if email_ready:
+        plan.append(("email", lambda: pr.deliver_email(email_clean, code)))
+
+    failures = []
+    for chan, send in plan:
+        try:
+            ok, note = send()
+        except Exception as e:
+            ok, note = False, f"{type(e).__name__}"
+        if ok:
+            database.update_reset_code_delivery(code_id, True, f"{chan}: {note}")
+            masked = pr.masked_email(email_clean)
+            where = "你的微信" if chan == "wxpusher" else masked
+            return "sent", (
+                f"✅ 重置码已发送到 **{where}**。\n\n"
+                f"请在 {pr.CODE_TTL_MINUTES} 分钟内，把收到的码连同你的注册邮箱"
+                "一起填入下方表单完成重置。" + (f"\n\n{limit_note}" if limit_note else ""))
+        failures.append(f"{chan}: {note}")
+
+    database.update_reset_code_delivery(code_id, False, "；".join(failures))
+    # 自助通道全灭 → 自动转人工，并把失败原因如实带出来（不要把「发不出去」
+    # 说成「已发送」，那样用户会一直去翻收件箱）。
+    status, msg = request_manual_reset(
+        email_clean, "自助通道投递失败（" + "；".join(failures)[:120] + "）")
+    return status, "⚠️ 自动发送未能送达（" + "；".join(failures) + "）。\n\n" + msg
+
+
+def reset_password_with_code(email: str, code: str, new_password: str,
+                             confirm: str) -> tuple[bool, str]:
+    """用重置码设置新密码（未登录路径）。返回 (成功, 说明)。"""
+    bridge_channel_secrets()
+    import password_reset as pr
+
+    email_clean = (email or "").strip().lower()
+    if not email_clean or "@" not in email_clean:
+        return False, "请输入注册时使用的邮箱地址"
+    if not pr.normalize_code(code):
+        return False, "请输入收到的重置码"
+
+    row = database.get_user_by_email(email_clean)
+    if not row:
+        # 仍如实告知：码本身已经验证过归属，这里说「邮箱不对」是用户能
+        # 立刻纠正的信息，含糊其辞只会让他反复重试同一组输入。
+        return False, "该邮箱尚未注册。请确认你填的是注册时用的邮箱。"
+
+    err = validate_new_password(new_password, confirm)
+    if err:
+        return False, err
+
+    rec = database.get_active_reset_code(row["id"])
+    if not rec:
+        return False, "没有可用的重置码（可能已使用、已过期，或已被新的一次请求作废）。请重新获取。"
+
+    if _code_expired(rec.get("expires_at")):
+        database.consume_reset_code(rec["id"])
+        return False, f"重置码已过期（有效期 {pr.CODE_TTL_MINUTES} 分钟），请重新获取。"
+
+    attempts = int(rec.get("attempts") or 0)
+    if attempts >= pr.MAX_VERIFY_ATTEMPTS:
+        database.consume_reset_code(rec["id"])
+        return False, (f"该重置码的试错次数已达上限（{pr.MAX_VERIFY_ATTEMPTS} 次）并已作废，"
+                       "请重新获取一枚。")
+
+    if not pr.verify_code(code, rec.get("code_salt"), rec.get("code_hash")):
+        used = attempts + 1
+        database.bump_reset_attempts(rec["id"], used)
+        left = pr.MAX_VERIFY_ATTEMPTS - used
+        if left <= 0:
+            # 用完最后一次机会就地作废，避免「已知已错的码」继续挂着
+            # 占用「该用户最近一条有效码」的位置。
+            database.consume_reset_code(rec["id"])
+            return False, (f"重置码不正确，且已用完 {pr.MAX_VERIFY_ATTEMPTS} 次尝试机会。"
+                           "该码已作废，请重新获取。")
+        return False, f"重置码不正确（还可尝试 {left} 次）。请核对后重新输入。"
+
+    ok, werr = database.update_user_password(row["id"], new_password)
+    if not ok:
+        detail = (werr or {}).get("message") or "未知原因"
+        return False, f"密码写入失败：{detail}。请稍后重试或联系管理员。"
+
+    database.consume_reset_code(rec["id"])
+    database.invalidate_reset_codes(row["id"])
+    return True, "✅ 密码已重置成功，请用新密码登录。"
+
+
+def admin_issue_reset_code(email: str) -> tuple[bool, str, str]:
+    """管理员为指定账号生成一枚重置码（线下告知用户）。
+
+    返回 (是否成功, 明文码, 说明)。明文码**只出现在这个返回值里**：
+    不落库、不写日志、不进告警消息 —— 它的传递路径是「管理员当面/微信告诉用户」，
+    多一个副本就多一条泄露路径。
+    """
+    import password_reset as pr
+
+    row = database.get_user_by_email((email or "").strip().lower())
+    if not row:
+        return False, "", "未找到该邮箱对应的账号"
+
+    code = pr.generate_code()
+    salt = pr.new_salt()
+    database.invalidate_reset_codes(row["id"])
+    rec, derr = database.create_password_reset_code(
+        row["id"], "admin", salt, pr.hash_code(code, salt),
+        pr.CODE_TTL_MINUTES, note="管理员线下发放")
+    if derr:
+        return False, "", f"写入失败：{derr.get('message') or '未知原因'}"
+    database.update_reset_code_delivery(rec.get("id"), True, "管理员线下发放")
+    return True, code, (f"已生成，{pr.CODE_TTL_MINUTES} 分钟内有效，"
+                        f"最多试错 {pr.MAX_VERIFY_ATTEMPTS} 次、用一次即失效")

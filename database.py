@@ -743,3 +743,173 @@ def get_scoring_stats(user_id: int, limit_days: int = 30) -> Dict[str, Any]:
         "ai_hits": sum(v["ai"] for v in by_date.values()),
         "total": total_n,
     }
+
+
+# ==================== 密码重置 / 修改密码 ====================
+#
+# 三张「出口」的纪律（本项目铁律）：每个取数函数都要能区分
+#   有值 / 确实没有([]) / 取数失败(None)
+# —— 把「取数失败」当成「没有」，就会出现「云端抖一下，用户被告知
+#    他没提交过重置申请」这种凭空捏造的结论。下面每个函数都按这条写。
+
+def update_user_password(user_id: int, new_password: str) -> tuple:
+    """改写口令哈希。返回 (是否成功, err)。
+
+    刻意**不**写 updated_at：本项目 users 表是手工建表（仓库里没有
+    users 的建表脚本），该列是否存在无法从代码确认。带上一个不存在的列
+    会让 PostgREST 直接 400，而症状是「改密码失败」——排查方向会被
+    引到权限、RLS 上去，与真实原因（多发了一个字段）毫无关系。
+    """
+    res, err = _supabase_request(
+        "PATCH", f"users?id=eq.{user_id}",
+        json_data={"password_hash": hash_password(new_password)},
+        return_error=True)
+    if err:
+        return False, err
+    # PATCH 零行时 PostgREST 返回 []，而 `[] is not None` 为真——
+    # 必须显式判空，否则「没改到任何一行」会被当成成功。
+    if isinstance(res, list) and len(res) > 0:
+        return True, None
+    return False, {"code": "NO_ROW", "message": "没有更新到任何用户行"}
+
+
+def invalidate_reset_codes(user_id: int) -> bool:
+    """作废该用户所有未消费的重置码（发新码前 / 改密成功后调用）。
+
+    为什么每次发新码都要先作废旧的：否则一个账号可以同时存在多枚有效码，
+    「单次使用」就退化成「每种一枚」，攻击面随请求次数线性增长。
+    """
+    now_iso = datetime.now(timezone.utc).isoformat()
+    _, err = _supabase_request(
+        "PATCH", f"password_reset_codes?user_id=eq.{user_id}&consumed_at=is.null",
+        json_data={"consumed_at": now_iso}, return_error=True)
+    return not err
+
+
+def count_reset_requests(user_id: int, minutes: int) -> int:
+    """近 N 分钟内该用户发起过几次重置请求。
+
+    返回 -1 表示**取数失败**（不是「0 次」）。调用方必须把 -1 与 0 分开处理：
+    取数失败时应当放行（宁可少拦一次，也不要在云端抖动时把所有用户
+    锁在密码重置外面），但要在提示里说明「限流未生效」。
+    """
+    since = (datetime.now(timezone.utc) - timedelta(minutes=minutes)).isoformat()
+    params = {"user_id": f"eq.{user_id}", "created_at": f"gte.{since}",
+              "select": "id"}
+    res = _supabase_request("GET", "password_reset_codes", params=params)
+    if not isinstance(res, list):
+        return -1
+    return len(res)
+
+
+def create_password_reset_code(user_id: int, channel: str, code_salt: str,
+                               code_hash: str, ttl_minutes: int,
+                               note: str = "") -> tuple:
+    """落一条重置码记录（**只存盐与哈希，绝不存明文码**）。返回 (行, err)。"""
+    now = datetime.now(timezone.utc)
+    data = {
+        "user_id": user_id,
+        "channel": channel,
+        "code_salt": code_salt,
+        "code_hash": code_hash,
+        "expires_at": (now + timedelta(minutes=ttl_minutes)).isoformat(),
+        "attempts": 0,
+        "delivered": False,
+        "note": note or "",
+    }
+    res, err = _supabase_request("POST", "password_reset_codes",
+                                 json_data=data, return_error=True)
+    if err:
+        return None, err
+    if isinstance(res, list) and res:
+        return res[0], None
+    return None, {"code": "UNKNOWN", "message": "重置码写入返回空"}
+
+
+def get_active_reset_code(user_id: int) -> Optional[dict]:
+    """取该用户最近一条未消费的重置码。无记录或取数失败都返回 None——
+    调用方在 None 时统一按「没有有效码，请重新获取」处理，
+    这条路径的两种原因对用户来说动作相同（重新获取），无需区分。
+    """
+    params = {"user_id": f"eq.{user_id}", "consumed_at": "is.null",
+              "select": "*", "order": "created_at.desc", "limit": "1"}
+    res = _supabase_request("GET", "password_reset_codes", params=params)
+    if isinstance(res, list) and res:
+        return res[0]
+    return None
+
+
+def bump_reset_attempts(code_id: int, new_attempts: int) -> bool:
+    """记一次试错。写失败不影响本次判定——上限的作用是「多试几次就被拦」，
+    而不是「每次都必须成功记账」，所以这里只返回结果供日志用。"""
+    _, err = _supabase_request(
+        "PATCH", f"password_reset_codes?id=eq.{code_id}",
+        json_data={"attempts": new_attempts}, return_error=True)
+    return not err
+
+
+def consume_reset_code(code_id: int) -> bool:
+    """标记已消费（单次使用的数据侧实现）。"""
+    _, err = _supabase_request(
+        "PATCH", f"password_reset_codes?id=eq.{code_id}",
+        json_data={"consumed_at": datetime.now(timezone.utc).isoformat()},
+        return_error=True)
+    return not err
+
+
+def update_reset_code_delivery(code_id: int, delivered: bool, note: str = "") -> bool:
+    """回写投递结果与通道。`note` 只放失败原因摘要，**绝不放码本身**。"""
+    _, err = _supabase_request(
+        "PATCH", f"password_reset_codes?id=eq.{code_id}",
+        json_data={"delivered": bool(delivered), "note": (note or "")[:300]},
+        return_error=True)
+    return not err
+
+
+def check_password_reset_tables() -> bool:
+    """重置相关表是否已建（供页面提示管理员执行建表 SQL）。"""
+    params = {"id": "eq.0", "select": "id", "limit": "1"}
+    res = _supabase_request("GET", "password_reset_codes", params=params)
+    return isinstance(res, list)
+
+
+def create_password_reset_request(user_id: int, note: str = "") -> tuple:
+    """记一条「人工重置申请」——自助通道全部不可用时的兜底。
+
+    必须落库而不是只推一条告警：推送可能失败、站长可能没看到，
+    而用户已经被告知「已提交」。落库后后台有一份**可以反复查看**的待办，
+    才不至于让申请凭空消失。
+    """
+    res, err = _supabase_request(
+        "POST", "password_reset_requests",
+        json_data={"user_id": user_id, "note": note or ""}, return_error=True)
+    if err:
+        return None, err
+    if isinstance(res, list) and res:
+        return res[0], None
+    return None, {"code": "UNKNOWN", "message": "申请写入返回空"}
+
+
+def get_pending_password_reset_requests() -> List[Dict[str, Any]]:
+    """未处理的人工重置申请（新的在前），并附上用户邮箱。"""
+    params = {"handled_at": "is.null", "select": "*",
+              "order": "created_at.desc", "limit": "100"}
+    res = _supabase_request("GET", "password_reset_requests", params=params)
+    if not isinstance(res, list):
+        return []
+    out = []
+    for r in res:
+        u = get_user_by_id(r.get("user_id")) if r.get("user_id") else None
+        item = dict(r)
+        item["email"] = (u or {}).get("email", "—")
+        out.append(item)
+    return out
+
+
+def mark_reset_request_handled(request_id: int) -> bool:
+    """标记申请已处理。"""
+    _, err = _supabase_request(
+        "PATCH", f"password_reset_requests?id=eq.{request_id}",
+        json_data={"handled_at": datetime.now(timezone.utc).isoformat()},
+        return_error=True)
+    return not err

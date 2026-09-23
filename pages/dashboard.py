@@ -1,39 +1,46 @@
 """
 会员中心 - VIP 订阅、付费入口、订单管理、剩余天数展示
 """
-import streamlit as st
 from datetime import datetime, timezone
 import os
 import sys
+
+import streamlit as st
+
+# ── 导入引导：项目根**必须**被强制顶到 sys.path[0] ─────────────────────────
+#   Streamlit 每次执行脚本前会跑 modified_sys_path（streamlit/runtime/
+#   scriptrunner/exec_code.py:63）：把**本脚本所在目录**插到 sys.path[0]，
+#   脚本跑完再摘掉。所以在 AppTest 里、或有人直接 `streamlit run pages/xxx.py`
+#   时，sys.path[0] 是 pages/ 而不是项目根 —— 而 pages/auth.py 与根目录的
+#   认证模块词干撞名（auth.py），`import auth` 会解析回**本页自己**：
+#   先报 partially initialized module 'auth'，一旦有人试图「修掉」那个错位
+#   登记，就变成 RecursionError 无限自执行（实测 162 层，2026-09-23）。
+#   ★ 不能写成 `if _ROOT not in sys.path: insert`：根**通常已经在** sys.path
+#     里（Streamlit 的 web/bootstrap.py 插过一次），条件不成立就不插，
+#     pages/ 仍稳坐第一位，坑照旧。必须无条件移除再插到最前。
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+while _ROOT in sys.path:
+    sys.path.remove(_ROOT)
+sys.path.insert(0, _ROOT)
+
 import auth
 import database
 from ui_compat import image_stretch
-
-# pages/ 是 Streamlit 的子页目录，运行时 sys.path[0] 未必是项目根，
-# 显式补一次，否则 admin_notify / push_binding 这类根目录模块导不进来。
-_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if _ROOT not in sys.path:
-    sys.path.insert(0, _ROOT)
-
 import admin_notify
 import push_binding as pb
 
 
 def _bridge_secrets_to_env() -> None:
-    """把告警通道凭据从 st.secrets 桥到环境变量。
+    """把通道凭据从 st.secrets 桥到环境变量。
 
-    admin_notify 不 import streamlit（要在 Actions 里跑），只认环境变量；
-    而站内运行时凭据在 st.secrets。已存在则不覆盖。
+    **唯一实现已收口到 `auth.bridge_channel_secrets()`**（2026-09-23）。
+    这里保留成薄壳，只是为了不改动本文件里已有的调用点；逻辑一行都不重复。
+    `admin_notify` / `mailer` / `wxpusher` 都不 import streamlit（要在
+    Actions 里跑），只认环境变量；而站内运行时凭据在 st.secrets。
     """
-    for name in ("DIGEST_SERVERCHAN_KEY", "WXPUSHER_APP_TOKEN"):
-        if os.getenv(name):
-            continue
-        try:
-            val = str(st.secrets.get(name, "")).strip()
-        except Exception:
-            val = ""
-        if val:
-            os.environ[name] = val
+    auth.bridge_channel_secrets()
+    # 兼容旧路径：push_binding 自己还会试一次 `[wxpusher].app_token` 的嵌套写法。
+    # 幂等，与上面的桥接不冲突。
     pb.ensure_app_token()
 
 
@@ -177,6 +184,36 @@ if _member_now:
             pb.render(user_id, key_prefix="dash_mgr")
 else:
     st.caption("💡 VIP 权益含「收盘后摘要自动推到微信」，开通后回到本页扫码绑定一次即可。")
+
+# ================= 1.6 账号安全（修改密码） =================
+# 为什么落在会员中心的一个 expander 里，而不是单开一个页面：
+# 「改密码」是低频但必需的操作，单开页面会多占一个侧边栏导航项；
+# 而会员中心本来就是用户唯一会主动回来看「我的账号」的地方。
+#
+# 提示为什么走 flash + 自动展开：
+# 提交成功后要 st.rerun()（否则表单里的旧密码还留在控件里），
+# 而 rerun 会吞掉直接写的 st.success——且 expander 默认收起，
+# 消息会连同面板一起看不见。所以「本次有没有待展示结果」决定它默认是否展开。
+_pw_flash = st.session_state.pop("dash_flash", None)
+with st.expander("🔒 账号安全 · 修改密码", expanded=bool(_pw_flash)):
+    if _pw_flash:
+        (st.success if _pw_flash[0] == "ok" else st.error)(_pw_flash[1])
+    st.caption(f"当前账号：`{email}`。修改后本机会话保持登录；"
+               "其他设备上已登录的会话会在令牌到期（7 天）后失效。")
+    with st.form("change_pw_form"):
+        cur_pw = st.text_input("当前密码", type="password")
+        new_pw = st.text_input(f"新密码 (至少 {auth.MIN_PASSWORD_LENGTH} 位)",
+                               type="password")
+        new_pw2 = st.text_input("确认新密码", type="password")
+        submit_pw = st.form_submit_button("确认修改 🔐", use_container_width=True)
+
+        if submit_pw:
+            ok, msg = auth.change_password(cur_pw, new_pw, new_pw2)
+            if ok:
+                st.session_state["dash_flash"] = ("ok", msg)
+                st.rerun()
+            else:
+                st.error(msg)
 
 # ================= 2. 检测 payments 表 =================
 payments_ready = database.check_payments_table()

@@ -584,11 +584,14 @@ def send_serverchan(title: str, body: str) -> str | None:
 
 
 def _smtp_conf() -> dict | None:
-    host, user, pwd = _env("DIGEST_SMTP_HOST"), _env("DIGEST_SMTP_USER"), _env("DIGEST_SMTP_PASS")
-    if not (host and user and pwd):
-        return None
-    return {"host": host, "port": int(_env("DIGEST_SMTP_PORT") or 465),
-            "user": user, "pwd": pwd, "sender": _env("DIGEST_SMTP_FROM") or user}
+    """SMTP 配置。**唯一实现在 mailer.smtp_conf** —— 这里只是本地别名。
+
+    2026-09-23 收口：密码找回也要发信，若两边各写一份主机/端口/发件人的
+    解析规则，改动只会落到一侧（另一侧继续用旧规则），而两边的失败表现
+    都是「邮件没收到」，根本看不出是分叉导致的。
+    """
+    import mailer
+    return mailer.smtp_conf()
 
 
 def _md_to_html(md: str) -> str:

@@ -15,11 +15,21 @@ import sys
 
 import streamlit as st
 
-# pages/ 是 Streamlit 子页目录，运行时 sys.path[0] 未必是项目根，
-# 显式补一次，与 pages/dashboard.py 保持一致。
+# ── 导入引导：项目根**必须**被强制顶到 sys.path[0] ─────────────────────────
+#   Streamlit 每次执行脚本前会跑 modified_sys_path（streamlit/runtime/
+#   scriptrunner/exec_code.py:63）：把**本脚本所在目录**插到 sys.path[0]，
+#   脚本跑完再摘掉。所以在 AppTest 里、或有人直接 `streamlit run pages/xxx.py`
+#   时，sys.path[0] 是 pages/ 而不是项目根 —— 而 pages/auth.py 与根目录的
+#   认证模块词干撞名（auth.py），`import auth` 会解析回**本页自己**：
+#   先报 partially initialized module 'auth'，一旦有人试图「修掉」那个错位
+#   登记，就变成 RecursionError 无限自执行（实测 162 层，2026-09-23）。
+#   ★ 不能写成 `if _ROOT not in sys.path: insert`：根**通常已经在** sys.path
+#     里（Streamlit 的 web/bootstrap.py 插过一次），条件不成立就不插，
+#     pages/ 仍稳坐第一位，坑照旧。必须无条件移除再插到最前。
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if _ROOT not in sys.path:
-    sys.path.insert(0, _ROOT)
+while _ROOT in sys.path:
+    sys.path.remove(_ROOT)
+sys.path.insert(0, _ROOT)
 
 import auth
 import database
@@ -45,10 +55,11 @@ st.caption(f"当前管理员: {auth.get_user_email()}")
 admin_id = auth.get_user_id()
 
 # ================= Tabs =================
-tab_users, tab_orders, tab_grant = st.tabs([
+tab_users, tab_orders, tab_grant, tab_reset = st.tabs([
     "👥 用户列表",
     "📦 订单确认收款",
-    "🎁 手动开通/续期"
+    "🎁 手动开通/续期",
+    "🔑 密码重置"
 ])
 
 # ================= Tab 1: 用户列表 =================
@@ -193,6 +204,91 @@ with tab_grant:
                         st.success(f"成功为 `{target_email}` 开通 {p_name}，到期时间：{res.get('expires_at')[:10]}")
                     else:
                         st.error("开通失败，请检查数据库配置")
+
+# ================= Tab 4: 密码重置 =================
+# 为什么必须有人工入口：自助找回依赖「能把消息送到用户手上」——已绑微信或
+# 邮箱能收信。而现实里这两条都可能断（没绑、进垃圾箱、邮箱早就不用了），
+# 用户此时唯一能做的就是找站长。没有这个入口，他就被永久锁在账号外面，
+# 而账号里还挂着他付过钱的 VIP。
+with tab_reset:
+    st.subheader("🔑 密码重置")
+    st.caption("为忘记密码、且自助通道（微信推送 / 邮件）没能送达的用户生成重置码。"
+               "重置码**只在生成时显示一次**，请通过既有联系渠道告知用户。")
+
+    if not database.check_password_reset_tables():
+        st.error("⚠️ 密码重置相关表尚未创建，本页功能不可用。")
+        with st.expander("📋 点击查看建表 SQL（复制到 Supabase SQL Editor 执行）", expanded=True):
+            sql_path = os.path.join(_ROOT, "init_password_reset.sql")
+            if os.path.exists(sql_path):
+                with open(sql_path, "r", encoding="utf-8") as f:
+                    st.code(f.read(), language="sql")
+            else:
+                st.warning("未找到 init_password_reset.sql 文件")
+        st.stop()
+
+    # 生成结果走 flash：紧跟 st.rerun() 的 st.success 会瞬间消失，
+    # 而「码」本身是**只显示一次**的东西——消失就等于丢了，必须让它活过重跑。
+    _reset_flash = st.session_state.pop("admin_reset_flash", None)
+    if _reset_flash:
+        _rkind, _rtext, _rcode = _reset_flash
+        (st.success if _rkind == "ok" else st.error)(_rtext)
+        if _rcode:
+            st.caption(f"重置码（{pr.CODE_TTL_MINUTES} 分钟内有效，用一次即失效）"
+                       f"——请立即复制，页面刷新后不再显示：")
+            st.code(_rcode, language=None)
+
+    st.markdown("---")
+    st.subheader("⏳ 待处理的人工重置申请")
+    st.caption("用户自助通道全部失败时会自动落到这里，也会同时推给你的微信/Server酱。")
+
+    _reqs = database.get_pending_password_reset_requests()
+    if not _reqs:
+        st.info("🎉 暂无待处理申请")
+    else:
+        for r in _reqs:
+            with st.container(border=True):
+                rc1, rc2, rc3 = st.columns([4, 3, 2])
+                with rc1:
+                    st.markdown(f"**{r.get('email', '—')}**")
+                    st.caption(f"UID {r.get('user_id')} · 提交于 "
+                               f"{str(r.get('created_at', ''))[:19].replace('T', ' ')}")
+                with rc2:
+                    st.caption(r.get("note") or "（未填写原因）")
+                with rc3:
+                    if st.button("生成重置码", key=f"reset_gen_{r.get('id')}",
+                                 use_container_width=True):
+                        ok, code, note = auth.admin_issue_reset_code(r.get("email"))
+                        if ok:
+                            database.mark_reset_request_handled(r.get("id"))
+                            st.session_state["admin_reset_flash"] = (
+                                "ok", f"已为 `{r.get('email')}` 生成重置码。{note}", code)
+                        else:
+                            st.session_state["admin_reset_flash"] = (
+                                "err", f"生成失败：{note}", "")
+                        st.rerun()
+                    if st.button("仅标记已处理", key=f"reset_done_{r.get('id')}",
+                                 use_container_width=True):
+                        okk = database.mark_reset_request_handled(r.get("id"))
+                        st.session_state["admin_reset_flash"] = (
+                            ("ok", "已标记为处理完毕。", "") if okk else
+                            ("err", "⚠️ 标记未生效：云端没有更新到任何一行。", ""))
+                        st.rerun()
+
+    st.markdown("---")
+    st.subheader("手动为任意账号生成重置码")
+    st.caption("用户直接找上门（微信/邮件）时用这个，不必等他先提交申请。")
+    with st.form("admin_gen_reset_form"):
+        target_email = st.text_input("用户邮箱", placeholder="输入已注册用户的邮箱")
+        go_gen = st.form_submit_button("生成重置码 🔑")
+        if go_gen:
+            if not target_email:
+                st.error("请输入用户邮箱")
+            else:
+                ok, code, note = auth.admin_issue_reset_code(target_email)
+                st.session_state["admin_reset_flash"] = (
+                    ("ok", f"已为 `{target_email}` 生成重置码。{note}", code) if ok
+                    else ("err", f"生成失败：{note}", ""))
+                st.rerun()
 
 st.markdown("---")
 if st.button("⬅️ 返回主页", use_container_width=False):

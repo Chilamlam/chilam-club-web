@@ -61,23 +61,29 @@ CREATE TABLE IF NOT EXISTS public.review_scoring (
 CREATE INDEX IF NOT EXISTS idx_review_scoring_user ON public.review_scoring(user_id, trade_date);
 
 -- ---------- 行级安全 ----------
+-- 注意：users.id 是 BIGINT（自增整数），而 auth.uid() 返回 UUID——两者不可直接比较
+-- （PostgreSQL 42883: operator does not exist: uuid = bigint）。与 payments 表同口径：
+-- RLS 策略只做角色级判定，行级归属由应用层（service key 路径，绕过 RLS）校验 user_id。
 ALTER TABLE public.review_answers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.review_ai_answers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.review_scoring ENABLE ROW LEVEL SECURITY;
 
--- 用户对自己答卷：读写
-DROP POLICY IF EXISTS "own review answers rw" ON public.review_answers;
-CREATE POLICY "own review answers rw" ON public.review_answers
-    FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
--- 注：应用走 service key（auth.uid() 为空），此策略面向未来直连场景；
---     当前所有读写经应用层（database.py），应用层再校验 user_id。
+-- 用户答卷：authenticated 角色只读自己的行——但 user_id 是 BIGINT 而 auth.uid() 是
+-- UUID，行级判定改走 users 表关联（auth.users.id 同为 uuid 时不成立；本项目 users.id
+-- 为 BIGINT，无 auth.users 映射），故退化为与 payments 相同的角色级策略，
+-- 归属校验完全交给应用层（database.py 每个函数都带 user_id 条件）。
+DROP POLICY IF EXISTS "review answers authenticated read" ON public.review_answers;
+CREATE POLICY "review answers authenticated read" ON public.review_answers
+    FOR SELECT USING (auth.role() = 'authenticated');
 
--- AI 答卷：应用层写入（service key 绕过 RLS），此处仅防御性只读策略
-DROP POLICY IF EXISTS "ai answers read all" ON public.review_ai_answers;
-CREATE POLICY "ai answers read all" ON public.review_ai_answers
-    FOR SELECT USING (true);
+-- AI 答卷：authenticated 只读（应用层再查交卷状态——后端解锁门禁）
+DROP POLICY IF EXISTS "ai answers authenticated read" ON public.review_ai_answers;
+CREATE POLICY "ai answers authenticated read" ON public.review_ai_answers
+    FOR SELECT USING (auth.role() = 'authenticated');
 
--- 回验：用户只读自己的
-DROP POLICY IF EXISTS "own scoring read" ON public.review_scoring;
-CREATE POLICY "own scoring read" ON public.review_scoring
-    FOR SELECT USING (auth.uid() = user_id);
+-- 回验：authenticated 只读
+DROP POLICY IF EXISTS "scoring authenticated read" ON public.review_scoring;
+CREATE POLICY "scoring authenticated read" ON public.review_scoring
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+-- 写入（INSERT/UPDATE/DELETE）一律走 service key（应用层），不另开策略。
