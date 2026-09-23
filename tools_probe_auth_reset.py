@@ -193,6 +193,11 @@ try:
        f"重置链接拼装正确（实测 {_link}）")
     ck("@" not in _link,
        "**链接里刻意不带邮箱**：码 + 邮箱双重匹配才生效，码被旁路看到也不足以夺号")
+    ck(_link.split("://", 1)[1].split("?")[0] == "chilam.club/auth",
+       "重置链接指向 `/auth` 这一页（pages/auth.py 的公开路径）——"
+       "**不是** `/dashboard`：拼错页面时邮件已经发出去了，用户点开看到的是会员中心")
+    ck(_link.count("?") == 1 and _link.split("?")[1] == "reset=A7K2M9PQ3X",
+       "链接只带一个 reset 参数（多余参数会被 Streamlit 吞掉/露出内部状态）")
 finally:
     if _old_site is None:
         os.environ.pop(pr.SITE_URL_ENV, None)
@@ -717,6 +722,116 @@ ck("邮件" in _ap_app and "邮件" in _pg_digest,
    "两处都**如实提到**邮件通道的实际口径（是改写准，不是删掉不提）")
 ck("微信" in _ap_app.split("摘要内容始终免费可看")[1][:400],
    "首页对摘要投递明说主通道是微信（口径与已跑通的通道一致）")
+
+# ---- C12. 凭据桥：平铺键与子表两种写法都必须真能桥到环境变量 ----
+# 静默失效的重灾区：_NESTED_KEYS 里写错键名 → 用户配了、页面说没配、零报错。
+class _FakeSecrets(dict):
+    """贴近真身的替身。
+
+    真 `st.secrets` 是**基于属性、未命中即抛 KeyError** 的容器，不是宽容的 dict：
+    查一个不存在的顶层键会 `KeyError`，而不是返回空串。`bridge_channel_secrets()`
+    正是在这个 KeyError 被吃掉之后才走「子表」那条回退分支的。
+    替身若用普通 dict 的宽容语义，那条分支就**永远走不到**，断言只在测替身本身
+    （本探针首版就踩了这个：平铺过了、子表恒红，而生产逻辑两种都支持）。
+    """
+
+    def __getitem__(self, key):
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            raise KeyError(key) from None
+
+    def get(self, key, default=None):
+        # 与真身一致：未命中抛错（上层用 try/except 兜住），而不是静默给默认值
+        return self[key]
+
+    def __contains__(self, key):
+        return dict.__contains__(self, key)
+
+
+_PAIRS = [("DIGEST_SMTP_HOST", "smtp.example.com", ("smtp", "host")),
+          ("DIGEST_SMTP_PORT", "587", ("smtp", "port")),
+          ("DIGEST_SMTP_USER", "bot@example.com", ("smtp", "user")),
+          ("DIGEST_SMTP_PASS", "secret-auth-code", ("smtp", "pass")),
+          ("DIGEST_SMTP_FROM", "noreply@example.com", ("smtp", "from")),
+          ("WXPUSHER_APP_TOKEN", "AT_token_xxx", ("wxpusher", "app_token")),
+          ("SITE_URL", "https://chilam.club", None)]
+
+ck(set(auth._NESTED_KEYS) <= {k for k, _, _ in _PAIRS},
+   "auth._NESTED_KEYS 的每个键都在本组用例里被真实验过一次"
+   "（新增子表键却忘了加用例，这条会红）")
+
+# ★ 注入方式：`auth.st` 是 **streamlit 模块对象**，不能整个替换成 dict ——
+#   那样 `st.secrets.get` 会抛 AttributeError，而 auth.py 里「取不到就当空」的
+#   try/except 会把它吞掉，断言就变成「什么都没桥到」的假警报（本探针首版即如此）。
+#   正确做法是只替换那个模块对象的 `.secrets` 属性。
+_st_mod = getattr(auth, "st", None)
+_had_secrets = _st_mod is not None and hasattr(_st_mod, "secrets")
+_old_secrets = getattr(_st_mod, "secrets", None) if _had_secrets else None
+
+
+def _use_secrets(fake):
+    if _st_mod is None:
+        return False
+    _st_mod.secrets = fake
+    return True
+
+
+_saved_env = {name: os.environ.pop(name, None) for name, _, _ in _PAIRS}
+_orig_env_unset = {name: os.environ.pop(name, None) for name, _, _ in _PAIRS}
+ck(_st_mod is not None,
+   "本机装好了 streamlit（否则桥接函数直接 return，本组全部断言都测不到东西）")
+try:
+    # (1) 平铺写法
+    _use_secrets(_FakeSecrets({name: val for name, val, _ in _PAIRS}))
+    auth.bridge_channel_secrets()
+    _flat_miss = [name for name, val, _ in _PAIRS if os.environ.get(name) != val]
+    ck(not _flat_miss,
+       f"平铺键写法能桥到环境变量（未生效：{_flat_miss}）——"
+       "漏一个的表现就是「明明配了却提示未配置」")
+
+    # (2) 子表写法：只在 st.secrets 里放嵌套表
+    for name, _, _ in _PAIRS:
+        os.environ.pop(name, None)
+    _nested = {}
+    for name, val, path in _PAIRS:
+        if path:
+            _nested.setdefault(path[0], {})[path[1]] = val
+    _use_secrets(_FakeSecrets(_nested))
+    auth.bridge_channel_secrets()
+    _nest_miss = [name for name, val, path in _PAIRS if path and os.environ.get(name) != val]
+    ck(not _nest_miss,
+       f"子表写法（[smtp] host=…）也能桥到环境变量（未生效：{_nest_miss}）——"
+       "有人习惯这么写，映射表名字对不上就是静默失效")
+
+    # (3) 已有 env 不被覆盖（Actions 里环境变量才是唯一来源）
+    os.environ["DIGEST_SMTP_HOST"] = "from-real-env.example.com"
+    _use_secrets(_FakeSecrets({"DIGEST_SMTP_HOST": "from-secrets.example.com"}))
+    auth.bridge_channel_secrets()
+    ck(os.environ["DIGEST_SMTP_HOST"] == "from-real-env.example.com",
+       "已存在的环境变量不被 Secrets 覆盖（否则 Actions 里的注入会被静默顶掉）")
+
+    # (4) 全空时不得凭空造出变量（防「把空串也写进 env」导致 is_configured 误判）
+    for name, _, _ in _PAIRS:
+        os.environ.pop(name, None)
+    _use_secrets(_FakeSecrets({}))
+    auth.bridge_channel_secrets()
+    _ghost = [name for name, _, _ in _PAIRS if name in os.environ]
+    ck(not _ghost, f"空 Secrets 不写入任何环境变量（凭空造出：{_ghost}）")
+finally:
+    if _st_mod is not None:
+        if _had_secrets:
+            _st_mod.secrets = _old_secrets
+        else:
+            try:
+                del _st_mod.secrets
+            except Exception:
+                pass
+    for name, old in _saved_env.items():
+        if old is None:
+            os.environ.pop(name, None)
+        else:
+            os.environ[name] = old
 
 # ---- C11. pages 的导入引导必须「强制置顶」（2026-09-23 实测踩坑） ----
 # Streamlit 每次跑脚本前会执行 modified_sys_path（exec_code.py:63），把

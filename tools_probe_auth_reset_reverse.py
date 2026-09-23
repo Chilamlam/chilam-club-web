@@ -98,6 +98,18 @@ MUTATIONS = [
      "    sys.path.insert(0, _ROOT)\n",
      "没有条件式 sys.path 插入"),
 
+    ("子表映射键名写错（smtp.host 写成 smtp.hostname → 配了却不生效）",
+     "auth.py",
+     '    "DIGEST_SMTP_HOST": ("smtp", "host"),\n',
+     '    "DIGEST_SMTP_HOST": ("smtp", "hostname"),\n',
+     "子表写法"),
+
+    ("重置链接指向别的页面（/auth → /dashboard）",
+     "password_reset.py",
+     '    return f"{base}/auth?reset={code}"\n',
+     '    return f"{base}/dashboard?reset={code}"\n',
+     "重置链接指向 `/auth` 这一页"),
+
     ("重置码表加一列明文码",
      "init_password_reset.sql",
      '    code_hash   TEXT NOT NULL,               -- sha256(salt:归一化后的码)\n',
