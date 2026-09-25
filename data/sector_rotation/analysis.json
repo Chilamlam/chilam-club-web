@@ -9,6 +9,50 @@
   "top": [
     {
       "rank": 1,
+      "code": "BK1675",
+      "name": "历史新高",
+      "pct_chg": -1.14,
+      "pct_5d": 8.67,
+      "pct_10d": 14.82,
+      "pct_20d": 25.3,
+      "pct_60d": 5.78,
+      "streak": 3
+    },
+    {
+      "rank": 2,
+      "code": "BK1659",
+      "name": "精准诊断",
+      "pct_chg": -1.13,
+      "pct_5d": 7.78,
+      "pct_10d": 7.95,
+      "pct_20d": 4.02,
+      "pct_60d": 13.92,
+      "streak": 1
+    },
+    {
+      "rank": 3,
+      "code": "BK0693",
+      "name": "基因测序",
+      "pct_chg": -1.15,
+      "pct_5d": 6.59,
+      "pct_10d": 7.02,
+      "pct_20d": 1.4,
+      "pct_60d": 10.74,
+      "streak": 1
+    },
+    {
+      "rank": 4,
+      "code": "BK0885",
+      "name": "VPN",
+      "pct_chg": -0.88,
+      "pct_5d": 5.14,
+      "pct_10d": 6.88,
+      "pct_20d": 7.54,
+      "pct_60d": 6.07,
+      "streak": 1
+    },
+    {
+      "rank": 5,
       "code": "BK0806",
       "name": "精准医疗",
       "pct_chg": -0.63,
@@ -19,7 +63,7 @@
       "streak": 1
     },
     {
-      "rank": 2,
+      "rank": 6,
       "code": "BK0964",
       "name": "6G概念",
       "pct_chg": -0.59,
@@ -30,7 +74,18 @@
       "streak": 1
     },
     {
-      "rank": 3,
+      "rank": 7,
+      "code": "BK0915",
+      "name": "WiFi",
+      "pct_chg": -1.17,
+      "pct_5d": 5.16,
+      "pct_10d": 5.56,
+      "pct_20d": 2.72,
+      "pct_60d": -1.81,
+      "streak": 1
+    },
+    {
+      "rank": 8,
       "code": "BK1145",
       "name": "机器人执行器",
       "pct_chg": 0.74,
@@ -41,7 +96,18 @@
       "streak": 1
     },
     {
-      "rank": 4,
+      "rank": 9,
+      "code": "BK1199",
+      "name": "2025三季报预减",
+      "pct_chg": -1.07,
+      "pct_5d": 2.53,
+      "pct_10d": 4.95,
+      "pct_20d": 4.84,
+      "pct_60d": -16.35,
+      "streak": 1
+    },
+    {
+      "rank": 10,
       "code": "BK1074",
       "name": "托育服务",
       "pct_chg": -0.22,
@@ -50,87 +116,21 @@
       "pct_20d": 9.63,
       "pct_60d": 11.78,
       "streak": 1
-    },
-    {
-      "rank": 5,
-      "code": "BK0807",
-      "name": "共享经济",
-      "pct_chg": -0.42,
-      "pct_5d": 3.04,
-      "pct_10d": 4.48,
-      "pct_20d": 3.83,
-      "pct_60d": 3.89,
-      "streak": 1
-    },
-    {
-      "rank": 6,
-      "code": "BK0959",
-      "name": "数字阅读",
-      "pct_chg": -0.34,
-      "pct_5d": 2.92,
-      "pct_10d": 4.42,
-      "pct_20d": 8.89,
-      "pct_60d": 7.23,
-      "streak": 1
-    },
-    {
-      "rank": 7,
-      "code": "BK0994",
-      "name": "空间站概念",
-      "pct_chg": -0.41,
-      "pct_5d": 4.17,
-      "pct_10d": 4.03,
-      "pct_20d": 3.98,
-      "pct_60d": -8.2,
-      "streak": 1
-    },
-    {
-      "rank": 8,
-      "code": "BK0921",
-      "name": "卫星互联网",
-      "pct_chg": -0.77,
-      "pct_5d": 2.42,
-      "pct_10d": 3.11,
-      "pct_20d": 2.3,
-      "pct_60d": -10.13,
-      "streak": 1
-    },
-    {
-      "rank": 9,
-      "code": "BK1644",
-      "name": "微盘精选",
-      "pct_chg": -0.04,
-      "pct_5d": 5.28,
-      "pct_10d": 3.09,
-      "pct_20d": 3.93,
-      "pct_60d": 15.17,
-      "streak": 1
-    },
-    {
-      "rank": 10,
-      "code": "BK0957",
-      "name": "拼多多概念",
-      "pct_chg": -0.53,
-      "pct_5d": 4.15,
-      "pct_10d": 2.78,
-      "pct_20d": 4.19,
-      "pct_60d": 9.38,
-      "streak": 1
     }
   ],
-  "overlap_count": 0,
+  "overlap_count": 1,
   "overlap_denominator": 10,
-  "top_median_pct": 4.45,
-  "universe_median_pct": -0.69,
-  "universe_count": 89,
+  "top_median_pct": 5.89,
+  "universe_median_pct": -0.64,
+  "universe_count": 184,
   "verdict": {
     "label": "快速轮动",
     "reasons": [
-      "Top10 与上一交易日（2026-09-23）重合仅 0/10，领涨板块快速换脸；",
-      "Top10 10d涨幅中位数 4.5%，全市场概念板块中位数 -0.7%。"
+      "Top10 与上一交易日（2026-09-23）重合仅 1/10，领涨板块快速换脸；",
+      "Top10 10d涨幅中位数 5.9%，全市场概念板块中位数 -0.6%。"
     ],
     "watch": "明日重合回升至 ≥7 则转向主升判读；仍 ≤3 则轮动延续。"
   },
-  "generated_at": "2026-09-24 19:16:26 CST",
+  "generated_at": "2026-09-25 19:14:16 CST",
   "source": "eastmoney_concept_boards"
 }
