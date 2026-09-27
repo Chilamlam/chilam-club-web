@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-27 23:47:55",
+  "date": "2026-09-28 02:31:22",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -315,13 +315,13 @@
       "premium_rate": 0.01
     },
     {
-      "code": "159985.SZ",
-      "name": "豆粕ETF华夏",
-      "price": 2.319,
+      "code": "159930.SZ",
+      "name": "能源ETF汇添富",
+      "price": 1.701,
       "change": 0.65,
-      "vol_yi": 5.52,
+      "vol_yi": 0.54,
       "tag": "📈 强势",
-      "premium_rate": 3.5
+      "premium_rate": -0.07
     }
   ],
   "ai_analysis": ""
