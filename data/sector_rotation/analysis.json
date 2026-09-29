@@ -20,6 +20,28 @@
     },
     {
       "rank": 2,
+      "code": "BK1127",
+      "name": "AI芯片",
+      "pct_chg": 1.07,
+      "pct_5d": -1.77,
+      "pct_10d": 6.33,
+      "pct_20d": -2.61,
+      "pct_60d": -12.94,
+      "streak": 1
+    },
+    {
+      "rank": 3,
+      "code": "BK1644",
+      "name": "微盘精选",
+      "pct_chg": 1.19,
+      "pct_5d": 2.11,
+      "pct_10d": 5.85,
+      "pct_20d": 2.15,
+      "pct_60d": 14.06,
+      "streak": 1
+    },
+    {
+      "rank": 4,
       "code": "BK1074",
       "name": "托育服务",
       "pct_chg": 1.51,
@@ -30,7 +52,7 @@
       "streak": 2
     },
     {
-      "rank": 3,
+      "rank": 5,
       "code": "BK1158",
       "name": "微盘股",
       "pct_chg": 1.76,
@@ -41,7 +63,40 @@
       "streak": 1
     },
     {
-      "rank": 4,
+      "rank": 6,
+      "code": "BK1121",
+      "name": "第四代半导体",
+      "pct_chg": 0.78,
+      "pct_5d": -4.61,
+      "pct_10d": 4.39,
+      "pct_20d": 0.37,
+      "pct_60d": -12.07,
+      "streak": 1
+    },
+    {
+      "rank": 7,
+      "code": "BK1082",
+      "name": "噪声防治",
+      "pct_chg": 1.02,
+      "pct_5d": -2.13,
+      "pct_10d": 4.36,
+      "pct_20d": 0.51,
+      "pct_60d": 5.94,
+      "streak": 1
+    },
+    {
+      "rank": 8,
+      "code": "BK1007",
+      "name": "植物照明",
+      "pct_chg": 0.82,
+      "pct_5d": -1.75,
+      "pct_10d": 4.1,
+      "pct_20d": 1.09,
+      "pct_60d": -6.76,
+      "streak": 1
+    },
+    {
+      "rank": 9,
       "code": "BK1125",
       "name": "电子后视镜",
       "pct_chg": 1.68,
@@ -52,7 +107,7 @@
       "streak": 1
     },
     {
-      "rank": 5,
+      "rank": 10,
       "code": "BK0957",
       "name": "拼多多概念",
       "pct_chg": 1.99,
@@ -61,76 +116,21 @@
       "pct_20d": -0.1,
       "pct_60d": 10.2,
       "streak": 1
-    },
-    {
-      "rank": 6,
-      "code": "BK0959",
-      "name": "数字阅读",
-      "pct_chg": 2.96,
-      "pct_5d": -0.84,
-      "pct_10d": 3.72,
-      "pct_20d": 4.38,
-      "pct_60d": 8.94,
-      "streak": 1
-    },
-    {
-      "rank": 7,
-      "code": "BK1013",
-      "name": "华为欧拉",
-      "pct_chg": 1.98,
-      "pct_5d": -0.76,
-      "pct_10d": 3.37,
-      "pct_20d": -2.09,
-      "pct_60d": 5.6,
-      "streak": 1
-    },
-    {
-      "rank": 8,
-      "code": "BK1049",
-      "name": "EDR概念",
-      "pct_chg": 1.32,
-      "pct_5d": -0.68,
-      "pct_10d": 3.31,
-      "pct_20d": -0.9,
-      "pct_60d": -0.14,
-      "streak": 1
-    },
-    {
-      "rank": 9,
-      "code": "BK0992",
-      "name": "REITs概念",
-      "pct_chg": 2.15,
-      "pct_5d": -0.57,
-      "pct_10d": 3.26,
-      "pct_20d": 3.48,
-      "pct_60d": 7.46,
-      "streak": 1
-    },
-    {
-      "rank": 10,
-      "code": "BK0955",
-      "name": "C2M概念",
-      "pct_chg": 1.41,
-      "pct_5d": -2.75,
-      "pct_10d": 3.01,
-      "pct_20d": -1.1,
-      "pct_60d": 1.54,
-      "streak": 1
     }
   ],
   "overlap_count": 1,
   "overlap_denominator": 10,
-  "top_median_pct": 3.77,
-  "universe_median_pct": 0.36,
-  "universe_count": 95,
+  "top_median_pct": 4.67,
+  "universe_median_pct": 0.17,
+  "universe_count": 190,
   "verdict": {
     "label": "快速轮动",
     "reasons": [
       "Top10 与上一交易日（2026-09-24）重合仅 1/10，领涨板块快速换脸；",
-      "Top10 10d涨幅中位数 3.8%，全市场概念板块中位数 0.4%。"
+      "Top10 10d涨幅中位数 4.7%，全市场概念板块中位数 0.2%。"
     ],
     "watch": "明日重合回升至 ≥7 则转向主升判读；仍 ≤3 则轮动延续。"
   },
-  "generated_at": "2026-09-30 01:15:51 CST",
+  "generated_at": "2026-09-30 03:42:26 CST",
   "source": "eastmoney_concept_boards"
 }
