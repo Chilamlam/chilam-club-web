@@ -121,16 +121,16 @@
   "overlap_count": 1,
   "overlap_denominator": 10,
   "top_median_pct": 10.67,
-  "universe_median_pct": 1.49,
-  "universe_count": 179,
+  "universe_median_pct": 1.21,
+  "universe_count": 372,
   "verdict": {
     "label": "快速轮动",
     "reasons": [
       "Top10 与上一交易日（2026-09-29）重合仅 1/10，领涨板块快速换脸；",
-      "Top10 10d涨幅中位数 10.7%，全市场概念板块中位数 1.5%。"
+      "Top10 10d涨幅中位数 10.7%，全市场概念板块中位数 1.2%。"
     ],
     "watch": "明日重合回升至 ≥7 则转向主升判读；仍 ≤3 则轮动延续。"
   },
-  "generated_at": "2026-10-05 02:27:53 CST",
+  "generated_at": "2026-10-05 19:18:17 CST",
   "source": "eastmoney_concept_boards"
 }
