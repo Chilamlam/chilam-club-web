@@ -31,6 +31,17 @@
     },
     {
       "rank": 3,
+      "code": "BK0822",
+      "name": "租售同权",
+      "pct_chg": 0.35,
+      "pct_5d": 1.9,
+      "pct_10d": 13.61,
+      "pct_20d": 8.66,
+      "pct_60d": 25.01,
+      "streak": 2
+    },
+    {
+      "rank": 4,
       "code": "BK1659",
       "name": "精准诊断",
       "pct_chg": 2.11,
@@ -41,7 +52,7 @@
       "streak": 1
     },
     {
-      "rank": 4,
+      "rank": 5,
       "code": "BK0894",
       "name": "阿兹海默",
       "pct_chg": 2.2,
@@ -52,7 +63,7 @@
       "streak": 1
     },
     {
-      "rank": 5,
+      "rank": 6,
       "code": "BK0986",
       "name": "CAR-T细胞疗法",
       "pct_chg": 3.27,
@@ -63,7 +74,7 @@
       "streak": 1
     },
     {
-      "rank": 6,
+      "rank": 7,
       "code": "BK0806",
       "name": "精准医疗",
       "pct_chg": 2.21,
@@ -74,7 +85,7 @@
       "streak": 1
     },
     {
-      "rank": 7,
+      "rank": 8,
       "code": "BK0693",
       "name": "基因测序",
       "pct_chg": 1.95,
@@ -85,7 +96,7 @@
       "streak": 1
     },
     {
-      "rank": 8,
+      "rank": 9,
       "code": "BK0841",
       "name": "体外诊断概念",
       "pct_chg": 1.85,
@@ -96,7 +107,7 @@
       "streak": 1
     },
     {
-      "rank": 9,
+      "rank": 10,
       "code": "BK1675",
       "name": "历史新高",
       "pct_chg": 2.47,
@@ -105,32 +116,21 @@
       "pct_20d": 4.36,
       "pct_60d": 10.54,
       "streak": 1
-    },
-    {
-      "rank": 10,
-      "code": "BK1657",
-      "name": "病原体防治",
-      "pct_chg": 2.63,
-      "pct_5d": 0.26,
-      "pct_10d": 9.07,
-      "pct_20d": 2.61,
-      "pct_60d": 13.79,
-      "streak": 1
     }
   ],
-  "overlap_count": 0,
+  "overlap_count": 1,
   "overlap_denominator": 10,
-  "top_median_pct": 10.12,
-  "universe_median_pct": 3.43,
-  "universe_count": 87,
+  "top_median_pct": 10.67,
+  "universe_median_pct": 1.49,
+  "universe_count": 179,
   "verdict": {
     "label": "快速轮动",
     "reasons": [
-      "Top10 与上一交易日（2026-09-29）重合仅 0/10，领涨板块快速换脸；",
-      "Top10 10d涨幅中位数 10.1%，全市场概念板块中位数 3.4%。"
+      "Top10 与上一交易日（2026-09-29）重合仅 1/10，领涨板块快速换脸；",
+      "Top10 10d涨幅中位数 10.7%，全市场概念板块中位数 1.5%。"
     ],
     "watch": "明日重合回升至 ≥7 则转向主升判读；仍 ≤3 则轮动延续。"
   },
-  "generated_at": "2026-10-06 05:44:13 CST",
+  "generated_at": "2026-10-06 19:26:48 CST",
   "source": "eastmoney_concept_boards"
 }
