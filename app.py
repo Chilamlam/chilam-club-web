@@ -667,6 +667,11 @@ def main():
             if st.button("🔐 登录 / 注册", key="sb_login", use_container_width=True):
                 st.switch_page("pages/auth.py")
 
+        # 🛒 全天候小店入口（2026-10-06）：link_button 生成 target=_blank 的锚点，
+        # 在 www.chilam.club 的 iframe 壳里点击是开新标签页，不会把 iframe 带走。
+        st.link_button("🛒 全天候小店", "https://shop.chilam.club",
+                       use_container_width=True)
+
         st.markdown("---")
         menu_items = [
             "🛸 全市场看板",
