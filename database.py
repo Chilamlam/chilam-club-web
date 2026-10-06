@@ -10,6 +10,7 @@ import urllib.error
 import hashlib
 import hmac
 import base64
+import time
 from datetime import datetime, timedelta, timezone
 from typing import Optional, List, Dict, Any
 try:
@@ -71,34 +72,46 @@ def _supabase_request(method: str, endpoint: str, params: dict = None, json_data
         data_bytes = json.dumps(json_data).encode("utf-8")
         
     req = urllib.request.Request(url, data=data_bytes, headers=headers, method=method)
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            body = resp.read().decode("utf-8")
-            data = json.loads(body) if body else True
-            return (data, None) if return_error else data
-    except urllib.error.HTTPError as e:
-        err_body = e.read().decode("utf-8")
-        print(f"[Supabase HTTP Error] {method} {url} -> {e.code}: {err_body}")
-        if not return_error:
-            return None
-        info = {}
+    # GET 是幂等读：连接层抖动（本机与云端都实测会间歇发生）自动重试两次。
+    # 此前一次 TLS 抖动就把「查询失败」吞成 None，与「查无此行」无法区分——
+    # 2026-10-06 实测把注册用户判成「未找到该邮箱对应的账号」，
+    # 幸有 curl 旁路核验才没把重置码发错方向。
+    attempts = range(3) if method == "GET" else (0,)
+    for attempt in attempts:
         try:
-            parsed = json.loads(err_body)
-            if isinstance(parsed, dict):
-                info = parsed
-        except Exception:
-            pass
-        return None, {
-            "status": e.code,
-            "code": str(info.get("code") or ""),
-            "message": str(info.get("message") or ""),
-            "detail": str(info.get("details") or info.get("detail") or ""),
-        }
-    except Exception as e:
-        print(f"[Supabase Connection Error] {e}")
-        if not return_error:
-            return None
-        return None, {"status": 0, "code": "", "message": str(e), "detail": ""}
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                body = resp.read().decode("utf-8")
+                data = json.loads(body) if body else True
+                return (data, None) if return_error else data
+        except urllib.error.HTTPError as e:
+            # 服务端有明确应答（4xx/5xx）：不是抖动，重试不会变好
+            err_body = e.read().decode("utf-8")
+            print(f"[Supabase HTTP Error] {method} {url} -> {e.code}: {err_body}")
+            if not return_error:
+                return None
+            info = {}
+            try:
+                parsed = json.loads(err_body)
+                if isinstance(parsed, dict):
+                    info = parsed
+            except Exception:
+                pass
+            return None, {
+                "status": e.code,
+                "code": str(info.get("code") or ""),
+                "message": str(info.get("message") or ""),
+                "detail": str(info.get("details") or info.get("detail") or ""),
+            }
+        except Exception as e:
+            has_next = attempt < attempts[-1]
+            print(f"[Supabase Connection Error] {e}"
+                  + ("；GET 幂等读，自动重试" if has_next else ""))
+            if has_next:
+                time.sleep(1.5)
+                continue
+            if not return_error:
+                return None
+            return None, {"status": 0, "code": "", "message": str(e), "detail": ""}
 
 # ==================== 密码哈希 (PBKDF2-HMAC-SHA256 stdlib) ====================
 
@@ -167,10 +180,20 @@ def create_user(email: str, password: str, is_admin: bool = False) -> Optional[D
     return None
 
 def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
-    """通过邮箱查询用户"""
-    params = {"email": f"eq.{email.strip().lower()}", "select": "*"}
-    res = _supabase_request("GET", "users", params=params)
-    if res and isinstance(res, list) and len(res) > 0:
+    """通过邮箱查询用户。
+
+    语义三态（2026-10-06 修正）：查到 → dict；确实不存在 → None；
+    **查询失败 → 抛 RuntimeError**。此前失败与不存在都返回 None，
+    一次 TLS 抖动就把注册用户判成「尚未注册/未找到」——调用方必须
+    接住 RuntimeError 并给「请稍后重试」类提示，而不是误导用户。
+    """
+    res, err = _supabase_request(
+        "GET", "users",
+        params={"email": f"eq.{email.strip().lower()}", "select": "*"},
+        return_error=True)
+    if err is not None:
+        raise RuntimeError(f"数据库查询失败：{err.get('message') or '未知错误'}")
+    if isinstance(res, list) and res:
         return res[0]
     return None
 

@@ -188,7 +188,10 @@ def get_user_email() -> Optional[str]:
 
 def login(email: str, password: str) -> tuple[bool, str]:
     """用户登录"""
-    user = database.get_user_by_email(email)
+    try:
+        user = database.get_user_by_email(email)
+    except RuntimeError:
+        return False, "系统繁忙（数据库查询失败），请稍后重试"
     if not user:
         return False, "用户不存在"
 
@@ -218,7 +221,10 @@ def register(email: str, password: str) -> tuple[bool, str]:
     if len(password) < 6:
         return False, "密码长度至少为 6 位"
 
-    existing = database.get_user_by_email(email_clean)
+    try:
+        existing = database.get_user_by_email(email_clean)
+    except RuntimeError:
+        return False, "系统繁忙（数据库查询失败），请稍后重试"
     if existing:
         return False, "该邮箱已被注册"
 
@@ -375,7 +381,10 @@ def change_password(current_password: str, new_password: str,
     if not user:
         return False, "登录状态已失效，请重新登录后再试"
     email_val = user.get("email") or ""
-    row = database.get_user_by_email(email_val) if email_val else None
+    try:
+        row = database.get_user_by_email(email_val) if email_val else None
+    except RuntimeError:
+        row = None
     if not row:
         # 有 token 但库里读不到账号：这**不是**「密码错误」。
         # 混为一谈会让用户反复重输旧密码，而真实原因在账号/取数侧。
@@ -443,7 +452,10 @@ def request_manual_reset(email: str, reason: str = "用户主动申请") -> tupl
     email_clean = (email or "").strip().lower()
     if not email_clean or "@" not in email_clean:
         return "failed", "请输入有效的邮箱地址"
-    row = database.get_user_by_email(email_clean)
+    try:
+        row = database.get_user_by_email(email_clean)
+    except RuntimeError:
+        return "failed", "数据库暂时连不上（网络波动），请稍后重试"
     if not row:
         return "failed", "该邮箱尚未注册。请检查是否输错，或先注册一个新账号。"
 
@@ -479,7 +491,10 @@ def request_password_reset(email: str) -> tuple[str, str]:
     if not email_clean or "@" not in email_clean:
         return "failed", "请输入有效的邮箱地址"
 
-    row = database.get_user_by_email(email_clean)
+    try:
+        row = database.get_user_by_email(email_clean)
+    except RuntimeError:
+        return "failed", "数据库暂时连不上（网络波动），请稍后重试"
     if not row:
         # 口径与登录/注册保持一致：如实告知。注册接口本来就会回
         # 「该邮箱已被注册」，邮箱是否存在并非秘密；在这里假装中立，
@@ -567,7 +582,10 @@ def reset_password_with_code(email: str, code: str, new_password: str,
     if not pr.normalize_code(code):
         return False, "请输入收到的重置码"
 
-    row = database.get_user_by_email(email_clean)
+    try:
+        row = database.get_user_by_email(email_clean)
+    except RuntimeError:
+        return False, "数据库暂时连不上（网络波动），请稍后重试"
     if not row:
         # 仍如实告知：码本身已经验证过归属，这里说「邮箱不对」是用户能
         # 立刻纠正的信息，含糊其辞只会让他反复重试同一组输入。
@@ -622,7 +640,10 @@ def admin_issue_reset_code(email: str) -> tuple[bool, str, str]:
     """
     import password_reset as pr
 
-    row = database.get_user_by_email((email or "").strip().lower())
+    try:
+        row = database.get_user_by_email((email or "").strip().lower())
+    except RuntimeError:
+        return False, "", "数据库查询失败（网络波动），请稍后重试"
     if not row:
         return False, "", "未找到该邮箱对应的账号"
 

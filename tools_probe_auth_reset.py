@@ -890,6 +890,168 @@ ck(_calls_in(_ap, ("os", "path", "realpath")) >= 2
    "pages/auth.py 在 import 之后校验 auth.__file__ 确实是根目录的 auth.py，"
    "不符就 raise（fail loud，不留静默错模块的余地）")
 
+# ============================================================
+# D. 传输失败语义：查询失败绝不能被当成「邮箱不存在」（2026-10-06 实训）
+# ============================================================
+# 当天实例：管理员发码时一次 TLS 抖动，database.get_user_by_email 把
+# 注册用户返回成 None，上层报「未找到该邮箱对应的账号」——若非 curl
+# 旁路核验拦住，重置码就发去了错误的方向。修法：传输失败抛 RuntimeError，
+# None 只表示「确实不存在」；所有调用方必须接住并给「请稍后重试」类提示。
+print()
+print("=" * 60)
+print("D. 传输失败语义：查询失败 ≠ 邮箱不存在")
+print("=" * 60)
+
+import database as _real_db
+
+def _ck_lookup(fake_ret, expect, tag):
+    """替身 _supabase_request 后调 get_user_by_email，断言结果。"""
+    saved = _real_db._supabase_request
+    _real_db._supabase_request = lambda *a, **k: fake_ret
+    try:
+        got_exc = None
+        got_val = None
+        try:
+            got_val = _real_db.get_user_by_email("u@example.com")
+        except RuntimeError as e:
+            got_exc = e
+        if expect == "none":
+            ck(got_exc is None and got_val is None,
+               f"{tag}：空结果 → None（确实不存在，不抛错）")
+        elif expect == "raise":
+            ck(got_exc is not None,
+               f"{tag}：传输失败(status=0) → 抛 RuntimeError，绝不能返回 None")
+        else:
+            ck(got_exc is None and isinstance(got_val, dict) and got_val.get("id") == 9,
+               f"{tag}：正常行 → dict")
+    finally:
+        _real_db._supabase_request = saved
+
+_ck_lookup(([], None), "none", "get_user_by_email 空列表")
+_ck_lookup((None, {"status": 0, "code": "", "message": "tls eof", "detail": ""}),
+           "raise", "get_user_by_email 传输失败")
+_ck_lookup((None, {"status": 401, "code": "", "message": "bad key", "detail": ""}),
+           "raise", "get_user_by_email HTTP 错误(401)")
+_ck_lookup(([{"id": 9, "email": "u@example.com"}], None), "row", "get_user_by_email 命中")
+
+# GET 幂等读自动重试：必须在 **urlopen 层**制造抖动（重试逻辑在
+# _supabase_request 内部；替身若整个替换它自己，重试根本不会发生——
+# 本探针第一版就打错了层，OSError 直接漏成裸崩）。
+class _FakeResp:
+    def __init__(self, body):
+        self._b = body.encode("utf-8")
+    def read(self):
+        return self._b
+    def __enter__(self):
+        return self
+    def __exit__(self, *a):
+        return False
+
+_saved_open = _real_db.urllib.request.urlopen
+_calls = {"n": 0}
+def _flaky_open(req, timeout=10):
+    _calls["n"] += 1
+    if _calls["n"] < 3:
+        raise OSError("tls eof")
+    return _FakeResp('[{"id": 11}]')
+
+import os as _os
+_saved_env = (_os.environ.get("SUPABASE_URL"), _os.environ.get("SUPABASE_KEY"))
+_os.environ.setdefault("SUPABASE_URL", "https://fake.supabase.co")
+_os.environ.setdefault("SUPABASE_KEY", "fake-key")
+_real_db.urllib.request.urlopen = _flaky_open
+try:
+    got = _real_db.get_user_by_email("u@example.com")
+    ck(got == {"id": 11} and _calls["n"] == 3,
+       f"GET 连接层抖动自动重试（urlopen 实际 {_calls['n']} 次，第 3 次成功）")
+finally:
+    _real_db.urllib.request.urlopen = _saved_open
+    for _k, _v in zip(("SUPABASE_URL", "SUPABASE_KEY"), _saved_env):
+        if _v is None:
+            _os.environ.pop(_k, None)
+        else:
+            _os.environ[_k] = _v
+
+# 上层编排：get_user_by_email 抛 RuntimeError 时，各入口必须给「请稍后重试」类
+# 提示，而不是走「尚未注册/用户不存在」分支，也绝不能让异常裸崩到页面上。
+class _RaisingDB(FakeDB):
+    def get_user_by_email(self, email):
+        self._log("get_user_by_email", email)
+        raise RuntimeError("数据库查询失败：tls eof")
+
+_rdb = _RaisingDB(user=None)
+with harness(_rdb):
+    st1, msg1 = auth.request_password_reset("u@example.com")
+    ck(st1 == "failed" and "重试" in msg1,
+       f"request_password_reset 查询失败 → failed + 请稍后重试（实际：{st1} {msg1[:40]}）")
+    ck(_rdb.n("create_password_reset_code") == 0,
+       "查询失败时不生成重置码（副作用归零）")
+
+_rdb2 = _RaisingDB(user=None)
+with harness(_rdb2):
+    ok2, _c2, msg2 = auth.admin_issue_reset_code("u@example.com")
+    ck(ok2 is False and "重试" in msg2,
+       f"admin_issue_reset_code 查询失败 → 如实报错（实际：{msg2[:40]}）")
+
+_rdb3 = _RaisingDB(user=None)
+with harness(_rdb3):
+    ok3, msg3 = auth.request_manual_reset("u@example.com", reason="测试")
+    ck(ok3 == "failed" and "重试" in msg3,
+       f"request_manual_reset 查询失败 → failed + 请稍后重试（实际：{ok3} {msg3[:40]}）")
+
+_rdb4 = _RaisingDB(user=None)
+with harness(_rdb4):
+    ok4, msg4 = auth.login("u@example.com", "whatever")
+    ck(ok4 is False and "重试" in msg4 and "不存在" not in msg4,
+       f"login 查询失败 → 不得谎报「用户不存在」（实际：{msg4[:40]}）")
+
+_rdb5 = _RaisingDB(user=None)
+with harness(_rdb5):
+    ok5, msg5 = auth.register("u@example.com", "123456")
+    ck(ok5 is False and "重试" in msg5,
+       f"register 查询失败 → 如实提示（实际：{msg5[:40]}）")
+
+_rdb6 = _RaisingDB(user={"id": 5, "email": "u@example.com", "_pw": "correct-pw"})
+with harness(_rdb6, current_user={"id": 5, "email": "u@example.com"}):
+    ok6, msg6 = auth.change_password("correct-pw", "newpass66", "newpass66")
+    ck(ok6 is False and ("重试" in msg6 or "取数" in msg6),
+       f"change_password 查询失败 → 如实提示（实际：{msg6[:40]}）")
+
+# reset_password_with_code 的查询失败也要如实（它在验证码之前查邮箱）
+_rdb7 = _RaisingDB(user=None)
+with harness(_rdb7):
+    ok7, msg7 = auth.reset_password_with_code("u@example.com", "ABCDEFGH23", "newpass66", "newpass66")
+    ck(ok7 is False and "重试" in msg7,
+       f"reset_password_with_code 查询失败 → 如实提示（实际：{msg7[:40]}）")
+    ck(_rdb7.n("update_user_password") == 0,
+       "查询失败时不改任何密码（副作用归零）")
+
+# AST 断言：三个文件的 get_user_by_email 调用点必须包在 try/except RuntimeError 里
+for rel, need in (("auth.py", 6), ("pages/admin.py", 1)):
+    _src = _read(rel)
+    _tree = ast.parse(_src)
+    _hits_try = _hits_bare = 0
+    for _node in ast.walk(_tree):
+        if isinstance(_node, ast.Try):
+            for _h in _node.handlers:
+                _names = [getattr(_h.type, "id", "")] if _h.type else []
+                if isinstance(_h.type, ast.Tuple):
+                    _names = [getattr(t, "id", "") for t in _h.type.elts]
+                if "RuntimeError" in _names:
+                    for _stmt in ast.walk(_node):
+                        if (isinstance(_stmt, ast.Call)
+                                and isinstance(_stmt.func, ast.Attribute)
+                                and _stmt.func.attr == "get_user_by_email"):
+                            _hits_try += 1
+    for _node in ast.walk(_tree):
+        if (isinstance(_node, ast.Call)
+                and isinstance(_node.func, ast.Attribute)
+                and _node.func.attr == "get_user_by_email"):
+            _hits_bare += 1
+    ck(_hits_try >= need and _hits_bare == _hits_try,
+       f"{rel}：get_user_by_email 的 {_hits_bare} 处调用全部包在 try/except RuntimeError 里"
+       f"（包裹 {_hits_try} 处）")
+
 print()
 print("-" * 60)
 print(f"通过 {_pass} 项，失败 {_fail} 项" + (f"，未验证 {_unverified} 项" if _unverified else ""))

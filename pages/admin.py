@@ -189,8 +189,15 @@ with tab_grant:
             if not target_email:
                 st.error("请输入用户邮箱")
             else:
-                user_obj = database.get_user_by_email(target_email)
-                if not user_obj:
+                user_obj = None
+                _lookup_err = ""
+                try:
+                    user_obj = database.get_user_by_email(target_email)
+                except RuntimeError as _e:
+                    _lookup_err = str(_e)
+                if _lookup_err:
+                    st.error(f"数据库暂时连不上（网络波动），请稍后重试。{_lookup_err}")
+                elif not user_obj:
                     st.error(f"未找到邮箱为 `{target_email}` 的用户")
                 else:
                     plan_map = {

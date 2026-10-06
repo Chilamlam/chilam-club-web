@@ -129,34 +129,60 @@ def main() -> int:
     if not reset_ok:
         record(UNVER, "只读找回：不存在的邮箱", "忘记密码面板渲染失败，未能执行")
     else:
-        try:
-            at.radio(key="auth_mode").set_value(MODE_RESET)
-            at.run()
-            at.text_input(key="reset_req_email").set_value(BASE_EMAIL)
-            btn = find_button(at, "发送重置码")
-            if btn is None:
-                record(UNVER, "只读找回：不存在的邮箱",
-                       f"没找到「发送重置码」按钮；现有按钮={[b.label for b in at.button]}")
-            else:
+        # 整体重试：本机到 Supabase 的 TLS 间歇抖动（实测约三次一成）会让
+        # 单次运行落到「数据库暂时连不上」——那是环境噪声不是产品缺陷。
+        # 每轮整个流程重跑（radio→填邮箱→点按钮），3 轮内见到「尚未注册」即过。
+        import time as _time
+        got_msg = None
+        last_texts = []
+        for attempt in range(3):
+            try:
+                at.radio(key="auth_mode").set_value(MODE_RESET)
+                at.run()
+                at.text_input(key="reset_req_email").set_value(BASE_EMAIL)
+                btn = find_button(at, "发送重置码")
+                if btn is None:
+                    last_texts = [f"没找到按钮：{[b.label for b in at.button]}"]
+                    _time.sleep(2)
+                    continue
                 btn.click()
                 at.run()
                 errs = exc_text(at)
                 if errs:
                     if is_env_missing(errs):
-                        record(UNVER, "只读找回：不存在的邮箱",
-                               f"本机没有数据库凭据，未真正验证：{errs[0][:120]}")
-                    else:
-                        record(FAIL, "只读找回：不存在的邮箱", " | ".join(errs))
-                else:
-                    texts = [e.value for e in at.error] + [w.value for w in at.warning]
-                    hit = [t for t in texts if "尚未注册" in str(t)]
-                    if hit:
-                        record(PASS, "只读找回：不存在的邮箱", f"提示={hit[0][:60]}")
-                    else:
-                        record(FAIL, "只读找回：不存在的邮箱",
-                               f"没看到「尚未注册」提示；message={texts}")
-        except Exception as e:
-            record(UNVER, "只读找回：不存在的邮箱", f"{type(e).__name__}: {str(e)[:120]}")
+                        break   # 无凭据环境，交给下面的 UNVER 分支
+                    last_texts = errs
+                    _time.sleep(2)
+                    continue
+                texts = [e.value for e in at.error] + [w.value for w in at.warning]
+                last_texts = texts
+                hit = [t for t in texts if "尚未注册" in str(t)]
+                if hit:
+                    got_msg = hit[0]
+                    break
+                # 连不上的诚实提示也结束重试——重试 3 轮还连不上就是环境问题
+                if any("连不上" in str(t) for t in texts):
+                    break
+                _time.sleep(2)
+            except Exception as e:
+                last_texts = [f"{type(e).__name__}: {str(e)[:120]}"]
+                _time.sleep(2)
+        if got_msg is not None:
+            record(PASS, "只读找回：不存在的邮箱", f"提示={got_msg[:60]}")
+        else:
+            if last_texts and is_env_missing(last_texts):
+                record(UNVER, "只读找回：不存在的邮箱",
+                       f"本机没有数据库凭据，未真正验证：{last_texts[0][:120]}")
+            elif any("连不上" in str(t) for t in last_texts):
+                record(UNVER, "只读找回：不存在的邮箱",
+                       f"3 轮重试均遇本机到 Supabase 的网络抖动，无法完成只读验证："
+                       f"{str(last_texts)[:160]}")
+            elif last_texts and any("数据库" in str(t) for t in last_texts):
+                record(UNVER, "只读找回：不存在的邮箱",
+                       f"3 轮重试均遇网络抖动：{str(last_texts)[:160]}")
+            else:
+                record(FAIL, "只读找回：不存在的邮箱",
+                       f"没看到「尚未注册」提示；message={last_texts}")
 
     n_pass = sum(1 for k, _, _ in results if k == PASS)
     n_fail = sum(1 for k, _, _ in results if k == FAIL)

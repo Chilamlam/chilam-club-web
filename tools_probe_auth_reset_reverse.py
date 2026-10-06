@@ -116,6 +116,16 @@ MUTATIONS = [
      '    code_hash   TEXT NOT NULL,               -- sha256(salt:归一化后的码)\n'
      '    code        TEXT NOT NULL,               -- 造错：明文码\n',
      "没有明文码列"),
+
+    ("get_user_by_email 退回「传输失败也返回 None」（2026-10-06 实际咬人的坑：一次 TLS 抖动把注册用户判成「未找到」）",
+     "database.py",
+     '    if err is not None:\n'
+     '        raise RuntimeError(f"数据库查询失败：{err.get(\'message\') or \'未知错误\'}")\n',
+     '    if err is not None:\n'
+     '        res = None  # 造错：把查询失败吞成「不存在」\n',
+     "绝不能返回 None"),
+
+
 ]
 
 
