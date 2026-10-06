@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import os
 import smtplib
+import time
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -75,6 +76,22 @@ def is_configured() -> bool:
     return smtp_conf() is not None
 
 
+def _fail_note(e: Exception) -> str:
+    """失败说明：类型名 + 简短原因。
+
+    2026-10-06 实测教训：只记异常类型名（如「SMTPServerDisconnected」）不够用——
+    站长拿到的信息无法区分「被服务器掐断」「超时」「DNS 解析失败」，而这几类
+    的处置方向完全不同（换端口/换发件服务商/查配置）。这里带上 str(e) 的前
+    100 字符：smtplib 的异常文案来自服务端返回或本地 socket 错误，不含我们
+    发出去的凭据（授权码只会出现在 SMTPAuthenticationError 里，那条单独
+    拦截、固定文案，根本不会走到这里）。
+    """
+    reason = " ".join(str(e).split())[:100]
+    if reason:
+        return f"SMTP 发送失败：{type(e).__name__}：{reason}"
+    return f"SMTP 发送失败：{type(e).__name__}"
+
+
 def send_mail(to: str, subject: str, text: str,
               html: str | None = None) -> tuple[bool, str]:
     """发一封邮件。返回 (是否送达, 说明)。
@@ -83,6 +100,12 @@ def send_mail(to: str, subject: str, text: str,
     返回的认证详情，而这段文案会被展示到页面上、也可能进日志。
     只保留异常类型与简短原因，足以定位（认证失败/连不上/被拒），
     不足以泄露凭据。
+
+    连接层失败自动重试一次（2026-10-06）：Streamlit Cloud 的机房在美国，
+    而发件邮箱是国内服务商（smtp.qq.com）——国内邮件服务器对海外
+    数据中心 IP 的连接**间歇性直接掐断**（当天实例：SMTPServerDisconnected，
+    客户的重置码没发出去、被迫转人工）。这类失败是瞬时的，隔两秒重发
+    一次常常就过了；认证失败则重试毫无意义，立即返回。
     """
     conf = smtp_conf()
     if not conf:
@@ -99,25 +122,38 @@ def send_mail(to: str, subject: str, text: str,
     if html:
         msg.attach(MIMEText(html, "html", "utf-8"))
 
-    srv = None
-    try:
-        if conf["port"] == 465:
-            srv = smtplib.SMTP_SSL(conf["host"], conf["port"], timeout=DEFAULT_TIMEOUT)
-        else:
-            srv = smtplib.SMTP(conf["host"], conf["port"], timeout=DEFAULT_TIMEOUT)
-            srv.starttls()
-        srv.login(conf["user"], conf["pwd"])
-        srv.sendmail(conf["sender"], [to], msg.as_string())
-        return True, "已发送"
-    except smtplib.SMTPAuthenticationError:
-        # 最常见且最容易被误判的一种：不是网络问题，是授权码错了/过期。
-        # 报「网络错误」会让人去查网络，方向完全错。
-        return False, "SMTP 认证失败（授权码错误或已过期，请重新生成）"
-    except Exception as e:
-        return False, f"SMTP 发送失败：{type(e).__name__}"
-    finally:
-        if srv is not None:
-            try:
-                srv.quit()
-            except Exception:
-                pass
+    last_note = ""
+    for attempt in (1, 2):
+        srv = None
+        try:
+            if conf["port"] == 465:
+                srv = smtplib.SMTP_SSL(conf["host"], conf["port"],
+                                       timeout=DEFAULT_TIMEOUT)
+            else:
+                srv = smtplib.SMTP(conf["host"], conf["port"],
+                                   timeout=DEFAULT_TIMEOUT)
+                srv.starttls()
+            srv.login(conf["user"], conf["pwd"])
+            srv.sendmail(conf["sender"], [to], msg.as_string())
+            if attempt > 1:
+                print(f"[Mailer] 第 1 次连接失败，第 2 次重试成功（{last_note}）")
+            return True, "已发送"
+        except smtplib.SMTPAuthenticationError:
+            # 最常见且最容易被误判的一种：不是网络问题，是授权码错了/过期。
+            # 报「网络错误」会让人去查网络，方向完全错。重试无意义。
+            return False, "SMTP 认证失败（授权码错误或已过期，请重新生成）"
+        except (smtplib.SMTPServerDisconnected, OSError) as e:
+            # 连接层：被掐断/超时/DNS 失败 —— 值得重试一次
+            last_note = _fail_note(e)
+            if attempt == 1:
+                time.sleep(2)
+        except Exception as e:
+            # 其余（收件人被拒等）：服务端明确拒绝，重试不会变好
+            return False, _fail_note(e)
+        finally:
+            if srv is not None:
+                try:
+                    srv.quit()
+                except Exception:
+                    pass
+    return False, last_note
