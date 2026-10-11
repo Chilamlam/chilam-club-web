@@ -60,7 +60,7 @@ def _notify_new_order(order: dict, user_email: str) -> None:
         f"（{order.get('months', '')} 个月）\n"
         f"- 金额：¥{order.get('amount', 0)}\n"
         f"- 创建时间：{str(order.get('created_at', ''))[:19].replace('T', ' ')}\n\n"
-        "⚠️ **订单 ≠ 已付款**：pending 只代表用户的购买意向。请先在你的个人收款码账单里核对上面这笔金额确实到账，再到「后台管理 → 待确认订单」点确认，VIP 会自动续期累加。未到账请勿确认，超过 24 小时未确认的订单系统会自动作废。"
+        "⚠️ **订单 ≠ 已付款**：pending 只代表用户的购买意向。请先在你的个人收款码账单里核对上面这笔金额确实到账，再到「后台管理 → 待确认订单」点确认，VIP 会自动续期累加。未到账请勿确认。超过 24 小时未确认的订单会被系统自动作废、从待确认列表移出；如果你事后核对发现其实收到了款，在同一页底部的「已超时作废的订单」里点「恢复为待确认」即可补开。"
     )
     try:
         ok, note = admin_notify.notify_admins(title, body)
@@ -393,7 +393,9 @@ if payments_ready and not is_admin_flag:
         if all_payments:
             history_data = []
             for p in all_payments:
-                status_map = {"pending": "⏳ 待付款", "completed": "✅ 已完成", "cancelled": "❌ 已取消"}
+                status_map = {"pending": "⏳ 待付款", "completed": "✅ 已完成",
+                              "cancelled": "❌ 已取消",
+                              "expired": "⌛ 超时未确认（已作废）"}
                 history_data.append({
                     "订单号": p.get("order_no", ""),
                     "套餐": auth.get_plan_display_name(p.get("plan_name", "")),

@@ -155,6 +155,41 @@ with tab_orders:
     else:
         st.info("🎉 暂无待处理订单")
 
+    # --- 已超时作废的订单（可恢复）---
+    # 自动作废只说明「超时未确认」，不说明没付款。若用户其实付了款、只是
+    # 管理员确认晚了，这里必须是能把权益找回来的入口，否则这笔钱变死账。
+    expired_list = database.get_expired_payments(days=14)
+    if expired_list:
+        with st.expander(f"⌛ 已超时作废的订单（近 14 天 · {len(expired_list)} 笔）",
+                         expanded=False):
+            st.caption(
+                "这些订单超过 24 小时未确认收款，已被系统自动作废并从上面的待确认列表移出。"
+                "**若核对收款码账单后发现确实收到过款**，点「↩️ 恢复为待确认」把它退回待确认"
+                "列表，再用「✅ 确认收款」开通 VIP；确实没收到款的不用管。"
+                "（用户自己取消的订单不在此列，那是主动撤回意向。）"
+            )
+            for p in expired_list:
+                u_info = database.get_user_by_id(p["user_id"]) if p.get("user_id") else None
+                u_email = u_info.get("email", "—") if u_info else f"UID:{p.get('user_id')}"
+                plan_d = auth.get_plan_display_name(p.get("plan_name", ""))
+                created = p.get("created_at", "")[:19].replace("T", " ")
+
+                with st.container(border=True):
+                    ec1, ec2, ec3 = st.columns([3, 2, 1.6])
+                    with ec1:
+                        st.markdown(f"**{p.get('order_no', '')}**")
+                        st.caption(f"用户：`{u_email}` | 下单于 {created}")
+                    with ec2:
+                        st.markdown(f"**{plan_d}** · ¥{p.get('amount', 0)}")
+                        st.caption(f"时长：{p.get('months', 1)} 个月")
+                    with ec3:
+                        if st.button("↩️ 恢复为待确认", key=f"restore_{p.get('id')}",
+                                     use_container_width=True):
+                            ok_r, msg_r = database.restore_payment_to_pending(p["id"])
+                            st.session_state["admin_flash"] = (
+                                "ok" if ok_r else "err", msg_r)
+                            st.rerun()
+
     # --- 已完成订单历史 ---
     st.markdown("---")
     with st.expander("📜 已完成订单历史", expanded=False):

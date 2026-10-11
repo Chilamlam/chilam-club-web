@@ -493,6 +493,28 @@ def get_pending_payments() -> List[Dict[str, Any]]:
     res = _supabase_request("GET", "payments", params=params)
     return res if isinstance(res, list) else []
 
+def get_expired_payments(days: int = 14, limit: int = 30) -> List[Dict[str, Any]]:
+    """获取近 days 天内被系统自动作废的订单 (管理员用)。
+
+    为什么必须单独列出来：自动作废只说明「超时未确认」，**不说明没付款**。
+    若用户其实付了款、只是管理员确认晚了，这笔钱对应的权益必须还能找回来，
+    所以后台必须看得见它们，否则等于要管理员凭记忆去补开。
+
+    只认 status=expired（系统超时作废），不含用户自己取消的 cancelled——
+    后者是用户主动撤回意向，混进「待核对」清单只会让管理员做无用功。
+    """
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    params = {
+        "status": "eq.expired",
+        "created_at": f"gt.{cutoff}",
+        "order": "created_at.desc",
+        "limit": str(limit),
+        "select": "*",
+    }
+    res = _supabase_request("GET", "payments", params=params)
+    return res if isinstance(res, list) else []
+
+
 def get_user_payments(user_id: int) -> List[Dict[str, Any]]:
     """获取用户订单历史"""
     params = {
@@ -528,6 +550,36 @@ def cancel_payment(payment_id: int) -> bool:
     return not (isinstance(res, list) and len(res) == 0)
 
 
+def restore_payment_to_pending(payment_id: int) -> tuple:
+    """把被系统自动作废(expired)的订单退回 pending，返回 (ok, message)。
+
+    为什么是「恢复」而不是「直接开通」：恢复后管理员仍在标准入口按一次
+    「确认收款」，开通走库里那条事务型 RPC——比任何补开旁路都可靠，
+    而且「已付款」这个判断始终由人来做，不被脚本代替。
+
+    过滤条件里带 status=eq.expired 是**原子保护**，不可省：
+    若只按 id 更新，一个已经 completed（VIP 已开通）的订单被退回 pending，
+    管理员再点一次确认就会重复续期——收一笔钱发两次货。
+    """
+    res = _supabase_request(
+        "PATCH", "payments",
+        params={"id": f"eq.{payment_id}", "status": "eq.expired"},
+        json_data={
+            "status": "pending",
+            "note": "管理员核对收款后恢复为待确认（原为超时自动作废），请走标准订单确认流程",
+        },
+        return_error=True)
+    data, err = res if isinstance(res, tuple) else (res, None)
+    if err:
+        return False, f"恢复失败：{str(err.get('message', ''))[:80]}"
+    if not isinstance(data, list) or len(data) == 0:
+        # 零行命中 = 这笔订单当前不是 expired。可能是刚恢复过、或已被确认收款、
+        # 或压根不存在——三种情况都不能当成成功，否则管理员会以为已退回待确认。
+        return False, ("恢复未生效：该订单当前不是「已超时作废」状态"
+                       "（可能已恢复过、或已确认收款）。请刷新后核对。")
+    return True, "已恢复为待确认，请在上方待确认列表用「✅ 确认收款」开通 VIP"
+
+
 def confirm_payment(payment_id: int, admin_id: int = None) -> Optional[Dict[str, Any]]:
     """
     确认收款 + 自动续期 VIP (累加逻辑)
@@ -537,7 +589,15 @@ def confirm_payment(payment_id: int, admin_id: int = None) -> Optional[Dict[str,
     if not payment:
         return {"ok": False, "error": "订单不存在"}
     if payment.get("status") != "pending":
-        return {"ok": False, "error": f"订单状态为 {payment.get('status')}，非 pending"}
+        st_now = payment.get("status")
+        if st_now == "expired":
+            # 超时自动作废的单不能直接确认：先恢复为待确认再走标准流程，
+            # 否则就会绕到 REST 兜底分支，那也是重复续期的入口。
+            return {"ok": False,
+                    "error": "该订单已超时自动作废，不能直接确认。若已核对到款，"
+                             "请先在下方「⌛ 已超时作废的订单」里点「↩️ 恢复为待确认」，"
+                             "再回到待确认列表点确认收款。"}
+        return {"ok": False, "error": f"订单状态为 {st_now}，非 pending"}
 
     user_id = payment["user_id"]
     plan_name = payment["plan_name"]
@@ -945,16 +1005,20 @@ def expire_stale_pending_payments(hours: int = 24) -> tuple:
     不代表钱真的到了。没有这条清理，僵尸单会永久堆积在待确认列表里，
     每次巡检都要人工分辨「付了没确认」还是「压根没付」。
 
-    作废是可恢复的：如果用户实际已付款只是确认晚了，管理员可在后台
-    用「手动开通/续期」补开——该路径不依赖订单状态。
+    作废是**可恢复**的，而且恢复路径必须是真能走通的：状态写 expired
+    （不是 cancelled——那代表用户主动取消，两种语义不能混），后台
+    「已超时作废订单」区会列出它们，管理员核对收款码账单后确认确实收到款，
+    点「恢复为待确认」退回 pending，再走标准确认流程开通 VIP。
+    若用户其实没付款，什么都不用做，它不会再回到待确认列表。
     """
     cutoff = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
     res, err = _supabase_request(
         "PATCH", "payments",
         params={"status": "eq.pending", "created_at": f"lt.{cutoff}"},
         json_data={
-            "status": "cancelled",
-            "note": f"超过{hours}小时未确认收款，系统自动作废（如已付款请管理员手工开通）",
+            "status": "expired",
+            "note": f"超过{hours}小时未确认收款，系统自动作废；"
+                    f"如核对账单后确认已付款，请在后台「已超时作废的订单」里恢复为待确认",
         },
         return_error=True)
     if err:
