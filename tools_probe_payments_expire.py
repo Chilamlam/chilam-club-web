@@ -55,7 +55,9 @@ import os
 import sys
 import time
 import tomllib
+import urllib.error
 import urllib.parse
+import urllib.request
 from datetime import datetime, timedelta, timezone
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -265,20 +267,31 @@ def raw_request(method: str, endpoint: str, params: dict = None,
                 json_data=None, retries: int = 8):
     """独立 raw 请求（curl 子进程），与被测函数分开，避免同源实现互相掩盖。
 
-    为什么走 curl 不走 urllib：本机 urllib→Supabase 存在长 TLS 坏窗口
-    （2026-10-06/07 实测），urllib 全灭时 curl 偶有单次成功；外呼一律 curl。
+    为什么双通道（curl 主 + urllib 备）：本机到 Supabase 的两条 TLS 栈会
+    交替被掐——2026-10-06/07 是 urllib 全灭、curl 勉强能通；2026-10-11 深夜
+    反过来，curl 稳定报 `Recv failure: Connection was reset`（rc=35），
+    同刻 urllib 秒过 200。只挂一条通道时，「测试工具自己连不上」会被记成
+    「功能坏了」——探针谎报比漏报更坏。所以两条都试，两条都失败才返回 None，
+    调用方必须记 UNVERIFIED，不得记 FAIL。
     """
     import subprocess
     url = (os.environ["SUPABASE_URL"].rstrip("/") + "/rest/v1/" + endpoint)
     if params:
         url += "?" + "&".join(f"{k}={urllib.parse.quote(str(v))}"
                               for k, v in params.items())
-    base = ["curl", "-sS", "-i", "--max-time", "20",
-            "-H", f"apikey: {os.environ['SUPABASE_KEY']}",
-            "-H", f"Authorization: Bearer {os.environ['SUPABASE_KEY']}",
-            "-H", "Content-Type: application/json",
-            "-H", "Prefer: return=representation"]
-    for i in range(retries):
+    hdrs = {
+        "apikey": os.environ["SUPABASE_KEY"],
+        "Authorization": f"Bearer {os.environ['SUPABASE_KEY']}",
+        "Content-Type": "application/json",
+        "Prefer": "return=representation",
+    }
+    base = ["curl", "-sS", "-i", "--max-time", "20"]
+    for _k, _v in hdrs.items():
+        base += ["-H", f"{_k}: {_v}"]
+    # curl 一旦被掐是**稳定被掐**（rc=35 连续），让它只试 2 轮就切备通道，
+    # 把完整重试留给备用通道；若 curl 本来就通，2 轮内必然成功。
+    curl_tries = min(retries, 2)
+    for i in range(curl_tries):
         cmd = ["curl", "-X", method] + base
         if json_data is not None:
             cmd += ["-d", json.dumps(json_data)]
@@ -307,9 +320,46 @@ def raw_request(method: str, endpoint: str, params: dict = None,
             except json.JSONDecodeError:
                 print(f"  [parse] body 异常：{body[:120]!r}")
                 return None
-        print(f"  [HTTP {status}] {out[:150]!r}")
-        time.sleep(5)
+        time.sleep(4)
+    print(f"  [curl] {curl_tries} 次未成功（{method} {endpoint}）"
+          f"rc={r.returncode} {(r.stderr or '').strip()[:90]!r} → 切 urllib 备用通道")
+
+    # ---- 通道 2：urllib（备用） ----
+    for i in range(retries):
+        try:
+            req = urllib.request.Request(url, method=method, headers=hdrs)
+            if json_data is not None:
+                req.data = json.dumps(json_data).encode("utf-8")
+            with urllib.request.urlopen(req, timeout=20) as resp:
+                print(f"  [via urllib] {method} {endpoint} -> {resp.status}")
+                body_u = resp.read().decode("utf-8")
+                return json.loads(body_u) if body_u.strip() else None
+        except urllib.error.HTTPError as e:
+            print(f"  [HTTP {e.code}] {e.read().decode('utf-8', 'replace')[:150]}")
+            return None
+        except Exception as e:
+            if i == retries - 1:
+                print(f"  [urllib last] {type(e).__name__}: {str(e)[:90]}")
+            time.sleep(4)
+
+    print(f"  [both channels failed] {method} {endpoint}")
     return None
+
+
+class NetworkGap(RuntimeError):
+    """两条通道都取不到数据：测试环境断网，不是被测功能失败。"""
+
+
+def _need(payload, label: str):
+    """读取类断言的前置检查：取不到就抛 NetworkGap（调用方记 UNVERIFIED）。
+
+    为什么不能把 None 当失败：`raw_request` 返回 None 只意味着「两条通道都
+    没把数据拿回来」，与「库里那一行状态不对」是两件完全不同的事。把前者
+    记成 FAIL，就是探针在谎报功能坏了。
+    """
+    if payload is None:
+        raise NetworkGap(label)
+    return payload
 
 
 TAG = "PROBE-EXP-" + datetime.now(timezone.utc).strftime("%H%M%S")
@@ -351,7 +401,9 @@ def online_checks() -> bool:
             print("UNVERIFIED  作废请求失败，跳过后续断言")
             return False
 
-        rows = raw_request("GET", "payments", params={"order_no": f"like.{TAG}*"})
+        rows = _need(
+            raw_request("GET", "payments", params={"order_no": f"like.{TAG}*"}),
+            "B2-B4 读取测试单")
         by_no = {r["order_no"]: r for r in (rows or [])}
         old_row = by_no.get(TAG + "-OLD")
         new_row = by_no.get(TAG + "-NEW")
@@ -377,11 +429,13 @@ def online_checks() -> bool:
 
         # ---- B7/B8/B9：恢复链路 ----
         if not old_row:
-            check("B7 恢复前能取到订单 id", False, "订单行缺失")
+            check("B7pre 恢复前能读到测试单 id", False, "读取成功但该行不存在")
             return False
         ok_r, msg_r = database.restore_payment_to_pending(old_row["id"])
         check("B7 恢复为待确认成功", ok_r is True, f"ok={ok_r}, msg={msg_r}")
-        back = raw_request("GET", "payments", params={"order_no": f"eq.{TAG}-OLD"})
+        back = _need(
+            raw_request("GET", "payments", params={"order_no": f"eq.{TAG}-OLD"}),
+            "B8 读取恢复后状态")
         check("B8 库里状态确实回到 pending",
               bool(back) and isinstance(back, list) and back[0].get("status") == "pending",
               f"status={(back or [{}])[0].get('status') if back else 'None'}")
@@ -399,9 +453,11 @@ def online_checks() -> bool:
               ok_c is False, f"ok={ok_c}, msg={msg_c}")
 
         # ---- B12/R1：真实僵尸单已清 + 无差别清库反验 ----
-        pend_old = raw_request("GET", "payments",
-                               params={"status": "eq.pending", "select": "id,created_at",
-                                       "created_at": f"lt.{old_iso}"})
+        pend_old = _need(
+            raw_request("GET", "payments",
+                        params={"status": "eq.pending", "select": "id,created_at",
+                                "created_at": f"lt.{old_iso}"}),
+            "B12 读取残留 pending")
         check("B12 无 24h 前的残留 pending（真实僵尸单已清）",
               isinstance(pend_old, list) and len(pend_old) == 0,
               f"残留 {len(pend_old or [])} 笔")
@@ -409,12 +465,18 @@ def online_checks() -> bool:
         n2, err2 = database.expire_stale_pending_payments(hours=24 * 365)
         check("R1 hours=365天时零作废（防无差别清库的假实现）",
               not err2 and n2 == 0, f"n2={n2}, err2={err2}")
-        again = raw_request("GET", "payments", params={"order_no": f"eq.{TAG}-NEW"})
+        again = _need(
+            raw_request("GET", "payments", params={"order_no": f"eq.{TAG}-NEW"}),
+            "R2 读取新鲜单")
         check("R2 新鲜单仍然 pending",
               bool(again) and isinstance(again, list)
               and again[0].get("status") == "pending",
               str((again or [{}])[0].get("status")))
         return True
+    except NetworkGap as e:
+        print(f"UNVERIFIED  两条通道都取不到数据（{e}），本次未完成核验；"
+              f"这不是功能失败，重跑即可")
+        return False
     finally:
         for suffix in ("-OLD", "-NEW", "-CAN"):
             raw_request("DELETE", "payments", params={"order_no": f"eq.{TAG}{suffix}"})
