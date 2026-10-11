@@ -63,6 +63,8 @@ BACKFILL_EXTRA_PASS = "extra_pass"
 #   scorecard 用 tushare 重建 RPS 榜，无此限制。
 # ---------------------------------------------------------------------------
 STEPS: list[dict] = [
+    {"key": "expire_orders", "script": "daily_expire_orders.py", "label": "订单过期清理",
+     "backfill": BACKFILL_NONE, "timeout": 300},
     {"key": "rps", "script": "daily_rps_pro.py", "label": "RPS 强势股",
      "backfill": BACKFILL_NONE, "timeout": 1800},
     {"key": "etf", "script": "daily_etf_pro.py", "label": "ETF 榜单",
@@ -108,7 +110,7 @@ FRESHNESS: list[tuple[str, str]] = [
                  "print(d['date'],'涨停',d['total_count'],'家 最高',d['max_height'],'板')"),
     ("情绪派生", "import json;d=json.load(open('data/sentiment/derived.json',encoding='utf-8'));"
                  "p=d.get('phase') or {};print(d['status'],d['date'],'归档',d['archive_days'],"
-                 "'天 | 周期',p.get('phase','—'),'| 验证条件',len(d.get('verification_plan') or []),'条')"),
+                 "'天 | 周期',p.get('phase','—'),'| 基准',(p.get('thresholds') or {}).get('method','—'),'| 验证条件',len(d.get('verification_plan') or []),'条')"),
     ("战绩绩效", "import json;d=json.load(open('data/scorecard/performance.json',encoding='utf-8'));"
                  "a=d.get('archive') or {};print(d['status'],'| 区间',a.get('date_from','—'),'~',"
                  "a.get('date_to','—'),a.get('trade_days','—'),'个交易日 | 策略',"

@@ -60,7 +60,7 @@ def _notify_new_order(order: dict, user_email: str) -> None:
         f"（{order.get('months', '')} 个月）\n"
         f"- 金额：¥{order.get('amount', 0)}\n"
         f"- 创建时间：{str(order.get('created_at', ''))[:19].replace('T', ' ')}\n\n"
-        "收到款后请到「后台管理 → 待确认订单」点确认，VIP 会自动续期累加。"
+        "⚠️ **订单 ≠ 已付款**：pending 只代表用户的购买意向。请先在你的个人收款码账单里核对上面这笔金额确实到账，再到「后台管理 → 待确认订单」点确认，VIP 会自动续期累加。未到账请勿确认，超过 24 小时未确认的订单系统会自动作废。"
     )
     try:
         ok, note = admin_notify.notify_admins(title, body)

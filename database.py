@@ -936,3 +936,27 @@ def mark_reset_request_handled(request_id: int) -> bool:
         json_data={"handled_at": datetime.now(timezone.utc).isoformat()},
         return_error=True)
     return not err
+
+def expire_stale_pending_payments(hours: int = 24) -> tuple:
+    """把超过 hours 小时仍未确认的 pending 订单作废，返回 (作废条数, err)。
+
+    为什么需要：本站支付是「用户扫码 → 管理员人工对账 → 后台确认」
+    的半人工流程，订单在 pending 状态只代表「用户表达了购买意向」，
+    不代表钱真的到了。没有这条清理，僵尸单会永久堆积在待确认列表里，
+    每次巡检都要人工分辨「付了没确认」还是「压根没付」。
+
+    作废是可恢复的：如果用户实际已付款只是确认晚了，管理员可在后台
+    用「手动开通/续期」补开——该路径不依赖订单状态。
+    """
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+    res, err = _supabase_request(
+        "PATCH", "payments",
+        params={"status": "eq.pending", "created_at": f"lt.{cutoff}"},
+        json_data={
+            "status": "cancelled",
+            "note": f"超过{hours}小时未确认收款，系统自动作废（如已付款请管理员手工开通）",
+        },
+        return_error=True)
+    if err:
+        return 0, err
+    return (len(res) if isinstance(res, list) else 0), None
