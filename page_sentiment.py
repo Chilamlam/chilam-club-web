@@ -38,6 +38,27 @@ def _pct(v, digits: int = 1, sign: bool = False) -> str:
     return f"{f:+.{digits}f}%" if sign else f"{f:.{digits}f}%"
 
 
+def _threshold_caption(phase: dict, th: dict) -> str:
+    """
+    把判定基准摊开写——不带基准的判断无法核对，也看不出档位是否失衡。
+
+    旧版阈值（45/30/15）的问题恰恰是「看不出来」：它一样显示得漂漂亮亮，
+    但 36 天里 97% 的日子被归进退潮/冰点，而页面上没有任何一处能让你发现
+    门槛与真实分布不同刻度。
+    """
+    r12 = phase.get("r12")
+    cur = f"当前晋级率 {r12 * 100:.1f}%" if isinstance(r12, (int, float)) else ""
+    if th.get("method") == "percentile":
+        span = f"{th.get('window_from', '—')}~{th.get('window_to', '—')}"
+        return (f"📐 判定基准（自适应）：近 {th.get('samples', 0)} 个交易日晋级率分位"
+                f"（{span}）→ 发酵 ≥{th['high'] * 100:.1f}% ｜ "
+                f"分歧 ≥{th['mid'] * 100:.1f}% ｜ 退潮 ≥{th['low'] * 100:.1f}% ｜ "
+                f"冰点 <{th['low'] * 100:.1f}%　·　{cur}")
+    if th:
+        return f"📐 判定基准：{th.get('note', '经验阈值')}　·　{cur}"
+    return ""
+
+
 def _render_phase(phase: dict, date: str, prev_date, generated_at) -> None:
     if not phase or phase.get("status") != "ok":
         reason = (phase or {}).get("reason", "派生指标缺失")
@@ -54,6 +75,9 @@ def _render_phase(phase: dict, date: str, prev_date, generated_at) -> None:
         f"</div>",
         unsafe_allow_html=True,
     )
+    cap = _threshold_caption(phase, phase.get("thresholds") or {})
+    if cap:
+        st.caption(cap)
     st.caption(f"⚠️ {phase['note']}")
 
 
@@ -184,8 +208,16 @@ def _render_caliber(derived: dict) -> None:
 **几个必须知道的局限**：
 - **晋级率是事后统计**，它描述的是昨日板今日的接力结果，不是对明日的预测。
   它的价值在于给「情绪是在升温还是降温」一个可量化、可对账的刻度。
-- **归档天数决定可比性**。归档不足 20 个交易日时，"今天 40% 是高还是低" 缺少分位参照，
-  只能看绝对值，不能看历史分位。
+- **档位阈值是自适应的，不是一组固定数字**。四档刻度按「当日之前的历史」晋级率
+  分布取 p80 / p55 / p25（近 60 个交易日），因此会随市场整体强弱自动抬高或降低——
+  市场转强，门槛跟着上移；转弱则下移。**阈值绝不包含当日自身结果**，否则等于
+  用今天的结果去解释今天的定位。
+- **为什么改成自适应**：旧版硬编码 45% / 30% / 15%，是未按真实分布校准的经验值。
+  用 2026-08-10 ~ 10-09 共 35 个交易日实测，1进2 晋级率均值约 15%（最高仅 36%），
+  45% 从未出现，导致「发酵期」永远不会亮起、97% 的日子被判退潮或冰点。阈值必须与
+  真实分布同刻度，否则标签会系统性失真。
+- **归档天数决定可比性**。归档不足 {sm.PHASE_MIN_SAMPLES} 个交易日时，分位估计不可靠，
+  此时回退到一组经验阈值并在基准行明确标注「样本不足」，只看绝对值、不看分位。
 - **连板溢价用的是当日实际涨幅**，包含开盘就跌的情况，所以它衡量的是
   「昨天收盘追进去」的处境，不是「今天低吸」的处境。
 - **周期定位只描述状态，不含参与建议、目标价、止损位或仓位指引。**

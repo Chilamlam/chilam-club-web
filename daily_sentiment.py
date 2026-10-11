@@ -247,8 +247,11 @@ def main() -> None:
     gap = sm.ladder_gap(hist, date_key)
     breadth = sm.profit_effect(breadth_row["mean_pct"], breadth_row["median_pct"],
                                breadth_row["up"], breadth_row["down"])
-    phase = sm.cycle_phase(promo, gap, premium)
-    plan = sm.verification_plan(promo, gap, premium, breadth)
+    # 阈值按「当日之前的历史」算，绝不引用当日自身结果（避免分位自指）
+    thresholds = sm.phase_thresholds(hist, before_date=date_key)
+    phase = sm.cycle_phase(promo, gap, premium, thresholds=thresholds)
+    plan = sm.verification_plan(promo, gap, premium, breadth,
+                                thresholds=thresholds)
 
     ok_flags = [promo.get("status") == "ok", gap.get("status") == "ok",
                 breadth.get("status") == "ok"]
@@ -266,6 +269,7 @@ def main() -> None:
         "ladder_gap": gap,
         "breadth": breadth,
         "phase": phase,
+        "phase_thresholds": thresholds,
         "verification_plan": plan,
     }
     path = sm.save_derived(payload)
@@ -277,6 +281,7 @@ def main() -> None:
         print(f"   1进2 晋级率 {r['rate'] * 100:.1f}% ({r['promoted']}/{r['base']})")
     if phase.get("status") == "ok":
         print(f"   周期定位：{phase['phase']} — {phase['basis']}")
+    print(f"   判定基准：{thresholds['note']}")
     print(f"   明日验证条件 {len(plan)} 条")
 
     if status == "failed":

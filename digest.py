@@ -74,6 +74,11 @@ def section_phase(derived: dict | None) -> tuple[str, str | None]:
     gap = derived.get("ladder_gap") or {}
 
     lines = [f"### 📍 情绪周期：**{ph['phase']}**", f"{ph['basis']}", ""]
+    # 判定基准必须跟着结论一起播报：同一个「退潮期」在固定阈值和自适应阈值下
+    # 含义完全不同，读者看不到基准就无法判断这个标签值不值得信。
+    th = ph.get("thresholds") or {}
+    if th.get("note"):
+        lines.append(f"- 档位基准：{th['note']}")
     if promo:
         lines.append(f"- 1进2 晋级率 **{promo['rate'] * 100:.1f}%**"
                      f"（{promo['promoted']}/{promo['base']}）"

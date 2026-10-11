@@ -230,7 +230,148 @@ def profit_effect(mean_pct: float | None, median_pct: float | None,
     }
 
 
-def cycle_phase(promo: dict, gap: dict, premium: dict) -> dict:
+# ---- 周期阈值：按自身历史分位自适应，而不是写死绝对数字 ----
+
+PHASE_LOOKBACK = 60      # 滚动窗口长度（交易日）
+PHASE_MIN_SAMPLES = 20   # 分位法最低样本数；不足则回退经验阈值
+PHASE_QUANTILES = (0.80, 0.55, 0.25)   # 分别对应 发酵 / 分歧 / 退潮 三档门槛
+PHASE_FALLBACK = (0.21, 0.16, 0.11)    # 归档不足以估分位时的经验阈值
+
+# 归档里首板少于该数目的日子不进分布（样本太小，比率全是噪声）
+PHASE_MIN_BASE = 10
+
+
+def promotion_rate_series(hist: pd.DataFrame,
+                          before_date: str | None = None) -> pd.Series:
+    """
+    重建逐日 1进2 晋级率序列（index = 日期），用于给当日的 r12 定位。
+
+    **只用严格早于 before_date 的交易日**——这是判定基准的方法论底线：
+    阈值若包含当日自身的晋级率，等于用今天的结果解释今天的定位，既没有
+    前瞻价值，也会让标签自指（当日 r12 必然落在自己的分位区间内）。
+    首板样本 < PHASE_MIN_BASE 的日子一并剔除，噪声不进分布。
+    """
+    if hist is None or hist.empty:
+        return pd.Series(dtype="float64")
+
+    h = hist.copy()
+    h["date"] = h["date"].astype(str)
+    if before_date is not None:
+        h = h[h["date"] < str(before_date)]
+    if h.empty:
+        return pd.Series(dtype="float64")
+
+    by_date = {d: g for d, g in h.groupby("date")}
+    dates = sorted(by_date)
+    vals, idx = [], []
+    for i in range(1, len(dates)):
+        first_board = by_date[dates[i - 1]]
+        first_board = first_board[first_board["limit_times"] == 1]
+        base = len(first_board)
+        if base < PHASE_MIN_BASE:
+            continue
+        cur = by_date[dates[i]]
+        cur_map = dict(zip(cur["code"].astype(str), cur["limit_times"]))
+        promoted = sum(1 for c in first_board["code"].astype(str)
+                       if cur_map.get(c, 0) >= 2)
+        vals.append(promoted / base)
+        idx.append(dates[i])
+    if not vals:
+        return pd.Series(dtype="float64")
+    return pd.Series(vals, index=idx, dtype="float64")
+
+
+def phase_thresholds(hist: pd.DataFrame, before_date: str | None = None,
+                     lookback: int = PHASE_LOOKBACK) -> dict:
+    """
+    四档阈值：取「自身历史」的分位，而不是拍一组绝对数字。
+
+    为什么必须自适应：旧版硬编码 45/30/15，是用体感拍的、未经分布校准。
+    用 2026-08-10~10-09 共 35 个交易日实测：1进2 晋级率均值 15.5%、中位 15.4%、
+    最高 36.0%——45% 一次都没出现过，于是「发酵期」永不触发，97% 的日子被判
+    退潮或冰点（判定基准与真实分布不同刻度）。分位阈值让四档都能出现，且随
+    市场整体强弱自动漂移：市场转强，门槛跟着抬高；转弱则自动降低。
+
+    分位塌陷（q80≈q55）时视为样本退化，回退经验阈值——宁可少信息，
+    不要错档位。
+    """
+    series = promotion_rate_series(hist, before_date)
+    n = int(len(series))
+
+    if n >= PHASE_MIN_SAMPLES:
+        window = series.iloc[-lookback:]
+        q_high, q_mid, q_low = (float(window.quantile(q)) for q in PHASE_QUANTILES)
+        if q_high > q_mid > q_low >= 0:
+            return {
+                "method": "percentile",
+                "high": q_high, "mid": q_mid, "low": q_low,
+                "samples": int(len(window)),
+                "lookback": int(lookback),
+                "window_from": str(window.index[0]),
+                "window_to": str(window.index[-1]),
+                "note": (f"自适应阈值：近 {len(window)} 个交易日 1进2 晋级率分位 "
+                         f"p80/p55/p25 = {q_high * 100:.1f}% / {q_mid * 100:.1f}% / "
+                         f"{q_low * 100:.1f}%"),
+            }
+
+    hi, mid, lo = PHASE_FALLBACK
+    return {
+        "method": "fallback",
+        "high": hi, "mid": mid, "low": lo,
+        "samples": n,
+        "lookback": int(lookback),
+        "window_from": None, "window_to": None,
+        "note": (f"样本仅 {n} 个交易日（<{PHASE_MIN_SAMPLES}），暂用经验阈值 "
+                 f"{hi * 100:.0f}% / {mid * 100:.0f}% / {lo * 100:.0f}%，"
+                 f"样本积累后自动切换为分位阈值"),
+    }
+
+
+def _normalize_thresholds(thresholds: dict | None) -> dict:
+    """
+    校验外部传入的阈值：必须严格递减且非负，否则回退经验阈值。
+
+    为什么宁可静默回退也不报错：阈值来自上一个环节的分位计算，一旦被传成
+    NaN / 逆序，会让所有日子滑进同一个档位而不报错——这正是旧版 45/30/15
+    最典型的事故形态（97% 判退潮/冰点却毫无异常提示）。
+    """
+    if isinstance(thresholds, dict):
+        try:
+            h = float(thresholds["high"])
+            m = float(thresholds["mid"])
+            l = float(thresholds["low"])
+            if h > m > l >= 0:
+                out = dict(thresholds)
+                out.update({"high": h, "mid": m, "low": l})
+                return out
+        except (KeyError, TypeError, ValueError):
+            pass
+    hi, mid, lo = PHASE_FALLBACK
+    return {"method": "fallback", "high": hi, "mid": mid, "low": lo,
+            "samples": 0, "lookback": 0, "window_from": None, "window_to": None,
+            "note": "未提供有效阈值，沿用经验阈值"}
+
+
+def classify_phase(r12: float, thresholds: dict | None,
+                   prem: float | None = None) -> str:
+    """
+    档位判定的**唯一真源**：周期定位与验证条件共用，避免同一规则两处实现漂移。
+
+    只有两处生效条件：1进2 晋级率（主轴）与连板溢价（发酵期需要昨日连板
+    仍有正溢价，否则「接力顺畅」与溢价为负互相矛盾）。
+    """
+    th = _normalize_thresholds(thresholds)
+    if r12 >= th["high"] and (prem is None or prem > 0):
+        return "发酵期"
+    if r12 >= th["mid"]:
+        return "分歧期"
+    if r12 >= th["low"]:
+        return "退潮期"
+    return "冰点期"
+
+
+def cycle_phase(promo: dict, gap: dict, premium: dict,
+                thresholds: dict | None = None) -> dict:
     """
     情绪周期定位。只给「当前处于哪一段」的判断依据，不给参与建议、不给仓位。
 
@@ -238,6 +379,10 @@ def cycle_phase(promo: dict, gap: dict, premium: dict) -> dict:
       1进2 晋级率是主轴——它决定次日打板资金愿不愿意继续接力
       连板溢价为负 = 昨日追高的人在亏钱，退潮特征
       梯队断层 = 高度链条断裂
+
+    阈值来源（2026-10-11 修正）：不再写死绝对数字，由 phase_thresholds() 按
+    自身历史分位给出（近 60 日 p80/p55/p25），样本不足时回退经验阈值。
+    旧版硬编码 45/30/15 与真实分布严重不同刻度（详见 phase_thresholds 文档）。
     """
     r12 = None
     rates = (promo or {}).get("rates") or {}
@@ -251,14 +396,23 @@ def cycle_phase(promo: dict, gap: dict, premium: dict) -> dict:
         return {"status": "insufficient",
                 "reason": "1进2 样本不足或缺失，无法定位周期（不做猜测）"}
 
-    if r12 >= 0.45 and (prem is None or prem > 0):
-        phase, desc = "发酵期", "接力顺畅，1进2 晋级率高且昨日连板仍有正溢价"
-    elif r12 >= 0.30:
-        phase, desc = "分歧期", "晋级率中等，资金在分歧中切换，赚钱效应不均匀"
-    elif r12 >= 0.15:
-        phase, desc = "退潮期", "晋级率明显走低，接力开始失败"
+    th = _normalize_thresholds(thresholds)
+    phase = classify_phase(r12, th, prem)
+    pct = r12 * 100
+    hi, mid, lo = th["high"] * 100, th["mid"] * 100, th["low"] * 100
+
+    if phase == "发酵期":
+        desc = (f"接力顺畅，1进2 晋级率 {pct:.1f}% 站上高位阈值 {hi:.1f}%，"
+                f"且昨日连板仍有正溢价")
+    elif phase == "分歧期":
+        desc = (f"晋级率 {pct:.1f}% 处于中位区间（{mid:.1f}%~{hi:.1f}%），"
+                f"资金在分歧中切换，赚钱效应不均匀")
+    elif phase == "退潮期":
+        desc = (f"晋级率 {pct:.1f}% 已跌破中位阈值 {mid:.1f}%，"
+                f"但仍在低位阈值 {lo:.1f}% 之上，接力开始失败")
     else:
-        phase, desc = "冰点期", "晋级率极低，打板链条基本断裂"
+        desc = (f"晋级率 {pct:.1f}% 跌破低位阈值 {lo:.1f}%，"
+                f"打板链条基本断裂")
 
     if has_gap and phase in ("发酵期", "分歧期"):
         desc += "；但梯队存在断层，高度接力并不连续"
@@ -269,29 +423,38 @@ def cycle_phase(promo: dict, gap: dict, premium: dict) -> dict:
         "basis": desc,
         "r12": r12,
         "premium_median": prem,
+        "thresholds": th,
         "note": "周期定位仅描述当前市场状态，不构成参与建议或仓位指引。",
     }
 
 
 def verification_plan(promo: dict, gap: dict, premium: dict,
-                      breadth: dict) -> list[dict]:
+                      breadth: dict, thresholds: dict | None = None) -> list[dict]:
     """
     「明日验证条件」清单：把今晚的判断落成带**今日基准值 + 变动阈值**的可对账条目。
 
     为什么必须带基准值：不带基准的判断第二天无法核对，也就永远无法被证伪，
     这类「怎么说都对」的话术是信任的头号杀手。每条都写清楚
     「今天是多少 / 明天低于或高于多少算什么」，第二天可以逐条打勾。
+
+    晋级率这一条的刻度直接复用 cycle_phase 的阈值（同一个 classify_phase），
+    不再另算一套——同一规则两处实现必然漂移。
     """
     plan = []
     rates = (promo or {}).get("rates") or {}
 
     if "1进2" in rates and rates["1进2"].get("reliable"):
         cur = rates["1进2"]["rate"] * 100
+        th = _normalize_thresholds(thresholds)
+        prem = (premium or {}).get("median_pct") if (premium or {}).get("status") == "ok" else None
+        now = classify_phase(cur / 100, th, prem)
         plan.append({
             "指标": "1进2 晋级率",
-            "今日基准": f"{cur:.1f}%（{rates['1进2']['promoted']}/{rates['1进2']['base']}）",
-            "验证条件": f"明日若跌破 {max(cur - 10, 15):.0f}%，视为接力意愿转弱；"
-                        f"若站上 {min(cur + 10, 60):.0f}%，视为情绪继续发酵",
+            "今日基准": f"{cur:.1f}%（{rates['1进2']['promoted']}/{rates['1进2']['base']}）"
+                        f"，当前档位「{now}」",
+            "验证条件": f"次日跌破 {th['low'] * 100:.1f}% → 冰点期；"
+                        f"跌破 {th['mid'] * 100:.1f}% → 退潮期；"
+                        f"站上 {th['high'] * 100:.1f}% → 发酵期",
             "为什么看它": "首板数量足、样本稳定，是次日资金接力意愿最敏感的前瞻指标",
         })
 
