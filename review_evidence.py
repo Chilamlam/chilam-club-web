@@ -319,7 +319,11 @@ def _evd_sector_table(td: str) -> dict | None:
              f"（上榜第 {t.get('streak')} 天）" for i, t in enumerate(top)]
     ov = sector.get("overlap_count")
     if ov is not None:
-        lines.append(f"- 与上一交易日 Top10 重合 {ov}/{sector.get('overlap_denominator')}（重合少=换脸快）")
+        # 比较对象的称谓用计算层给的 prev_label（措辞唯一真源）：归档有空档时
+        # 它会写成「上一份数据（日期，相隔 N 天）」，这里不能自己写死「上一交易日」。
+        who = sector.get("prev_label") or "上一交易日"
+        lines.append(f"- 与{who} Top10 重合 {ov}/{sector.get('overlap_denominator')}"
+                     f"（重合少=换脸快）")
     return {"title": "当日板块涨幅榜 Top10", "lines": lines,
             "source": "sector_rotation/analysis.json"}
 
@@ -338,7 +342,13 @@ def _evd_new_theme(td: str) -> dict | None:
         lines += [f"- {t['name']}　今日 {_pct(t.get('pct'))} / 5日 {_pct(t.get('pct_5d'))}"
                   for t in fresh]
     else:
-        lines = [f"- Top10 无新面孔（与上一交易日重合 {ov}/{od}）"]
+        if ov is None:
+            # ov 为 None：归档不连续（或不足两日）→ 没有重合度可报。
+            # 绝不能打成「重合 None/None」：那是把「没算」显示成一个怪值。
+            lines = ["- Top10 无新面孔（上一份数据不连续，未计算重合度）"]
+        else:
+            who = sector.get("prev_label") or "上一交易日"
+            lines = [f"- Top10 无新面孔（与{who}重合 {ov}/{od}）"]
     return {"title": "新题材观察素材", "lines": lines,
             "source": "sector_rotation/analysis.json"}
 

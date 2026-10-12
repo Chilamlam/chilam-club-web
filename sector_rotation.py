@@ -6,7 +6,10 @@
 纯 pandas 计算出前端与摘要都直接可用的分析结果 dict：
 
   1. 近 10 个交易日（默认窗口 pct_10d）涨幅 Top N 板块榜
-  2. 榜单与上一交易日的重合度（重合越多越像「主线主升」，重合越少越像「快速轮动」）
+  2. 榜单与上一份归档的重合度（重合越多越像「主线主升」，重合越少越像「快速轮动」）。
+     上一份归档**必须是相邻交易日**才作数：归档可能缺日期（取数被拒收、历史清洗
+     剔除残缺日），跨空档算出的重合度顶不住「上一交易日」这个说法，此时改报
+     「样本不连续」并如实给出相隔天数（见 MAX_PREV_GAP_DAYS）。
   3. 每个上榜板块的连续在榜天数（自该板块进入 Top N 起连续计天）
   4. 周期判读（主升 / 轮动 / 过渡）+ 带基准值的理由与明日观察条件
 
@@ -21,6 +24,7 @@
 """
 from __future__ import annotations
 
+import datetime
 import os
 
 import pandas as pd
@@ -29,6 +33,31 @@ DEFAULT_WINDOW = "pct_10d"
 TOP_N = 10
 WINDOW_COLS = ("pct_5d", "pct_10d", "pct_20d", "pct_60d")
 NUMERIC_COLS = ("close", "pct_chg", *WINDOW_COLS, "amount_yi", "turnover", "up_count", "down_count")
+
+# 「上一份归档」不等于「上一交易日」——为什么必须判相邻、以及阈值怎么定
+# ---------------------------------------------------------------------------
+# 归档按交易日累积，但它**可能缺日期**：跑批取数被拒收（宁缺不写坏）、历史清洗
+# 剔除残缺日、或连续几天失败，都会在 dates 里留下空档。此时 dates[-2] 只是
+# 「上一份数据」，不是「上一交易日」。
+#
+# 拿它算榜单重合度会得到一个跨空档的累计变化，却顶着「与上一交易日重合 x/10」
+# 的说法 —— 数字看着很正常，含义已经完全变了（2026-10-12 实测：归档空档
+# 09-18 → 10-12 相隔 24 天，若照旧计算会输出「与上一交易日（09-18）重合」）。
+#
+# 计算层不联网、拿不到交易日历，只能用**自然日差**判相邻。A 股最长连续休市是
+# 春节（约 9 天）加两端周末，相邻交易日的自然日差上界约 11 天。阈值取 12：
+# **宁可漏判轻微缺口，也不把长假误判成缺口** —— 长假后第一个交易日误报
+# 「样本不连续」是把正常情况说成异常，同样是有害的错告警。
+MAX_PREV_GAP_DAYS = 12
+
+# 「上一交易日」这个说法只在**真正紧邻**时才能用。
+# 周五→周一相隔 3 天，加 1 天余量取 4：超过它就说明中间隔着休市或缺口，
+# 此时如实写「上一份数据（日期，相隔 N 天）」，让读者自己判断这中间隔了什么。
+# 拿自然日差判相邻的**已知局限**（务必如实说，别假装它精确）：它区分不了
+# 「跨长假」和「缺了几个交易日」——09-10 → 09-18 相隔 8 天，可能中间是合法休市，
+# 也可能缺了 5 个交易日。没有交易日历就只能到这个精度；所以退而求其次：
+# 无论如何都**把相隔天数显示出来**，绝不把它藏在一个「上一交易日」的说法后面。
+NORMAL_GAP_DAYS = 4
 
 # 属性型 / 复盘型板块黑名单（子串匹配，刻意保守）。
 # 这些「板块」只是统计口径（昨日涨停、重仓股、互联互通标的…），不是题材主线，
@@ -107,11 +136,52 @@ def top_for_date(history: pd.DataFrame, date: str,
     return d.sort_values(window_col, ascending=False).head(n)
 
 
+def _gap_days(newer: str, older: str) -> int | None:
+    """两个归档日期之间的自然日差（older → newer）。解析失败返回 None。
+
+    返回 None 表示「无法判断是否相邻」，调用方必须按**不可比**处理，
+    不能当作 0（那会把非法日期当成相邻日，正好是最危险的方向）。
+    """
+    try:
+        return (datetime.date.fromisoformat(str(newer))
+                - datetime.date.fromisoformat(str(older))).days
+    except (ValueError, TypeError):
+        return None
+
+
+def _prev_label(prev_date: str, gap: int | None) -> str:
+    """重合度比较对象的**如实称谓**（措辞唯一真源）。
+
+    只有真正紧邻（相隔 ≤ NORMAL_GAP_DAYS）才写「上一交易日」；超过就写
+    「上一份数据（日期，相隔 N 天）」——否则读者会把一个跨空档的重合度
+    当成日间轮动，而它其实是空档期累计变化的对比。
+
+    gap 为 None 表示日期无法解析，此时**绝不能**说「上一交易日」（那等于
+    在没确认相邻的情况下断言相邻，方向正好错在最危险的一侧）。
+    """
+    if gap is None:
+        # 不说「日期无法解析」指向哪个日期——调用方只知道有一端解析不了，
+        # 措辞要避免把责任安到 prev_date 头上（实际可能是 as_of 那一端）。
+        return f"上一份数据（{prev_date}，无法确认相隔天数）"
+    if gap > NORMAL_GAP_DAYS:
+        return f"上一份数据（{prev_date}，相隔 {gap} 天）"
+    return f"上一交易日（{prev_date}）"
+
+
 def compute_streak(history: pd.DataFrame, dates: list[str], end_idx: int,
                    code: str, window_col: str = DEFAULT_WINDOW, n: int = TOP_N) -> int:
-    """连续在榜天数：从 end_idx 当天往回数，连续多少个交易日该板块都在 Top N。"""
+    """连续在榜天数：从 end_idx 当天往回数，连续多少个交易日该板块都在 Top N。
+
+    遇到归档缺口即停：缺日期时「连续」是假的——中间那几个交易日根本没有数据，
+    无从知道该板块当时是否在榜。**宁可少算，不可把「没数据」当成「在榜」**，
+    否则空档越长，streak 虚高得越离谱。
+    """
     streak = 0
     for i in range(end_idx, -1, -1):
+        if i < end_idx:
+            gap = _gap_days(dates[i + 1], dates[i])
+            if gap is None or gap > MAX_PREV_GAP_DAYS:
+                break
         codes = set(top_for_date(history, dates[i], window_col, n)["code"])
         if code in codes:
             streak += 1
@@ -187,13 +257,21 @@ def compute_analysis(history: pd.DataFrame | None, as_of: str | None = None,
     universe_median = (universe[window_col].median()
                        if not universe.empty and universe[window_col].notna().any() else None)
 
-    # ---- 重合度：与上一个可用交易日比 ----
+    # ---- 重合度：与「上一份归档」比，但只有在它确实是上一交易日时才作数 ----
+    # prev_date 始终如实上报（它就是归档里的前一条，读者需要知道上一份数据是哪天）；
+    # 是否**可比**由 prev_is_adjacent 决定，重合度只在可比时给出。
     overlap = None
     prev_date = None
+    prev_gap_days = None
+    prev_is_adjacent = None
     if as_of_idx >= 1:
         prev_date = dates[as_of_idx - 1]
-        prev_codes = set(top_for_date(history, prev_date, window_col, n)["code"])
-        overlap = len(prev_codes & set(top_df["code"]))
+        prev_gap_days = _gap_days(as_of, prev_date)
+        prev_is_adjacent = (prev_gap_days is not None
+                            and prev_gap_days <= MAX_PREV_GAP_DAYS)
+        if prev_is_adjacent:
+            prev_codes = set(top_for_date(history, prev_date, window_col, n)["code"])
+            overlap = len(prev_codes & set(top_df["code"]))
 
     # ---- 明细 + 连续在榜 ----
     rows = []
@@ -223,7 +301,27 @@ def compute_analysis(history: pd.DataFrame | None, as_of: str | None = None,
     wname = window_col.replace("pct_", "")
 
     # ---- 周期判读（启发式，理由必须带数字） ----
-    if overlap is None:
+    if overlap is None and prev_is_adjacent is False:
+        # 归档有空档：上一份数据不是上一交易日。宁可如实说「不连续」，也不硬套
+        # 主升/轮动标签——那两个标签的含义都建立在「日间变化」上，跨空档没有意义。
+        # gap 为 None 是「日期格式无法解析」，与「确实隔了很多天」是两回事，
+        # 文案必须分开说：否则会打出「相隔 None 天」这种无意义的话。
+        if prev_gap_days is None:
+            gap_txt = f"上一份数据是 {prev_date}，但其日期无法解析、无法判断相隔多久"
+        else:
+            gap_txt = f"上一份数据是 {prev_date}，相隔 {prev_gap_days} 天"
+        verdict = {
+            "label": "样本不连续",
+            "reasons": [
+                f"{as_of} 之前归档缺了交易日（{gap_txt}），无法计算榜单重合度——"
+                f"跨空档算出的重合度反映的是这段空档的累计变化，"
+                f"不是「上一交易日轮动」；",
+                f"Top{n} {wname}涨幅中位数 {_fmt(top_median)}%，"
+                f"全市场概念板块中位数 {_fmt(universe_median)}%。",
+            ],
+            "watch": None,
+        }
+    elif overlap is None:
         verdict = {
             "label": "样本不足",
             "reasons": [
@@ -236,7 +334,8 @@ def compute_analysis(history: pd.DataFrame | None, as_of: str | None = None,
         verdict = {
             "label": "主线主升",
             "reasons": [
-                f"Top{n} 与上一交易日（{prev_date}）重合 {overlap}/{n}，榜单高度稳定；",
+                f"Top{n} 与{_prev_label(prev_date, prev_gap_days)}重合 {overlap}/{n}，"
+                f"榜单高度稳定；",
                 f"Top{n} {wname}涨幅中位数 {_fmt(top_median)}%，"
                 f"全市场概念板块中位数 {_fmt(universe_median)}%。",
             ],
@@ -246,7 +345,8 @@ def compute_analysis(history: pd.DataFrame | None, as_of: str | None = None,
         verdict = {
             "label": "快速轮动",
             "reasons": [
-                f"Top{n} 与上一交易日（{prev_date}）重合仅 {overlap}/{n}，领涨板块快速换脸；",
+                f"Top{n} 与{_prev_label(prev_date, prev_gap_days)}重合仅 {overlap}/{n}，"
+                f"领涨板块快速换脸；",
                 f"Top{n} {wname}涨幅中位数 {_fmt(top_median)}%，"
                 f"全市场概念板块中位数 {_fmt(universe_median)}%。",
             ],
@@ -256,7 +356,7 @@ def compute_analysis(history: pd.DataFrame | None, as_of: str | None = None,
         verdict = {
             "label": "过渡/混合",
             "reasons": [
-                f"Top{n} 与上一交易日（{prev_date}）重合 {overlap}/{n}，"
+                f"Top{n} 与{_prev_label(prev_date, prev_gap_days)}重合 {overlap}/{n}，"
                 f"介于主升（≥7）与轮动（≤3）之间，主线与轮动并存；",
                 f"Top{n} {wname}涨幅中位数 {_fmt(top_median)}%，"
                 f"全市场概念板块中位数 {_fmt(universe_median)}%。",
@@ -268,6 +368,14 @@ def compute_analysis(history: pd.DataFrame | None, as_of: str | None = None,
         "status": "ok",
         "date": as_of,
         "prev_date": prev_date,
+        # 上一份归档与 as_of 的自然日差、以及它是否真的是「上一交易日」。
+        # prev_label 是**措辞就绪**的比较对象称谓（唯一真源）：页面、摘要、复盘素材
+        # 一律用它，而不是各自再判一次 gap —— 一份规则两处实现必然漂移，
+        # 哪天阈值改了只会改到一处（这条在项目里已经栽过）。
+        "prev_gap_days": prev_gap_days,
+        "prev_is_adjacent": prev_is_adjacent,
+        "prev_label": (_prev_label(prev_date, prev_gap_days)
+                       if prev_date else None),
         "trade_days_available": len(dates),
         "first_date": dates[0],
         "window_col": window_col,

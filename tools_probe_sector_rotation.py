@@ -11,6 +11,9 @@
 7. 接线完整性：run_daily STEPS、app.py 路由、analysis.json 产物存在且日期新鲜
 8. 排名矩阵：日期列最新在最左、同 rank 跨日可比、板块不足的格子=None（缺失≠0）、
    属性板块不占名次、页面第 1/2/3 名加粗且走 ui_compat 渲染
+9. 重合度只在「上一份归档确实是相邻交易日」时才作数：归档有空档 → 不给重合度、
+   标签改「样本不连续」并如实给出相隔天数；跨空档也不累加连续在榜天数。
+   日期无法解析时必须按「不可比」处理（gap 绝不能退化成 0 = 当成相邻）
 """
 from __future__ import annotations
 
@@ -18,6 +21,7 @@ import ast
 import datetime
 import json
 import os
+import re
 import sys
 
 import pandas as pd
@@ -133,9 +137,13 @@ def test_overlap_verdicts() -> None:
         reason_txt = " ".join(a["verdict"]["reasons"])
         check(f"判读理由带重合数字（{a['verdict']['label']}）",
               f"{a['overlap_count']}/10" in reason_txt, reason_txt[:60])
+        # 必须先断言 watch 是字符串：直接 `"7" in watch` 在 watch 为 None 时抛
+        # TypeError 让**整个探针崩掉**，后面的断言一条都跑不到——造错反验就会
+        # 误报成「断言没抓住」（2026-10-12 实测踩到）。
+        watch = a["verdict"].get("watch")
         check(f"观察条件带阈值（{a['verdict']['label']}）",
-              "7" in a["verdict"]["watch"] and "3" in a["verdict"]["watch"],
-              a["verdict"]["watch"])
+              isinstance(watch, str) and "7" in watch and "3" in watch,
+              str(watch))
         check(f"中位数带数值（{a['verdict']['label']}）",
               a["top_median_pct"] is not None and a["universe_median_pct"] is not None)
 
@@ -158,6 +166,149 @@ def test_streaks() -> None:
     a3 = sr.compute_analysis(pd.DataFrame(rows), as_of="20260827")
     streak3 = {r["code"]: r["streak"] for r in a3["top"]}
     check("三连榜 streak=3", streak3.get("T00") == 3, str(streak3.get("T00")))
+
+
+def _dated(tops_by_date: dict) -> pd.DataFrame:
+    """按 {日期: [(code, pct), ...]} 造归档（日期用生产格式 YYYY-MM-DD）。"""
+    rows = []
+    for d, tops in tops_by_date.items():
+        rows += _rows(d, tops)
+    return pd.DataFrame(rows)
+
+
+def _reasons(a: dict) -> str:
+    return " ".join(a["verdict"]["reasons"])
+
+
+def test_prev_adjacency() -> None:
+    """重合度只在「上一份归档确实是上一交易日」时才作数（2026-10-12 加）。
+
+    背景：归档可能缺日期（取数被拒收、历史清洗剔除残缺日、连续几天失败）。
+    此时 dates[-2] 只是「上一份数据」而非「上一交易日」。照旧计算会得到跨空档的
+    累计变化，却顶着「与上一交易日重合 x/10」的说法——数字正常，含义全变。
+    """
+    base = [(f"T{i:02d}", 20.0 - i) for i in range(12)]
+    # 当日榜单：保留 base 前 6 个（抬到 30 段）+ 6 个新进（压到 15 段），
+    # 两段区间完全隔开，Top10 才恰好是 6 旧 + 4 新 → 重合度确定性为 6。
+    today = ([(c, 30.0 - i) for i, (c, _) in enumerate(base[:6])]
+             + [(f"N{i:02d}", 15.0 - i) for i in range(6)])
+
+    # ---- A 相邻 ----
+    a = sr.compute_analysis(_dated({"2026-08-24": base, "2026-08-25": today}))
+    check("相邻：prev_is_adjacent=True", a.get("prev_is_adjacent") is True,
+          str(a.get("prev_is_adjacent")))
+    check("相邻：gap 如实为 1", a.get("prev_gap_days") == 1, str(a.get("prev_gap_days")))
+    check("相邻：重合度如实为 6", a.get("overlap_count") == 6, str(a.get("overlap_count")))
+    check("相邻：文案写「上一交易日（2026-08-24）」",
+          "上一交易日（2026-08-24）" in _reasons(a), _reasons(a)[:80])
+    check("相邻：prev_label 出现在文案里（措辞唯一真源，不是两处各写一遍）",
+          bool(a.get("prev_label")) and a["prev_label"] in _reasons(a),
+          f"prev_label={a.get('prev_label')}")
+    check("相邻：文案不含「上一份数据」", "上一份数据" not in _reasons(a))
+
+    # ---- B 中等空档：仍可比，但称谓必须改口 ----
+    b = sr.compute_analysis(_dated({"2026-08-14": base, "2026-08-25": today}))
+    check("空档（元断言）：用例 gap 落在 (NORMAL, MAX] 区间，否则没测到目标分支",
+          sr.NORMAL_GAP_DAYS < (b.get("prev_gap_days") or 0) <= sr.MAX_PREV_GAP_DAYS,
+          str(b.get("prev_gap_days")))
+    check("空档：仍判为可比", b.get("prev_is_adjacent") is True,
+          str(b.get("prev_is_adjacent")))
+    check("空档：仍给出重合度", b.get("overlap_count") is not None,
+          str(b.get("overlap_count")))
+    check("空档：文案**不**说「上一交易日」", "上一交易日（" not in _reasons(b),
+          _reasons(b)[:80])
+    check("空档：文案说「上一份数据（2026-08-14，相隔 11 天）」",
+          "上一份数据（2026-08-14，相隔 11 天）" in _reasons(b), _reasons(b)[:95])
+
+    # ---- C 长空档：不给重合度 ----
+    c = sr.compute_analysis(_dated({"2026-08-05": base, "2026-08-25": today}))
+    check("长空档（元断言）：用例 gap 确实 > MAX_PREV_GAP_DAYS",
+          (c.get("prev_gap_days") or 0) > sr.MAX_PREV_GAP_DAYS,
+          str(c.get("prev_gap_days")))
+    check("长空档：prev_is_adjacent=False", c.get("prev_is_adjacent") is False)
+    check("长空档：重合度为 None（不是 0）", c.get("overlap_count") is None,
+          str(c.get("overlap_count")))
+    check("长空档：overlap_denominator 为 None（不是 10）",
+          c.get("overlap_denominator") is None, str(c.get("overlap_denominator")))
+    check("长空档：标签「样本不连续」", c["verdict"]["label"] == "样本不连续",
+          c["verdict"]["label"])
+    check("长空档：不给「明日观察」条件（缺口期无从给）",
+          c["verdict"].get("watch") is None, str(c["verdict"].get("watch")))
+    check("长空档：文案点名相隔天数与上一份数据日期",
+          "相隔 20 天" in _reasons(c) and "2026-08-05" in _reasons(c), _reasons(c)[:95])
+    check("长空档：文案不出现 None", "None" not in _reasons(c))
+    check("长空档：prev_label 也用「上一份数据」措辞（下游摘要据此渲染）",
+          "上一份数据" in (c.get("prev_label") or ""), str(c.get("prev_label")))
+
+    # ---- D 日期无法解析：按不可比处理，绝不能当成相邻（gap 当 0 是最危险的方向）----
+    # 直接单测判据本身：通过 compute_analysis 造这个场景时，非法日期会因字符串
+    # 排序跑到 as_of 位置上，测到的是另一条路径（先前的用例就是这么写歪的）。
+    check("坏日期：_gap_days 对无法解析的输入返回 None（不是 0）",
+          sr._gap_days("2026-08-25", "2026/08/14") is None)
+    check("坏日期：_gap_days 对合法输入如实返回天数",
+          sr._gap_days("2026-08-25", "2026-08-24") == 1)
+    check("坏日期：_gap_days 对空串返回 None",
+          sr._gap_days("2026-08-25", "") is None)
+    check("坏日期：_prev_label 在 gap=None 时不说「上一交易日」",
+          "上一交易日" not in sr._prev_label("2026-08-25", None),
+          sr._prev_label("2026-08-25", None))
+    # 归档里混入非法日期时，整条产物路径也必须判「不可比」而不是「相邻」
+    d = sr.compute_analysis(_dated({"2026-08-24": base, "2026/08/25": today}))
+    check("坏日期：产物 prev_is_adjacent 不为 True（没把非法日期当相邻）",
+          d.get("prev_is_adjacent") is not True, str(d.get("prev_is_adjacent")))
+    check("坏日期：产物 gap 为 None（不是 0）", d.get("prev_gap_days") is None,
+          str(d.get("prev_gap_days")))
+    check("坏日期：文案不出现 None（不能打出「相隔 None 天」）",
+          "None" not in _reasons(d))
+
+    # ---- E 单日归档仍走「样本不足」----
+    e = sr.compute_analysis(_dated({"2026-08-25": today}))
+    check("单日：标签「样本不足」（没被新分支抢走）",
+          e["verdict"]["label"] == "样本不足", e["verdict"]["label"])
+    check("单日：prev_is_adjacent 为 None（无从判断，不是 False）",
+          e.get("prev_is_adjacent") is None, str(e.get("prev_is_adjacent")))
+
+    # ---- F streak 不跨空档累加 ----
+    cont = sr.compute_analysis(_dated({"2026-08-10": base, "2026-08-11": base,
+                                       "2026-08-12": base, "2026-08-13": today}))
+    gapd = sr.compute_analysis(_dated({"2026-08-10": base, "2026-08-11": base,
+                                       "2026-08-12": base, "2026-09-25": today}))
+
+    def _streak_of(res: dict, code: str):
+        return next((r["streak"] for r in res["top"] if r["code"] == code), None)
+
+    s_cont, s_gap = _streak_of(cont, "T00"), _streak_of(gapd, "T00")
+    check("streak（元断言）：连续归档下 T00 的 streak > 1，否则比较无区分度",
+          (s_cont or 0) > 1, str(s_cont))
+    check("streak：跨空档不累加（空档版 < 连续版）",
+          s_gap is not None and s_cont is not None and s_gap < s_cont,
+          f"{s_gap} < {s_cont}")
+
+    # ---- G 常量关系 ----
+    check("常量：NORMAL_GAP_DAYS < MAX_PREV_GAP_DAYS",
+          sr.NORMAL_GAP_DAYS < sr.MAX_PREV_GAP_DAYS,
+          f"{sr.NORMAL_GAP_DAYS} < {sr.MAX_PREV_GAP_DAYS}")
+    check("常量：MAX_PREV_GAP_DAYS >= 11（须覆盖春节/国庆最长休市，"
+          "否则长假后首个交易日会被误报「样本不连续」）",
+          sr.MAX_PREV_GAP_DAYS >= 11, str(sr.MAX_PREV_GAP_DAYS))
+
+    # ---- H 接线：页面标签分支 + 阈值取常量（不许硬编码天数）----
+    # 判「分支存在」不能只搜字符串：把 elif 条件改成永假的比较，字符串照样在文件里，
+    # 分支却已经死了（项目里「名字出现过 ≠ 生效」已经栽过一次）。
+    src = open("page_sector_rotation.py", encoding="utf-8").read()
+    check("页面：有「样本不连续」的 elif 判读分支（是分支，不是仅出现在文案里）",
+          re.search(r'elif\s+label\s*==\s*"样本不连续"\s*:', src) is not None)
+    check("页面：缺口说明用 sr.MAX_PREV_GAP_DAYS（不是硬编码天数）",
+          "sr.MAX_PREV_GAP_DAYS" in src)
+    check("页面：重合度 KPI 的 help 会区分「未计算重合度」",
+          "未计算重合度" in src)
+    ev = open("review_evidence.py", encoding="utf-8").read()
+    n_prev = ev.count('sector.get("prev_label")')
+    check("复盘素材：两处重合度文案都用产物的 prev_label（措辞唯一真源，"
+          "两处各写一遍必然漂移）",
+          n_prev >= 2, f"出现 {n_prev} 次")
+    check("复盘素材：算出重合度的分支先判 None，不会拼出「重合 None/None」",
+          "if ov is None" in ev)
 
 
 def test_insufficient_and_no_data() -> None:
@@ -316,6 +467,7 @@ if __name__ == "__main__":
     test_missing_pct_not_ranked()
     test_overlap_verdicts()
     test_streaks()
+    test_prev_adjacency()
     test_insufficient_and_no_data()
     test_rank_matrix()
     test_layer_purity()

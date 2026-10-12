@@ -181,6 +181,10 @@ def render_sector_rotation_page() -> None:
         st.success(f"📌 周期判读：**{label}**")
     elif label == "快速轮动":
         st.warning(f"📌 周期判读：**{label}**")
+    elif label == "样本不连续":
+        # 归档有空档 → 重合度不可比。这个状态需要人去处理（补数据/查跑批），
+        # 所以用 warning 而不是 info：它不是「样本还在积累」那种等着就好的情形。
+        st.warning(f"📌 周期判读：**{label}**")
     elif label == "样本不足":
         st.info(f"📌 周期判读：**{label}**")
     else:
@@ -191,6 +195,19 @@ def render_sector_rotation_page() -> None:
     if verdict.get("watch"):
         st.caption(f"🔭 明日观察：{verdict['watch']}")
 
+    # 归档缺日期时把「缺了多少」显式说出来：读者据此判断这份判读能不能用来
+    # 对比上一交易日，而不是只看一个笼统的「数据日期」。
+    if data.get("prev_is_adjacent") is False:
+        _gap = data.get("prev_gap_days")
+        _gap_txt = (f"相隔 {_gap} 天" if _gap is not None
+                    else "日期无法解析、无法判断相隔多久")
+        st.caption(
+            f"📎 归档在此前缺了交易日（上一份数据 {data.get('prev_date')}，{_gap_txt}，"
+            f"已超过相邻交易日判据 {sr.MAX_PREV_GAP_DAYS} 天），因此**不计算榜单重合度**、"
+            f"也不给「明日观察」条件：跨空档的重合度反映的是这段空档的累计变化，"
+            f"不是日间轮动。"
+        )
+
     # ---- KPI ----
     overlap = data.get("overlap_count")
     denom = data.get("overlap_denominator") or 10
@@ -199,7 +216,9 @@ def render_sector_rotation_page() -> None:
     c2.metric(
         "Top10 榜单重合度",
         "—" if overlap is None else f"{overlap}/{denom}",
-        help="与上一交易日 Top10 的重合数：≥7 主升，≤3 轮动",
+        help=("与上一交易日 Top10 的重合数：≥7 主升，≤3 轮动"
+              if data.get("prev_is_adjacent") is not False
+              else "归档不连续，未计算重合度（跨空档的比较没有「日间轮动」含义）"),
     )
     c3.metric(
         "Top10 10日涨幅中位数",
