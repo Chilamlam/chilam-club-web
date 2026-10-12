@@ -2,6 +2,9 @@
   "status": "ok",
   "date": "2026-09-18",
   "prev_date": "2026-09-17",
+  "prev_gap_days": 1,
+  "prev_is_adjacent": true,
+  "prev_label": "上一交易日（2026-09-17）",
   "trade_days_available": 12,
   "first_date": "2026-09-03",
   "window_col": "pct_10d",
@@ -131,6 +134,6 @@
     ],
     "watch": "明日重合 ≥7 转主升判读；≤3 转轮动判读。"
   },
-  "generated_at": "cleaned-2026-10-12 (残缺日已剔除，其余口径不变)",
+  "generated_at": "2026-10-12 19:21:42 CST",
   "source": "eastmoney_concept_boards"
 }
