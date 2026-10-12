@@ -88,7 +88,7 @@ STEPS: list[dict] = [
     # 回填 250 个交易日 = 250 次请求，是唯一能在一次跑批里补齐分位窗口的路径；
     # 已被归档且截面完整的日期会跳过，故重复触发不会重复拉取。
     {"key": "industry_signal", "script": "daily_industry_signal.py", "label": "行业信号",
-     "backfill": BACKFILL_INLINE, "backfill_cap": 250, "timeout": 2400},
+     "backfill": BACKFILL_INLINE, "backfill_cap": 600, "timeout": 2400},
     {"key": "sentiment", "script": "daily_sentiment.py", "label": "情绪派生指标",
      "backfill": BACKFILL_INLINE, "backfill_cap": 15, "timeout": 1800},
     {"key": "scorecard", "script": "daily_scorecard.py", "label": "战绩归档与绩效",
@@ -131,6 +131,10 @@ FRESHNESS: list[tuple[str, str]] = [
                  "print(d['status'],d.get('date','—'),'| 行业',d.get('industry_count','—'),"
                  "'个 | 分位窗口',d.get('mv_window_actual','—'),'/',d.get('amt_window_actual','—'),"
                  "'| 命中',d.get('hits_count','—'))"),
+    ("行业回顾", "import json;d=json.load(open('data/industry_signal/history_hits.json',encoding='utf-8'));"
+                 "print(d['status'],d.get('first_date','—'),'~',d.get('last_date','—'),'| 满窗',"
+                 "d.get('trade_days_scanned','—'),'天（跳过',d.get('skipped_short_window','—'),"
+                 "'天）| 命中',d.get('total_hits','—'),'次 | 空命中',d.get('empty_days','—'),'天')"),
 ]
 
 
@@ -238,6 +242,10 @@ DATE_PROBES: list[tuple[str, str, str]] = [
     # 行业信号每次跑批都会写 signal.json，它的 date 是本步骤自己锚定的交易日；
     # 与批内其它产物不一致即说明本步骤没跑到当日（或归档残缺被拒收后沿用旧信号）。
     ("行业信号", "data/industry_signal/signal.json", "json:date"),
+    # 历史回顾的 last_date 取「最后一个分位窗口满额的交易日」，也就是归档的最后一个
+    # 交易日。它和 signal.json 的 date 由同一份归档算出，理应恒等——所以这条入列后，
+    # 一旦归档没更新而 signal 更新了（或反过来），机器会点名，不必等人比对两个文件。
+    ("行业回顾", "data/industry_signal/history_hits.json", "json:last_date"),
 ]
 
 

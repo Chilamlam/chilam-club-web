@@ -48,6 +48,7 @@ SCRIPT.write_text(
     "fx = json.load(open(os.environ['ISIG_PROBE_FIXTURE'], encoding='utf-8'))\n"
     "p.load_signal = lambda: fx['sig']\n"
     "p.load_history = lambda: None\n"
+    "p.load_history_hits = lambda: fx.get('hits')\n"
     "class _A:\n"
     "    @staticmethod\n"
     "    def is_logged_in(): return bool(fx.get('logged_in'))\n"
@@ -69,6 +70,7 @@ BOTH.write_text(
     "fx = json.load(open(os.environ['ISIG_PROBE_FIXTURE'], encoding='utf-8'))\n"
     "p.load_signal = lambda: fx['sig']\n"
     "p.load_history = lambda: None\n"
+    "p.load_history_hits = lambda: fx.get('hits')\n"
     "class _A:\n"
     "    @staticmethod\n"
     "    def is_logged_in(): return False\n"
@@ -149,11 +151,62 @@ def _mk_sig(inds=None, mv_max=30.0, amt_min=80.0, max_picks=3,
     return sig
 
 
+def _mk_hit_record(date, code, name, l1="一级甲", mv=5.0, amt=97.5,
+                   pct=1.0, fwd=None, excess=None):
+    return {"date": date, "code": code, "name": name, "l1_name": l1,
+            "mv_share": 0.5, "mv_pct": mv, "amt_share": 0.6, "amt_pct": amt,
+            "pct_chg": pct, "close": 100.0,
+            "fwd": {"1": 1.0, "3": 3.03, "5": 5.1, "10": None} if fwd is None else fwd,
+            "excess": {"1": 0.8, "3": 2.53, "5": 4.3, "10": None} if excess is None else excess}
+
+
+def _mk_hits(records=None, empty_days=2, stats=None, **extra):
+    """历史回顾 fixture。
+
+    特意让 T+10 全为 None（n=0）：页面必须把它显示成「—」而不是 0 或 NaN——
+    把「还没到期」显示成「涨跌为零」会让整张统计表悄悄失真。
+    """
+    records = [_mk_hit_record("20261008", "SW01.SI", "甲行业"),
+               _mk_hit_record("20261009", "SW02.SI", "乙行业",
+                              fwd={"1": 2.0, "3": 4.0, "5": 6.0, "10": None},
+                              excess={"1": 1.8, "3": 3.5, "5": 5.2, "10": None})] \
+        if records is None else records
+    dates = sorted({r["date"] for r in records})
+    hits = {
+        "status": "ok", "forward_days": [1, 3, 5, 10],
+        "mv_window": 250, "amt_window": 20,
+        "thresholds": {"mv_pct_max": 30.0, "amt_pct_min": 80.0, "max_picks": 3},
+        "first_date": "20250922", "last_date": "20261009",
+        "trade_days_total": 600,
+        "trade_days_scanned": len(dates) + empty_days if dates else empty_days,
+        "skipped_short_window": 249, "calendar_gaps": 0,
+        "industry_count": 124, "hit_days": len(dates),
+        "empty_days": empty_days, "total_hits": len(records),
+        "stats": stats if stats is not None else {
+            "1": {"n": 2, "mean": 1.0, "median": 1.0, "win_rate": 100.0, "n_paired": 2,
+                  "mean_bench": 0.2, "mean_excess": 0.8, "excess_win_rate": 100.0},
+            "3": {"n": 2, "mean": 3.03, "median": 3.03, "win_rate": 100.0, "n_paired": 2,
+                  "mean_bench": 0.5, "mean_excess": 2.53, "excess_win_rate": 100.0},
+            "5": {"n": 2, "mean": 5.1, "median": 5.1, "win_rate": 100.0, "n_paired": 2,
+                  "mean_bench": 0.8, "mean_excess": 4.3, "excess_win_rate": 100.0},
+            "10": {"n": 0, "mean": None, "median": None, "win_rate": None, "n_paired": 0,
+                   "mean_bench": None, "mean_excess": None, "excess_win_rate": None},
+        },
+        "bench_by_date": {d: {"1": 0.2, "3": 0.5, "5": 0.8} for d in dates},
+        "records": records,
+    }
+    hits.update(extra)
+    return hits
+
+
 def render(sig, reference_date="", logged_in=False, vip=False,
-           session_state=None, script=None, timeout=180):
+           session_state=None, script=None, timeout=180, hits="__none__"):
     FIXTURE.write_text(json.dumps(
         {"sig": sig, "reference_date": reference_date,
-         "logged_in": logged_in, "vip": vip}, ensure_ascii=False), encoding="utf-8")
+         "logged_in": logged_in, "vip": vip,
+         # "__none__" 表示「产物文件不存在」，与显式的 None/空表区分开
+         "hits": None if hits == "__none__" else hits}, ensure_ascii=False),
+        encoding="utf-8")
     os.environ["ISIG_PROBE_FIXTURE"] = str(FIXTURE)
     at = AppTest.from_file(str(script or SCRIPT), default_timeout=timeout)
     for k, v in (session_state or {}).items():
@@ -534,6 +587,181 @@ def test_app_wiring() -> None:
           re.search(r"明日验证条件\s*→\s*\*?\*?行业信号", src.replace("\n", " ")) is not None)
 
 
+def table_at(at, i: int = 0):
+    """第 i 个 dataframe 的 CSV 文本（Styler 与裸 DataFrame 都支持）。"""
+    if len(at.dataframe) <= i:
+        return None
+    v = at.dataframe[i].value
+    if hasattr(v, "data"):
+        v = v.data
+    try:
+        return v.to_csv(index=False)
+    except Exception:                                   # noqa: BLE001
+        return str(v)
+
+
+HISTFULL_KEY = "isig_hist_full_only"
+HIST_TITLE = "历史命中回顾"
+
+
+def test_history_hits_section() -> None:
+    """历史回顾节：四种「没有」分得开、缺值不补 0、与当日结论互不牵连。"""
+    # ---- 正常路径 ----
+    at = render(_mk_sig(), hits=_mk_hits())
+    check("历史回顾：正常路径无渲染异常", not at.exception,
+          str(at.exception[0].message) if at.exception else "")
+    tx = texts(at)
+    check("历史回顾：渲染出小节标题", HIST_TITLE in tx)
+    check("历史回顾：点明这是事后回算、不是回测",
+          "不是策略回测" in tx, tx[:0])
+    check("历史回顾：写明回算区间两端日期",
+          "20250922" in tx and "20261009" in tx)
+    check("历史回顾：写明满窗交易日数（2 条记录 + 2 天空命中 = 4 天）",
+          "共 **4** 个交易日" in tx, [l for l in tx.splitlines() if "个交易日" in l][:1])
+    check("历史回顾：如实说明被跳过的窗口不足天数（249 天）",
+          "249" in tx and "未纳入回算" in tx)
+    check("历史回顾：写明空命中天数也计入统计基数",
+          "空命中" in tx and "有效样本" in tx)
+
+    # ---- 统计表 ----
+    st_csv = table_at(at, 1)
+    check("历史回顾：统计表存在", bool(st_csv))
+    if st_csv:
+        check("历史回顾：统计表 4 行（T+1/3/5/10）",
+              st_csv.count("\n") == 5, str(st_csv.count("\n")))
+        check("历史回顾：统计表列齐全",
+              all(c in st_csv.splitlines()[0] for c in
+                  ("观察窗口", "样本数", "平均涨跌", "中位涨跌", "上涨占比",
+                   "同期基准", "平均超额", "跑赢基准占比")), st_csv.splitlines()[0])
+        line1 = next((l for l in st_csv.splitlines() if l.startswith("T+1,")), "")
+        check("历史回顾：有样本的窗口显示具体数字（元断言，否则下面 — 断言无区分度）",
+              "+1.00%" in line1 and "—" not in line1, line1)
+        line10 = next((l for l in st_csv.splitlines() if l.startswith("T+10")), "")
+        check("历史回顾：0 样本的窗口数值列显示 —（不是 0、不是 nan）",
+              line10.count("—") >= 6, line10)
+        check("历史回顾：统计表不出现 NaN/nan 字样",
+              "nan" not in st_csv.lower(), st_csv.replace("\n", " | ")[:120])
+        check("历史回顾：样本数为 0 时仍如实显示 0（不是 —）",
+              line10.split(",")[1] == "0", line10)
+
+    # ---- 命中明细表 ----
+    h_csv = table_at(at, 2)
+    check("历史回顾：命中明细表存在", bool(h_csv))
+    if h_csv:
+        head = h_csv.splitlines()[0]
+        check("历史回顾：明细表列齐全",
+              all(c in head for c in ("日期", "行业", "一级行业", "市值分位",
+                                      "热度分位", "当日涨跌", "T+1", "T+3", "T+5",
+                                      "T+10", "超额(T+5)")), head)
+        check("历史回顾：明细表行数 = 记录数（2 条）",
+              h_csv.count("\n") == 3, str(h_csv.count("\n")))
+        lines = h_csv.strip().splitlines()
+        check("历史回顾：明细表按日期倒序（最新的在最上面）",
+              lines[1].startswith("20261009") and lines[2].startswith("20261008"),
+              lines[1][:44])
+        cols10 = lines[1].split(",")
+        check("历史回顾：明细表的 T+10 列显示 —（未到期，不是 0）",
+              len(cols10) > 9 and cols10[9] == "—", str(cols10[6:11]))
+        check("历史回顾：明细表不把缺值写成 0.00%",
+              "0.00%" not in h_csv, h_csv.replace("\n", " | ")[:140])
+
+    # ---- 「只看完整样本」勾选 ----
+    at2 = render(_mk_sig(), hits=_mk_hits(),
+                 session_state={HISTFULL_KEY: True})
+    tx2 = texts(at2)
+    check("历史回顾：勾选后若无样本，如实说「还没产生」而不是「没命中」",
+          "这不是「没命中」" in tx2, [l for l in tx2.splitlines() if "没有" in l][:2])
+    recs = [_mk_hit_record("20261001", "SW03.SI", "丙行业",
+                           fwd={"1": 1.0, "3": 2.0, "5": 3.0, "10": 4.0},
+                           excess={"1": 0.5, "3": 1.0, "5": 1.5, "10": 2.0}),
+            _mk_hit_record("20261009", "SW02.SI", "乙行业")]
+    at3 = render(_mk_sig(), hits=_mk_hits(records=recs),
+                 session_state={HISTFULL_KEY: True})
+    h3 = table_at(at3, 2)
+    check("历史回顾：勾选完整样本后只剩 T+10 已到期的记录",
+          h3 is not None and "20261001" in h3 and "20261009" not in h3,
+          (h3 or "").replace("\n", " | ")[:120])
+    at3b = render(_mk_sig(), hits=_mk_hits(records=recs))
+    check("历史回顾：不勾选时全部记录都在（元断言：勾选确实起了作用）",
+          (table_at(at3b, 2) or "").count("20261009") == 1)
+
+    # ---- 0 命中：有效结论，不是数据缺失 ----
+    at4 = render(_mk_sig(), hits=_mk_hits(records=[]))
+    tx4 = texts(at4)
+    check("历史回顾：0 命中时如实播报「没有任何行业同时满足两条件」",
+          "没有任何行业同时满足两个条件" in tx4)
+    check("历史回顾：0 命中时强调这是有效结论（不是数据缺失）",
+          "有效结论" in tx4 and "不是数据缺失" in tx4)
+    check("历史回顾：0 命中时不渲染统计表与明细表（没样本可统计）",
+          len(at4.dataframe) == 1, str(len(at4.dataframe)))
+
+    # ---- 样本不足 ----
+    at5 = render(_mk_sig(), hits={
+        "status": "insufficient",
+        "reason": "分位窗口满额的交易日仅 11 天（需 250 日市值占比窗口 + 20 日热度窗口），"
+                  "少于出统计所需 20 天",
+        "trade_days_total": 260, "trade_days_scanned": 11})
+    tx5 = texts(at5)
+    check("历史回顾：样本不足时明说「还在积累」并给出已积累天数",
+          "还在积累" in tx5 and "260" in tx5 and "11" in tx5)
+    check("历史回顾：样本不足时不渲染统计表",
+          len(at5.dataframe) == 1, str(len(at5.dataframe)))
+    check("历史回顾：样本不足 ≠ 数据不可用（不显示「暂不可用」）",
+          "历史回顾暂不可用" not in tx5)
+
+    # ---- 数据不可用 ----
+    at6 = render(_mk_sig(), hits={
+        "status": "no_data", "reason": "归档缺收盘价（close），无法计算命中之后的涨跌"})
+    tx6 = texts(at6)
+    check("历史回顾：数据不可用时显示「暂不可用」并给出原因",
+          "历史回顾暂不可用" in tx6 and "收盘价" in tx6)
+    check("历史回顾：数据不可用 ≠ 无命中（不显示 0 命中文案）",
+          "没有任何行业同时满足" not in tx6)
+
+    # ---- 产物不存在 ----
+    at7 = render(_mk_sig())
+    tx7 = texts(at7)
+    check("历史回顾：产物不存在时显示「初始化中」，不冒充「无命中」",
+          "初始化中" in tx7 and "没有任何行业同时满足" not in tx7)
+
+    # ---- 与当日结论互不牵连 ----
+    at8 = render(_mk_sig(inds=[], industries=[]), hits=_mk_hits())
+    tx8 = texts(at8)
+    check("历史回顾：当日明细缺失时历史回顾照常渲染（两块互不牵连）",
+          "结论里没有行业明细" in tx8 and HIST_TITLE in tx8,
+          [l for l in tx8.splitlines() if HIST_TITLE in l][:1])
+
+    # ---- 合规文案 ----
+    check("历史回顾：含「不构成投资建议」", "不构成投资建议" in tx)
+    check("历史回顾：声明历史统计不代表未来收益", "不代表未来收益" in tx)
+    for banned in ("建议买入", "建议卖出", "推荐买入", "可以买入"):
+        check(f"历史回顾：不含正向荐股用语「{banned}」", banned not in tx)
+    for word in ("目标价", "仓位指引"):
+        bad = [ln for ln in tx.splitlines() if word in ln and "不" not in ln]
+        check(f"历史回顾：「{word}」只以否定形态出现", not bad, str(bad)[:140])
+
+
+def test_history_hits_page_wiring() -> None:
+    """页面接线：产物路径、小节调用点、widget key 前缀。"""
+    src = (ROOT / "page_industry_signal.py").read_text(encoding="utf-8")
+    check("页面：定义了 history_hits 产物路径",
+          re.search(r'HITS_PATH\s*=\s*os\.path\.join\([^)]*"history_hits\.json"', src)
+          is not None, "")
+    check("页面：读取产物走 load_history_hits 且带缓存",
+          "def load_history_hits" in src and "@st.cache_data" in src)
+    check("页面：主渲染函数调用了历史回顾节", "render_history_hits()" in src)
+    # 关键结构：历史节必须在 frame 判空分支**之外**，否则当日明细缺失会把历史一起吞掉。
+    # 判据取「调用行的行首缩进」（主函数体 4 空格 vs 分支内 8 空格）。正则必须带
+    # `^[ \t]+`：函数定义行 `def render_history_hits()` 里也有这个名字，
+    # 直接搜名字会匹配到它，取到的是 'def ' 这种莫名其妙的「缩进」。
+    m = re.search(r"^([ \t]+)render_history_hits\(\)", src, re.M)
+    check("页面：历史节渲染调用与 if 同级（缩进 4 空格，不在 frame 判空分支里）",
+          m is not None and m.group(1) == "    ",
+          repr(m.group(1)) if m else "未找到缩进调用")
+    check("页面：历史节的 widget key 有本页前缀",
+          "HISTFULL_KEY" in src and 'HISTFULL_KEY = "isig_' in src)
+
+
 def test_no_duplicate_key_across_pages() -> None:
     """与板块轮动页、收盘摘要页同进程渲染：key 没隔离会抛 StreamlitDuplicateElementKey。"""
     at = render(_mk_sig(), script=BOTH, timeout=300)
@@ -562,6 +790,7 @@ def main() -> int:
                test_stale_trend_selection_fallback, test_subscribe_gate,
                test_public_content_and_disclaimer, test_no_network_and_layer,
                test_widget_keys_prefixed, test_app_wiring,
+               test_history_hits_section, test_history_hits_page_wiring,
                test_no_duplicate_key_across_pages):
         print(f"\n=== {fn.__name__} ===")
         try:

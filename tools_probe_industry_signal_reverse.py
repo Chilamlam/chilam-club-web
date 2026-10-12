@@ -4,7 +4,7 @@
 用法: <stcheck>/python.exe tools_probe_industry_signal_reverse.py
 退出码 0 = 全部断言有效；3 = 存在假断言（改了错却没被抓住）。
 
-一条永不失败的断言等于没有断言。这里用 33 种「造错」方式检验两份主探针
+一条永不失败的断言等于没有断言。这里用 53 种「造错」方式检验两份主探针
 （tools_probe_industry_signal.py 计算层 / tools_probe_industry_signal_page.py
 展示层真渲染）能否抓住。每项都必须报出 ❌ 且命中期望断言，否则说明该断言是假的。
 
@@ -25,8 +25,10 @@
    14) 段落里塞一句「建议买入」                    → 「不出现操作建议词」必须炸
    15) 计算层 import streamlit                     → 「不 import streamlit」必须炸
    22) compute_signal 把命中不等式抄回来            → 「只有 hit_mask 一处实现」必须炸
-   23) 走势窗口长度报成 MV_WINDOW（假装满窗）       → 「窗口长度如实上报」必须炸
-   24) 走势分位改用全期序列算（前视偏差）           → 「无前视偏差」必须炸
+   23) 逐点窗口长度报成 MV_WINDOW（假装满窗）       → 「窗口长度如实上报」必须炸
+   24) 走势自己再写一遍分位循环（绕开唯一真源）      → 「industry_series 走 _rolling_pcts」必须炸
+       （注：23/24 的锚点随 2026-10-12 把「逐点分位」收口进 `_rolling_pcts` 而更新。
+        原 24「走势分位改用全期序列」已被第 35 项完整覆盖——收口后两处共用一个实现。）
 
   daily_industry_signal.py（跑批层）
    16) 去掉 trade_date 自证校验                    → 「返回日期不符→拒收」必须炸
@@ -50,6 +52,32 @@
    31) widget key 去掉本页前缀                      → 「前缀 isig_」必须炸
    32) 展示页 import requests（偷偷联网）            → 「展示页不联网」必须炸
    33) universe_frame 只把 picks 标成命中            → 「命中标记数与 hits_count 相等」必须炸
+
+  industry_signal.py（历史回算 history_hits）
+   34) 逐点分位切片差一位（窗口少取一个元素）        → 「末点与 tail 等价」必须炸
+   35) 逐点分位改用整段序列算（前视偏差）            → 「无前视偏差」必须炸
+   36) 去掉满窗过滤（窗口不满的日也纳入回算）        → 「满窗日数」必须炸
+   37) 被跳过的窗口不足天数报成 0                    → 「窗口不足如实上报」必须炸
+   38) 之后涨跌 shift 方向反了（用了过去的价格）      → 「T+1 = 1.00%」必须炸
+   39) 未来涨跌缺值补 0                              → 「末日记 None」必须炸
+   40) 同期基准改成取单个行业                        → 「全行业等权平均」必须炸
+   41) 超额算成「涨跌 + 基准」                        → 「超额 = 涨跌 − 基准」必须炸
+   42) 空命中天数报成 0                              → 「命中天数 + 空命中天数」必须炸
+   43) 把命中不等式抄回来（绕开 hit_mask）            → 「没有自己写阈值比较」必须炸
+   44) 0 命中时报成 no_data                          → 「0 命中是有效结论」必须炸
+   45) 每日命中不按 max_picks 截断                    → 「每天条数不超过 max_picks」必须炸
+   46) 观察窗口被砍成 T+1/T+3                        → 「观察窗口为 1/3/5/10」必须炸
+
+  daily_industry_signal.py
+   47) 归档保留天数退回 400                          → 「归档保留 600」必须炸
+   48) 回填路径不生成历史回顾产物                    → 「两条 main 路径都调用」必须炸
+
+  page_industry_signal.py（历史回顾节，走 AppTest 真渲染探针）
+   49) 0 命中改说成「数据缺失」                      → 「0 命中时如实播报」必须炸
+   50) 样本不足改说成「暂不可用」                    → 「样本不足明说还在积累」必须炸
+   51) 历史明细表把未到期的窗口补成 0.00%            → 「T+10 列显示 —」必须炸
+   52) 历史节被塞进当日明细分支                      → 「与 if 同级」必须炸
+   53) 统计表把 0 样本的均值显示成 +0.00%            → 「0 样本显示 —」必须炸
 """
 import pathlib
 import subprocess
@@ -230,14 +258,25 @@ CASES = [
      "22) compute_signal 把命中不等式又抄了一遍", "只有 hit_mask 一处实现"),
 
     ("industry_signal.py",
-     "        mv_lens.append(int(len(mw)))",
-     "        mv_lens.append(MV_WINDOW)",
-     "23) 走势窗口长度报声明值（假装满窗）", "窗口长度如实上报"),
+     "        lens.append(int(len(w)))",
+     "        lens.append(window)",
+     "23) 逐点窗口长度报成声明窗口（假装满窗）",
+     "窗口长度按「不超过 window」增长"),
 
     ("industry_signal.py",
-     "        mw = mv_s.iloc[max(0, i - MV_WINDOW + 1): i + 1].dropna()",
-     "        mw = mv_s.dropna()",
-     "24) 走势分位改用全期序列（前视偏差）", "无前视偏差"),
+     "    mv_pcts, mv_lens = _rolling_pcts(mv_s, MV_WINDOW)\n"
+     "    amt_pcts, amt_lens = _rolling_pcts(amt_s, AMT_WINDOW)",
+     "    mv_pcts, mv_lens, amt_pcts, amt_lens = [], [], [], []\n"
+     "    for _i in range(len(mv_s)):\n"
+     "        _w = mv_s.iloc[max(0, _i - MV_WINDOW + 1): _i + 1].dropna()\n"
+     "        mv_pcts.append(percentile_rank(_w, _w.iloc[-1] if len(_w) else None))\n"
+     "        mv_lens.append(int(len(_w)))\n"
+     "    for _i in range(len(amt_s)):\n"
+     "        _w = amt_s.iloc[max(0, _i - AMT_WINDOW + 1): _i + 1].dropna()\n"
+     "        amt_pcts.append(percentile_rank(_w, _w.iloc[-1] if len(_w) else None))\n"
+     "        amt_lens.append(int(len(_w)))",
+     "24) 走势自己再写一遍分位循环（绕开唯一真源，语义等价但两份实现）",
+     "industry_series 也走 _rolling_pcts"),
 
     # ---------- 展示层（AppTest 真渲染探针） ----------
     ("page_industry_signal.py",
@@ -290,6 +329,136 @@ CASES = [
      ' & df["code"].isin({p["code"] for p in (sig.get("picks") or [])})',
      "33) universe_frame 只把 picks 标成命中（图上漏掉其余命中行业）",
      "命中标记数与 hits_count", "calc"),
+
+    # ---------- 计算层：历史回算（history_hits） ----------
+    ("industry_signal.py",
+     "        w = s.iloc[max(0, i - window + 1): i + 1].dropna()\n"
+     "        pcts.append(percentile_rank(w, w.iloc[-1] if len(w) else None))\n"
+     "        lens.append(int(len(w)))",
+     "        w = s.iloc[max(0, i - window + 1): i].dropna()\n"
+     "        pcts.append(percentile_rank(w, w.iloc[-1] if len(w) else None))\n"
+     "        lens.append(int(len(w)))",
+     "34) 逐点分位窗口少取一个元素（切片差一位）", "末点与 tail", "calc"),
+
+    ("industry_signal.py",
+     "        w = s.iloc[max(0, i - window + 1): i + 1].dropna()\n"
+     "        pcts.append(percentile_rank(w, w.iloc[-1] if len(w) else None))\n"
+     "        lens.append(int(len(w)))",
+     "        w = s.dropna()\n"
+     "        pcts.append(percentile_rank(w, s.iloc[i] if not pd.isna(s.iloc[i]) else None))\n"
+     "        lens.append(int(len(w)))",
+     "35) 逐点分位改用整段序列算（前视偏差）", "无前视偏差", "calc"),
+
+    ("industry_signal.py",
+     '    full = long[(long["mv_window_len"] >= MV_WINDOW)\n'
+     '                & (long["amt_window_len"] >= AMT_WINDOW)]',
+     "    full = long",
+     "36) 去掉满窗过滤（窗口不满的交易日也纳入回算）", "满窗日数", "calc"),
+
+    ("industry_signal.py",
+     '        "trade_days_scanned": len(scanned),\n'
+     '        "skipped_short_window": len(skipped),\n'
+     '        "calendar_gaps": len(calendar_gaps),',
+     '        "trade_days_scanned": len(scanned),\n'
+     '        "skipped_short_window": 0,\n'
+     '        "calendar_gaps": len(calendar_gaps),',
+     "37) 被跳过的窗口不足天数报成 0（隐藏样本裁剪）",
+     "窗口不足的天数如实上报", "calc"),
+
+    ("industry_signal.py",
+     "        ratio = close_panel.shift(-n) / close_panel - 1.0",
+     "        ratio = close_panel.shift(n) / close_panel - 1.0",
+     "38) 之后涨跌改成用过去的价格（shift 方向反了）", "T+1 = 1.0", "calc"),
+
+    ("industry_signal.py",
+     '    if f != f or f in (float("inf"), float("-inf")):\n        return None',
+     '    if f != f or f in (float("inf"), float("-inf")):\n        return 0.0',
+     "39) 未来涨跌缺值补 0（「还没到期」被写成「涨跌为零」）",
+     "归档末日的样本全记 None", "calc"),
+
+    ("industry_signal.py",
+     "        bench_map[n] = ratio.mean(axis=1, skipna=True) * 100.0",
+     "        bench_map[n] = ratio.iloc[:, 0] * 100.0",
+     "40) 同期基准改成取单个行业（不是全行业等权平均）",
+     "全体参与行业等权平均", "calc"),
+
+    ("industry_signal.py",
+     '                rec["excess"][str(n)] = None if fv is None or bv is None'
+     " else round(fv - bv, 2)",
+     '                rec["excess"][str(n)] = None if fv is None or bv is None'
+     " else round(fv + bv, 2)",
+     "41) 超额算成「涨跌 + 基准」", "超额逐条 = 涨跌 − 同期基准", "calc"),
+
+    ("industry_signal.py",
+     '        "empty_days": len(scanned) - hit_days,',
+     '        "empty_days": 0,',
+     "42) 空命中天数报成 0（把 0 命中的日子抹掉）", "命中天数 + 空命中天数", "calc"),
+
+    ("industry_signal.py",
+     "    hit_rows = full[hit_mask(full, thresholds)]",
+     '    hit_rows = full[(full["mv_pct"] < MV_PCT_MAX)'
+     ' & (full["amt_pct"] > AMT_PCT_MIN)]',
+     "43) history_hits 里把命中不等式抄回来（绕开唯一真源）",
+     "没有自己写阈值比较", "calc"),
+
+    ("industry_signal.py",
+     '        "status": "ok",\n        "first_date": scanned[0],',
+     '        "status": "no_data" if not records else "ok",\n'
+     '        "first_date": scanned[0],',
+     "44) 0 命中时报成 no_data（有效结论被当成数据缺失）",
+     "0 命中是有效结论", "calc"),
+
+    ("industry_signal.py",
+     "        for _, r in sort_by_priority(g).head(int(max_picks)).iterrows():",
+     "        for _, r in sort_by_priority(g).head(int(max_picks) + 5).iterrows():",
+     "45) 每日命中不按 max_picks 截断",
+     "4 个命中行业时按 max_picks 截断", "calc"),
+
+    ("industry_signal.py",
+     "    fwd_list = sorted({int(n) for n in forward_days if int(n) > 0})",
+     "    fwd_list = [1, 3]",
+     "46) 观察窗口被砍成 T+1/T+3", "观察窗口为 1/3/5/10", "calc"),
+
+    # ---------- 跑批层 ----------
+    ("daily_industry_signal.py",
+     "MAX_HISTORY_DAYS = 600",
+     "MAX_HISTORY_DAYS = 400",
+     "47) 归档保留天数退回 400（可回算天数腰斩）", "归档保留 600", "calc"),
+
+    ("daily_industry_signal.py",
+     '        _report_hits(write_history_hits())\n        print(f"[i] 回填完成',
+     '        print(f"[i] 回填完成',
+     "48) 回填路径不生成历史回顾产物", "两条 main 路径都调用", "calc"),
+
+    # ---------- 展示层：历史回顾节 ----------
+    ("page_industry_signal.py",
+     '            f"📭 这 {scanned} 个交易日里，没有任何行业同时满足两个条件。"',
+     '            f"📭 历史回顾数据缺失。"',
+     "49) 0 命中改说成「数据缺失」", "0 命中时如实播报", "page"),
+
+    ("page_industry_signal.py",
+     "            f\"⏳ 历史回顾还在积累：{hits.get('reason', '样本不足')}。\"",
+     "            f\"⏳ 历史回顾暂不可用：{hits.get('reason', '样本不足')}。\"",
+     "50) 样本不足改说成「暂不可用」（两种没有混了）",
+     "样本不足时明说「还在积累」", "page"),
+
+    ("page_industry_signal.py",
+     '        show[col] = [_fmt_chg((r.get("fwd") or {}).get(str(n))) for r in recs]',
+     '        show[col] = [_fmt_chg((r.get("fwd") or {}).get(str(n)) or 0.0)'
+     " for r in recs]",
+     "51) 历史明细表把未到期的窗口补成 0.00%", "T+10 列显示 —", "page"),
+
+    ("page_industry_signal.py",
+     "    render_history_hits()\n",
+     "    if False:\n        render_history_hits()\n",
+     "52) 历史节被塞进当日明细分支（明细缺失时历史一起消失）",
+     "与 if 同级", "page"),
+
+    ("page_industry_signal.py",
+     '            "平均涨跌": _fmt_chg(s.get("mean")),',
+     '            "平均涨跌": _fmt_chg(s.get("mean") or 0.0),',
+     "53) 统计表把 0 样本的均值显示成 +0.00%（而不是 —）",
+     "0 样本的窗口数值列显示 —", "page"),
 ]
 
 

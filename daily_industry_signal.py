@@ -14,8 +14,18 @@ tushare `sw_daily`（申万行业日线，2021 版）**按 trade_date 取当日�
   3. 东财 push2 对 GitHub Actions 机房 IP 是系统性拒绝（项目前科），
      而 tushare 在 Actions 上稳定可用——本步骤要在跑批里每天跑，这点是决定性的。
 
-单次请求拿一天全量（而非逐行业拉），因此 250 个交易日的回填只需 250 次请求，
-这是 `--backfill` 能在一次跑批里做完的前提。
+单次请求拿一天全量（而非逐行业拉），因此 600 个交易日的回填只需 600 次请求
+（约 5 分钟），这是 `--backfill` 能在一次跑批里做完的前提。
+
+产物（`data/industry_signal/`，一个一个文件，失败原因各不相同，不合并）
+----------------------------------------------------------------------
+  industries.csv    申万二级行业白名单缓存（30 天刷新一次）
+  history.csv       逐日截面归档（占比、分位、涨跌的原料，保留 600 个交易日）
+  signal.json       当日结论（选出了谁 + 全量行业两个分位）
+  history_hits.json 历史命中回顾（每个满窗日选出了谁、之后 T+N 涨跌如何）
+
+后两个分开的理由：当日结论可能"今天没数据"，历史统计可能是"归档还不够长"，
+合成一个文件后任一边出问题都会让另一边在页面上一起消失——而它们本该各自如实显示。
 
 字段单位（tushare 原始 → 本项目归档）
 -------------------------------------
@@ -60,8 +70,13 @@ OUT_DIR = os.path.join("data", "industry_signal")
 HISTORY_PATH = os.path.join(OUT_DIR, "history.csv")
 INDUSTRIES_PATH = os.path.join(OUT_DIR, "industries.csv")
 SIGNAL_PATH = os.path.join(OUT_DIR, "signal.json")
+HITS_PATH = os.path.join(OUT_DIR, "history_hits.json")
 
-MAX_HISTORY_DAYS = 400       # 归档保留交易日数（分位窗口 250 日，留足余量）
+# 归档保留交易日数。600 不是随手取的：历史回顾要求每个交易日都攒满
+# MV_WINDOW(250) 日的分位窗口才可回算，所以「可回算天数 = 归档天数 - 249」
+# 即 600 → 351 天，样本量够看统计；归档只留 400 天则只剩 151 天，偏薄。
+# 再往上加要权衡仓库体积与跑批时长（每 250 天约 5 万行 CSV）。
+MAX_HISTORY_DAYS = 600
 INDUSTRY_CACHE_DAYS = 30     # 白名单缓存有效期（行业分类很少变）
 MIN_WHITELIST = 100          # 白名单条数合理区间，超出说明接口异常
 MAX_WHITELIST = 200
@@ -241,6 +256,39 @@ def write_signal(hist: pd.DataFrame, as_of: str) -> dict:
     return sig
 
 
+def write_history_hits() -> dict:
+    """回算历史命中并落盘 history_hits.json。
+
+    与 signal.json 分成两个文件而不是塞进一个：当日结论与历史统计的失败原因
+    完全不同（前者可能"今天没数据"，后者是"归档还不够长"）。合成一个文件后，
+    任一边出问题都会让另一边在页面上一起消失——而它们本该各自如实显示。
+
+    放在跑批里算（约 45 秒 / 600 天）而不是页面里算：页面每次交互都会重跑脚本，
+    放页面等于每次点勾选框都重算一遍全历史分位。
+    """
+    hits = isig.history_hits(isig.load_history(HISTORY_PATH))
+    hits["generated_at"] = _bj_now().strftime("%Y-%m-%d %H:%M:%S CST")
+    os.makedirs(OUT_DIR, exist_ok=True)
+    with open(HITS_PATH, "w", encoding="utf-8") as f:
+        json.dump(hits, f, ensure_ascii=False, indent=2)
+    return hits
+
+
+def _report_hits(hits: dict) -> None:
+    if hits.get("status") != "ok":
+        print(f"[i] 历史回顾：status={hits.get('status')}"
+              f"（{hits.get('reason') or '—'}）")
+        return
+    print(f"[i] 历史回顾落盘：{hits['first_date']}~{hits['last_date']} "
+          f"满窗 {hits['trade_days_scanned']} 天"
+          f"（跳过窗口不足 {hits['skipped_short_window']} 天）"
+          f"| 命中 {hits['total_hits']} 次 / 空命中 {hits['empty_days']} 天")
+    for n in hits["forward_days"]:
+        s = hits["stats"][str(n)]
+        print(f"    T+{n}: 样本 {s['n']} 平均 {s['mean']}% 胜率 {s['win_rate']}%"
+              f" | 同期基准 {s['mean_bench']}% 超额 {s['mean_excess']}%")
+
+
 def _report(sig: dict) -> None:
     print(f"[i] 信号落盘：status={sig.get('status')} date={sig.get('date')} "
           f"行业数={sig.get('industry_count')} 命中={sig.get('hits_count')}")
@@ -319,6 +367,10 @@ def main() -> int:
             return 2
         sig = write_signal(read_history(), target_trade_date(pro))
         _report(sig)
+        # 历史回顾是同一份归档的派生统计，刻意不用 try 兜住：它算不出来说明
+        # 代码或归档有问题，让整步响亮地失败（页面上的日期一致性也会点名），
+        # 而不是打一行容易被忽略的警告后照常返回 0。
+        _report_hits(write_history_hits())
         print(f"[i] 回填完成：成功 {ok} 天，失败 {bad} 天")
         return 0
 
@@ -350,6 +402,7 @@ def main() -> int:
 
     sig = write_signal(full, ds)
     _report(sig)
+    _report_hits(write_history_hits())
     return 0
 
 

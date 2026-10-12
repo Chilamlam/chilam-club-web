@@ -45,6 +45,23 @@
 - `hit_mask()`  命中判定（严格不等式）。`compute_signal` 与展示页的高亮
   都调它——两处各写一遍必然漂移，届时会出现「表里标红了、结论里没命中」。
 - `sort_by_priority()` 排序与并列消解。同上。
+- `_rolling_pcts()` 逐点分位与窗口长度。`industry_series`（页面走势）与
+  `history_hits`（历史回算）都调它——这两处若各写一遍循环，"某天分位是
+  多少"就会有两个答案，而图上的曲线与表里的数字看着都很正常。
+
+历史回算（`history_hits`）
+--------------------------
+对每个交易日回放一遍当日结论：「那天会选出谁、之后涨跌如何」。
+三条口径上的硬要求，缺一条结论就是假的：
+  1. **逐点分位只用截至该日的窗口**（含当日）——与 `compute_signal` 同口径。
+     绝不能先在全期序列上算完分位再按日取用：那会让"历史命中"用上未来数据，
+     选出来的行业事后看当然漂亮，而当时根本选不出来。
+  2. **只统计分位窗口满额的交易日**。窗口不满时（归档开头那段）mid-rank 分位
+     是在更短的尺度上算的，"30 分位"在两个尺度下不是同一件事；混在一起统计，
+     读者无法分辨哪些样本可信。被跳过的天数如实上报，不隐藏。
+  3. **之后涨跌只认归档里真有收盘价的交易日**：对齐全市场交易日序列取
+     「之后第 N 个交易日」的收盘价比值，缺数据记 None，**绝不补 0**
+     （补 0 会把"还没到那一天"变成"涨跌为零"，直接拉低统计结论）。
 
 展示层只装配不计算
 ------------------
@@ -56,6 +73,7 @@
 from __future__ import annotations
 
 import os
+import statistics
 
 import pandas as pd
 
@@ -69,6 +87,9 @@ MIN_TRADE_DAYS = 20      # 归档少于这么多交易日 → 不出结论（样
 MIN_SECTION_RATIO = 0.90  # 当日行业数 < 常态 × 此值 → 整日视为残缺，剔除
 
 SERIES_DAYS = 120        # 单行业走势图默认展示的交易日数（页面用）
+
+# 历史回顾的观察窗口：命中后第 N 个交易日的累计涨跌（用收盘价比值）
+FWD_DAYS = (1, 3, 5, 10)
 
 NUMERIC_COLS = ("close", "pct_chg", "amount_yi", "float_mv_yi", "total_mv_yi", "vol")
 
@@ -113,6 +134,28 @@ def percentile_rank(values, value) -> float | None:
     less = int((v < value).sum())
     equal = int((v == value).sum())
     return (less + 0.5 * equal) / n * 100.0
+
+
+def _rolling_pcts(series: pd.Series, window: int) -> tuple[list, list]:
+    """逐点分位与逐点窗口长度（**唯一真源**）。返回 (分位列表, 窗口长度列表)。
+
+    第 i 个点只用 `series[max(0, i-window+1) : i+1]` 这一段算分位，
+    即「截至该点、含该点自身」。这个切片与 `compute_signal` 算当日分位时用的
+    `tail(window)` 是同一个集合（序列长度不足窗口时 `tail` 返回全部，
+    与切片从 0 开始等价）——切片形状必须保持一致，否则本函数与当日结论
+    会给出不同数字，而两边的输出看起来都完全正常。
+
+    窗口长度一并返回，是为了让展示层能如实告诉读者「这个点只用了多少个
+    交易日」，而不是假装窗口一直是满的。
+    """
+    s = pd.to_numeric(pd.Series(series), errors="coerce").reset_index(drop=True)
+    pcts: list[float | None] = []
+    lens: list[int] = []
+    for i in range(len(s)):
+        w = s.iloc[max(0, i - window + 1): i + 1].dropna()
+        pcts.append(percentile_rank(w, w.iloc[-1] if len(w) else None))
+        lens.append(int(len(w)))
+    return pcts, lens
 
 
 def section_valid_dates(hist: pd.DataFrame) -> list[str]:
@@ -240,18 +283,10 @@ def industry_series(history: pd.DataFrame | None, code: str,
 
     mv_s = pd.to_numeric(g["mv_share"], errors="coerce").reset_index(drop=True)
     amt_s = pd.to_numeric(g["amt_share"], errors="coerce").reset_index(drop=True)
-    mv_pcts: list[float | None] = []
-    amt_pcts: list[float | None] = []
-    mv_lens: list[int] = []
-    amt_lens: list[int] = []
-    for i in range(len(mv_s)):
-        # 切片形状与 compute_signal 完全一致：tail(窗口) 后 dropna，末值即当日值
-        mw = mv_s.iloc[max(0, i - MV_WINDOW + 1): i + 1].dropna()
-        aw = amt_s.iloc[max(0, i - AMT_WINDOW + 1): i + 1].dropna()
-        mv_pcts.append(percentile_rank(mw, mw.iloc[-1] if len(mw) else None))
-        amt_pcts.append(percentile_rank(aw, aw.iloc[-1] if len(aw) else None))
-        mv_lens.append(int(len(mw)))
-        amt_lens.append(int(len(aw)))
+    # 逐点分位走唯一真源：history_hits 用的是同一个函数，
+    # 所以「走势图上这个点」与「历史回顾表里那天」必然是同一个数。
+    mv_pcts, mv_lens = _rolling_pcts(mv_s, MV_WINDOW)
+    amt_pcts, amt_lens = _rolling_pcts(amt_s, AMT_WINDOW)
 
     out = g.assign(mv_pct=mv_pcts, amt_pct=amt_pcts,
                    mv_window_len=mv_lens, amt_window_len=amt_lens)
@@ -361,6 +396,203 @@ def compute_signal(history: pd.DataFrame | None, as_of: str | None = None) -> di
         # 全量行业两个分位：供探针核对与将来做页面，不参与推送文案。
         "industries": universe.drop(columns=["mv_window_len", "amt_window_len"])
                               .to_dict("records"),
+    }
+
+
+def _rnd(v, nd: int):
+    """四舍五入；NaN/None → None。落 JSON 前必须过这一道。"""
+    if v is None:
+        return None
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    if f != f or f in (float("inf"), float("-inf")):
+        return None
+    return round(f, nd)
+
+
+def _mean(xs: list) -> float | None:
+    return None if not xs else round(sum(xs) / len(xs), 2)
+
+
+def _median(xs: list) -> float | None:
+    return None if not xs else round(float(statistics.median(xs)), 2)
+
+
+def _win_rate(xs: list) -> float | None:
+    """上涨占比（百分数）。样本为空返回 None——不返回 0，那会被读成「全都没涨」。"""
+    return None if not xs else round(sum(1 for x in xs if x > 0) / len(xs) * 100.0, 1)
+
+
+def history_hits(history: pd.DataFrame | None,
+                 forward_days: tuple[int, ...] = FWD_DAYS,
+                 max_picks: int = MAX_PICKS) -> dict:
+    """历史命中回算：每个交易日会选出谁、之后 N 个交易日的涨跌如何。
+
+    这是**描述性统计**，不是策略回测：没有交易成本、没有仓位、没有择时，
+    只回答「这套筛选规则在过去那些天分别指向了什么，其后发生了什么」。
+
+    只统计分位窗口满额的交易日（见模块 docstring 第 2 条）。归档开头那段
+    窗口不满的日子被跳过并如实计入 `skipped_short_window`，不混进统计。
+    `empty_days`（当日 0 命中）是有效样本，计入但不产生记录——把它当成
+    "没有数据"删掉，会让命中率的样本基数凭空变大。
+
+    返回：
+      status / reason / forward_days / mv_window / amt_window / thresholds
+      first_date / last_date / trade_days_total / trade_days_scanned
+      skipped_short_window / calendar_gaps / hit_days / empty_days / total_hits
+      stats: {N: {n, mean, median, win_rate, n_paired, mean_bench,
+                  mean_excess, excess_win_rate}}
+      bench_by_date: {date: {N: 全行业等权平均涨跌}}（同期基准，按日存一份）
+      records: [{date, code, name, l1_name, mv_share, mv_pct, amt_share,
+                 amt_pct, pct_chg, close, fwd: {N: 涨跌}, excess: {N: 超额}}]
+    """
+    fwd_list = sorted({int(n) for n in forward_days if int(n) > 0})
+    thresholds = {"mv_pct_max": MV_PCT_MAX, "amt_pct_min": AMT_PCT_MIN}
+    tpl = {
+        "forward_days": fwd_list,
+        "mv_window": MV_WINDOW,
+        "amt_window": AMT_WINDOW,
+        "thresholds": {**thresholds, "max_picks": int(max_picks)},
+    }
+
+    if history is None or history.empty:
+        return {**tpl, "status": "no_data", "reason": "无历史归档（数据尚未生成）"}
+    valid_dates = section_valid_dates(history)
+    if not valid_dates:
+        return {**tpl, "status": "no_data",
+                "reason": "归档中没有截面完整（行业数达标）的交易日"}
+    d = _with_shares(history[history["date"].astype(str).isin(valid_dates)])
+    if d.empty:
+        return {**tpl, "status": "no_data",
+                "reason": "完整截面内没有同时具备市值与成交额的行业"}
+    if "close" not in d.columns or pd.to_numeric(d["close"], errors="coerce").notna().sum() == 0:
+        return {**tpl, "status": "no_data",
+                "reason": "归档缺收盘价（close），无法计算命中之后的涨跌",
+                "trade_days_total": len(valid_dates)}
+
+    d = d.sort_values(["code", "date"])
+    parts = []
+    for _code, g in d.groupby("code", sort=False):
+        mv_pcts, mv_lens = _rolling_pcts(g["mv_share"], MV_WINDOW)
+        amt_pcts, amt_lens = _rolling_pcts(g["amt_share"], AMT_WINDOW)
+        parts.append(g.assign(mv_pct=mv_pcts, amt_pct=amt_pcts,
+                              mv_window_len=mv_lens, amt_window_len=amt_lens))
+    long = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+    long = long[long["mv_pct"].notna() & long["amt_pct"].notna()]
+    if long.empty:
+        return {**tpl, "status": "no_data", "reason": "没有任何行业算出分位"}
+
+    trade_days_total = len(valid_dates)
+    full = long[(long["mv_window_len"] >= MV_WINDOW)
+                & (long["amt_window_len"] >= AMT_WINDOW)]
+    scanned = sorted({str(x) for x in full["date"]})
+    skipped = sorted({str(x) for x in long["date"]} - set(scanned))
+
+    if not scanned or len(scanned) < MIN_TRADE_DAYS:
+        return {**tpl, "status": "insufficient",
+                "trade_days_total": trade_days_total,
+                "trade_days_scanned": len(scanned),
+                "skipped_short_window": len(skipped),
+                "reason": f"分位窗口满额的交易日仅 {len(scanned)} 天"
+                          f"（需 {MV_WINDOW} 日市值占比窗口 + {AMT_WINDOW} 日热度窗口），"
+                          f"少于出统计所需 {MIN_TRADE_DAYS} 天"}
+
+    # 时间轴：从第一个满窗日到归档末尾的可用交易日序列。
+    # 「之后第 N 个交易日」按这条轴取——用的是全市场交易日，而不是各行业
+    # 自己的序列（某行业中途停更时，按自己的序列会跳到很晚的日期，失真）。
+    axis = [x for x in valid_dates if x >= scanned[0]]
+    scanned_set = set(scanned)
+    calendar_gaps = [x for x in axis if x not in scanned_set]
+
+    close_panel = long.groupby(["date", "code"])["close"].last().unstack()
+    close_panel.columns = [str(c) for c in close_panel.columns]
+    close_panel = close_panel.reindex(index=axis)
+    if len(close_panel) != len(axis):  # reindex 应恒等；不等说明索引有重复
+        return {**tpl, "status": "no_data",
+                "reason": f"行情面板重采样异常：交易日轴 {len(axis)} 行 → 面板 {len(close_panel)} 行"}
+
+    fwd_map: dict[int, pd.DataFrame] = {}
+    bench_map: dict[int, pd.Series] = {}
+    for n in fwd_list:
+        ratio = close_panel.shift(-n) / close_panel - 1.0
+        fwd_map[n] = ratio * 100.0
+        # 同期基准＝当日全体参与行业的等权平均涨跌（跳过缺失行业，不补 0）
+        bench_map[n] = ratio.mean(axis=1, skipna=True) * 100.0
+
+    hit_rows = full[hit_mask(full, thresholds)]
+    records: list[dict] = []
+    for day, g in hit_rows.groupby("date", sort=True):
+        day = str(day)
+        for _, r in sort_by_priority(g).head(int(max_picks)).iterrows():
+            code = str(r["code"])
+            rec = {
+                "date": day,
+                "code": code,
+                "name": str(r.get("name") or code),
+                "l1_name": None if pd.isna(r.get("l1_name", None)) else str(r["l1_name"]),
+                "mv_share": _rnd(r.get("mv_share"), 4),
+                "mv_pct": _rnd(r.get("mv_pct"), 1),
+                "amt_share": _rnd(r.get("amt_share"), 4),
+                "amt_pct": _rnd(r.get("amt_pct"), 1),
+                "pct_chg": _rnd(r.get("pct_chg"), 2),
+                "close": _rnd(r.get("close"), 2),
+                "fwd": {}, "excess": {},
+            }
+            for n in fwd_list:
+                fv = (None if day not in fwd_map[n].index or code not in fwd_map[n].columns
+                      else _rnd(fwd_map[n].at[day, code], 2))
+                bv = _rnd(bench_map[n].get(day, None), 2)
+                rec["fwd"][str(n)] = fv
+                rec["excess"][str(n)] = None if fv is None or bv is None else round(fv - bv, 2)
+            records.append(rec)
+
+    # 同期基准按日存一份即可：同一天同一 N 的所有命中行业共用同一个基准值，
+    # 逐条重复存既浪费体积，也会给人「每条记录各有各的基准」的错觉。
+    bench_by_date: dict[str, dict] = {}
+    for day in scanned:
+        row = {str(n): _rnd(bench_map[n].get(day, None), 2) for n in fwd_list}
+        row = {k: v for k, v in row.items() if v is not None}
+        if row:
+            bench_by_date[day] = row
+
+    stats: dict[str, dict] = {}
+    for n in fwd_list:
+        key = str(n)
+        have_fwd = [rec["fwd"][key] for rec in records if rec["fwd"][key] is not None]
+        paired = [(rec["fwd"][key], bench_by_date.get(rec["date"], {}).get(key))
+                  for rec in records]
+        paired = [(f, b) for f, b in paired if f is not None and b is not None]
+        exc = [f - b for f, b in paired]
+        stats[key] = {
+            "n": len(have_fwd),
+            "mean": _mean(have_fwd),
+            "median": _median(have_fwd),
+            "win_rate": _win_rate(have_fwd),
+            "n_paired": len(paired),
+            "mean_bench": _mean([b for _, b in paired]),
+            "mean_excess": _mean(exc),
+            "excess_win_rate": _win_rate(exc),
+        }
+
+    hit_days = len({rec["date"] for rec in records})
+    return {
+        **tpl,
+        "status": "ok",
+        "first_date": scanned[0],
+        "last_date": scanned[-1],
+        "trade_days_total": trade_days_total,
+        "trade_days_scanned": len(scanned),
+        "skipped_short_window": len(skipped),
+        "calendar_gaps": len(calendar_gaps),
+        "industry_count": int(long["code"].nunique()),
+        "hit_days": hit_days,
+        "empty_days": len(scanned) - hit_days,
+        "total_hits": len(records),
+        "stats": stats,
+        "bench_by_date": bench_by_date,
+        "records": records,
     }
 
 

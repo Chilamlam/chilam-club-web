@@ -41,11 +41,13 @@ import industry_signal as isig
 
 SIGNAL_PATH = os.path.join("data", "industry_signal", "signal.json")
 HISTORY_PATH = os.path.join("data", "industry_signal", "history.csv")
+HITS_PATH = os.path.join("data", "industry_signal", "history_hits.json")
 
 # widget key：必须显式给且全局唯一——同进程里两个页面用同名 key 会抛
 # StreamlitDuplicateElementKey，而单跑任一页都不暴露。
 TREND_KEY = "isig_trend_code"
 HITONLY_KEY = "isig_hit_only"
+HISTFULL_KEY = "isig_hist_full_only"
 
 UP_COLOR = "#d94f43"    # 涨：红（A 股习惯，与本项目其余页面一致）
 DOWN_COLOR = "#3d9970"  # 跌：绿
@@ -76,6 +78,19 @@ def load_signal() -> dict | None:
 @st.cache_data(ttl=600)
 def load_history() -> pd.DataFrame | None:
     return isig.load_history(HISTORY_PATH)
+
+
+@st.cache_data(ttl=600)
+def load_history_hits() -> dict | None:
+    """读历史回算产物。文件缺失/损坏返回 None（取数失败 ≠ 空数据）。"""
+    if not os.path.exists(HITS_PATH):
+        return None
+    try:
+        with open(HITS_PATH, "r", encoding="utf-8") as f:
+            d = json.load(f)
+    except Exception:
+        return None
+    return d if isinstance(d, dict) else None
 
 
 def _fmt(v, suffix: str = "", nd: int = 2) -> str:
@@ -335,6 +350,199 @@ def render_trend(code: str, label: str, th: dict) -> None:
     st.caption("两条曲线交叉并满足阈值（蓝线在阈值线下方、橙线在阈值线上方）时才构成命中。")
 
 
+def render_history_hits() -> None:
+    """历史命中回顾：把同一套规则在每个交易日回放一遍。
+
+    「四种没有」必须分开说，不能合并成一句「暂无数据」——读者要据此决定
+    「等一等」还是「去修」：
+      文件不存在    → 初始化中，等跑批
+      insufficient  → 归档还不够长，等时间（不是坏了）
+      ok 但 0 命中  → 回算区间内真的一次都没命中（这是有效结论）
+      records 为空  → 与上一条同义，兜底
+    """
+    st.subheader("📜 历史命中回顾")
+    st.caption(
+        "把同一套筛选规则在**每个交易日**回放一遍：那天会选出谁、之后 N 个交易日的"
+        "涨跌如何。这是事后回算的**描述性统计**，不是策略回测"
+        "（没有交易成本、滑点、仓位或择时规则）。"
+    )
+
+    hits = load_history_hits()
+    if not hits:
+        st.info("📊 历史回顾数据初始化中：等下一次收盘跑批生成（约 19:40 后）。")
+        return
+    status = hits.get("status")
+    if status == "no_data":
+        st.warning(f"历史回顾暂不可用：{hits.get('reason', '未知原因')}")
+        return
+    if status == "insufficient":
+        st.info(
+            f"⏳ 历史回顾还在积累：{hits.get('reason', '样本不足')}。"
+            f"当前归档 {hits.get('trade_days_total', '—')} 个交易日，"
+            f"其中分位窗口满额的有 {hits.get('trade_days_scanned', 0)} 天。"
+            f"这里不给「近似统计」——窗口不满时的分位与满窗分位不是同一件事，"
+            f"混在一起算出来的数字看起来很正常，但没有可比性。"
+        )
+        return
+
+    scanned = int(hits.get("trade_days_scanned") or 0)
+    hit_days = int(hits.get("hit_days") or 0)
+    empty_days = int(hits.get("empty_days") or 0)
+    total_hits = int(hits.get("total_hits") or 0)
+    ns_all = [int(n) for n in (hits.get("forward_days") or [])]
+    stats = hits.get("stats") or {}
+
+    st.markdown(
+        f"**回算区间**：{hits.get('first_date', '—')} ~ {hits.get('last_date', '—')}，"
+        f"共 **{scanned}** 个交易日，这些交易日的分位窗口均已满额。"
+        f"其中 **{hit_days}** 天有命中、**{empty_days}** 天无任何行业命中"
+        f"（空命中同样是有效样本，计入下方统计基数），累计命中 **{total_hits}** 次。"
+    )
+    if hits.get("skipped_short_window"):
+        st.caption(
+            f"📎 归档开头另有 {int(hits['skipped_short_window'])} 个交易日因分位窗口不足 "
+            f"{hits.get('mv_window')} 日而未纳入回算（归档总计 "
+            f"{hits.get('trade_days_total', '—')} 个交易日）。窗口不满时 mid-rank 分位"
+            f"是在更短的尺度上算的，「分位 30」与满窗时的分位 30 不是同一件事。"
+        )
+    if hits.get("calendar_gaps"):
+        st.caption(
+            f"📎 回算区间内有 {int(hits['calendar_gaps'])} 个交易日因截面残缺被剔除，"
+            f"「之后第 N 个交易日」按可用交易日序列计。"
+        )
+
+    if not total_hits:
+        st.info(
+            f"📭 这 {scanned} 个交易日里，没有任何行业同时满足两个条件。"
+            f"这是有效结论，不是数据缺失——两个条件同时成立本身并不常见。"
+        )
+        return
+
+    # ---- 统计表 ----
+    st.markdown("**各观察窗口的累计涨跌**")
+    rows = []
+    for n in ns_all:
+        s = stats.get(str(n)) or {}
+        rows.append({
+            "观察窗口": f"T+{n}",
+            "样本数": s.get("n", 0),
+            "平均涨跌": _fmt_chg(s.get("mean")),
+            "中位涨跌": _fmt_chg(s.get("median")),
+            "上涨占比": _fmt(s.get("win_rate"), "%", 1),
+            "同期基准": _fmt_chg(s.get("mean_bench")),
+            "平均超额": _fmt_chg(s.get("mean_excess")),
+            "跑赢基准占比": _fmt(s.get("excess_win_rate"), "%", 1),
+        })
+    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+    # ---- 柱状图 ----
+    # 两根柱（命中行业 / 同期基准）而不是涨跌红绿：这张图里的正负是「涨跌幅度」，
+    # 用红绿会让读者把柱色当成涨跌信号，而两条序列本来就该用序列色区分。
+    plot_ns = [n for n in ns_all if (stats.get(str(n)) or {}).get("mean") is not None]
+    if plot_ns:
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            x=[f"T+{n}" for n in plot_ns],
+            y=[stats[str(n)]["mean"] for n in plot_ns],
+            name="命中行业平均涨跌",
+            marker_color=HIT_COLOR,
+            text=[_fmt_chg(stats[str(n)]["mean"]) for n in plot_ns],
+            textposition="outside",
+        ))
+        bench_y = [(stats.get(str(n)) or {}).get("mean_bench") for n in plot_ns]
+        fig.add_trace(go.Bar(
+            x=[f"T+{n}" for n in plot_ns],
+            # 基准缺失时留 None（图画成空），绝不补 0——补 0 会被读成「基准是平的」
+            y=bench_y,
+            name="同期全行业等权平均",
+            marker_color=DIM_COLOR,
+            text=[_fmt_chg(v) for v in bench_y],
+            textposition="outside",
+        ))
+        fig.add_hline(y=0, line=dict(color=GRID_COLOR, width=1))
+        fig.update_layout(height=340, margin=dict(l=0, r=10, t=10, b=0),
+                          plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+                          barmode="group",
+                          legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0))
+        fig.update_xaxes(gridcolor=GRID_COLOR)
+        fig.update_yaxes(title="累计涨跌(%)", gridcolor=GRID_COLOR)
+        st.plotly_chart(fig, use_container_width=True)
+        st.caption(
+            "同期基准＝同一天全部参与行业的等权平均涨跌（跳过缺失行业，不补 0）。"
+            "两柱之差就是「平均超额」——它回答的是「这组行业有没有比同期市场本身更强」，"
+            "而不是「涨了没有」。"
+        )
+
+    # ---- 命中明细 ----
+    st.markdown("**命中明细**")
+    recs = hits.get("records") or []
+    if not recs:
+        st.caption("回算区间内没有命中记录。")
+        return
+    last_n = ns_all[-1] if ns_all else None
+    full_only = st.checkbox(
+        f"只看 T+{last_n} 窗口已有结果的样本（完整样本）" if last_n else "只看完整样本",
+        value=False, key=HISTFULL_KEY,
+    )
+    if full_only and last_n is not None:
+        recs = [r for r in recs if (r.get("fwd") or {}).get(str(last_n)) is not None]
+        if not recs:
+            st.caption(
+                f"没有任何命中的 T+{last_n} 窗口已到期——归档末尾那些天的未来数据还没产生，"
+                f"这不是「没命中」。取消勾选可看全部记录。"
+            )
+            return
+    # 日期降序（最近的在最上面），同日保持产物里的优先级顺序（sorted 稳定）
+    order = sorted(range(len(recs)), key=lambda i: str(recs[i].get("date")), reverse=True)
+    recs = [recs[i] for i in order]
+
+    exc_n = 5 if 5 in ns_all else (ns_all[-1] if ns_all else None)
+    show = pd.DataFrame({
+        "日期": [str(r.get("date", "")) for r in recs],
+        "行业": [r.get("name") or "—" for r in recs],
+        "一级行业": [r.get("l1_name") or "—" for r in recs],
+        "市值分位": [_fmt(r.get("mv_pct"), "", 1) for r in recs],
+        "热度分位": [_fmt(r.get("amt_pct"), "", 1) for r in recs],
+        "当日涨跌": [_fmt_chg(r.get("pct_chg")) for r in recs],
+    })
+    raw_cols = {"当日涨跌": [r.get("pct_chg") for r in recs]}
+    for n in ns_all:
+        col = f"T+{n}"
+        show[col] = [_fmt_chg((r.get("fwd") or {}).get(str(n))) for r in recs]
+        raw_cols[col] = [(r.get("fwd") or {}).get(str(n)) for r in recs]
+    if exc_n is not None:
+        col = f"超额(T+{exc_n})"
+        show[col] = [_fmt_chg((r.get("excess") or {}).get(str(exc_n))) for r in recs]
+        raw_cols[col] = [(r.get("excess") or {}).get(str(exc_n)) for r in recs]
+
+    sty = show.style
+    for col, vals in raw_cols.items():
+        # 默认参数绑定 vals，避免闭包捕获最后一个循环变量
+        sty = sty.apply(lambda _c, _v=vals: [_chg_color(v) for v in _v], subset=[col])
+    st.dataframe(sty, use_container_width=True, hide_index=True, height=520)
+    st.caption(
+        f"表内 {len(recs)} 条，按日期倒序。「—」表示该窗口**尚无数据**"
+        f"（还没到那一天，或该行业那日无收盘价），**不是涨跌为 0**。"
+        f"同一天可能有多条（当日命中多个行业）；同一行业也可能连续多日出现——"
+        f"这类样本彼此并不独立，{total_hits} 次命中不能当作 {total_hits} 次独立试验。"
+    )
+
+    with st.expander("⚠️ 这份统计不能怎么读（点击展开）"):
+        st.markdown(f"""
+- **不是回测，也不是收益**：没有交易成本、没有滑点、没有仓位与择时规则，
+  回答的只是「这套规则在过去指向了什么，其后市场发生了什么」。
+- **样本不独立**：同一行业连续多日命中会被重复计入。若命中集中在少数行业，
+  有效样本远小于表格里的 {total_hits} 次。
+- **同期基准是等权平均**：为当日全部参与行业（{hits.get('industry_count', '—')} 个）
+  的等权平均涨跌，**不是任何可交易的指数**，因此「超额」不等于可实现收益。
+- **只有分位窗口满额的交易日纳入回算**：归档越长，可信区间越长；归档开头那段
+  被跳过，见上方说明。
+- **涨跌取申万行业指数收盘价比值**：是行业整体涨跌，不代表个股表现。
+- **本页只做描述，不提供方向判断、目标价、买卖点或仓位指引；
+  历史统计不代表未来收益，据此操作的风险自担。**
+""")
+
+
 def _render_subscribe() -> None:
     """页尾订阅引导：内容免费，付费的是投递——与 page_digest 同一套逻辑。"""
     st.markdown("---")
@@ -464,6 +672,11 @@ def render_industry_signal_page(reference_date: str = "") -> None:
                                 format_func=lambda c: labels.get(str(c), str(c)),
                                 key=TREND_KEY)
             render_trend(str(code), labels.get(str(code), str(code)), th)
+
+    # 历史回顾刻意放在当日内容之后：本页的主语是「今天」，历史是佐证。
+    # 也刻意不放在 frame 判空分支里——它只依赖 history_hits.json，
+    # 当日明细缺失不该让整页历史一起消失。
+    render_history_hits()
 
     with st.expander("📖 口径与判读方法（点击展开）"):
         st.markdown(f"""

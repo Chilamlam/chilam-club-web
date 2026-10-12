@@ -23,6 +23,10 @@ Actions 上，若自检依赖真实接口，就等于「每天只能验一次、
     必须就是结论里命中的）、阈值跟着 thresholds 走而不是常量；industry_series
     的末点分位必须等於结论里的分位，且**无前视偏差**（追加未来数据后已有各点
     逐点不变）。页面本身的真渲染另有 tools_probe_industry_signal_page.py。
+14. 历史回算（history_hits）：逐点分位与当日结论、走势图三方同口径；
+    只统计分位窗口满额的交易日并如实上报被跳过的天数；未来涨跌取「之后第 N 个
+    交易日」的收盘价比值、缺数据记 None 绝不补 0；超额逐条等于涨跌减同期基准；
+    0 命中是有效结论而不是错误；**追加未来数据不得改变已有的命中与分位**。
 """
 from __future__ import annotations
 
@@ -30,6 +34,7 @@ import ast
 import datetime
 import json
 import os
+import re
 import sys
 import tempfile
 
@@ -54,10 +59,10 @@ def _dates(n: int) -> list[str]:
 
 
 def _row(date: str, code: str, name: str, l1: str, mv_yi: float,
-         amt_yi: float, pct: float = 0.0) -> dict:
+         amt_yi: float, pct: float = 0.0, close: float = 1000.0) -> dict:
     total = None if mv_yi is None else mv_yi * 2
     return {"date": date, "code": code, "name": name, "l1_name": l1,
-            "close": 1000.0, "pct_chg": pct, "amount_yi": amt_yi,
+            "close": close, "pct_chg": pct, "amount_yi": amt_yi,
             "float_mv_yi": mv_yi, "total_mv_yi": total, "vol": 1.0}
 
 
@@ -495,9 +500,15 @@ def test_run_daily_wiring() -> None:
     st = steps.get("industry_signal") or {}
     check("接线：脚本指向 daily_industry_signal.py",
           st.get("script") == "daily_industry_signal.py", str(st.get("script")))
-    check("接线：支持回填 250 个交易日",
-          st.get("backfill") == rd.BACKFILL_INLINE and st.get("backfill_cap") == 250,
+    check("接线：支持回填 600 个交易日（与归档保留天数一致）",
+          st.get("backfill") == rd.BACKFILL_INLINE and st.get("backfill_cap") == 600,
           f"{st.get('backfill')}/{st.get('backfill_cap')}")
+    # 交叉断言：回填上限比归档保留天数小，回填就是白跑一遍（拉回来的天被立刻截掉）。
+    # 这两个常量分处两个文件，改一个忘另一个不会有任何报错，只会静默少数据。
+    import daily_industry_signal as _dis  # noqa: PLC0415
+    check("接线：回填上限 ≥ 归档保留天数（不足则回填白跑）",
+          (st.get("backfill_cap") or 0) >= _dis.MAX_HISTORY_DAYS,
+          f"{st.get('backfill_cap')} vs {_dis.MAX_HISTORY_DAYS}")
     check("接线：超时足够回填（≥1800s）", (st.get("timeout") or 0) >= 1800, str(st.get("timeout")))
     check("接线：新鲜度自检含行业信号",
           any("行业信号" == lbl for lbl, _ in rd.FRESHNESS),
@@ -829,6 +840,491 @@ def test_page_data_helpers() -> None:
               str(len({round(float(v), 6) for v in ser60["mv_pct"]})))
 
 
+# ==================== 13. 历史回算（history_hits） ====================
+
+HIST_DAYS = 270   # 刚好让满窗日数 = 270-249 = 21 ≥ MIN_TRADE_DAYS(20)
+
+
+def _hist_rows(days: int = HIST_DAYS, n_norm: int = 5) -> list[dict]:
+    """历史回算专用归档：目标行业必命中，收盘价可精确核验。
+
+    目标行业：市值占比一路走低（250 日窗口末值最低 → 市值分位 ≈ 0.2）、
+              成交额占比一路走高（20 日窗口末值最高 → 热度分位 97.5）；
+              收盘价每日 +1%，于是 T+N 的涨跌有闭式解（1.01^N - 1）。
+    常态行业：市值与成交额恒定 → 分位恒为 50（中位秩），既不命中也不影响结论，
+              但会让占比的分母随目标行业变化而被动移动（正是真实数据的样子）。
+
+    天数必须 ≥ MV_WINDOW + MIN_TRADE_DAYS，否则满窗日为 0，整组测试会退化成
+    只测 insufficient 分支——那等于没测核心逻辑。
+    """
+    ds = _dates(days)
+    rows = []
+    for d in ds:
+        for i in range(n_norm):
+            rows.append(_row(d, f"NORM{i:02d}", f"常态{i}", "常态一级", 1000.0, 10.0))
+    for i, d in enumerate(ds):
+        mv = 1000.0 - 600.0 * i / max(days - 1, 1)
+        amt = 10.0 + 190.0 * i / max(days - 1, 1)
+        rows.append(_row(d, "TGT000", "目标行业", "目标一级", mv, amt,
+                         close=round(100.0 * (1.01 ** i), 6)))
+    return rows
+
+
+def _hist_rows_partial(days: int = HIST_DAYS, n_norm: int = 5,
+                       hit_last: int = 6) -> list[dict]:
+    """目标行业**只在最后几天**命中的归档。
+
+    为什么需要它：`_hist_rows` 里每一天都命中，于是 `empty_days` 本来就该是 0，
+    「把 empty_days 硬写成 0」这种错在它上面**完全看不出来**——造错反验第 42 项
+    实证了这一点（当时主探针全绿）。这里让目标行业的市值只在前段保持常态、
+    最后 hit_last 天跌到低位：命中只发生在后段，前段出现真正无命中的交易日。
+
+    （市值分位在跌下去的当日起约 0.2、逐日因并列略升，始终远低于阈值；
+      而前段窗口内占比全并列 → 分位 50 → 不命中。）
+    """
+    ds = _dates(days)
+    rows = []
+    for d in ds:
+        for i in range(n_norm):
+            rows.append(_row(d, f"NORM{i:02d}", f"常态{i}", "常态一级", 1000.0, 10.0))
+    for i, d in enumerate(ds):
+        mv = 400.0 if i >= days - hit_last else 1000.0
+        amt = 10.0 + 190.0 * i / max(days - 1, 1)
+        rows.append(_row(d, "TGT000", "目标行业", "目标一级", mv, amt,
+                         close=round(100.0 * (1.01 ** i), 6)))
+    return rows
+
+
+def test_rolling_pcts_single_source() -> None:
+    """逐点分位必须是唯一真源：industry_series 与 history_hits 共用同一函数。
+
+    若两处各写一遍循环，"某个交易日分位是多少"就会有两个答案，而走势图的曲线
+    与历史表的数字看起来都完全正常——这类漂移没有任何下游迹象。
+    """
+    s = pd.Series([1.0, 2.0, 3.0, 4.0, 5.0])
+    pcts, lens = isig._rolling_pcts(s, 3)
+    # i=0:[1]→50；i=1:[1,2] 末值 2 →(1+0.5)/2=75；
+    # i=2:[1,2,3] 末值 3 →(2+0.5)/3=83.33；i=3:[2,3,4]→83.33；i=4:[3,4,5]→83.33
+    expect = [50.0, 75.0, 250.0 / 3, 250.0 / 3, 250.0 / 3]
+    check("逐点分位：逐点取值与手算一致",
+          all(p is not None and abs(p - e) < 1e-9 for p, e in zip(pcts, expect)),
+          str([None if p is None else round(p, 3) for p in pcts]))
+    check("逐点分位：窗口长度按「不超过 window」增长", lens == [1, 2, 3, 3, 3], str(lens))
+
+    # 与 compute_signal 的写法（tail(窗口).dropna() 再算末值）必须等价——
+    # 切片形状只要差一个元素，数字就会不同，而两边看起来都正常。
+    for w in (1, 2, 3, 5, 250):
+        got, _ = isig._rolling_pcts(s, w)
+        want = isig.percentile_rank(s.tail(w).dropna(), s.iloc[-1])
+        check(f"逐点分位：末点与 tail({w}).dropna() 写法等价",
+              got[-1] is not None and want is not None and abs(got[-1] - want) < 1e-9,
+              f"{got[-1]} vs {want}")
+
+    # 无前视偏差：追加未来数据后，已有各点必须逐点不变
+    s2 = pd.concat([s, pd.Series([6.0, 7.0, 8.0])], ignore_index=True)
+    pcts2, _ = isig._rolling_pcts(s2, 3)
+    check("逐点分位：追加未来数据后已有各点逐点不变（无前视偏差）",
+          all(abs(a - b) < 1e-9 for a, b in zip(pcts, pcts2[:len(pcts)])),
+          f"{pcts} vs {pcts2[:len(pcts)]}")
+    check("逐点分位：追加后确实多出了点（元断言，否则上一条恒成立）",
+          len(pcts2) == len(pcts) + 3, f"{len(pcts)} → {len(pcts2)}")
+
+    # 空序列/全 NaN 不得返回 0 或 50
+    empt, empt_l = isig._rolling_pcts(pd.Series([], dtype="float64"), 3)
+    check("逐点分位：空序列 → 空结果（不产出 0/50）", empt == [] and empt_l == [])
+    nont, nont_l = isig._rolling_pcts(pd.Series([None, float("nan")]), 3)
+    check("逐点分位：全缺失 → None 且窗口长度为 0",
+          nont == [None, None] and nont_l == [0, 0], str((nont, nont_l)))
+
+
+def test_history_hits_core() -> None:
+    """历史回算的核心口径：满窗过滤、命中名单、与当日结论对齐。"""
+    days = HIST_DAYS
+    df = pd.DataFrame(_hist_rows(days))
+    res = isig.history_hits(df)
+
+    check("历史回顾：status=ok", res.get("status") == "ok",
+          str(res.get("reason", "")))
+    if res.get("status") != "ok":
+        return
+    check("历史回顾：满窗日数 = 归档天数 -（市值窗口 - 1）",
+          res["trade_days_scanned"] == days - (isig.MV_WINDOW - 1),
+          f"{res['trade_days_scanned']} vs {days - (isig.MV_WINDOW - 1)}")
+    check("历史回顾：窗口不足的天数如实上报（不隐藏）",
+          res["skipped_short_window"] == isig.MV_WINDOW - 1,
+          str(res["skipped_short_window"]))
+    check("历史回顾：归档总天数上报正确",
+          res["trade_days_total"] == days, str(res["trade_days_total"]))
+    check("历史回顾：回算区间首日 = 第 MV_WINDOW 个交易日",
+          res["first_date"] == _dates(days)[isig.MV_WINDOW - 1], str(res["first_date"]))
+    check("历史回顾：回算区间末日 = 归档末日",
+          res["last_date"] == _dates(days)[-1], str(res["last_date"]))
+    check("历史回顾：日历无缺口（缺口天数 0）",
+          res["calendar_gaps"] == 0, str(res["calendar_gaps"]))
+    check("历史回顾：命中天数 + 空命中天数 = 满窗日数",
+          res["hit_days"] + res["empty_days"] == res["trade_days_scanned"],
+          f"{res['hit_days']} + {res['empty_days']} vs {res['trade_days_scanned']}")
+    check("历史回顾：records 条数 = total_hits",
+          len(res["records"]) == res["total_hits"], str(res["total_hits"]))
+    check("历史回顾：每天条数不超过 max_picks",
+          res["total_hits"] <= res["hit_days"] * res["thresholds"]["max_picks"],
+          f"{res['total_hits']} vs {res['hit_days']}×{res['thresholds']['max_picks']}")
+    rec_dates = {r["date"] for r in res["records"]}
+    check("历史回顾：每条记录的日期都落在回算区间内",
+          bool(rec_dates) and min(rec_dates) >= res["first_date"]
+          and max(rec_dates) <= res["last_date"],
+          f"{min(rec_dates) if rec_dates else '—'}~{max(rec_dates) if rec_dates else '—'}")
+    check("历史回顾：只有目标行业被选中（常态行业恒定 → 分位 50 不命中）",
+          {r["code"] for r in res["records"]} == {"TGT000"},
+          str(sorted({r["code"] for r in res["records"]})))
+    check("历史回顾：目标行业在每一天都命中（构造如此）",
+          res["hit_days"] == res["trade_days_scanned"],
+          f"{res['hit_days']} vs {res['trade_days_scanned']}")
+    check("历史回顾：目标行业市值分位 ≈ 0.2（250 日窗口末值最低）",
+          all(r["mv_pct"] < 1.0 for r in res["records"]),
+          str(sorted({r["mv_pct"] for r in res["records"]})[:5]))
+    check("历史回顾：目标行业热度分位 = 97.5（20 日窗口末值最高）",
+          all(abs(r["amt_pct"] - 97.5) < 1e-9 for r in res["records"]),
+          str(sorted({r["amt_pct"] for r in res["records"]})[:5]))
+
+    # 最强的一条：历史回算在末日的选择必须与 compute_signal 当日结论**完全一致**
+    # （含顺序）。两者若各算一套分位，这条立刻炸。
+    last = res["last_date"]
+    sig = isig.compute_signal(df, as_of=last)
+    check("历史回顾：末日选择的 code 序列与当日结论完全一致（含顺序）",
+          [r["code"] for r in res["records"] if r["date"] == last]
+          == [p["code"] for p in sig["picks"]],
+          str([r["code"] for r in res["records"] if r["date"] == last]))
+    rec_last = next(r for r in res["records"] if r["date"] == last)
+    pick = sig["picks"][0] if sig["picks"] else {}
+    check("历史回顾：末日两个分位数值与当日结论相等",
+          abs(rec_last["mv_pct"] - pick.get("mv_pct", -1)) < 1e-9
+          and abs(rec_last["amt_pct"] - pick.get("amt_pct", -1)) < 1e-9,
+          f"{rec_last['mv_pct']}/{rec_last['amt_pct']} vs "
+          f"{pick.get('mv_pct')}/{pick.get('amt_pct')}")
+    check("历史回顾：末日占比数值与当日结论相等",
+          abs(rec_last["mv_share"] - pick.get("mv_share", -1)) < 1e-9,
+          f"{rec_last['mv_share']} vs {pick.get('mv_share')}")
+
+    # 逐点分位与 industry_series 必须同口径（页面走势图与历史表不能互相打脸）
+    ser = isig.industry_series(df, "TGT000", days=10_000)
+    if ser is None or ser.empty:
+        check("历史回顾：走势序列可用（元断言）", False, "industry_series 返回空")
+    else:
+        m = {str(r["date"]): r for _, r in ser.iterrows()}
+        bad = [r["date"] for r in res["records"]
+               if r["date"] not in m
+               or abs(float(m[r["date"]]["mv_pct"]) - r["mv_pct"]) > 1e-9
+               or abs(float(m[r["date"]]["amt_pct"]) - r["amt_pct"]) > 1e-9]
+        check("历史回顾：每条记录的分位与 industry_series 同一天逐点相等",
+              not bad, f"不一致 {len(bad)} 天：{bad[:3]}")
+
+    # 部分天命中的场景：空命中天数必须如实计入，不能抹成 0。
+    # `_hist_rows` 天天命中，它的 empty_days 本来就该是 0 —— 在它上面
+    # 测不出这个字段对不对（造错反验第 42 项就是这么漏掉的）。
+    rp = isig.history_hits(pd.DataFrame(_hist_rows_partial()))
+    check("历史回顾：部分命中场景可用（元断言：既有命中日也有空命中日）",
+          rp.get("status") == "ok"
+          and 0 < rp.get("hit_days", 0) < rp.get("trade_days_scanned", 0),
+          f"{rp.get('hit_days')} / {rp.get('trade_days_scanned')}")
+    check("历史回顾：命中天数 + 空命中天数 = 满窗日数（部分命中场景）",
+          rp.get("hit_days", 0) + rp.get("empty_days", -1) == rp.get("trade_days_scanned"),
+          f"{rp.get('hit_days')} + {rp.get('empty_days')} vs {rp.get('trade_days_scanned')}")
+    check("历史回顾：空命中天数 > 0 且如实上报（部分命中场景）",
+          rp.get("empty_days", 0) > 0, str(rp.get("empty_days")))
+    check("历史回顾：有命中的日才有记录、记录覆盖的日期数 = 命中天数",
+          rp.get("total_hits", 0) > 0
+          and len({r["date"] for r in rp.get("records", [])}) == rp.get("hit_days"),
+          f"{rp.get('total_hits')} 条 / {rp.get('hit_days')} 天")
+
+
+def test_history_hits_forward_returns() -> None:
+    """未来涨跌：取「之后第 N 个交易日」的收盘价比值；缺数据记 None，绝不补 0。"""
+    days = HIST_DAYS
+    res = isig.history_hits(pd.DataFrame(_hist_rows(days)))
+    if res.get("status") != "ok" or not res.get("records"):
+        check("未来涨跌：前置条件（有记录）", False, str(res.get("reason")))
+        return
+    ns = res["forward_days"]
+    check("未来涨跌：观察窗口为 1/3/5/10", ns == [1, 3, 5, 10], str(ns))
+
+    r0 = res["records"][0]
+    # 收盘价每日 +1% → T+N = (1.01^N - 1) × 100
+    for n, want in ((1, 1.00), (3, 3.03), (5, 5.10), (10, 10.46)):
+        check(f"未来涨跌：T+{n} = {want}%（收盘价每日 +1%，与闭式解一致）",
+              r0["fwd"][str(n)] is not None and abs(r0["fwd"][str(n)] - want) < 0.011,
+              str(r0["fwd"][str(n)]))
+
+    r_last = res["records"][-1]
+    check("未来涨跌：归档末日的样本全记 None（不是 0）",
+          all(v is None for v in r_last["fwd"].values()), str(r_last["fwd"]))
+    check("未来涨跌：末日样本的超额同样记 None",
+          all(v is None for v in r_last["excess"].values()), str(r_last["excess"]))
+    # 末日往前数第 10 条：距末日 9 个交易日 → T+1 够得着、T+10 够不着
+    r_tail = res["records"][-10] if len(res["records"]) >= 10 else None
+    if r_tail is not None:
+        check("未来涨跌：距末日不足 N 天的窗口记 None、够得着的记数值",
+              r_tail["fwd"]["1"] is not None and r_tail["fwd"]["10"] is None,
+              str(r_tail["fwd"]))
+
+    # 超额必须逐条等于「涨跌 − 同期基准」，且基准按日一份
+    bench = res["bench_by_date"]
+    bad = []
+    for rec in res["records"]:
+        for n in ns:
+            f = rec["fwd"][str(n)]
+            b = bench.get(rec["date"], {}).get(str(n))
+            e = rec["excess"][str(n)]
+            if f is None or b is None:
+                if e is not None:
+                    bad.append((rec["date"], n, "应为 None"))
+            elif e is None or abs(e - (f - b)) > 0.011:
+                bad.append((rec["date"], n, f"{e} vs {f}-{b}"))
+    check("未来涨跌：超额逐条 = 涨跌 − 同期基准（容差为两次四舍五入）",
+          not bad, f"{len(bad)} 条不符：{bad[:3]}")
+    d0 = res["records"][0]["date"]
+    check("未来涨跌：同期基准是「全体参与行业等权平均」（6 个行业里 1 个涨 1%）",
+          abs(bench[d0]["1"] - 0.17) < 0.011, str(bench.get(d0)))
+    check("未来涨跌：归档末日的基准也记 None（不补 0）",
+          bench.get(res["last_date"], {}).get("1") is None,
+          str(bench.get(res["last_date"])))
+
+    # 统计表自洽：均值可分解、样本数逐期非增、比率落在 0~100
+    stats = res["stats"]
+    bad2 = []
+    for n in ns:
+        s = stats[str(n)]
+        if None not in (s["mean"], s["mean_bench"], s["mean_excess"]) \
+                and abs(s["mean"] - s["mean_bench"] - s["mean_excess"]) > 0.02:
+            bad2.append((n, s["mean"], s["mean_bench"], s["mean_excess"]))
+    check("统计：平均涨跌 − 同期基准 = 平均超额（逐期成立）",
+          not bad2, str(bad2))
+    ns_samples = [stats[str(n)]["n"] for n in ns]
+    check("统计：样本数随观察窗口变长而单调非增",
+          all(a >= b for a, b in zip(ns_samples, ns_samples[1:])), str(ns_samples))
+    check("统计：胜率与超额胜率都落在 0~100",
+          all(0 <= stats[str(n)][k] <= 100 for n in ns
+              for k in ("win_rate", "excess_win_rate")),
+          str([(n, stats[str(n)]["win_rate"]) for n in ns]))
+    check("统计：样本充足时不给 None（元断言，否则下面的 None 断言无区分度）",
+          all(stats[str(n)]["mean"] is not None for n in ns),
+          str([(n, stats[str(n)]["mean"]) for n in ns]))
+
+    # ---- 产物必须是严格合法 JSON ----
+    # json.dump 默认把 NaN / Infinity 原样写成**裸 NaN**（既不是字符串也不是 null）。
+    # Python 自己 json.load 能读回来，所以用 Python 测永远测不出问题；
+    # 但任何别的消费者（浏览器 fetch、严格 JSON 解析器）会直接失败。
+    # 缺值必须落成 null —— history_hits 里那一串 _rnd() 就是干这个的。
+    pat = re.compile(r":\s*(-?(?:NaN|Infinity))")
+    check("产物：NaN 检测本身有效（元断言：否则下面的断言恒真）",
+          pat.search(json.dumps({"a": float("nan"), "b": float("inf")})) is not None,
+          json.dumps({"a": float("nan")}))
+    tmp = os.path.join(tempfile.gettempdir(), "_isig_hits_strict.json")
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(res, f, ensure_ascii=False, indent=2)
+    with open(tmp, encoding="utf-8") as f:
+        raw = f.read()
+    os.remove(tmp)
+    bad_tok = pat.findall(raw)
+    check("产物：落盘 JSON 里没有裸 NaN/Infinity（严格合法 JSON）",
+          not bad_tok, f"出现 {len(bad_tok)} 处：{bad_tok[:3]}")
+    check("产物：缺值落成 null 而不是省略键（下游能区分「没值」与「没有这一项」）",
+          '"10": null' in raw, "")
+
+
+def test_history_hits_no_lookahead() -> None:
+    """历史回算绝不能用到未来数据：追加新交易日不得改变已有各日的命中与分位。
+
+    这是整块功能里最容易静默出错的地方——一旦实现成「先在整段序列上算分位、
+    再按日取用」，历史选出来的行业是「事后已知会涨的那些」，
+    表格看起来完全正常，而当时根本选不出来。
+    """
+    days = HIST_DAYS
+    df_all = pd.DataFrame(_hist_rows(days))
+    res_all = isig.history_hits(df_all)
+    df_cut = df_all[df_all["date"].astype(str).isin(_dates(days - 1))]
+    res_cut = isig.history_hits(df_cut)
+
+    if res_all.get("status") != "ok" or res_cut.get("status") != "ok":
+        check("无前视偏差：前置条件（两边都 status=ok）", False,
+              f"{res_all.get('status')} / {res_cut.get('status')} — "
+              f"{res_cut.get('reason')}")
+        return
+
+    def key(res):
+        return [(r["date"], r["code"], r["mv_pct"], r["amt_pct"]) for r in res["records"]]
+
+    a, b = key(res_cut), key(res_all)
+    common = [x for x in a if x[0] < _dates(days)[-1]]
+    check("无前视偏差：被截断那天的记录只出现在完整版里（元断言，否则对比无区分度）",
+          len(common) >= 5 and len(b) > len(common),
+          f"共同 {len(common)} 条 / 完整 {len(b)} 条")
+    check("无前视偏差：追加未来交易日之后，已有各日的命中名单与分位逐条不变",
+          b[:len(common)] == common,
+          str([(x, y) for x, y in zip(common, b[:len(common)]) if x != y][:3]))
+    check("无前视偏差：末日的命中判定不受影响",
+          [r["code"] for r in res_cut["records"] if r["date"] == _dates(days - 1)[-1]]
+          == [r["code"] for r in res_all["records"] if r["date"] == _dates(days - 1)[-1]],
+          "")
+    # 元断言：分位确实不是常量，否则「逐条不变」恒成立、这条断言没有区分度
+    check("无前视偏差：分位值非常量（元断言）",
+          len({r["mv_pct"] for r in res_all["records"]}) + len(
+              {r["amt_pct"] for r in res_all["records"]}) > 1,
+          str(sorted({r["mv_pct"] for r in res_all["records"]})[:5]))
+
+
+def test_history_hits_degradation() -> None:
+    """四种「没有」必须分得开：归档太短 / 无收盘价 / 真无命中 / 无归档。"""
+    # 1) 归档短于窗口 → insufficient，且说明窗口而**不是**「没有命中」
+    short = isig.history_hits(pd.DataFrame(_hist_rows(260)))
+    check("降级：归档不足 MV_WINDOW 时 status=insufficient",
+          short.get("status") == "insufficient", str(short.get("status")))
+    check("降级：insufficient 的 reason 说明是窗口不够（不是数据缺失）",
+          "窗口" in (short.get("reason") or ""), str(short.get("reason")))
+    check("降级：insufficient 仍如实上报归档总天数",
+          short.get("trade_days_total") == 260, str(short.get("trade_days_total")))
+
+    # 2) 无 close 列 → no_data，且 reason 点名收盘价
+    noc = pd.DataFrame(_hist_rows(HIST_DAYS)).drop(columns=["close"])
+    r2 = isig.history_hits(noc)
+    check("降级：缺收盘价 → no_data（不是 0 涨跌）",
+          r2.get("status") == "no_data", str(r2.get("status")))
+    check("降级：缺收盘价的 reason 点名 close",
+          "收盘价" in (r2.get("reason") or ""), str(r2.get("reason")))
+
+    # 3) 归档足够长但一次都不命中 → 依然是 ok，且 records 为空、empty_days 满额
+    flat = _base(HIST_DAYS, n_norm=6)
+    r3 = isig.history_hits(pd.DataFrame(flat))
+    check("降级：全行业占比恒定 → status=ok（0 命中是有效结论，不是错误）",
+          r3.get("status") == "ok", str(r3.get("status")))
+    check("降级：0 命中时 total_hits=0 且 records 为空",
+          r3.get("total_hits") == 0 and r3.get("records") == [],
+          str(r3.get("total_hits")))
+    check("降级：0 命中时 empty_days 等于满窗日数",
+          r3.get("empty_days") == r3.get("trade_days_scanned")
+          and r3.get("hit_days") == 0,
+          f"{r3.get('empty_days')} vs {r3.get('trade_days_scanned')}")
+    check("降级：0 命中时统计仍给出样本数（空命中日计入基数）",
+          r3.get("stats", {}).get("1", {}).get("n") == 0,
+          str(r3.get("stats", {}).get("1")))
+    check("降级：0 命中时均值是 None 而不是 0（0 会被读成「涨跌为零」）",
+          r3.get("stats", {}).get("1", {}).get("mean") is None,
+          str(r3.get("stats", {}).get("1")))
+
+    # 4) 无归档
+    r4 = isig.history_hits(None)
+    check("降级：无归档 → no_data", r4.get("status") == "no_data", str(r4.get("status")))
+    r5 = isig.history_hits(pd.DataFrame())
+    check("降级：空表 → no_data", r5.get("status") == "no_data", str(r5.get("status")))
+
+
+def test_history_hits_reuses_sources() -> None:
+    """命中判定与排序必须复用唯一真源，不能在 history_hits 里另写一套。"""
+    src = open("industry_signal.py", encoding="utf-8").read()
+    tree = ast.parse(src)
+    fn = next((n for n in tree.body
+               if isinstance(n, ast.FunctionDef) and n.name == "history_hits"), None)
+    check("唯一真源：history_hits 函数存在", fn is not None)
+    if fn is None:
+        return
+    called = {n.func.id for n in ast.walk(fn)
+              if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}
+    check("唯一真源：history_hits 调用 hit_mask（不重写不等式）",
+          "hit_mask" in called, str(sorted(called)))
+    check("唯一真源：history_hits 调用 sort_by_priority（不重写排序）",
+          "sort_by_priority" in called, str(sorted(called)))
+    check("唯一真源：history_hits 调用 _rolling_pcts（不重写分位循环）",
+          "_rolling_pcts" in called, str(sorted(called)))
+    seg = ast.get_source_segment(src, fn) or ""
+    # 断言的是「没有自己写比较」，而不是「不出现常量名」：history_hits 需要引用
+    # 常量去**构造**传给 hit_mask 的 thresholds（那是正确的做法），
+    # 只有出现 `< MV_PCT_MAX` / `> AMT_PCT_MIN` 这类比较才叫重写了一规则。
+    cmp_with_const = [
+        node for node in ast.walk(fn) if isinstance(node, ast.Compare)
+        and any(isinstance(c, ast.Name) and c.id in ("MV_PCT_MAX", "AMT_PCT_MIN")
+                for c in ast.walk(node))
+    ]
+    check("唯一真源：history_hits 里没有自己写阈值比较（规则只来自 hit_mask）",
+          not cmp_with_const,
+          f"发现 {len(cmp_with_const)} 处：{seg[:80]}")
+    check("唯一真源：industry_series 也走 _rolling_pcts",
+          "_rolling_pcts" in (ast.get_source_segment(
+              src, next(n for n in tree.body
+                        if isinstance(n, ast.FunctionDef)
+                        and n.name == "industry_series")) or ""), "")
+
+    # 排序复用真源：构造前两个键全并列的一天，看输出顺序确定（与输入行序无关）。
+    # 并列行业造 3 个（连目标共 4 个命中 > max_picks=3），于是这条用例同时压住
+    # 「并列时不靠输入行序」与「截断真的生效」——只有 1 个命中行业时
+    # head(3) 与 head(8) 结果相同，截断的造错反验会抓不到。
+    ds = _dates(HIST_DAYS)
+    rows = _hist_rows(HIST_DAYS)
+    for i, d in enumerate(ds):
+        mv = 1000.0 - 600.0 * i / max(HIST_DAYS - 1, 1)
+        amt = 10.0 + 190.0 * i / max(HIST_DAYS - 1, 1)
+        for c in ("TIEC00", "TIEB00", "TIEA00"):
+            rows.append(_row(d, c, c, "并列一级", mv, amt,
+                             close=round(100.0 * (1.01 ** i), 6)))
+    df = pd.DataFrame(rows).sample(frac=1.0, random_state=3).reset_index(drop=True)
+    ra = isig.history_hits(df)
+    rb = isig.history_hits(df.sample(frac=1.0, random_state=11).reset_index(drop=True))
+    ka = [(r["date"], r["code"]) for r in ra.get("records", [])]
+    kb = [(r["date"], r["code"]) for r in rb.get("records", [])]
+    check("排序：三键并列时输出顺序与输入行序无关（全序）", ka == kb,
+          str([(x, y) for x, y in zip(ka, kb) if x != y][:3]))
+    check("排序：并列行业确实被拉进来了（元断言，否则上一条无区分度）",
+          any(r["code"] in ("TIEA00", "TIEB00", "TIEC00") for r in ra.get("records", [])),
+          str(ra.get("total_hits")))
+    check("排序：4 个命中行业时按 max_picks 截断为每天 3 条",
+          ra["total_hits"] == ra["hit_days"] * isig.MAX_PICKS,
+          f"{ra['total_hits']} vs {ra['hit_days']}×{isig.MAX_PICKS}")
+    # 截断必须发生在排序之后，且并列时靠 code 兜底决定先后。若截断在排序之前，
+    # 留下的就是随机的三个 —— 这条会随随机种子漂移而炸。
+    first_day = ra["records"][0]["date"]
+    day_codes = [r["code"] for r in ra["records"] if r["date"] == first_day]
+    all_hit = sorted({"TGT000", "TIEA00", "TIEB00", "TIEC00"})
+    check("排序：并列时按 code 升序决定先后与截断（截断在排序之后）",
+          day_codes == all_hit[:isig.MAX_PICKS],
+          f"{day_codes} vs {all_hit[:isig.MAX_PICKS]}")
+
+
+def test_history_hits_wiring() -> None:
+    """跑批与编排接线：归档拉到 600 天、产物落盘、新鲜度与日期判据都点名。"""
+    src = open("daily_industry_signal.py", encoding="utf-8").read()
+    tree = ast.parse(src)
+    consts = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and isinstance(node.value, ast.Constant):
+            for t in node.targets:
+                if isinstance(t, ast.Name):
+                    consts[t.id] = node.value.value
+    check("接线：归档保留 600 个交易日（保证 351 天可回算）",
+          consts.get("MAX_HISTORY_DAYS") == 600, str(consts.get("MAX_HISTORY_DAYS")))
+    check("接线：600 天确实 ≥ 分位窗口 + 出统计所需最短样本",
+          consts.get("MAX_HISTORY_DAYS", 0)
+          >= isig.MV_WINDOW + isig.MIN_TRADE_DAYS,
+          f"{consts.get('MAX_HISTORY_DAYS')} vs {isig.MV_WINDOW + isig.MIN_TRADE_DAYS}")
+    check("接线：history_hits 产物路径已定义",
+          re.search(r'HITS_PATH\s*=\s*os\.path\.join\(\s*OUT_DIR\s*,\s*'
+                    r'"history_hits\.json"\s*\)', src) is not None,
+          "未找到 HITS_PATH = os.path.join(OUT_DIR, 'history_hits.json')")
+    check("接线：落盘用的是 HITS_PATH（不是另建路径）",
+          "open(HITS_PATH" in src, "")
+    check("接线：回算写盘函数被两条 main 路径都调用（当日增量 + 回填）",
+          src.count("_report_hits(write_history_hits())") >= 2,
+          str(src.count("_report_hits(write_history_hits())")))
+    check("接线：落盘用 json.dump（不是 print 到日志）",
+          "json.dump(hits" in src, "")
+
+    rd = open("run_daily.py", encoding="utf-8").read()
+    m = re.search(r'"key": "industry_signal".*?"backfill_cap":\s*(\d+)', rd, re.S)
+    check("接线：run_daily 的行业信号回填上限 = 600（与归档保留天数一致）",
+          m is not None and int(m.group(1)) == 600, m.group(1) if m else "未匹配")
+    check("接线：新鲜度自检点名「行业回顾」", "行业回顾" in rd, "")
+    check("接线：跨产物日期判据点名 history_hits.json",
+          "history_hits.json" in rd and "json:last_date" in rd, "")
+
+
 def test_architecture_layers() -> None:
     """计算层必须能被脱 runtime 单测：不得 import 展示层或跑批层。"""
     tree = ast.parse(open("industry_signal.py", encoding="utf-8").read())
@@ -850,7 +1346,11 @@ def main() -> int:
                test_markdown, test_digest_wiring, test_no_forbidden_imports,
                test_run_daily_wiring, test_fetch_day_guard,
                test_section_reject_and_cleanup, test_sector_rotation_reject_wiring,
-               test_page_data_helpers, test_architecture_layers):
+               test_page_data_helpers, test_rolling_pcts_single_source,
+               test_history_hits_core, test_history_hits_forward_returns,
+               test_history_hits_no_lookahead, test_history_hits_degradation,
+               test_history_hits_reuses_sources, test_history_hits_wiring,
+               test_architecture_layers):
         print(f"\n=== {fn.__name__} ===")
         fn()
 
