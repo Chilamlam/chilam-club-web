@@ -2,8 +2,8 @@
   "status": "ok",
   "date": "2026-09-18",
   "prev_date": "2026-09-17",
-  "trade_days_available": 13,
-  "first_date": "2026-09-01",
+  "trade_days_available": 12,
+  "first_date": "2026-09-03",
   "window_col": "pct_10d",
   "top_n": 10,
   "top": [
