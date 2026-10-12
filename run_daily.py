@@ -83,6 +83,12 @@ STEPS: list[dict] = [
      "backfill": BACKFILL_NONE, "timeout": 1200},
     {"key": "sector_rotation", "script": "daily_sector_rotation.py", "label": "板块轮动",
      "backfill": BACKFILL_NONE, "timeout": 600},
+    # 行业信号走 tushare sw_daily（按交易日取当日全量，一次请求 439 条），
+    # 与各榜单/情绪都无依赖，位置只影响日志可读性。
+    # 回填 250 个交易日 = 250 次请求，是唯一能在一次跑批里补齐分位窗口的路径；
+    # 已被归档且截面完整的日期会跳过，故重复触发不会重复拉取。
+    {"key": "industry_signal", "script": "daily_industry_signal.py", "label": "行业信号",
+     "backfill": BACKFILL_INLINE, "backfill_cap": 250, "timeout": 2400},
     {"key": "sentiment", "script": "daily_sentiment.py", "label": "情绪派生指标",
      "backfill": BACKFILL_INLINE, "backfill_cap": 15, "timeout": 1800},
     {"key": "scorecard", "script": "daily_scorecard.py", "label": "战绩归档与绩效",
@@ -121,6 +127,10 @@ FRESHNESS: list[tuple[str, str]] = [
     ("板块轮动", "import json;d=json.load(open('data/sector_rotation/analysis.json',encoding='utf-8'));"
                  "print(d['status'],d.get('date','—'),'| 重合',d.get('overlap_count','—'),"
                  "'| 判读',d.get('verdict',{}).get('label','—'),'| Top',len(d.get('top') or []))"),
+    ("行业信号", "import json;d=json.load(open('data/industry_signal/signal.json',encoding='utf-8'));"
+                 "print(d['status'],d.get('date','—'),'| 行业',d.get('industry_count','—'),"
+                 "'个 | 分位窗口',d.get('mv_window_actual','—'),'/',d.get('amt_window_actual','—'),"
+                 "'| 命中',d.get('hits_count','—'))"),
 ]
 
 
@@ -225,6 +235,9 @@ DATE_PROBES: list[tuple[str, str, str]] = [
     # 板块轮动必须入列：2026-09-03 它在 Actions 上连续三班取数失败，页面停在
     # 09-02 无人报警——因为之前它不在一致性判据里，掉队了没机器点名。
     ("板块轮动", "data/sector_rotation/analysis.json", "json:date"),
+    # 行业信号每次跑批都会写 signal.json，它的 date 是本步骤自己锚定的交易日；
+    # 与批内其它产物不一致即说明本步骤没跑到当日（或归档残缺被拒收后沿用旧信号）。
+    ("行业信号", "data/industry_signal/signal.json", "json:date"),
 ]
 
 

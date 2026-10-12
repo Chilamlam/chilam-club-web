@@ -31,6 +31,7 @@ STRONG_CSV = os.path.join("data", "strong_stocks.csv")
 BREAKOUT_CSV = os.path.join("data", "breakout_stocks.csv")
 LADDER_PATH = os.path.join("data", "limit_ladder.json")
 SNAPSHOT_CSV = os.path.join("data", "market_snapshot.csv")
+INDUSTRY_SIGNAL_PATH = os.path.join("data", "industry_signal", "signal.json")
 
 DISCLAIMER = ("本摘要由收盘后自动计算生成，仅为数据整理与结构描述，"
               "不含个股推荐、目标价、买卖点或仓位建议，不构成投资建议。")
@@ -186,6 +187,22 @@ def section_new_picks() -> tuple[str, str | None]:
     return "\n".join([f"### 🎯 榜单变动（{latest}）", ""] + parts), None
 
 
+def section_industry_signal() -> tuple[str, str | None]:
+    """行业「低市值占比 + 高资金热度」信号段落。
+
+    渲染逻辑不写在这里：它需要与站内/其它渠道保持完全一致，两处实现必然漂移，
+    故统一走行业信号计算层的 signal_markdown（纯 pandas，无 IO 无网络）。
+    """
+    sig = _load_json(INDUSTRY_SIGNAL_PATH)
+    if not sig:
+        return "", "行业信号未生成"
+    try:
+        import industry_signal as isig  # noqa: PLC0415
+    except Exception as exc:  # noqa: BLE001
+        return "", f"行业信号渲染失败（{type(exc).__name__}）"
+    return isig.signal_markdown(sig)
+
+
 def section_scorecard(perf: dict | None) -> tuple[str, str | None]:
     """
     战绩快报——把"我们过去说的话准不准"主动放进推送里。
@@ -241,6 +258,7 @@ def build_markdown(watchlist: list[str] | None = None,
     for md, miss in (section_watchlist(watchlist, pct_map),
                      section_phase(derived),
                      section_plan(derived),
+                     section_industry_signal(),
                      section_new_picks(),
                      section_scorecard(perf)):
         if md:

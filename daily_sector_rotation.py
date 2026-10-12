@@ -18,9 +18,19 @@
 
 失败语义（与 daily_sentiment 同款三态）
 --------------------------------------
-  complete   退出码 0：全量取到（≥400 个板块），归档+分析完整落盘
-  incomplete 退出码 2：只取到部分（50~399），照实归档，分析标注 partial
+  complete   退出码 0：全量取到（≥400 个板块，且 ≥ 服务端 total 的 95%），
+             归档 + 分析完整落盘
+  incomplete 退出码 2：只取到部分（50~399，或缺页导致低于 total 的 95%）——
+             **拒绝写入 history.csv**，并清除该日可能已存在的残留行
   failed     退出码 3：取不到有效数据，不动历史归档，绝不用旧值顶替当日
+
+  ★ incomplete 由「照实归档」改为「拒收」（2026-10-12）：
+    2026-09-21 起 daily 归档每天只有 100~300 个板块（应为 504），持续 10 个
+    交易日无人发现——因为每天都有一份数据落地，新鲜度检查看不出来。
+    半份快照写进累积归档后，任何基于它的占比/分位/榜单都会被静默算错，
+    而数值形态完全正常。缺一天只是少一天，坏一天会一直坏下去。
+    抓取侧同时改为「分轮补齐失败页」（见 fetch_snapshot），
+    从「让残缺数据可见」和「别产生残缺数据」两头一起收。
 
 其他守则
 --------
@@ -76,6 +86,11 @@ FIELD_MAP = {
 MIN_COMPLETE = 400   # 全量约 504，低于此视为 incomplete
 MIN_VALID = 50       # 低于此视为 failed
 
+# 分页抓取的轮数与页间间隔。3 轮的含义是「同一页最多被独立尝试 3×5 次」，
+# 而不是把 15 次重试压在同一个坏边缘上（见 fetch_snapshot）。
+PAGE_ROUNDS = 3
+PAGE_SLEEP = 0.4
+
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
     "Referer": "https://quote.eastmoney.com/",
@@ -91,13 +106,16 @@ def _cst_now() -> datetime.datetime:
     return datetime.datetime.utcnow() + datetime.timedelta(hours=8)
 
 
-def fetch_page(pn: int, retries: int = len(EM_HOSTS)) -> dict | None:
+def fetch_page(pn: int, host_offset: int = 0, retries: int = len(EM_HOSTS)) -> dict | None:
     """拉一页 clist。每次重试换一个域名，最终失败返回 None。
 
     为什么换域名：502 是东财对机房 IP 的边缘级拒绝，同一域名重试无意义；
-    轮换分片/延迟域名才可能落到不同边缘。"""
+    轮换分片/延迟域名才可能落到不同边缘。
+
+    host_offset 让不同轮次从不同域名起步：若总是从 push2.eastmoney.com 开始，
+    而恰好只有它被拒，每轮都会把重试次数耗在同一个坏边缘上。"""
     for attempt in range(retries):
-        host = EM_HOSTS[attempt % len(EM_HOSTS)]
+        host = EM_HOSTS[(attempt + host_offset) % len(EM_HOSTS)]
         url = CLIST_URL.format(host=host, pn=pn)
         try:
             req = urllib.request.Request(url, headers=HEADERS)
@@ -112,32 +130,55 @@ def fetch_page(pn: int, retries: int = len(EM_HOSTS)) -> dict | None:
     return None
 
 
-def fetch_snapshot(max_pages: int = 8) -> tuple[list[dict], int | None]:
-    """翻页拉全量概念板块快照，返回 (行列表, 服务端 total)。
+def fetch_snapshot(max_pages: int = 8) -> tuple[list[dict], int | None, list[int]]:
+    """翻页拉全量概念板块快照，返回 (行列表, 服务端 total, 最终仍失败的页号)。
 
-    单页失败不放弃后续页（TLS 断连往往是瞬时的且只咬某几页），
-    连续 2 页失败才停；取到多少算多少，覆盖度由调用方对 total 判定。
+    ★ 分轮补齐（2026-10-12 修）。旧逻辑是「连续 2 页失败就整体放弃」，
+    后果实测于线上归档：2026-09-21 起每天只落 100~300 个板块（应为 504），
+    因为第 1 页成功、第 2、3 页失败即触发放弃——**残缺截面被照实写进历史**，
+    而跑批日志里只有一条 warning，前端与看板全都看不出来。
+    现在改为：第 1 轮把所有页都试一遍，第 2、3 轮只重试仍失败的页，
+    且每轮从不同的 CDN 域名起步。
+
+    只有「第 1 页在第 1 轮就失败」才立刻放弃：第 1 页都拿不到说明接口整体
+    不可用，继续翻页只是把超时预算耗光。
     """
-    rows: list[dict] = []
+    by_page: dict[int, list[dict]] = {}
     total = None
-    consecutive_fail = 0
-    for pn in range(1, max_pages + 1):
-        data = fetch_page(pn)
-        if data is None:
-            consecutive_fail += 1
-            if consecutive_fail >= 2:
+    pending = list(range(1, max_pages + 1))
+
+    for rnd in range(PAGE_ROUNDS):
+        if not pending:
+            break
+        still: list[int] = []
+        done = False
+        for pn in pending:
+            data = fetch_page(pn, host_offset=rnd)
+            if data is None:
+                if pn == 1 and rnd == 0:
+                    print("⚠️ 第 1 页第 1 轮即失败，判定接口整体不可用，放弃本次取数")
+                    return [], None, [1]
+                still.append(pn)
+                continue
+            diff = data.get("diff") or []
+            total = data.get("total", total)
+            if diff:
+                by_page[pn] = diff
+            got = sum(len(v) for v in by_page.values())
+            if total is not None and got >= int(total):
+                done = True
                 break
-            continue
-        consecutive_fail = 0
-        total = data.get("total", total)
-        diff = data.get("diff") or []
-        rows.extend(diff)
-        if not diff:
+            time.sleep(PAGE_SLEEP)
+        if done:
+            pending = []
             break
-        if total is not None and len(rows) >= int(total):
-            break
-        time.sleep(0.4)
-    return rows, total
+        pending = still
+        if pending:
+            print(f"⚠️ 第 {rnd + 1} 轮后仍失败 {len(pending)} 页：{pending}")
+            time.sleep(2.0)
+
+    rows = [r for pn in sorted(by_page) for r in by_page[pn]]
+    return rows, total, pending
 
 
 def rows_to_df(rows: list[dict]) -> pd.DataFrame:
@@ -205,6 +246,29 @@ def append_history(today: str, df_today: pd.DataFrame) -> pd.DataFrame:
     return full
 
 
+def drop_date_from_history(today: str) -> int:
+    """从 history.csv 移除某交易日的所有行，返回移除行数。
+
+    只用于「本日快照残缺」这一种情形：把上一次跑批可能已写进去的半份截面清掉。
+    其它日期一行都不动——历史归档是累积资产，回填/清洗必须由显式的清理脚本做，
+    不能藏在日常跑批里。
+    """
+    if not os.path.exists(HISTORY_PATH):
+        return 0
+    try:
+        hist = pd.read_csv(HISTORY_PATH, dtype={"code": str})
+    except Exception as exc:  # noqa: BLE001
+        print(f"⚠️ 清理 {today} 时读归档失败（{type(exc).__name__}），跳过清理")
+        return 0
+    if hist.empty or "date" not in hist.columns:
+        return 0
+    kept = hist[hist["date"].astype(str) != str(today)]
+    removed = len(hist) - len(kept)
+    if removed:
+        kept.to_csv(HISTORY_PATH, index=False, encoding="utf-8")
+    return removed
+
+
 def _snapshot_trade_date() -> str:
     """快照内容对应的交易日（YYYY-MM-DD）。
 
@@ -245,19 +309,24 @@ def main() -> int:
     today = _snapshot_trade_date()
     weekday = _cst_now().weekday()
 
-    rows, total = fetch_snapshot()
+    rows, total, failed_pages = fetch_snapshot()
     if not rows or len(rows) < MIN_VALID:
-        fail(f"概念板块快照取数失败（rows={len(rows)}, total={total}），不动历史归档")
+        fail(f"概念板块快照取数失败（rows={len(rows)}, total={total}, "
+             f"失败页={failed_pages}），不动历史归档")
 
     df_today = rows_to_df(rows)
     df_today.insert(0, "date", today)
     print(f"[i] 取到 {len(df_today)} 个概念板块（服务端 total={total}）")
+    if failed_pages:
+        # 必须点名是哪几页：只报「取到 400 个」看不出少的是哪一段，
+        # 而不同页对应不同板块，缺哪页决定了榜单会怎么偏。
+        print(f"⚠️ 最终仍失败的页：{failed_pages}")
 
-    # 覆盖度判定：优先对服务端 total（可发现「只拿到半份」），total 未知才退回阈值
-    if total:
-        incomplete = len(df_today) < int(total) * 0.95
-    else:
-        incomplete = len(df_today) < MIN_COMPLETE
+    # 覆盖度判定：优先对服务端 total（可发现「只拿到半份」），total 未知才退回阈值。
+    # 且以 MIN_COMPLETE 为下限——只按 total*0.95 判定时，若服务端 total 本身
+    # 被污染成小值，残缺截面会被判成 complete。
+    expected = float(total) if total else float(MIN_COMPLETE)
+    incomplete = len(df_today) < max(float(MIN_COMPLETE), expected * 0.95)
 
     skipped = False
     if weekday >= 5:
@@ -266,7 +335,17 @@ def main() -> int:
     elif non_trading_day(today, df_today):
         skipped = True
 
-    if not skipped:
+    if not skipped and incomplete:
+        # ★ 残缺截面拒收（2026-10-12 改）。旧行为是「照实归档」并打一条 warning，
+        # 结果 2026-09-21 起连续 10 个交易日把 100~300 个板块的半份快照写进了
+        # history.csv，污染了所有基于它的统计——而且因为每天都有新数据落地，
+        # 从新鲜度看一切正常。残缺截面比没有数据更坏：它是一组看起来正常的百分数。
+        # 若该日此前已被写过（上一次跑批残留），一并清掉，避免历史里留着半份。
+        removed = drop_date_from_history(today)
+        print(f"❌ 本日快照残缺：仅 {len(df_today)} 个板块"
+              f"（阈值 {max(int(MIN_COMPLETE), int(expected * 0.95))}，失败页 {failed_pages}），"
+              f"拒绝写入 history.csv" + (f"；并清除该日已有 {removed} 行残留" if removed else ""))
+    elif not skipped:
         full = append_history(today, df_today)
         full.to_csv(HISTORY_PATH, index=False, encoding="utf-8")
         print(f"✅ 归档完成：{HISTORY_PATH}（{full['date'].nunique()} 个交易日，{len(full)} 行）")
@@ -283,7 +362,9 @@ def main() -> int:
     print(f"✅ 分析落盘：{ANALYSIS_PATH}（status={analysis.get('status')}，date={analysis.get('date')}）")
 
     if incomplete:
-        print(f"::warning::板块轮动 incomplete：仅取到 {len(df_today)} 个板块（< {MIN_COMPLETE}），照实归档")
+        print(f"::warning::板块轮动 incomplete：仅取到 {len(df_today)} 个板块"
+              f"（阈值 {max(int(MIN_COMPLETE), int(expected * 0.95))}，失败页 {failed_pages}），"
+              f"**未写入 history.csv**（残缺截面入库会静默污染后续所有统计）")
         return 2
     return 0
 
