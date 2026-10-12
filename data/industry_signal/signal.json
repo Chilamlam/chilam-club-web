@@ -4,8 +4,8 @@
   "source": "tushare_sw2021_l2",
   "industry_level": "L2",
   "industry_count": 124,
-  "trade_days_available": 250,
-  "first_date": "20250922",
+  "trade_days_available": 600,
+  "first_date": "20240417",
   "mv_window": 250,
   "amt_window": 20,
   "mv_window_actual": 250,
@@ -1553,5 +1553,5 @@
       "float_mv_yi": 660.58
     }
   ],
-  "generated_at": "2026-10-12 08:53:26 CST"
+  "generated_at": "2026-10-12 11:53:45 CST"
 }
