@@ -19,6 +19,10 @@ Actions 上，若自检依赖真实接口，就等于「每天只能验一次、
 10. 接线：run_daily 步骤表 / 新鲜度自检 / 跨产物日期判据 / digest 段落全部到位
 11. 取数守卫：接口返回的 trade_date 与请求日期不一致时拒收（参数被静默忽略）
 12. 残缺截面拒收：行业数不达标时 section_ok=False；历史里同日残留会被清掉
+13. 展示页装配：universe_frame 的命中标记必须与结论 picks 完全一致（页面标红的
+    必须就是结论里命中的）、阈值跟着 thresholds 走而不是常量；industry_series
+    的末点分位必须等於结论里的分位，且**无前视偏差**（追加未来数据后已有各点
+    逐点不变）。页面本身的真渲染另有 tools_probe_industry_signal_page.py。
 """
 from __future__ import annotations
 
@@ -227,10 +231,25 @@ def test_threshold_boundary() -> None:
     check("阈值边界：82.5 > 80 命中", "AMT825" in {p["code"] for p in (sig.get("picks") or [])})
 
     src = open("industry_signal.py", encoding="utf-8").read()
-    check("阈值边界：命中判据用严格不等式（源码级，防改写成 <=）",
-          "universe[\"mv_pct\"] < MV_PCT_MAX" in src.replace("'", "\"")
-          and "universe[\"amt_pct\"] > AMT_PCT_MIN" in src.replace("'", "\""),
-          "")
+    # 命中判据已收口到 hit_mask()（2026-10-12 加展示页时抽出来，避免「页面高亮的」
+    # 与「结论里命中的」两处各写一遍不等式而漂移）。所以这条断言改为直接查
+    # hit_mask 函数体里的比较符：必须是 < 和 >，且不得出现 <= / >=。
+    # 用 AST 而不是字符串匹配 —— 字符串匹配对「换个写法表达同一个 <=」无感。
+    tree = ast.parse(src)
+    fn = next((n for n in ast.walk(tree)
+               if isinstance(n, ast.FunctionDef) and n.name == "hit_mask"), None)
+    ops: list[str] = []
+    if fn is not None:
+        for node in ast.walk(fn):
+            if isinstance(node, ast.Compare):
+                ops += [type(o).__name__ for o in node.ops]
+    check("阈值边界：命中判据用严格不等式（AST 级，防改写成 <=）",
+          fn is not None and "Lt" in ops and "Gt" in ops
+          and not ({"LtE", "GtE"} & set(ops)),
+          f"hit_mask 里的比较符 = {ops}")
+    check("阈值边界：命中规则只有 hit_mask 一处实现（compute_signal 不自己再写一遍）",
+          "hit_mask(universe" in src.replace("'", '"'),
+          "compute_signal 里没有调用 hit_mask，等于把不等式又抄了一遍")
 
 
 def test_order_and_limit() -> None:
@@ -271,6 +290,28 @@ def test_order_and_limit() -> None:
     check("确定性：打乱输入行序后 picks 顺序不变（排序是全序）",
           [p["code"] for p in sig_sh["picks"]] == [p["code"] for p in sig["picks"]],
           f"{[p['code'] for p in sig_sh['picks']]} vs {[p['code'] for p in sig['picks']]}")
+
+    # 但上面这条**不足以**守住「排序必须自带 code 兜底键」：
+    # compute_signal 内部先做过 d.sort_values(["code", "date"])，行序早被规范成
+    # code 序，所以就算把 code 从排序键里去掉，打乱输入也照样看不出变化
+    # （2026-10-12 造错反验第 4 项实测：去掉后主探针全绿 = 假断言）。
+    # 所以直接对这个函数本身断言：构造「前两键完全相同」的帧，
+    # 要求输出顺序 (a) 等于 code 升序、(b) 与输入行序无关。
+    tie = pd.DataFrame([
+        {"code": "C", "amt_pct": 97.5, "mv_pct": 10.0},
+        {"code": "A", "amt_pct": 97.5, "mv_pct": 10.0},
+        {"code": "B", "amt_pct": 97.5, "mv_pct": 10.0},
+        {"code": "D", "amt_pct": 90.0, "mv_pct": 20.0},
+    ])
+    o1 = isig.sort_by_priority(tie)["code"].tolist()
+    o2 = isig.sort_by_priority(
+        tie.sample(frac=1.0, random_state=3).reset_index(drop=True))["code"].tolist()
+    check("排序：前两键并列时按 code 兜底（并列组内 code 升序）",
+          o1 == ["A", "B", "C", "D"], str(o1))
+    check("排序：输出与输入行序无关（直接测 sort_by_priority，绕开上游 code 排序）",
+          o1 == o2, f"{o1} vs {o2}")
+    check("排序：并列数据确实造成了并列（元断言，否则上面两条没区分度）",
+          tie["amt_pct"].duplicated().any() and tie["mv_pct"].duplicated().any())
 
 
 # ============================ 3. 样本与窗口降级 ============================
@@ -634,6 +675,160 @@ def test_sector_rotation_reject_wiring() -> None:
           "host_offset" in ast.dump(tree))
 
 
+def test_page_data_helpers() -> None:
+    """展示页专用的纯装配函数：universe_frame / industry_series。
+
+    页面本身另有 AppTest 探针（tools_probe_industry_signal_page.py）跑真渲染；
+    这里只验计算层这两个纯函数，因为它们决定了「页面上标红的」是不是
+    「结论里命中的」——这两者一旦漂移，页面看起来一切正常。
+    """
+    rows = _base(40)
+    _declining_mv_rising_amt(rows, 40)
+    _spike_rows(rows, 40, [("SPK1", 1), ("SPK2", 2), ("SPK3", 3)])
+    hist = pd.DataFrame(rows)
+    sig = isig.compute_signal(hist)
+
+    # ---- universe_frame ----
+    uf = isig.universe_frame(sig)
+    check("装配：ok 结论能装配出全量行业表",
+          uf is not None and len(uf) == sig["industry_count"],
+          f"{None if uf is None else len(uf)} vs {sig['industry_count']}")
+    if uf is None:
+        return
+    check("装配：命中标记数与 hits_count 严格相等",
+          int(uf["is_hit"].sum()) == sig["hits_count"],
+          f"{int(uf['is_hit'].sum())} vs {sig['hits_count']}")
+    # 注意不能反过来要求「命中集合 == picks 集合」：picks 被 MAX_PICKS 截断过，
+    # 而页面必须标出**全部**命中（否则图上会漏掉几个真正的命中行业）。
+    # 正确的关系是 picks ⊂ 命中集合，且多出来的那部分正是被截断的那些。
+    hit_codes = set(uf.loc[uf["is_hit"], "code"])
+    pick_codes = {p["code"] for p in sig["picks"]}
+    check("装配：picks 必须是命中集合的子集",
+          pick_codes <= hit_codes, str(pick_codes - hit_codes))
+    check("装配：命中集合里比 picks 多出来的正好是被截断的那些",
+          len(hit_codes) - len(pick_codes) == sig["hits_count"] - len(sig["picks"]),
+          f"{len(hit_codes)} vs picks {len(pick_codes)} / hits {sig['hits_count']}")
+    check("装配：命中数多于 max_picks（元断言：否则「标全部命中」这条没被覆盖）",
+          sig["hits_count"] > len(sig["picks"]),
+          f"hits={sig['hits_count']} picks={len(sig['picks'])}")
+    # 排序：命中的必须整体排在最前（页面按行序渲染，未命中的混进来最扎眼）
+    hit_flags = uf["is_hit"].tolist()
+    check("装配：命中行全部排在前面（行序 = 优先级序）",
+          hit_flags == sorted(hit_flags, reverse=True), str(hit_flags))
+
+    # 阈值必须跟着 sig 走 —— 这条是「页面阈值不许硬编码」在计算层的对应断言
+    tampered = json.loads(json.dumps(sig))
+    tampered["thresholds"]["mv_pct_max"] = 0.0
+    tampered["thresholds"]["amt_pct_min"] = 100.0
+    uf_t = isig.universe_frame(tampered)
+    check("装配：命中标记跟着 thresholds 变（阈值不是写死的常量）",
+          uf_t is not None and int(uf_t["is_hit"].sum()) == 0,
+          str(None if uf_t is None else int(uf_t["is_hit"].sum())))
+    check("装配：原始 sig 未被改动（装配是纯函数，不改调用方数据）",
+          sig["thresholds"]["mv_pct_max"] == isig.MV_PCT_MAX)
+
+    # 降级：非 ok 一律 None，页面据此走明确分支而不是渲染空表
+    check("装配：no_data 返回 None（不渲染空表冒充「今天没有」）",
+          isig.universe_frame({"status": "no_data"}) is None)
+    check("装配：insufficient 返回 None",
+          isig.universe_frame({"status": "insufficient"}) is None)
+    check("装配：None 输入返回 None", isig.universe_frame(None) is None)
+    check("装配：ok 但缺 industries 字段返回 None",
+          isig.universe_frame({"status": "ok"}) is None)
+    check("装配：ok 但 industries 为空列表返回 None",
+          isig.universe_frame({"status": "ok", "industries": []}) is None)
+
+    # 缺列补 NA，绝不补 0（补 0 会在页面上显示成「占比确实是 0%」）
+    stripped = json.loads(json.dumps(sig))
+    for r in stripped["industries"]:
+        r.pop("mv_share", None)
+        r.pop("amt_share", None)
+    uf_s = isig.universe_frame(stripped)
+    check("装配：缺列补 NA 而不是 0",
+          uf_s is not None and uf_s["mv_share"].isna().all()
+          and not (uf_s["mv_share"].fillna(-1) == 0).any())
+    check("装配：缺列时命中标记仍可用（分位在，判定不依赖占比）",
+          uf_s is not None and int(uf_s["is_hit"].sum()) == sig["hits_count"])
+
+    # 边界行业（分位恰好等于阈值）在页面上也不许被标成命中
+    b = isig.compute_signal(_boundary_case(25, 7, "LOWEXACT"))
+    uf_b = isig.universe_frame(b)
+    check("装配：恰等于阈值的边界行业不被标成命中（严格不等式与结论一致）",
+          uf_b is not None and not bool(
+              uf_b.loc[uf_b["code"] == "LOWEXACT", "is_hit"].iloc[0]))
+
+    # ---- industry_series ----
+    ser = isig.industry_series(hist, "TGT000")
+    check("走势：能取到目标行业序列", ser is not None and len(ser) > 0)
+    if ser is None or ser.empty:
+        return
+    ind = next((i for i in sig["industries"] if i["code"] == "TGT000"), None)
+    check("走势：目标行业在结论的全量名单里（元断言，否则下面的比对没意义）",
+          ind is not None)
+    last = ser.iloc[-1]
+    check("走势：末点日期 == 结论日期", str(last["date"]) == sig["date"])
+    # 结论里落盘的 mv_pct / amt_pct 是 round(..., 1)，而中位秩会产出 1.25 / 1.75
+    # 这类值（(n_less+0.5)/n*100 的分母形态），round(1.25, 1) 走银行家舍入得 1.2。
+    # 所以两条路径要在**落盘精度**上比：先各自 round 到 1 位再比，而不是直接相减。
+    check("走势：末点市值分位 == 结论里的市值分位（同口径、同精度）",
+          ind is not None and round(float(last["mv_pct"]), 1) == ind["mv_pct"],
+          f"{round(float(last['mv_pct']), 1)} vs {ind and ind['mv_pct']}")
+    check("走势：末点热度分位 == 结论里的热度分位（同口径、同精度）",
+          ind is not None and round(float(last["amt_pct"]), 1) == ind["amt_pct"],
+          f"{round(float(last['amt_pct']), 1)} vs {ind and ind['amt_pct']}")
+    check("走势：窗口长度如实上报（40 日归档 → 末点窗口 40，不假装 250）",
+          int(last["mv_window_len"]) == 40 and int(last["amt_window_len"]) == 20,
+          f"{int(last['mv_window_len'])} / {int(last['amt_window_len'])}")
+    check("走势：最早那个点的窗口不足（如实体现归档起点限制）",
+          int(ser["mv_window_len"].iloc[0]) < int(ser["mv_window_len"].max()))
+
+    # 未知行业 / 空历史 → None（页面据此显示「没有可用序列」，不画空图）
+    check("走势：未知 code 返回 None",
+          isig.industry_series(hist, "NOT_EXIST") is None)
+    check("走势：None 历史返回 None", isig.industry_series(None, "TGT000") is None)
+    check("走势：空 code 返回 None", isig.industry_series(hist, "") is None)
+
+    # ---- 前视偏差（本组最要紧的一条）----
+    # 先只用前 40 个交易日算一遍；再追加 20 个交易日的新数据（**不改动前 40 日
+    # 的任何一行**），重算。已有的 40 个点的分位必须逐点完全不变。
+    # 如果实现是「先在整段序列上算分位再截取」，追加未来数据会让历史点全部改变
+    # —— 曲线当时根本得不到那样的值，而图上没有任何迹象。
+    #
+    # 追加的那 20 天必须补满**同样多的行业**：只补 TGT000 会让那些日子的截面
+    # 从 23 个掉到 20 个，低于中位数的 90%，被截面守卫整日剔除 —— 那样这个用例
+    # 就退化成「只比前 40 天」，第一版正是这么写的，len(ser80) 没有变长。
+    ds_all = _dates(60)
+    rows60 = rows
+    extra = []
+    for d in ds_all[40:]:
+        for i in range(19):
+            extra.append(_row(d, f"NORM{i:02d}", f"常态{i}", "常态一级", 1000.0, 10.0))
+        for code in ("SPK1", "SPK2", "SPK3"):
+            extra.append(_row(d, code, code, "目标一级", 500.0, 10.0))
+        extra.append(_row(d, "TGT000", "目标行业", "目标一级", 400.0, 10.0))
+    ser60 = isig.industry_series(pd.DataFrame(rows60), "TGT000")
+    ser80 = isig.industry_series(pd.DataFrame(rows60 + extra), "TGT000")
+    check("走势：追加未来数据后仍能算出（元断言）",
+          ser60 is not None and ser80 is not None and len(ser80) > len(ser60),
+          f"{None if ser60 is None else len(ser60)} → "
+          f"{None if ser80 is None else len(ser80)}")
+    if ser60 is not None and ser80 is not None:
+        common = ser60["date"].tolist()
+        a60 = ser60.set_index("date")["mv_pct"].round(10).to_dict()
+        a80 = ser80.set_index("date")["mv_pct"].round(10).to_dict()
+        diffs = [d for d in common if a60.get(d) != a80.get(d)]
+        check("走势：市值分位无前视偏差（追加未来数据后已有各点逐点不变）",
+              not diffs, f"{len(diffs)} 个点变了，例如 {diffs[:3]}")
+        b60 = ser60.set_index("date")["amt_pct"].round(10).to_dict()
+        b80 = ser80.set_index("date")["amt_pct"].round(10).to_dict()
+        diffs2 = [d for d in common if b60.get(d) != b80.get(d)]
+        check("走势：热度分位无前视偏差（同上）",
+              not diffs2, f"{len(diffs2)} 个点变了，例如 {diffs2[:3]}")
+        check("走势：分位不是常量（元断言：否则「逐点不变」恒成立、断言无区分度）",
+              len({round(float(v), 6) for v in ser60["mv_pct"]}) > 3,
+              str(len({round(float(v), 6) for v in ser60["mv_pct"]})))
+
+
 def test_architecture_layers() -> None:
     """计算层必须能被脱 runtime 单测：不得 import 展示层或跑批层。"""
     tree = ast.parse(open("industry_signal.py", encoding="utf-8").read())
@@ -655,7 +850,7 @@ def main() -> int:
                test_markdown, test_digest_wiring, test_no_forbidden_imports,
                test_run_daily_wiring, test_fetch_day_guard,
                test_section_reject_and_cleanup, test_sector_rotation_reject_wiring,
-               test_architecture_layers):
+               test_page_data_helpers, test_architecture_layers):
         print(f"\n=== {fn.__name__} ===")
         fn()
 

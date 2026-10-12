@@ -39,6 +39,19 @@
 占比的分母是当日全体行业之和，少一半行业会让每个行业的占比凭空放大近一倍，
 而结果看起来仍然是一组正常的百分数——这类错误没有任何下游迹象。
 剔除而不是补零/取邻日，是本项目一贯规则。
+
+唯一真源（改判定规则时只改这里）
+--------------------------------
+- `hit_mask()`  命中判定（严格不等式）。`compute_signal` 与展示页的高亮
+  都调它——两处各写一遍必然漂移，届时会出现「表里标红了、结论里没命中」。
+- `sort_by_priority()` 排序与并列消解。同上。
+
+展示层只装配不计算
+------------------
+`universe_frame()` / `industry_series()` 是给页面用的**纯装配**函数：
+不 import streamlit、不画图、不做取整，缺值一律留 NA 交给页面显示 —。
+`industry_series()` 每个点的分位只用「截至该点」的窗口算，与
+`compute_signal` 逐点同口径（否则就是前视偏差，见该函数 docstring）。
 """
 from __future__ import annotations
 
@@ -55,7 +68,15 @@ MAX_PICKS = 3            # 每日最多报几个
 MIN_TRADE_DAYS = 20      # 归档少于这么多交易日 → 不出结论（样本不足）
 MIN_SECTION_RATIO = 0.90  # 当日行业数 < 常态 × 此值 → 整日视为残缺，剔除
 
+SERIES_DAYS = 120        # 单行业走势图默认展示的交易日数（页面用）
+
 NUMERIC_COLS = ("close", "pct_chg", "amount_yi", "float_mv_yi", "total_mv_yi", "vol")
+
+# 页面明细表/散点图需要的行业字段（缺列补 NA，绝不猜）
+UNIVERSE_COLS = ("code", "name", "l1_name", "mv_share", "mv_pct",
+                 "amt_share", "amt_pct", "pct_chg", "amount_yi", "float_mv_yi")
+UNIVERSE_NUMERIC = ("mv_share", "mv_pct", "amt_share", "amt_pct", "pct_chg",
+                    "amount_yi", "float_mv_yi")
 
 
 def load_history(path: str) -> pd.DataFrame | None:
@@ -120,6 +141,128 @@ def _with_shares(hist: pd.DataFrame) -> pd.DataFrame:
     d["mv_share"] = d["float_mv_yi"] / d.groupby("date")["float_mv_yi"].transform("sum") * 100.0
     d["amt_share"] = d["amount_yi"] / d.groupby("date")["amount_yi"].transform("sum") * 100.0
     return d
+
+
+def hit_mask(frame: pd.DataFrame, thresholds: dict | None = None) -> pd.Series:
+    """命中判定（**唯一真源**）：市值分位 < 阈值 且 成交额分位 > 阈值。
+
+    严格不等式——恰好等于阈值不算命中。用 `<`/`>` 还有一个附带好处：
+    NaN 比较恒为 False，缺失值天然不会被动判成命中（不需要额外过滤）。
+
+    阈值优先取传入的那份（即 signal.json 里落盘的 `thresholds`），
+    使展示页的高亮与生成结论时的规则必定同源。调用方不传才退回模块常量。
+    """
+    th = thresholds or {}
+    mv_max = th.get("mv_pct_max", MV_PCT_MAX)
+    amt_min = th.get("amt_pct_min", AMT_PCT_MIN)
+    if "mv_pct" not in frame.columns or "amt_pct" not in frame.columns:
+        # 缺列 → 全部不命中。绝不假设缺失即满足条件。
+        return pd.Series(False, index=frame.index, dtype=bool)
+    mv = pd.to_numeric(frame["mv_pct"], errors="coerce")
+    amt = pd.to_numeric(frame["amt_pct"], errors="coerce")
+    return (mv < float(mv_max)) & (amt > float(amt_min))
+
+
+def sort_by_priority(frame: pd.DataFrame) -> pd.DataFrame:
+    """优先级排序（**唯一真源**）：热度分位降序 → 市值分位升序 → code 升序。
+
+    为什么必须带上第三个键 code：前两个键都可能并列（多个行业的成交额末值同为
+    窗口最大值，或都降到窗口最小值），而 pandas 的多列排序对并列键是**稳定**的
+    —— 稳定意味着「沿用输入行序」。于是这批数据的输出顺序会随调用方的行序而变。
+
+    `compute_signal` 内部恰好先做了 `d.sort_values(["code", "date"])`，行序已被
+    规范成 code 序，所以**它自己看不出这个问题**（连打乱输入行序都测不出来，
+    2026-10-12 的造错反验第 4 项实证了这一点：去掉 code 键后主探针全绿）。
+    但 `universe_frame` 是直接吃 signal.json 里 industries 的顺序的，将来任何
+    按别的顺序装配数据的调用方都会踩到。带上 code 之后，输出与输入行序无关。
+
+    这条保证由探针**直接对 sort_by_priority 断言**（构造前两键全并列的帧、
+    打乱行序后比顺序），绕开上游的 code 排序，否则断言会被掩盖。
+    """
+    cols = [c for c in ("amt_pct", "mv_pct", "code") if c in frame.columns]
+    if not cols:
+        return frame
+    ascending = [c != "amt_pct" for c in cols]
+    return frame.sort_values(cols, ascending=ascending, na_position="last")
+
+
+def universe_frame(sig: dict | None) -> pd.DataFrame | None:
+    """把 signal dict 的全量行业装配成表（页面散点图 + 明细表用）。
+
+    纯装配：不取整、不补默认值、不重算分位。缺列补 NA —— 页面显示 `—`。
+    `status != ok` 返回 None：让展示层走明确的降级路径，而不是渲染一张空表
+    （空表看起来和"今天真的没有行业"一模一样）。
+    """
+    if not sig or sig.get("status") != "ok":
+        return None
+    rows = sig.get("industries") or []
+    if not rows:
+        return None
+    df = pd.DataFrame(rows)
+    for c in UNIVERSE_COLS:
+        if c not in df.columns:
+            df[c] = pd.NA
+    for c in UNIVERSE_NUMERIC:
+        df[c] = pd.to_numeric(df[c], errors="coerce")
+    # 命中标记走唯一真源，不在这里重写一遍不等式
+    df["is_hit"] = hit_mask(df, sig.get("thresholds"))
+    return sort_by_priority(df).reset_index(drop=True)
+
+
+def industry_series(history: pd.DataFrame | None, code: str,
+                    days: int = SERIES_DAYS) -> pd.DataFrame | None:
+    """某行业的占比与分位历史（页面走势图用）。
+
+    每个点的分位只用**截至该点**的窗口算（含该点自身），口径与
+    `compute_signal` 逐点一致。绝不能先在全期序列上算完再截取——那会让
+    历史点用上未来数据（前视偏差），曲线画出来很漂亮，但当时根本得不到
+    这样的数，而图上没有任何迹象能看出来。
+
+    探针里有一条断言专门守它：给历史追加未来数据后，
+    已有各交易日的分位必须逐字节不变。
+
+    返回列：date / close? / pct_chg / mv_share / mv_pct / amt_share /
+    amt_pct / amount_yi / float_mv_yi / mv_window_len / amt_window_len
+    （原表没的列就不产出，不凭空补）。两个 window_len 让展示层能如实告诉
+    读者「这个点只用了多少个交易日算分位」，而不是假装窗口一直是满的。
+    """
+    if history is None or history.empty or not code:
+        return None
+    valid = section_valid_dates(history)
+    if not valid:
+        return None
+    d = _with_shares(history[history["date"].astype(str).isin(valid)])
+    if d.empty:
+        return None
+    g = d[d["code"].astype(str) == str(code)].sort_values("date")
+    if g.empty:
+        return None
+
+    mv_s = pd.to_numeric(g["mv_share"], errors="coerce").reset_index(drop=True)
+    amt_s = pd.to_numeric(g["amt_share"], errors="coerce").reset_index(drop=True)
+    mv_pcts: list[float | None] = []
+    amt_pcts: list[float | None] = []
+    mv_lens: list[int] = []
+    amt_lens: list[int] = []
+    for i in range(len(mv_s)):
+        # 切片形状与 compute_signal 完全一致：tail(窗口) 后 dropna，末值即当日值
+        mw = mv_s.iloc[max(0, i - MV_WINDOW + 1): i + 1].dropna()
+        aw = amt_s.iloc[max(0, i - AMT_WINDOW + 1): i + 1].dropna()
+        mv_pcts.append(percentile_rank(mw, mw.iloc[-1] if len(mw) else None))
+        amt_pcts.append(percentile_rank(aw, aw.iloc[-1] if len(aw) else None))
+        mv_lens.append(int(len(mw)))
+        amt_lens.append(int(len(aw)))
+
+    out = g.assign(mv_pct=mv_pcts, amt_pct=amt_pcts,
+                   mv_window_len=mv_lens, amt_window_len=amt_lens)
+    keep = [c for c in ("date", "close", "pct_chg", "mv_share", "mv_pct",
+                        "amt_share", "amt_pct", "amount_yi", "float_mv_yi",
+                        "mv_window_len", "amt_window_len")
+            if c in out.columns]
+    out = out[keep]
+    n = int(days)
+    out = out.tail(n) if n > 0 else out.iloc[0:0]
+    return out.reset_index(drop=True)
 
 
 def compute_signal(history: pd.DataFrame | None, as_of: str | None = None) -> dict:
@@ -187,12 +330,10 @@ def compute_signal(history: pd.DataFrame | None, as_of: str | None = None) -> di
         return {"status": "no_data", "reason": f"{as_of} 没有任何可用行业"}
 
     universe = pd.DataFrame(rows)
-    hits = universe[(universe["mv_pct"] < MV_PCT_MAX) & (universe["amt_pct"] > AMT_PCT_MIN)]
-    # 排序必须是全序：前两个键都可能并列（例如多个行业的成交额末值同为窗口最大值，
-    # 或都降到窗口最小值），只按两个键排序时 pandas 的 quicksort 不稳定，
-    # 同日两次跑批可能给出不同顺序 —— 那会让推送内容"变了"却没有任何理由。
-    # 第三个键 code 保证任意输入下顺序唯一。
-    hits = hits.sort_values(["amt_pct", "mv_pct", "code"], ascending=[False, True, True])
+    # 命中规则与排序都走唯一真源：展示页调的是同两个函数，
+    # 因此「表里标红的」与「结论里命中的」不可能不一致。
+    thresholds = {"mv_pct_max": MV_PCT_MAX, "amt_pct_min": AMT_PCT_MIN}
+    hits = sort_by_priority(universe[hit_mask(universe, thresholds)])
 
     picks = hits.head(MAX_PICKS).to_dict("records")
     as_of_day = d[d["date"].astype(str) == as_of]
@@ -211,8 +352,7 @@ def compute_signal(history: pd.DataFrame | None, as_of: str | None = None) -> di
         "amt_window": AMT_WINDOW,
         "mv_window_actual": int(universe["mv_window_len"].max()),
         "amt_window_actual": int(universe["amt_window_len"].max()),
-        "thresholds": {"mv_pct_max": MV_PCT_MAX, "amt_pct_min": AMT_PCT_MIN,
-                       "max_picks": MAX_PICKS},
+        "thresholds": {**thresholds, "max_picks": MAX_PICKS},
         "universe_mv_total_yi": round(float(as_of_day["float_mv_yi"].sum()), 2),
         "universe_amt_total_yi": round(float(as_of_day["amount_yi"].sum()), 2),
         "hits_count": int(len(hits)),
