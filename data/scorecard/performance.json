@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-14 02:45:33",
+  "generated_at": "2026-10-14 04:34:11",
   "benchmark": "000300.SH",
   "horizons": [
     1,
@@ -10,7 +10,7 @@
   "strategies": {
     "breakout": {
       "label": "阶段新高突破池",
-      "total_picks": 1522,
+      "total_picks": 1526,
       "days": 26,
       "horizons": {
         "1": {
@@ -168,7 +168,7 @@
         "n_days": 21,
         "beta": 2.0604880358306796,
         "r_squared": 0.5463596623551709,
-        "intercept": -0.00703057650068571,
+        "intercept": -0.007030576500685717,
         "raw_alpha_median": -0.020812040592508907,
         "adj_alpha_median": -0.007268582974144167,
         "adj_direction_accuracy": 0.4652892561983471,
@@ -532,8 +532,8 @@
     }
   },
   "archive": {
-    "pick_rows": 6639,
-    "price_rows": 27867,
+    "pick_rows": 6643,
+    "price_rows": 27869,
     "date_from": "20260706",
     "date_to": "20261013",
     "trade_days": 66
