@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-17 02:11:24",
+  "date": "2026-10-17 22:22:24",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -312,15 +312,6 @@
       "premium_rate": 0.21
     },
     {
-      "code": "159241.SZ",
-      "name": "航空航天ETF天弘",
-      "price": 1.005,
-      "change": 3.93,
-      "vol_yi": 1.32,
-      "tag": "📈 强势",
-      "premium_rate": 0.29
-    },
-    {
       "code": "563380.SH",
       "name": "航空航天ETF华泰柏瑞",
       "price": 0.925,
@@ -328,6 +319,15 @@
       "vol_yi": 0.46,
       "tag": "📈 强势",
       "premium_rate": 0.34
+    },
+    {
+      "code": "159241.SZ",
+      "name": "航空航天ETF天弘",
+      "price": 1.005,
+      "change": 3.93,
+      "vol_yi": 1.32,
+      "tag": "📈 强势",
+      "premium_rate": 0.29
     },
     {
       "code": "159707.SZ",
