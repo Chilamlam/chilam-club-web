@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-19 19:06:58",
+  "date": "2026-10-20 01:44:32",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -210,7 +210,7 @@
       "change": 4.72,
       "vol_yi": 0.33,
       "tag": "📈 强势",
-      "premium_rate": 4.6
+      "premium_rate": 0.67
     },
     {
       "code": "159530.SZ",
@@ -219,7 +219,7 @@
       "change": 4.3,
       "vol_yi": 6.94,
       "tag": "📈 强势",
-      "premium_rate": 4.23
+      "premium_rate": 0.29
     },
     {
       "code": "159048.SZ",
@@ -228,7 +228,7 @@
       "change": 4.29,
       "vol_yi": 0.11,
       "tag": "📈 强势",
-      "premium_rate": 4.27
+      "premium_rate": 0.35
     },
     {
       "code": "159559.SZ",
@@ -237,7 +237,7 @@
       "change": 4.25,
       "vol_yi": 0.6,
       "tag": "📈 强势",
-      "premium_rate": 4.19
+      "premium_rate": 0.33
     },
     {
       "code": "159272.SZ",
@@ -246,7 +246,7 @@
       "change": 4.15,
       "vol_yi": 1.06,
       "tag": "📈 强势",
-      "premium_rate": 4.27
+      "premium_rate": 0.36
     },
     {
       "code": "159050.SZ",
@@ -255,7 +255,7 @@
       "change": 4.05,
       "vol_yi": 0.15,
       "tag": "📈 强势",
-      "premium_rate": 4.15
+      "premium_rate": 0.26
     },
     {
       "code": "159278.SZ",
@@ -264,7 +264,7 @@
       "change": 4.02,
       "vol_yi": 0.98,
       "tag": "📈 强势",
-      "premium_rate": 4.1
+      "premium_rate": 0.24
     },
     {
       "code": "517400.SH",
@@ -273,7 +273,7 @@
       "change": 3.39,
       "vol_yi": 0.82,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 3.2
+      "premium_rate": 2.48
     },
     {
       "code": "159320.SZ",
@@ -282,7 +282,7 @@
       "change": 3.03,
       "vol_yi": 0.33,
       "tag": "📈 强势",
-      "premium_rate": 2.62
+      "premium_rate": 0.33
     },
     {
       "code": "560630.SH",
@@ -291,7 +291,7 @@
       "change": 2.99,
       "vol_yi": 0.06,
       "tag": "📈 强势",
-      "premium_rate": 2.86
+      "premium_rate": 0.16
     },
     {
       "code": "159213.SZ",
@@ -300,7 +300,7 @@
       "change": 2.92,
       "vol_yi": 0.23,
       "tag": "📈 强势",
-      "premium_rate": 2.9
+      "premium_rate": 0.12
     },
     {
       "code": "562360.SH",
@@ -309,7 +309,7 @@
       "change": 2.91,
       "vol_yi": 0.16,
       "tag": "📈 强势",
-      "premium_rate": 2.91
+      "premium_rate": 0.14
     },
     {
       "code": "562500.SH",
@@ -318,7 +318,7 @@
       "change": 2.9,
       "vol_yi": 5.81,
       "tag": "📈 强势",
-      "premium_rate": 2.76
+      "premium_rate": -0.01
     },
     {
       "code": "159526.SZ",
@@ -327,7 +327,7 @@
       "change": 2.89,
       "vol_yi": 0.27,
       "tag": "📈 强势",
-      "premium_rate": 2.71
+      "premium_rate": 0.0
     },
     {
       "code": "562390.SH",
@@ -336,7 +336,7 @@
       "change": 2.88,
       "vol_yi": 0.05,
       "tag": "📈 强势",
-      "premium_rate": 2.62
+      "premium_rate": 0.16
     },
     {
       "code": "517520.SH",
@@ -345,7 +345,7 @@
       "change": 2.84,
       "vol_yi": 5.63,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 2.85
+      "premium_rate": 2.13
     },
     {
       "code": "159770.SZ",
@@ -354,7 +354,7 @@
       "change": 2.79,
       "vol_yi": 1.17,
       "tag": "📈 强势",
-      "premium_rate": 2.87
+      "premium_rate": 0.11
     },
     {
       "code": "159258.SZ",
@@ -363,7 +363,7 @@
       "change": 2.78,
       "vol_yi": 0.32,
       "tag": "📈 强势",
-      "premium_rate": 2.83
+      "premium_rate": 0.14
     },
     {
       "code": "158037.SZ",
@@ -372,7 +372,7 @@
       "change": 2.74,
       "vol_yi": 0.08,
       "tag": "📈 强势",
-      "premium_rate": 2.66
+      "premium_rate": -0.07
     },
     {
       "code": "162411.SZ",
@@ -381,7 +381,7 @@
       "change": 2.7,
       "vol_yi": 0.54,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 1.66
+      "premium_rate": -0.9
     }
   ],
   "ai_analysis": ""
