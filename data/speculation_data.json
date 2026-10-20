@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-20 23:50:04",
+  "date": "2026-10-21 02:33:31",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -240,15 +240,6 @@
       "premium_rate": 0.16
     },
     {
-      "code": "159530.SZ",
-      "name": "机器人ETF易方达",
-      "price": 1.22,
-      "change": 4.81,
-      "vol_yi": 14.79,
-      "tag": "📈 强势",
-      "premium_rate": 0.13
-    },
-    {
       "code": "589560.SH",
       "name": "科创人工智能ETF汇添富",
       "price": 0.828,
@@ -256,6 +247,15 @@
       "vol_yi": 0.16,
       "tag": "📈 强势",
       "premium_rate": 0.21
+    },
+    {
+      "code": "159530.SZ",
+      "name": "机器人ETF易方达",
+      "price": 1.22,
+      "change": 4.81,
+      "vol_yi": 14.79,
+      "tag": "📈 强势",
+      "premium_rate": 0.13
     },
     {
       "code": "159048.SZ",
