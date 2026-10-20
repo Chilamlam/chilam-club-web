@@ -27,6 +27,14 @@ st.set_page_config(
     layout="wide"
 )
 
+# ================= 1.1 侧边栏店铺入口开关 =================
+# 店铺类入口统一在这里控制显隐。关店时**只关开关、不删代码**——以后换商品或
+# 换店铺，改下面两行就行，不必回滚历史提交、也不用重写按钮那段。
+# 关掉后对**所有访问者**都不可见（包括管理员），页面上不留任何残影。
+SHOP_ENTRY_ENABLED = False
+SHOP_ENTRY_LABEL = "🛒 全天候小店"
+SHOP_ENTRY_URL = "https://shop.chilam.club"
+
 def inject_ga_safe():
     GA_ID = "G-1HFTXNLL20"
     ga_code = f"""
@@ -710,10 +718,13 @@ def main():
             if st.button("🔐 登录 / 注册", key="sb_login", use_container_width=True):
                 st.switch_page("pages/auth.py")
 
-        # 🛒 全天候小店入口（2026-10-06）：link_button 生成 target=_blank 的锚点，
-        # 在 www.chilam.club 的 iframe 壳里点击是开新标签页，不会把 iframe 带走。
-        st.link_button("🛒 全天候小店", "https://shop.chilam.club",
-                       use_container_width=True)
+        # 🛒 店铺入口（2026-10-06 上线，2026-10-20 关店后隐藏）：
+        # 显隐由文件头的 SHOP_ENTRY_ENABLED 控制，代码保留是为了以后换商品时直接复用。
+        # link_button 生成 target=_blank 的锚点，在 www.chilam.club 的 iframe 壳里
+        # 点击是开新标签页，不会把 iframe 带走。
+        if SHOP_ENTRY_ENABLED:
+            st.link_button(SHOP_ENTRY_LABEL, SHOP_ENTRY_URL,
+                           use_container_width=True)
 
         st.markdown("---")
         menu_items = [
