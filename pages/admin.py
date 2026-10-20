@@ -33,6 +33,7 @@ sys.path.insert(0, _ROOT)
 
 import auth
 import database
+import site_settings
 
 st.set_page_config(page_title="后台管理 - Chilam Club", page_icon="⚙️", layout="wide")
 
@@ -55,11 +56,12 @@ st.caption(f"当前管理员: {auth.get_user_email()}")
 admin_id = auth.get_user_id()
 
 # ================= Tabs =================
-tab_users, tab_orders, tab_grant, tab_reset = st.tabs([
+tab_users, tab_orders, tab_grant, tab_reset, tab_site = st.tabs([
     "👥 用户列表",
     "📦 订单确认收款",
     "🎁 手动开通/续期",
-    "🔑 密码重置"
+    "🔑 密码重置",
+    "🧩 站点设置"
 ])
 
 # ================= Tab 1: 用户列表 =================
@@ -331,6 +333,105 @@ with tab_reset:
                     ("ok", f"已为 `{target_email}` 生成重置码。{note}", code) if ok
                     else ("err", f"生成失败：{note}", ""))
                 st.rerun()
+
+# ================= Tab 5: 站点设置 =================
+# 为什么需要这一页：店铺入口这类「运营侧决定」如果写死在代码里，每次开关都要
+# 改代码 + 提交 + 等 Cloud 重新部署；而关店/开店是当天就要生效的事。
+# 存进 site_settings 表后，在这里点一下就行，对访客立即生效，也不需要会写代码。
+with tab_site:
+    st.subheader("🧩 站点设置")
+    st.caption("这里的改动即时生效，不需要改代码、不需要等重新部署。")
+
+    # 走 flash：紧跟 st.rerun() 的 st.success 会立刻消失（同密码重置那段的处理）
+    _site_flash = st.session_state.pop("admin_site_flash", None)
+    if _site_flash:
+        _skind, _stext = _site_flash
+        {"ok": st.success, "warn": st.warning, "err": st.error}[_skind](_stext)
+
+    st.markdown("### 🛒 侧边栏店铺入口")
+
+    _cfg = site_settings.read_shop_entry()
+    _err = _cfg.get("err") or {}
+    # 「表没建」要给出建表 SQL；「网络抖动」要让人重试 —— 两者不能混成一句
+    # 「读取失败」，否则管理员会去执行一个根本没用的迁移脚本。
+    _table_missing = (_cfg["source"] == "db-read-failed"
+                      and (str(_err.get("code")) == "PGRST205"
+                           or _err.get("status") == 404))
+
+    if _table_missing:
+        st.warning("⚠️ `site_settings` 表尚未创建，这里暂时改不了。"
+                   "侧边栏入口当前按代码默认值处理（隐藏），前台不会报错。")
+        with st.expander("📋 点击查看建表 SQL（复制到 Supabase SQL Editor 执行）",
+                         expanded=True):
+            _sql_path = os.path.join(_ROOT, "init_site_settings.sql")
+            if os.path.exists(_sql_path):
+                with open(_sql_path, "r", encoding="utf-8") as f:
+                    st.code(f.read(), language="sql")
+            else:
+                st.warning("未找到 init_site_settings.sql 文件")
+    elif _cfg["source"] == "db-read-failed":
+        st.error(f"读取站点设置失败（HTTP {_err.get('status')}）："
+                 f"{_err.get('message') or _err.get('detail') or '未知原因'}")
+        st.caption("这是**取不到**，不是「没有配置」——前台此时按默认值（隐藏）显示。")
+    else:
+        if _cfg["source"] == "default":
+            st.info("表已就绪但还没有配置记录，当前按代码默认值显示（隐藏）。"
+                    "保存一次即写入。")
+
+        # 不给 key：Streamlit 带 key 的 widget 在 rerun 时会用自己存的旧值、
+        # 忽略 value=，那样保存后从库里读到的新值刷不进控件（见 tech-pitfalls）。
+        _shop_on = st.toggle(
+            "在侧边栏显示店铺入口",
+            value=bool(_cfg["enabled"]),
+            help="关掉后对所有访问者（包括管理员自己）都不可见，页面上不留任何残影。")
+        _shop_label = st.text_input(
+            "按钮文案", value=_cfg["label"],
+            help="例如「🛒 全天候小店」。以后换商品只改这里。")
+        _shop_url = st.text_input(
+            "按钮链接",
+            value=_cfg["url"] or site_settings.SHOP_ENTRY_DEFAULT_URL,
+            help="必须以 http:// 或 https:// 开头；其他协议前台会拒绝渲染（防伪协议注入）。")
+
+        _c_save, _c_state = st.columns([1, 3])
+        with _c_save:
+            _do_save = st.button("💾 保存", type="primary", use_container_width=True)
+        with _c_state:
+            _src_txt = {"db": "来自站点设置表", "default": "代码默认值"}.get(
+                _cfg["source"], _cfg["source"])
+            st.caption(f"当前：**{'显示' if _cfg['enabled'] else '隐藏'}** · 来源：{_src_txt}")
+
+        if _do_save:
+            _ok, _save_err, _warn = site_settings.save_shop_entry(
+                _shop_on, _shop_label, _shop_url,
+                updated_by=auth.get_user_email())
+            if not _ok:
+                st.session_state["admin_site_flash"] = (
+                    "err",
+                    f"保存失败：{_save_err.get('message') if _save_err else '未知原因'}"
+                    "（若提示找不到表，请先执行 init_site_settings.sql）")
+            elif _warn:
+                # 存进去了，但前台会拒渲染 —— 必须当场说，别等发现入口不显示才来查
+                st.session_state["admin_site_flash"] = ("warn", f"已保存，但{_warn}")
+            else:
+                st.session_state["admin_site_flash"] = (
+                    "ok", f"已保存，前台立即生效（现在{'显示' if _shop_on else '隐藏'}）。")
+            st.rerun()
+
+    st.markdown("---")
+    st.markdown("### 🔐 会话签名密钥")
+    st.caption("只报「来源」与「长度」，**不会显示密钥本身**。")
+    _jsrc = auth.JWT_SECRET_SOURCE
+    if _jsrc.startswith(auth.REJECTED_PREFIX) or _jsrc == "ephemeral-random":
+        st.error("当前用的是**进程级随机密钥**：服务每次重启（含每次部署）"
+                 "都会让所有已登录用户掉线，需要重新登录。")
+        st.markdown(
+            "**怎么修**（一次性）：Streamlit Cloud → 你的应用 → Settings → Secrets，"
+            "把 `[auth]` 下的 `jwt_secret` 换成一个新的随机值（≥32 字符）后保存，"
+            "应用会重启一次，之后就不会再掉登录。")
+        st.caption(f"当前来源：`{_jsrc}`")
+    else:
+        st.success(f"已从 `{_jsrc}` 读到持久化密钥（长度 {len(auth.JWT_SECRET)}），"
+                   "重启与重新部署都不会让用户掉登录。")
 
 st.markdown("---")
 if st.button("⬅️ 返回主页", use_container_width=False):

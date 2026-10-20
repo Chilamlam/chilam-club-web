@@ -27,13 +27,12 @@ st.set_page_config(
     layout="wide"
 )
 
-# ================= 1.1 侧边栏店铺入口开关 =================
-# 店铺类入口统一在这里控制显隐。关店时**只关开关、不删代码**——以后换商品或
-# 换店铺，改下面两行就行，不必回滚历史提交、也不用重写按钮那段。
-# 关掉后对**所有访问者**都不可见（包括管理员），页面上不留任何残影。
-SHOP_ENTRY_ENABLED = False
-SHOP_ENTRY_LABEL = "🛒 全天候小店"
-SHOP_ENTRY_URL = "https://shop.chilam.club"
+# ================= 1.1 侧边栏店铺入口 =================
+# 显隐、文案、链接**都不在这里写死**：存在 Supabase 的 site_settings 表里，
+# 由后台管理页「站点设置」维护（见 site_settings.py / init_site_settings.sql）。
+# 这样关店或换商品时点一下即可，不用改代码、不用等重新部署。
+# 这里的 site_settings 已经是「读 DB（失败则回落默认值）后的最终结论」。
+import site_settings
 
 def inject_ga_safe():
     GA_ID = "G-1HFTXNLL20"
@@ -718,12 +717,14 @@ def main():
             if st.button("🔐 登录 / 注册", key="sb_login", use_container_width=True):
                 st.switch_page("pages/auth.py")
 
-        # 🛒 店铺入口（2026-10-06 上线，2026-10-20 关店后隐藏）：
-        # 显隐由文件头的 SHOP_ENTRY_ENABLED 控制，代码保留是为了以后换商品时直接复用。
+        # 🛒 店铺入口（2026-10-06 上线；2026-10-20 关店后由后台开关隐藏）
+        # 开关/文案/链接都来自 site_settings（后台「站点设置」页可改），
+        # 读不到配置时按「不显示」处理——宁可少一个入口，也不要把已关的店露出来。
         # link_button 生成 target=_blank 的锚点，在 www.chilam.club 的 iframe 壳里
         # 点击是开新标签页，不会把 iframe 带走。
-        if SHOP_ENTRY_ENABLED:
-            st.link_button(SHOP_ENTRY_LABEL, SHOP_ENTRY_URL,
+        _shop = site_settings.shop_entry_config()
+        if _shop.get("enabled"):
+            st.link_button(_shop["label"], _shop["url"],
                            use_container_width=True)
 
         st.markdown("---")

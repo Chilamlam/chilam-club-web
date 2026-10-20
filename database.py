@@ -1024,3 +1024,90 @@ def expire_stale_pending_payments(hours: int = 24) -> tuple:
     if err:
         return 0, err
     return (len(res) if isinstance(res, list) else 0), None
+
+
+# ==================== 站点运营设置（site_settings key/value） ====================
+# 为什么要有这一层：运营侧开关（如「侧边栏店铺入口是否显示」）写死在代码常量里，
+# 每切一次都要改代码 + 提交 + 等 Cloud 重新部署，而关店/开店是「今天就要生效」的事。
+# 存表后管理员在后台点一下，对所有访客立即生效。
+#
+# 表结构见 init_site_settings.sql。该表**只授给 service_role**，RLS 下不给
+# anon / authenticated 任何策略 —— 前端直连读不到，只能走本模块（服务端 key）。
+
+SITE_SETTINGS_TABLE = "site_settings"
+
+
+def get_site_setting(key: str, default=None):
+    """读一条设置，返回 `(value, err)`。
+
+    **三条路径必须能区分开**，否则页面会把「网络抖动」和「管理员关掉了」
+    显示成同一个样子：
+      · 读到          → `(值, None)`
+      · 明确没有这条  → `(default, None)`   ← 不是错误，只是没配过
+      · 读失败        → `(default, err)`    ← 调用方应当**告警**而不是静默
+    """
+    rows, err = _supabase_request(
+        "GET", SITE_SETTINGS_TABLE,
+        params={"select": "value", "key": f"eq.{key}", "limit": "1"},
+        return_error=True)
+    if err:
+        return default, err
+    if not rows:
+        return default, None
+    return (rows[0] or {}).get("value"), None
+
+
+def set_site_setting(key: str, value: str, updated_by: Optional[str] = None) -> tuple:
+    """写入/覆盖一条设置，返回 `(ok, err)`。
+
+    用 PostgREST 的 upsert（`on_conflict=key` + `resolution=merge-duplicates`）：
+    先查再写会有竞态（两次点击 / 两个标签页），upsert 是原子的。
+    `updated_at` 由应用层显式写当前时间 —— 表的 DEFAULT now() 只在 INSERT
+    生效，UPDATE 不会自动刷新，否则「最后修改时间」会在改完之后不动。
+    """
+    payload = {
+        "key": str(key),
+        "value": str(value),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    if updated_by:
+        payload["updated_by"] = str(updated_by)
+    _data, err = _supabase_request(
+        "POST", SITE_SETTINGS_TABLE,
+        params={"on_conflict": "key"},
+        json_data=[payload],
+        headers_extra={"Prefer": "resolution=merge-duplicates,return=representation"},
+        return_error=True)
+    return (err is None), err
+
+
+def get_site_settings(keys: List[str]) -> tuple:
+    """批量读多条设置，返回 `({key: value}, err)`。
+
+    为什么批量：前台的侧边栏每次渲染都要判断店铺入口，若一条一个请求，
+    就是 3 个 HTTP 串行；合并成一次 `key=in.(...)` 只花一个往返。
+    """
+    if not keys:
+        return {}, None
+    rows, err = _supabase_request(
+        "GET", SITE_SETTINGS_TABLE,
+        params={"select": "key,value", "key": f"in.({','.join(str(k) for k in keys)})"},
+        return_error=True)
+    if err:
+        return {}, err
+    return {str((r or {}).get("key")): (r or {}).get("value") for r in (rows or [])}, None
+
+
+def check_site_settings_table() -> bool:
+    """`site_settings` 表是否已建（供后台页提示管理员执行建表 SQL）。
+
+    判据是「GET 拿到 list」：表不存在时 PostgREST 回 404 → 走 HTTPError 分支
+    返回 None，与本函数要区分的「表在但没数据」（返回 `[]`，仍是 list）不会混。
+
+    注意：页面**不靠这个布尔值判断要不要显示建表 SQL** —— 它分不出
+    「表没建」和「网络抖动」。后台页改用 `site_settings.read_shop_entry()`
+    的 `err.code/status`，本函数只给探针与运维排查用。
+    """
+    res = _supabase_request("GET", SITE_SETTINGS_TABLE,
+                            params={"select": "key", "limit": "1"})
+    return isinstance(res, list)
