@@ -38,8 +38,14 @@ def _get_config():
     return url.rstrip("/"), key
 
 def _supabase_request(method: str, endpoint: str, params: dict = None, json_data: Any = None,
-                      headers_extra: dict = None, return_error: bool = False) -> Any:
+                      headers_extra: dict = None, return_error: bool = False,
+                      retries: int = None, timeout: float = None) -> Any:
     """封装 Supabase PostgREST 请求。
+
+    `retries` / `timeout` 供**非关键读取**收窄代价：默认 GET 重试 3 次、单次 10 秒，
+    这是为「登录查用户被一次 TLS 抖动吞成查无此人」那个坑设的保险，关键路径需要它。
+    但侧边栏的站点开关这类读失败也只是回落到默认值，让它连带卡 3×10 秒毫无意义
+    ——调用方传 `retries=1, timeout=3` 即可（见 get_site_settings）。
 
     `return_error=True` 时返回 `(data, err)`，`err` 为 `None` 或
     `{"status": int, "code": str, "message": str, "detail": str}`。
@@ -76,10 +82,11 @@ def _supabase_request(method: str, endpoint: str, params: dict = None, json_data
     # 此前一次 TLS 抖动就把「查询失败」吞成 None，与「查无此行」无法区分——
     # 2026-10-06 实测把注册用户判成「未找到该邮箱对应的账号」，
     # 幸有 curl 旁路核验才没把重置码发错方向。
-    attempts = range(3) if method == "GET" else (0,)
+    attempts = range(3 if retries is None else max(1, int(retries))) if method == "GET" else (0,)
+    _timeout = 10 if timeout is None else float(timeout)
     for attempt in attempts:
         try:
-            with urllib.request.urlopen(req, timeout=10) as resp:
+            with urllib.request.urlopen(req, timeout=_timeout) as resp:
                 body = resp.read().decode("utf-8")
                 data = json.loads(body) if body else True
                 return (data, None) if return_error else data
@@ -1036,6 +1043,10 @@ def expire_stale_pending_payments(hours: int = 24) -> tuple:
 
 SITE_SETTINGS_TABLE = "site_settings"
 
+# 站点设置的读取超时（秒）。远小于全局默认的 10 秒：这条读跑在**侧边栏渲染路径**上，
+# 而读失败有「按隐藏处理」的兜底，不值得为一个非关键开关拖慢整页。
+SITE_SETTINGS_TIMEOUT = 3
+
 
 def get_site_setting(key: str, default=None):
     """读一条设置，返回 `(value, err)`。
@@ -1049,7 +1060,9 @@ def get_site_setting(key: str, default=None):
     rows, err = _supabase_request(
         "GET", SITE_SETTINGS_TABLE,
         params={"select": "value", "key": f"eq.{key}", "limit": "1"},
-        return_error=True)
+        return_error=True,
+        # 非关键读取：读失败也只是回落默认值，不值得让访客等 3×10 秒
+        retries=1, timeout=SITE_SETTINGS_TIMEOUT)
     if err:
         return default, err
     if not rows:
@@ -1092,7 +1105,10 @@ def get_site_settings(keys: List[str]) -> tuple:
     rows, err = _supabase_request(
         "GET", SITE_SETTINGS_TABLE,
         params={"select": "key,value", "key": f"in.({','.join(str(k) for k in keys)})"},
-        return_error=True)
+        return_error=True,
+        # 这条直接跑在**前台侧边栏的渲染路径**上：网络抖动时若按默认 3 次 × 10 秒重试，
+        # 缓存过期后的第一个访客会白卡半分钟。读失败本来就有「隐藏」兜底，不值得。
+        retries=1, timeout=SITE_SETTINGS_TIMEOUT)
     if err:
         return {}, err
     return {str((r or {}).get("key")): (r or {}).get("value") for r in (rows or [])}, None
@@ -1109,5 +1125,6 @@ def check_site_settings_table() -> bool:
     的 `err.code/status`，本函数只给探针与运维排查用。
     """
     res = _supabase_request("GET", SITE_SETTINGS_TABLE,
-                            params={"select": "key", "limit": "1"})
+                            params={"select": "key", "limit": "1"},
+                            retries=1, timeout=SITE_SETTINGS_TIMEOUT)
     return isinstance(res, list)

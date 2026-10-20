@@ -155,6 +155,30 @@ def test_save():
     ck(ok is False and err is not None, "写入失败如实返回错误，不假装成功")
 
 
+def test_read_budget():
+    """侧边栏路径上的读取必须收窄超时与重试次数。
+
+    为什么值得一条断言：这条读跑在**每次页面渲染**的路径上，而读失败本来就有
+    「按隐藏处理」的兜底。若有人图省事改回全局默认（重试 3 次 × 超时 10 秒），
+    Supabase 抖一下就会让缓存过期后的第一个访客白卡半分钟，而且症状是
+    「网站偶尔很慢」——这种问题极难归因，所以在这里钉死。
+    """
+    import urllib.request as _u
+    calls = []
+
+    def fake_urlopen(req, timeout=None):
+        calls.append(timeout)
+        raise OSError("simulated network down")
+
+    with patched(_u, "urlopen", fake_urlopen):
+        vals, err = database.get_site_settings(["shop_entry_enabled"])
+    ck(len(calls) == 1, "站点设置读失败只尝试 1 次（不按默认 3 次重试）", f"实际 {len(calls)} 次")
+    ck(calls and calls[0] == database.SITE_SETTINGS_TIMEOUT,
+       "站点设置读取用短超时（SITE_SETTINGS_TIMEOUT）而非默认 10 秒", str(calls))
+    ck(err is not None, "读失败如实返回 err（不是静默的空值）")
+    ck(vals == {}, "读失败时返回空映射而不是半截数据", repr(vals))
+
+
 # ==================== 2. 前台真渲染 ====================
 def render_app(timeout=300):
     from streamlit.testing.v1 import AppTest
@@ -306,7 +330,7 @@ def main() -> int:
     """可选参数：只跑指定的测试函数名（造错反验用，避免每个用例都跑整套渲染）。"""
     only = set(sys.argv[1:])
     all_fns = [test_truthy, test_safe_url, test_read_paths, test_save,
-               test_app_render, test_admin_render]
+               test_read_budget, test_app_render, test_admin_render]
     if only:
         unknown = only - {f.__name__ for f in all_fns}
         if unknown:
