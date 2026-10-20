@@ -197,6 +197,83 @@ def rows_to_df(rows: list[dict]) -> pd.DataFrame:
     return df
 
 
+# ---------------------------------------------------------------- 兜底通道
+# 为什么必须有兜底（2026-10-20 加）
+# ---------------------------------
+# 东财 push2 clist 会按**机房 IP** 做边缘级拒绝：2026-09-21 起 Actions 每天只
+# 取到 100~300 个板块，2026-10-12 起连本机都近乎全拒，归档在 09-18 之后断了
+# 16 个交易日，页面判读退化成「样本不连续」。单靠一条被针对性限流的通道，
+# 「残缺拒收」只能防止写坏数据，**不能防止继续缺数据**。
+#
+# Tushare 的 dc_index / dc_daily 转发的**就是同一份东财概念板块数据**，只是
+# 换了一条不被掐断的管子。口径已用归档已有的 09-18 / 10-13 逐字段反验：
+# 直取列 506/506 行完全相等，窗口列自算最大差 0.0798pp。
+#
+# 语义边界（很重要）：兜底成功 = 本条通道成功取到**全量**数据，可以直接归档；
+# 兜底失败 = 两条通道都不可用，此时继续走原来的 failed / incomplete 语义，
+# **绝不**拿半份兜底数据假装成功，也绝不用旧的兜底结果顶替当日。
+def _archive_anchor() -> tuple[str | None, dict[str, float]]:
+    """归档里最近一个交易日的 (日期, {板块: close})。
+
+    用途只有一个：让兜底数据的 close 列与归档**同一尺度**（东财板块指数存在
+    被重新定基的情况，直接拿 Tushare 原始收盘价会与相邻归档日差 1000 倍）。
+    窗口涨跌幅是比值，与尺度无关，不依赖它。
+    """
+    if not os.path.exists(HISTORY_PATH):
+        return None, {}
+    try:
+        hist = pd.read_csv(HISTORY_PATH, dtype={"code": str})
+    except Exception as exc:  # noqa: BLE001
+        print(f"⚠️ 读归档取锚点失败（{type(exc).__name__}），兜底数据不做 close 折算")
+        return None, {}
+    if hist.empty or "date" not in hist.columns or "close" not in hist.columns:
+        return None, {}
+    last = sorted(hist["date"].astype(str).unique())[-1]
+    d = hist[hist["date"].astype(str) == last]
+    return last, d.set_index("code")["close"].dropna().to_dict()
+
+
+def fetch_tushare_snapshot(today: str) -> tuple[pd.DataFrame | None, dict]:
+    """兜底取数：用 Tushare 同源通道重建当日全量快照。
+
+    返回 (DataFrame 或 None, 诊断 dict)。**None 表示兜底不可用**，调用方必须
+    继续按原失败语义处理——把「兜底也失败」当成「取到了」是本函数最危险的误用。
+    """
+    try:
+        import sector_dc_source as dc  # noqa: PLC0415  （按需导入：无 token 环境不必加载）
+    except Exception as exc:  # noqa: BLE001
+        return None, {"error": f"模块不可用：{type(exc).__name__}: {exc}"}
+    anchor_date, anchor_close = _archive_anchor()
+    try:
+        df, info = dc.fetch_snapshot(today, anchor_date=anchor_date,
+                                     anchor_close=anchor_close)
+    except Exception as exc:  # noqa: BLE001
+        return None, {"error": f"{type(exc).__name__}: {exc}", "anchor": anchor_date}
+    if df is None or len(df) < MIN_COMPLETE:
+        return None, {"error": f"行数不足：{0 if df is None else len(df)}",
+                      "anchor": anchor_date, **info}
+    print(f"[i] Tushare 兜底取到 {len(df)} 个概念板块"
+          f"（锚 {anchor_date}，窗口缺失 {info.get('window_missing')}）")
+    return df, {"anchor": anchor_date, **info}
+
+
+def probe_fallback_channel(today: str) -> dict:
+    """兜底通道探活：只调一次 trade_cal，确认 token 与接口都真的可用。
+
+    为什么每天探：兜底是「clist 挂了才用」的通道。等到真挂的那天才发现它没权限，
+    就已经又缺了一天数据 —— 而这件事**无法从 clist 的健康状况里看出来**。
+    探活成本是一次轻量请求，失败绝不影响主流程（只是写进 analysis 供人看）。
+    """
+    if not os.getenv("TUSHARE_TOKEN"):
+        return {"ok": False, "error": "环境里没有 TUSHARE_TOKEN（Actions 需在 secrets 配置）"}
+    try:
+        import sector_dc_source as dc  # noqa: PLC0415
+        opens = dc.trade_cal(today, today)
+        return {"ok": True, "checked_date": today, "is_trade_day": bool(opens)}
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "error": f"{type(exc).__name__}: {exc}"[:300]}
+
+
 def non_trading_day(today: str, df_today: pd.DataFrame) -> bool:
     """数据停滞守卫：与归档最后一个交易日的涨跌幅几乎完全一致 → 非交易日/停滞。
 
@@ -310,13 +387,14 @@ def main() -> int:
     weekday = _cst_now().weekday()
 
     rows, total, failed_pages = fetch_snapshot()
-    if not rows or len(rows) < MIN_VALID:
-        fail(f"概念板块快照取数失败（rows={len(rows)}, total={total}, "
-             f"失败页={failed_pages}），不动历史归档")
-
-    df_today = rows_to_df(rows)
-    df_today.insert(0, "date", today)
-    print(f"[i] 取到 {len(df_today)} 个概念板块（服务端 total={total}）")
+    df_today = rows_to_df(rows) if rows else pd.DataFrame()
+    if not df_today.empty:
+        df_today.insert(0, "date", today)
+    clist_rows = len(df_today)
+    if clist_rows:
+        print(f"[i] clist 取到 {clist_rows} 个概念板块（服务端 total={total}）")
+    else:
+        print(f"⚠️ clist 未取到任何板块（total={total}, 失败页={failed_pages}）")
     if failed_pages:
         # 必须点名是哪几页：只报「取到 400 个」看不出少的是哪一段，
         # 而不同页对应不同板块，缺哪页决定了榜单会怎么偏。
@@ -326,14 +404,38 @@ def main() -> int:
     # 且以 MIN_COMPLETE 为下限——只按 total*0.95 判定时，若服务端 total 本身
     # 被污染成小值，残缺截面会被判成 complete。
     expected = float(total) if total else float(MIN_COMPLETE)
-    incomplete = len(df_today) < max(float(MIN_COMPLETE), expected * 0.95)
+    incomplete = clist_rows < max(float(MIN_COMPLETE), expected * 0.95)
 
     skipped = False
     if weekday >= 5:
         print(f"⏭️ 今天是周{'六' if weekday == 5 else '日'}，clist 返回的是上一交易日收盘数据，不落盘")
         skipped = True
-    elif non_trading_day(today, df_today):
+    elif clist_rows and non_trading_day(today, df_today):
         skipped = True
+
+    # ---- 兜底：clist 取不到或残缺时，换 Tushare 同源通道（仅今天该落盘时）----
+    # 只在「本来要落盘」时才兜底：周末/停滞日不落盘是数据语义决定的，
+    # 与通道好坏无关，兜底去取只会拿到同一份上一交易日的数据。
+    channel = "clist"
+    fb_info: dict = {}
+    if not skipped and incomplete:
+        print(f"🔁 clist 不足（{clist_rows} < {max(int(MIN_COMPLETE), int(expected * 0.95))}），"
+              f"尝试 Tushare 兜底通道")
+        fb_df, fb_info = fetch_tushare_snapshot(today)
+        if fb_df is not None:
+            df_today = fb_df
+            channel = "tushare_dc"
+            expected = float(MIN_COMPLETE)   # 兜底没有 clist 那个服务端 total
+            print(f"[i] 改用 Tushare 兜底数据（{len(df_today)} 个板块）")
+        else:
+            print(f"⚠️ Tushare 兜底也不可用：{fb_info.get('error')}；"
+                  f"继续按原失败语义处理")
+
+    if df_today.empty or len(df_today) < MIN_VALID:
+        fail(f"概念板块快照取数失败（clist rows={clist_rows}, total={total}, "
+             f"失败页={failed_pages}；兜底={fb_info.get('error') or '未触发'}），不动历史归档")
+
+    incomplete = len(df_today) < max(float(MIN_COMPLETE), expected * 0.95)
 
     if not skipped and incomplete:
         # ★ 残缺截面拒收（2026-10-12 改）。旧行为是「照实归档」并打一条 warning，
@@ -343,27 +445,40 @@ def main() -> int:
         # 若该日此前已被写过（上一次跑批残留），一并清掉，避免历史里留着半份。
         removed = drop_date_from_history(today)
         print(f"❌ 本日快照残缺：仅 {len(df_today)} 个板块"
-              f"（阈值 {max(int(MIN_COMPLETE), int(expected * 0.95))}，失败页 {failed_pages}），"
+              f"（阈值 {max(int(MIN_COMPLETE), int(expected * 0.95))}，失败页 {failed_pages}，"
+              f"通道 {channel}），"
               f"拒绝写入 history.csv" + (f"；并清除该日已有 {removed} 行残留" if removed else ""))
     elif not skipped:
         full = append_history(today, df_today)
         full.to_csv(HISTORY_PATH, index=False, encoding="utf-8")
-        print(f"✅ 归档完成：{HISTORY_PATH}（{full['date'].nunique()} 个交易日，{len(full)} 行）")
+        print(f"✅ 归档完成：{HISTORY_PATH}（{full['date'].nunique()} 个交易日，{len(full)} 行；"
+              f"通道 {channel}）")
 
     # ---- 分析（读回刚落盘的归档，保证 analysis 与 history 一致） ----
     hist = sr.load_history(HISTORY_PATH)
     analysis = sr.compute_analysis(hist)
     analysis["generated_at"] = _cst_now().strftime("%Y-%m-%d %H:%M:%S CST")
     analysis["source"] = "eastmoney_concept_boards"
+    # 本次数据走的哪条管子必须如实落盘：两条通道同源同口径，但排查问题时
+    # 「今天这份数据是谁给的」是第一个要问的问题。
+    analysis["data_channel"] = channel
+    if channel == "tushare_dc":
+        analysis["channel_note"] = (
+            "东财 clist 本次取数失败或残缺（" + str(fb_info.get("error") or "行数不足")
+            + "），改用 Tushare dc_index/dc_daily 重建——那是同一份东财概念板块数据")
     if skipped:
         analysis["note"] = "今日非交易日/数据停滞，未新增归档，以下为最近交易日的分析"
+    # 兜底通道每天探活一次：它是「clist 挂掉时才上场」的备用管子，
+    # 若只在需要它的那天才发现没权限，等于又白缺一天。
+    analysis["fallback_probe"] = probe_fallback_channel(today)
     with open(ANALYSIS_PATH, "w", encoding="utf-8") as f:
         json.dump(analysis, f, ensure_ascii=False, indent=2)
     print(f"✅ 分析落盘：{ANALYSIS_PATH}（status={analysis.get('status')}，date={analysis.get('date')}）")
 
     if incomplete:
         print(f"::warning::板块轮动 incomplete：仅取到 {len(df_today)} 个板块"
-              f"（阈值 {max(int(MIN_COMPLETE), int(expected * 0.95))}，失败页 {failed_pages}），"
+              f"（阈值 {max(int(MIN_COMPLETE), int(expected * 0.95))}，失败页 {failed_pages}，"
+              f"通道 {channel}），"
               f"**未写入 history.csv**（残缺截面入库会静默污染后续所有统计）")
         return 2
     return 0
