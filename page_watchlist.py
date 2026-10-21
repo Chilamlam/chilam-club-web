@@ -384,9 +384,17 @@ def _render_key_levels(rows: list[dict]) -> None:
         # 已按 |gap_pct| 升序排好，取第一条即离现价最近的关键位。
         best = levels[0] if levels else None
         state = res.get("state") or {}
+        ma6_v = float(df["close"].tail(6).mean()) if len(df) >= 6 else None
+        ma12_v = float(df["close"].tail(12).mean()) if len(df) >= 12 else None
+        ma_note = "—"
+        if ma6_v and ma12_v and ma6_v > 0 and ma12_v > 0:
+            d6 = (close - ma6_v) / ma6_v * 100.0
+            d12 = (close - ma12_v) / ma12_v * 100.0
+            ma_note = f"MA6={ma6_v:.2f}({d6:+.1f}%) / MA12={ma12_v:.2f}({d12:+.1f}%)"
         recs.append({
             "标的": opt,
             "结论": str(state.get("chan", "—"))[:60],
+            "MA6/MA12 均线 (#128)": ma_note,
             "最近关键位": (f"{best['label']} {best['price']:.2f}（{best['side']}）"
                            if best else "—"),
             "距离": (abs(float(best["gap_pct"])) if best else None),
@@ -437,6 +445,18 @@ def _build_rows(watchlist: list[str]) -> tuple[list[dict], float | None, dict]:
     df_etf = _load_csv("data/strong_etfs.csv")
     ladder = _load_json("data/limit_ladder.json")
     radar = _load_json("data/radar_data.json")
+    ep_plan = _load_json("data/evening_plan/latest.json")
+    i_ep_pools: dict[str, list[str]] = {}
+    i_ep_risks: dict[str, list[str]] = {}
+    for _p in ((ep_plan or {}).get("pools") or {}).values():
+        _ptitle = str(_p.get("title") or "").split("（")[0]
+        for _it in (_p.get("items") or []):
+            _bc = _bare(_it.get("code"))
+            if _bc:
+                i_ep_pools.setdefault(_bc, []).append(_ptitle)
+                for _rk in (_it.get("risks") or []):
+                    if _rk not in i_ep_risks.get(_bc, []):
+                        i_ep_risks.setdefault(_bc, []).append(_rk)
 
     i_snap = _index_by_bare(df_snap)
     i_rps = _index_by_bare(df_rps)
@@ -472,6 +492,13 @@ def _build_rows(watchlist: list[str]) -> tuple[list[dict], float | None, dict]:
             signals.append(f"🔴 涨停 {lad.get('limit_times', 1)}连板")
         for win in i_radar.get(b, []):
             signals.append(f"🚨 龙头雷达({win})")
+        for ep_hit in i_ep_pools.get(b, []):
+            signals.append(f"🌙 {ep_hit}")
+        for ep_rk in i_ep_risks.get(b, []):
+            signals.append(ep_rk)
+        tr_val = _num((q or {}).get("turnover"))
+        if tr_val is not None and tr_val >= 60.0 and not any("#096" in s for s in signals):
+            signals.append(f"⚠️ #096高换手({tr_val:.1f}%)")
 
         rows.append({
             "代码": b,

@@ -16,6 +16,7 @@ from page_digest import render_digest_page
 from page_review import render_review_page
 from page_sector_rotation import render_sector_rotation_page
 from page_industry_signal import render_industry_signal_page
+from page_evening_plan import render_evening_plan_page
 from ui_compat import image_stretch, html_embed
 import data_freshness as freshness
 import auth
@@ -733,6 +734,7 @@ def main():
             "🔄 板块轮动",
             "🏭 行业信号",
             "📮 收盘摘要",
+            "📋 晚间复盘与次日计划",
             "📝 复盘答卷",
             "⭐ 我的池子 (每日复盘)",
             "🎯 战绩回看",
@@ -777,6 +779,9 @@ def main():
     elif page == "📮 收盘摘要":
         # 摘要「内容」开放（最好的引流物），「投递」锁 VIP（页内自行处理）
         render_digest_page()
+    elif page == "📋 晚间复盘与次日计划":
+        # 六大客观选股池与181法则库免费引流；战法分周期胜率矩阵与自选股战法共振诊断锁 VIP（页内处理）
+        render_evening_plan_page()
     elif page == "📝 复盘答卷":
         # 填卷免费养成每日习惯；历史对比+命中率是 VIP（页内自行处理付费墙）
         render_review_page()

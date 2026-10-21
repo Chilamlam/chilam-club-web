@@ -93,6 +93,8 @@ STEPS: list[dict] = [
      "backfill": BACKFILL_INLINE, "backfill_cap": 15, "timeout": 1800},
     {"key": "scorecard", "script": "daily_scorecard.py", "label": "战绩归档与绩效",
      "backfill": BACKFILL_EXTRA_PASS, "timeout": 2400},
+    {"key": "evening_plan", "script": "daily_evening_plan.py", "label": "晚间战法池与次日计划",
+     "backfill": BACKFILL_NONE, "timeout": 900},
     {"key": "digest", "script": "daily_digest.py", "label": "收盘摘要与推送",
      "backfill": BACKFILL_NONE, "timeout": 900},
     {"key": "review_ai", "script": "daily_review_ai.py", "label": "复盘 AI 答卷",
@@ -135,6 +137,9 @@ FRESHNESS: list[tuple[str, str]] = [
                  "print(d['status'],d.get('first_date','—'),'~',d.get('last_date','—'),'| 满窗',"
                  "d.get('trade_days_scanned','—'),'天（跳过',d.get('skipped_short_window','—'),"
                  "'天）| 命中',d.get('total_hits','—'),'次 | 空命中',d.get('empty_days','—'),'天')"),
+    ("晚间战法池", "import json;d=json.load(open('data/evening_plan/latest.json',encoding='utf-8'));"
+                   "print(d['status'],d.get('date','—'),'| 战法候选',d.get('total_candidates',0),'只 | 法则',"
+                   "len((d.get('cycle_and_laws') or {}).get('active_laws') or []),'条')"),
 ]
 
 
@@ -246,6 +251,7 @@ DATE_PROBES: list[tuple[str, str, str]] = [
     # 交易日。它和 signal.json 的 date 由同一份归档算出，理应恒等——所以这条入列后，
     # 一旦归档没更新而 signal 更新了（或反过来），机器会点名，不必等人比对两个文件。
     ("行业回顾", "data/industry_signal/history_hits.json", "json:last_date"),
+    ("晚间战法池", "data/evening_plan/latest.json", "json:date"),
 ]
 
 

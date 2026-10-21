@@ -48,6 +48,8 @@ SRC_SYMRES = open(os.path.join(ROOT, "symbol_resolve.py"), encoding="utf-8").rea
 WORK = tempfile.mkdtemp(prefix="digest_probe_")
 os.makedirs(os.path.join(WORK, "data", "sentiment"))
 os.makedirs(os.path.join(WORK, "data", "scorecard"))
+os.makedirs(os.path.join(WORK, "data", "industry_signal"))
+os.makedirs(os.path.join(WORK, "data", "evening_plan"))
 
 DERIVED = {
     "status": "complete", "date": "20260828", "prev_date": "20260827",
@@ -100,6 +102,14 @@ with open(os.path.join(WORK, "data", "sentiment", "derived.json"), "w", encoding
     json.dump(DERIVED, f, ensure_ascii=False)
 with open(os.path.join(WORK, "data", "scorecard", "performance.json"), "w", encoding="utf-8") as f:
     json.dump(PERF, f, ensure_ascii=False)
+with open(os.path.join(WORK, "data", "industry_signal", "signal.json"), "w", encoding="utf-8") as f:
+    json.dump({"status": "ok", "date": "20260828", "industry_count": 124,
+               "mv_window_actual": 30, "amt_window_actual": 20, "hits_count": 0, "hits": []}, f, ensure_ascii=False)
+with open(os.path.join(WORK, "data", "evening_plan", "latest.json"), "w", encoding="utf-8") as f:
+    json.dump({"status": "complete", "date": "20260828", "date_display": "2026-08-28",
+               "cycle_and_laws": {"weekday": "周五", "active_laws": []},
+               "pools": {"pool_10am_first": {"title": "⚡ 10:00前硬核首板池", "count": 1,
+                                             "items": [{"code": "600000", "name": "浦发银行", "first_time": "09:35:00"}]}}}, f, ensure_ascii=False)
 with open(os.path.join(WORK, "data", "strong_stocks.csv"), "w", encoding="utf-8") as f:
     f.write("ts_code,name,细分行业,更新日期,初次入选\n")
     f.write("600000.SH,浦发银行,银行,2026-08-28,2026-08-28\n")
@@ -203,6 +213,8 @@ ck("非「无事发生」" in partial["markdown"],
 
 # 3.4 全部缺失 → has_content=False，跑批层必须拒绝发送
 for p in (os.path.join("data", "scorecard", "performance.json"),
+          os.path.join("data", "industry_signal", "signal.json"),
+          os.path.join("data", "evening_plan", "latest.json"),
           os.path.join("data", "strong_stocks.csv"),
           os.path.join("data", "breakout_stocks.csv")):
     os.rename(p, p + ".bak")
@@ -216,6 +228,8 @@ ck(re.search(r"\d+\.\d+%", empty["markdown"]) is None,
 os.rename(os.path.join("data", "sentiment", "derived.bak"),
           os.path.join("data", "sentiment", "derived.json"))
 for p in (os.path.join("data", "scorecard", "performance.json"),
+          os.path.join("data", "industry_signal", "signal.json"),
+          os.path.join("data", "evening_plan", "latest.json"),
           os.path.join("data", "strong_stocks.csv"),
           os.path.join("data", "breakout_stocks.csv")):
     os.rename(p + ".bak", p)

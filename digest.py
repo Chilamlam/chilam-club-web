@@ -32,6 +32,7 @@ BREAKOUT_CSV = os.path.join("data", "breakout_stocks.csv")
 LADDER_PATH = os.path.join("data", "limit_ladder.json")
 SNAPSHOT_CSV = os.path.join("data", "market_snapshot.csv")
 INDUSTRY_SIGNAL_PATH = os.path.join("data", "industry_signal", "signal.json")
+EVENING_PLAN_PATH = os.path.join("data", "evening_plan", "latest.json")
 
 DISCLAIMER = ("本摘要由收盘后自动计算生成，仅为数据整理与结构描述，"
               "不含个股推荐、目标价、买卖点或仓位建议，不构成投资建议。")
@@ -203,6 +204,18 @@ def section_industry_signal() -> tuple[str, str | None]:
     return isig.signal_markdown(sig)
 
 
+def section_evening_plan(watchlist: list[str] | None = None) -> tuple[str, str | None]:
+    """晚间六大战法池与周期特殊法则（含 VIP 自选股战法共振诊断）。"""
+    plan = _load_json(EVENING_PLAN_PATH)
+    if not plan:
+        return "", "晚间战法池未生成"
+    try:
+        import evening_plan as ep  # noqa: PLC0415
+    except Exception as exc:  # noqa: BLE001
+        return "", f"晚间战法池渲染失败（{type(exc).__name__}）"
+    return ep.evening_plan_markdown(plan, watchlist=watchlist)
+
+
 def section_scorecard(perf: dict | None) -> tuple[str, str | None]:
     """
     战绩快报——把"我们过去说的话准不准"主动放进推送里。
@@ -258,6 +271,7 @@ def build_markdown(watchlist: list[str] | None = None,
     for md, miss in (section_watchlist(watchlist, pct_map),
                      section_phase(derived),
                      section_plan(derived),
+                     section_evening_plan(watchlist),
                      section_industry_signal(),
                      section_new_picks(),
                      section_scorecard(perf)):
