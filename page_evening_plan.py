@@ -218,7 +218,7 @@ def _render_pool_table(pool: dict, pool_key: str) -> None:
                 st.markdown(f"**🏆 {h_val}连板梯队（共 {cnt} 只）**：{names}")
                 st.caption(hint)
 
-    items = pool.get("items") or []
+    items = [it for it in (pool.get("items") or []) if not ep.is_bj_stock(it.get("code"))]
     if not items:
         st.info("今日盘面无满足该战法客观条件的标的（宁缺毋滥，不强行凑数）。")
         return

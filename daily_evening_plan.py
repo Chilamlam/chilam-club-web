@@ -143,14 +143,17 @@ def gather_candidate_klines(
     seen = set()
 
     def _add(c: str) -> None:
+        if ep.is_bj_stock(c):
+            return
         b = _bare(c)
-        if b and len(b) == 6 and b.isdigit() and b not in seen:
+        if b and len(b) == 6 and b.isdigit() and not ep.is_bj_stock(b) and b not in seen:
             seen.add(b)
             cands.append(b)
 
     # 1. 近 10 个交易日曾达 ≥2 连板的人气股（#128 首阴/回踩核心池）
     if not ladder_hist.empty:
         h = ladder_hist.copy()
+        h = h[~h["code"].astype(str).map(ep.is_bj_stock)]
         h["date"] = h["date"].astype(str).str.replace("-", "")
         h = h[h["date"] <= date_key]
         recent_d = sorted(h["date"].unique())[-10:]
@@ -162,15 +165,17 @@ def gather_candidate_klines(
             if len(cands) >= 35:
                 break
 
-    # 2. 阶段新高池前 25 只（#169 揉搓线 & #172 突破回踩）
+    # 2. 阶段新高池前 25 只（#169 揉搓线 & #172 突破回踩，剔除北交所）
     if not breakout_df.empty and "ts_code" in breakout_df.columns:
-        for c in breakout_df["ts_code"].head(25).astype(str):
+        b_non_bj = breakout_df[~breakout_df["ts_code"].astype(str).map(ep.is_bj_stock)]
+        for c in b_non_bj["ts_code"].head(25).astype(str):
             ts_hint_map[_bare(c)] = c
             _add(c)
 
-    # 3. RPS 强势榜前 20 只
+    # 3. RPS 强势榜前 20 只（剔除北交所）
     if not strong_df.empty and "ts_code" in strong_df.columns:
-        for c in strong_df["ts_code"].head(20).astype(str):
+        s_non_bj = strong_df[~strong_df["ts_code"].astype(str).map(ep.is_bj_stock)]
+        for c in s_non_bj["ts_code"].head(20).astype(str):
             ts_hint_map[_bare(c)] = c
             _add(c)
 

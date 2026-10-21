@@ -193,6 +193,9 @@ def check_six_strategy_pools() -> None:
             {"code": "002007", "name": "三板龙丙", "limit_times": 3, "first_time": "10:05:00", "reason": "算力 | 炸板2次 | 封单1.10亿", "industry": "算力"},
             # Pool 3 狗啃板候选：zbc=3 且光刻胶板块独苗
             {"code": "002008", "name": "冰点狗啃龙", "limit_times": 2, "first_time": "09:50:00", "reason": "光刻胶 | 炸板3次 | 封单0.90亿", "industry": "光刻胶"},
+            # 北交所干扰项（92/83/43/87 段，必须被全部剔除，不得入池）
+            {"code": "920096", "name": "北交首板A", "limit_times": 1, "first_time": "09:32:00", "reason": "固态电池 | 炸板0次 | 封单0.50亿", "industry": "固态电池"},
+            {"code": "831071", "name": "北交二板B", "limit_times": 2, "first_time": "09:40:00", "reason": "智能驾驶 | 炸板3次 | 封单0.60亿", "industry": "核聚变"},
         ],
     }
     snap_map = {
@@ -271,10 +274,19 @@ def check_six_strategy_pools() -> None:
     ck(p5["count"] == 1 and p5["items"][0]["code"] == "002011" and "#169 揉搓线" in p5["items"][0]["pattern"],
        "Pool 5 准确收录触发 #169 揉搓线的趋势股 002011")
 
-    # Pool 6: 强趋势板块低位首板补涨（固态电池板块有 002011, 002012 两只高 RPS 趋势锚点，且今日有首板 002001, 002002）
+    # Pool 6: 强趋势板块低位首板补涨（固态电池板块有 002011, 002012 两只高 RPS 趋势锚点，且今日有首板 002001, 002002；920096 虽同属固态电池但属北交所必须被剔除）
     p6 = ep.build_pool_trend_catchup(ladder, strong_df, pd.DataFrame(), snap_map, turnover_map)
     p6_codes = {r["code"] for r in p6["items"]}
-    ck(p6_codes == {"002001", "002002"}, "Pool 6 准确锁定强趋势板块（固态电池 >=2 只高RPS锚定股）内的低位首板补涨标的")
+    ck(p6_codes == {"002001", "002002"}, "Pool 6 准确锁定强趋势板块内的沪深低位首板补涨标的，且剔除北交所 920096")
+
+    # 校验北交所过滤函数与全池零北交所泄漏
+    ck(ep.is_bj_stock("920096") and ep.is_bj_stock("831071.BJ") and ep.is_bj_stock("bj430139") and not ep.is_bj_stock("002001"),
+       "is_bj_stock 准确识别 92/83/43/87/88/899 及 .BJ/bj 前缀标的")
+    all_test_pool_codes = {
+        r["code"] for p in (p1, p2, p3, p4, p5, p6) for r in p.get("items", [])
+    }
+    ck(not any(ep.is_bj_stock(c) for c in all_test_pool_codes),
+       f"六大选股池单测结果零北交所股票混入（实际入选代码={sorted(all_test_pool_codes)}）")
 
 
 # ================= 4. 四维风控排雷门禁单测 =================
@@ -333,6 +345,13 @@ def check_artifacts_and_ui() -> None:
     pools = plan.get("pools") or {}
     expected_pools = {"pool_10am_first", "pool_2b_pk", "pool_ice_rebound", "pool_ma6_pullback", "pool_rubbing_breakout", "pool_trend_catchup"}
     ck(set(pools.keys()) == expected_pools, "latest.json 六大选股池键名齐全")
+    bj_in_latest = [
+        f"{pk}:{it.get('code')}"
+        for pk, p_obj in pools.items()
+        for it in (p_obj.get("items") or [])
+        if ep.is_bj_stock(it.get("code"))
+    ]
+    ck(not bj_in_latest, f"latest.json 六大选股池已彻底清除北交所股票（检出={bj_in_latest}）")
     ck(len(plan.get("intraday_timeline") or []) == 5, "latest.json 含次日盘中 5 大时间轴节点")
 
     # 检查个人自选池诊断函数
@@ -394,6 +413,19 @@ def check_mutations() -> None:
     k_bad.loc[k_bad.index[-1], "low"] = 10.09
     bad_rub = ep.detect_rubbing_line(k_bad)
     ck(bad_rub is None, "【突变自检 2】抹去次日长下影线后，#169 揉搓线识别器立即返回 None 拒绝匹配")
+
+    # 突变 3：破坏 is_bj_stock 门禁（恒返 False），验证北交所股票 920096 会漏进 Pool 1 并被抓出
+    orig_bj = ep.is_bj_stock
+    try:
+        ep.is_bj_stock = lambda c: False
+        mut_p1 = ep.build_pool_10am_first(
+            {"stocks": [{"code": "920096", "name": "北交测试", "limit_times": 1, "first_time": "09:35:00"}]},
+            {}, {},
+        )
+        caught_3 = any(it["code"] == "920096" for it in mut_p1["items"])
+    finally:
+        ep.is_bj_stock = orig_bj
+    ck(caught_3, "【突变自检 3】关闭 is_bj_stock 过滤时，920096 立即混入选股池并被断言捕获")
 
 
 def main() -> None:

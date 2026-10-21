@@ -2,8 +2,8 @@
   "status": "complete",
   "date": "20261020",
   "date_display": "2026-10-20",
-  "generated_at": "2026-10-21 14:38:39",
-  "total_candidates": 125,
+  "generated_at": "2026-10-21 15:59:45",
+  "total_candidates": 121,
   "cycle_and_laws": {
     "trade_date": "20261020",
     "weekday": "周二",
@@ -129,44 +129,8 @@
       ],
       "methodology_note": "依据 #125 与 #030：全天最值得跟踪的首板集中在 09:30~10:00 之间换手封死的标的（代表主力早盘做多意愿坚决、全天经受市场抛压检验），叠加流通市值越小、股价越低弹性越佳。",
       "next_day_anchor": "次日 09:25 观察是否高开（+2%~+6%佳），09:30~09:45 分歧换手不破分时均线且 10:00 前领涨同题材者为 1进2 重点观察锚点。",
-      "count": 13,
+      "count": 11,
       "items": [
-        {
-          "code": "920096",
-          "name": "嘉晨智能",
-          "industry": "自动化设",
-          "first_time": "09:43:14",
-          "limit_times": 1,
-          "close": 35.77,
-          "circ_mv_yi": 5.79,
-          "seal_yi": 0.47,
-          "zbc": 0,
-          "turnover_rate": null,
-          "tags": [
-            "#125 十点前首板",
-            "早盘换手封板",
-            "#030 小市值(<50亿)"
-          ],
-          "risks": []
-        },
-        {
-          "code": "920641",
-          "name": "格利尔",
-          "industry": "照明设备",
-          "first_time": "09:39:29",
-          "limit_times": 1,
-          "close": 15.57,
-          "circ_mv_yi": 9.07,
-          "seal_yi": 0.53,
-          "zbc": 0,
-          "turnover_rate": 13.42,
-          "tags": [
-            "#125 十点前首板",
-            "早盘换手封板",
-            "#030 小市值(<50亿)"
-          ],
-          "risks": []
-        },
         {
           "code": "002076",
           "name": "星光股份",
@@ -926,7 +890,7 @@
           "limit_times": 3,
           "first_time": "09:30:18",
           "zbc": 3,
-          "sector_zt_count": 3,
+          "sector_zt_count": 2,
           "close": 9.26,
           "circ_mv_yi": 52.46,
           "seal_yi": 0.94,
@@ -998,7 +962,7 @@
           "limit_times": 1,
           "first_time": "09:31:39",
           "zbc": 9,
-          "sector_zt_count": 3,
+          "sector_zt_count": 2,
           "close": 2.23,
           "circ_mv_yi": 23.25,
           "seal_yi": 0.07,
@@ -1974,47 +1938,9 @@
       ],
       "methodology_note": "依据 #077 与 #103：当某个行业内多只机构趋势大票持续创阶段新高或霸榜高 RPS（机构负责打造板块容量与持续性），板块内新启动的小市值、低股价首板往往成为游资进攻的连板补涨先锋。",
       "next_day_anchor": "次日观察同板块趋势大票是否维持红盘强势（板块不倒），若板块延续强势则前排小市值首板具备高1进2晋级潜质。",
-      "count": 36,
+      "count": 34,
       "strong_sector_count": 33,
       "items": [
-        {
-          "code": "920096",
-          "name": "嘉晨智能",
-          "industry": "电器仪表",
-          "first_time": "09:43:14",
-          "close": 35.77,
-          "circ_mv_yi": 5.79,
-          "seal_yi": 0.47,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 6,
-          "trend_anchors": "赛摩智能(创60日新高)、容知日新(创60日新高)、久之洋(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(6只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "920641",
-          "name": "格利尔",
-          "industry": "元器件",
-          "first_time": "09:39:29",
-          "close": 15.57,
-          "circ_mv_yi": 9.07,
-          "seal_yi": 0.53,
-          "zbc": 0,
-          "turnover_rate": 13.42,
-          "trend_anchor_count": 6,
-          "trend_anchors": "格利尔(创60日新高)、骏亚科技(创一年(250日)新高)、海洋王(创一年(250日)新高)",
-          "tags": [
-            "#103 强趋势行业(6只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
         {
           "code": "002076",
           "name": "星光股份",
@@ -2085,7 +2011,7 @@
           "zbc": 0,
           "turnover_rate": 7.86,
           "trend_anchor_count": 6,
-          "trend_anchors": "格利尔(创60日新高)、骏亚科技(创一年(250日)新高)、海洋王(创一年(250日)新高)",
+          "trend_anchors": "骏亚科技(创一年(250日)新高)、海洋王(创一年(250日)新高)、协和电子(创一年(250日)新高)",
           "tags": [
             "#103 强趋势行业(6只趋势锚)",
             "#125 10点前首板"
@@ -2363,6 +2289,44 @@
           "risks": [
             "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
           ]
+        },
+        {
+          "code": "001288",
+          "name": "运机集团",
+          "industry": "专用机械",
+          "first_time": "11:06:24",
+          "close": 30.48,
+          "circ_mv_yi": 46.29,
+          "seal_yi": 0.51,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 6,
+          "trend_anchors": "华依科技(创60日新高)、京城股份(创60日新高)、锐科激光(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(6只趋势锚)",
+            "日内首板补涨",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "001283",
+          "name": "豪鹏科技",
+          "industry": "电气设备",
+          "first_time": "10:34:42",
+          "close": 51.06,
+          "circ_mv_yi": 52.8,
+          "seal_yi": 0.47,
+          "zbc": 3,
+          "turnover_rate": 7.46,
+          "trend_anchor_count": 6,
+          "trend_anchors": "豪鹏科技(创60日新高)、金自天正(创60日新高)、金冠电气(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(6只趋势锚)",
+            "日内首板补涨",
+            "#030 小市值弹性"
+          ],
+          "risks": []
         }
       ]
     }
@@ -2375,57 +2339,57 @@
     "strategies": {
       "pre_10am_first": {
         "label": "#125 10:00前硬核首板（1进2）",
-        "base": 922,
+        "base": 913,
         "promoted": 169,
-        "promo_rate": 0.18329718004338394,
+        "promo_rate": 0.1851040525739321,
         "benchmark_label": "10:00后普通首板（1进2）",
-        "benchmark_base": 1140,
-        "benchmark_promoted": 138,
-        "benchmark_rate": 0.12105263157894737,
-        "edge_pct": 6.22
+        "benchmark_base": 1124,
+        "benchmark_promoted": 137,
+        "benchmark_rate": 0.12188612099644128,
+        "edge_pct": 6.32
       },
       "turnover_2b": {
         "label": "#033/#071 换手二板（2进3）",
-        "base": 241,
+        "base": 240,
         "promoted": 66,
-        "promo_rate": 0.27385892116182575,
+        "promo_rate": 0.275,
         "benchmark_label": "09:25 一字二板（2进3）",
         "benchmark_base": 80,
         "benchmark_promoted": 46,
         "benchmark_rate": 0.575,
-        "edge_pct": -30.11
+        "edge_pct": -30.0
       }
     },
     "by_phase": [
       {
         "phase": "发酵期",
         "trade_days": 11,
-        "pre10_1to2_rate": 0.2777777777777778,
-        "pre10_sample": "50/180",
+        "pre10_1to2_rate": 0.2808988764044944,
+        "pre10_sample": "50/178",
         "turnover_2to3_rate": 0.3090909090909091,
         "turnover_2to3_sample": "17/55"
       },
       {
         "phase": "分歧期",
         "trade_days": 9,
-        "pre10_1to2_rate": 0.22797927461139897,
-        "pre10_sample": "44/193",
-        "turnover_2to3_rate": 0.2857142857142857,
-        "turnover_2to3_sample": "16/56"
+        "pre10_1to2_rate": 0.22282608695652173,
+        "pre10_sample": "41/184",
+        "turnover_2to3_rate": 0.2727272727272727,
+        "turnover_2to3_sample": "15/55"
       },
       {
         "phase": "退潮期",
         "trade_days": 12,
-        "pre10_1to2_rate": 0.18456375838926176,
-        "pre10_sample": "55/298",
-        "turnover_2to3_rate": 0.26865671641791045,
-        "turnover_2to3_sample": "18/67"
+        "pre10_1to2_rate": 0.19141914191419143,
+        "pre10_sample": "58/303",
+        "turnover_2to3_rate": 0.2835820895522388,
+        "turnover_2to3_sample": "19/67"
       },
       {
         "phase": "冰点期",
         "trade_days": 10,
-        "pre10_1to2_rate": 0.0796812749003984,
-        "pre10_sample": "20/251",
+        "pre10_1to2_rate": 0.08064516129032258,
+        "pre10_sample": "20/248",
         "turnover_2to3_rate": 0.23809523809523808,
         "turnover_2to3_sample": "15/63"
       }
@@ -2444,7 +2408,7 @@
       "time_window": "09:30 - 10:00",
       "node_name": "开盘黄金半小时（#125 十点前涨停 × #033 换手晋级）",
       "core_task": "① 全天最核心的连板晋级与新题材首板集中在此时段诞生；② 观察昨日 10:00 前硬核首板与换手二板的分歧换手承接（分时均线之上缩量承接后放量拉升）。",
-      "watch_targets": "1进2锚点：嘉晨智能、格利尔、星光股份、泰尔股份 ｜ 连板锚点：吉大正元、东安动力、大业股份、长春一东",
+      "watch_targets": "1进2锚点：星光股份、泰尔股份、日海智能、鲁阳节能 ｜ 连板锚点：吉大正元、东安动力、大业股份、长春一东",
       "red_line": "高潮次日早盘直线缩量秒板且无板块梯队配合者，谨防冲高炸板大面（#069）。"
     },
     {

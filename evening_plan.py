@@ -56,8 +56,27 @@ DISCLAIMER = (
 WEEKDAY_NAMES = ("周一", "周二", "周三", "周四", "周五", "周六", "周日")
 
 
+_BJ_PREFIXES = ("92", "43", "83", "87", "88", "899")
+
+
 def _bare(code) -> str:
-    return str(code or "").strip().upper().split(".")[0]
+    s = str(code or "").strip().upper().split(".")[0]
+    m = re.fullmatch(r"(SH|SZ|BJ)(\d{6})", s)
+    return m.group(2) if m else s
+
+
+def is_bj_stock(code) -> bool:
+    """判定是否为北交所/三板标的（92/43/83/87/88/899 开头，或带 .BJ / bj 前缀）。
+
+    战法选股池仅聚焦沪深 A 股（主板/创业板/科创板），北交所 30% 涨跌停制度与流动性结构不同，一律不入池。
+    """
+    raw = str(code or "").strip().upper()
+    if not raw:
+        return False
+    if raw.endswith(".BJ") or raw.startswith("BJ"):
+        return True
+    b = _bare(raw)
+    return bool(b and b.startswith(_BJ_PREFIXES))
 
 
 def _fmt_date(d: str) -> str:
@@ -131,6 +150,7 @@ def first_board_time_split(
         return {"status": "failed", "reason": "缺少涨停历史归档或对比日期"}
 
     h = ladder_hist.copy()
+    h = h[~h["code"].astype(str).map(is_bj_stock)]
     h["date"] = h["date"].astype(str).map(_norm_date)
     prev_1b = h[(h["date"] == pk) & (h["limit_times"] == 1)].copy()
     cur_all = h[h["date"] == dk]
@@ -214,6 +234,7 @@ def mid_tier_loss_diffusion(
         return {"status": "failed", "reason": "缺少涨停归档"}
 
     h = ladder_hist.copy()
+    h = h[~h["code"].astype(str).map(is_bj_stock)]
     h["date"] = h["date"].astype(str).map(_norm_date)
     prev_df = h[h["date"] == pk]
     cur_df = h[h["date"] == dk]
@@ -652,7 +673,7 @@ def build_pool_10am_first(
     ladder_hist: pd.DataFrame | None = None,
 ) -> dict:
     """战法池 1：#125 10:00前硬核首板池（叠 #030 低价小市值评分排序）。"""
-    stocks = (ladder or {}).get("stocks") or []
+    stocks = [s for s in ((ladder or {}).get("stocks") or []) if not is_bj_stock(s.get("code"))]
     items = []
     for s in stocks:
         lt = int(s.get("limit_times") or 1)
@@ -730,7 +751,7 @@ def build_pool_2b_and_pk(
     ladder_hist: pd.DataFrame | None = None,
 ) -> dict:
     """战法池 2：#033/#071 换手二板定龙池 & #049 多龙同台《中庸》观察组。"""
-    stocks = (ladder or {}).get("stocks") or []
+    stocks = [s for s in ((ladder or {}).get("stocks") or []) if not is_bj_stock(s.get("code"))]
     two_boards = []
     high_groups: dict[int, list[dict]] = {}
 
@@ -836,7 +857,7 @@ def build_pool_ice_rebound(
     ladder_hist: pd.DataFrame | None = None,
 ) -> dict:
     """战法池 3：#080/#118 冰点「狗啃板」（烂而不弱）与 #035 尾盘炸板反包池。"""
-    stocks = (ladder or {}).get("stocks") or []
+    stocks = [s for s in ((ladder or {}).get("stocks") or []) if not is_bj_stock(s.get("code"))]
     # 统计今日各行业涨停家数（用于识别 #080 板块独苗）
     ind_counts: dict[str, int] = {}
     for s in stocks:
@@ -896,7 +917,7 @@ def build_pool_ice_rebound(
             recent_zt_codes = set(ladder_hist.tail(400)["code"].astype(str).map(_bare))
         for bare, kdf in kline_map.items():
             b = _bare(bare)
-            if b in zt_codes or kdf is None or len(kdf) < 2:
+            if is_bj_stock(b) or b in zt_codes or kdf is None or len(kdf) < 2:
                 continue
             if recent_zt_codes and b not in recent_zt_codes:
                 continue
@@ -997,7 +1018,7 @@ def build_pool_ma6_pullback(
         recent_dates = sorted(h["date"].unique())[-12:]
         h_rec = h[h["date"].isin(recent_dates)]
         for bare, grp in h_rec.groupby(h_rec["code"].astype(str).map(_bare)):
-            if not bare or bare in zt_today:
+            if not bare or is_bj_stock(bare) or bare in zt_today:
                 continue
             max_b = int(grp["limit_times"].max())
             if max_b < 2:
@@ -1156,7 +1177,7 @@ def build_pool_rubbing_and_breakout(
     if strong_df is not None and not strong_df.empty:
         for _, r in strong_df.iterrows():
             b = _bare(r.get("ts_code"))
-            if not b:
+            if not b or is_bj_stock(r.get("ts_code")) or is_bj_stock(b):
                 continue
             cand_meta[b] = {
                 "code": b,
@@ -1168,7 +1189,7 @@ def build_pool_rubbing_and_breakout(
     if breakout_df is not None and not breakout_df.empty:
         for _, r in breakout_df.iterrows():
             b = _bare(r.get("ts_code"))
-            if not b:
+            if not b or is_bj_stock(r.get("ts_code")) or is_bj_stock(b):
                 continue
             lvl = str(r.get("level") or "阶段新高")
             if b in cand_meta:
@@ -1187,8 +1208,11 @@ def build_pool_rubbing_and_breakout(
     if missing and prices_df is not None:
         k_lookup.update(_extract_kline_from_prices(prices_df, missing, dk))
 
-    # 同时允许 kline_map 中任意标的命中 #169 揉搓线
-    all_scan_codes = sorted(set(cand_meta.keys()) | set(k_lookup.keys()))
+    # 同时允许 kline_map 中非北交所标的命中 #169 揉搓线
+    all_scan_codes = sorted(
+        c for c in (set(cand_meta.keys()) | set(k_lookup.keys()))
+        if not is_bj_stock(c)
+    )
 
     items = []
     for bare in all_scan_codes:
@@ -1290,6 +1314,8 @@ def build_pool_trend_catchup(
     sector_anchors: dict[str, list[str]] = {}
     if breakout_df is not None and not breakout_df.empty:
         for _, r in breakout_df.iterrows():
+            if is_bj_stock(r.get("ts_code") or r.get("code")):
+                continue
             ind = str(r.get("industry") or "").strip()
             nm = str(r.get("name") or "").strip()
             lvl = str(r.get("level") or "").replace("🏆 ", "").replace("🔥 ", "").replace("⚡ ", "")
@@ -1301,6 +1327,8 @@ def build_pool_trend_catchup(
 
     if strong_df is not None and not strong_df.empty:
         for _, r in strong_df.iterrows():
+            if is_bj_stock(r.get("ts_code") or r.get("code")):
+                continue
             ind = str(r.get("细分行业") or "").strip()
             nm = str(r.get("name") or "").strip()
             rps = pd.to_numeric(r.get("RPS_50"), errors="coerce")
@@ -1313,7 +1341,7 @@ def build_pool_trend_catchup(
     # 强趋势行业：至少有 2 只趋势/新高锚点股
     strong_sectors = {k: v for k, v in sector_anchors.items() if len(v) >= 2}
 
-    stocks = (ladder or {}).get("stocks") or []
+    stocks = [s for s in ((ladder or {}).get("stocks") or []) if not is_bj_stock(s.get("code"))]
     items = []
     for s in stocks:
         lt = int(s.get("limit_times") or 1)
@@ -1535,6 +1563,7 @@ def compute_pool_scorecard(
 
     import sentiment as sm
     h = ladder_hist.copy()
+    h = h[~h["code"].astype(str).map(is_bj_stock)]
     h["date"] = h["date"].astype(str).map(_norm_date)
     if before_date:
         h = h[h["date"] <= _norm_date(before_date)]
