@@ -66,9 +66,6 @@ MAX_HISTORY_DAYS = 60
 # 收盘后跑批对延迟容忍（快照=当日收盘态），故 push2delay 也可作为兜底。
 EM_HOSTS = (
     "push2.eastmoney.com",
-    "1.push2.eastmoney.com",
-    "23.push2.eastmoney.com",
-    "99.push2.eastmoney.com",
     "push2delay.eastmoney.com",
 )
 
@@ -119,14 +116,18 @@ def fetch_page(pn: int, host_offset: int = 0, retries: int = len(EM_HOSTS)) -> d
         url = CLIST_URL.format(host=host, pn=pn)
         try:
             req = urllib.request.Request(url, headers=HEADERS)
-            with urllib.request.urlopen(req, timeout=20) as resp:
+            with urllib.request.urlopen(req, timeout=5) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
             if data and isinstance(data.get("data"), dict):
                 return data["data"]
             print(f"⚠️ {host} 第 {pn} 页返回结构异常（第 {attempt + 1} 次）")
+        except urllib.error.HTTPError as exc:
+            print(f"⚠️ {host} 第 {pn} 页 HTTP {exc.code}：{exc}")
+            if exc.code in (500, 502, 503, 504) and pn == 1:
+                return None
         except Exception as exc:  # noqa: BLE001
             print(f"⚠️ {host} 第 {pn} 页请求失败（第 {attempt + 1} 次）：{type(exc).__name__}: {exc}")
-        time.sleep(1.5 * (attempt + 1))
+        time.sleep(0.5 * (attempt + 1))
     return None
 
 
