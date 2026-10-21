@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-22 00:05:52",
+  "date": "2026-10-22 02:46:27",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -231,15 +231,6 @@
       "premium_rate": 3.4
     },
     {
-      "code": "158055.SZ",
-      "name": "创业板算力ETF国泰",
-      "price": 0.973,
-      "change": 2.64,
-      "vol_yi": 1.08,
-      "tag": "📈 强势",
-      "premium_rate": 0.24
-    },
-    {
       "code": "158063.SZ",
       "name": "创业板算力ETF南方",
       "price": 0.816,
@@ -247,6 +238,15 @@
       "vol_yi": 0.48,
       "tag": "📈 强势",
       "premium_rate": 0.22
+    },
+    {
+      "code": "158055.SZ",
+      "name": "创业板算力ETF国泰",
+      "price": 0.973,
+      "change": 2.64,
+      "vol_yi": 1.08,
+      "tag": "📈 强势",
+      "premium_rate": 0.24
     },
     {
       "code": "158059.SZ",
@@ -258,15 +258,6 @@
       "premium_rate": 0.01
     },
     {
-      "code": "159275.SZ",
-      "name": "农牧渔ETF华宝",
-      "price": 0.867,
-      "change": 2.36,
-      "vol_yi": 0.16,
-      "tag": "📈 强势",
-      "premium_rate": 0.39
-    },
-    {
       "code": "158053.SZ",
       "name": "创业板算力ETF大成",
       "price": 0.823,
@@ -276,13 +267,13 @@
       "premium_rate": 0.12
     },
     {
-      "code": "158041.SZ",
-      "name": "创业板算力ETF华夏",
-      "price": 0.871,
-      "change": 2.35,
-      "vol_yi": 3.91,
+      "code": "159275.SZ",
+      "name": "农牧渔ETF华宝",
+      "price": 0.867,
+      "change": 2.36,
+      "vol_yi": 0.16,
       "tag": "📈 强势",
-      "premium_rate": 0.17
+      "premium_rate": 0.39
     },
     {
       "code": "158049.SZ",
@@ -292,6 +283,15 @@
       "vol_yi": 3.47,
       "tag": "📈 强势",
       "premium_rate": -0.07
+    },
+    {
+      "code": "158041.SZ",
+      "name": "创业板算力ETF华夏",
+      "price": 0.871,
+      "change": 2.35,
+      "vol_yi": 3.91,
+      "tag": "📈 强势",
+      "premium_rate": 0.17
     },
     {
       "code": "159023.SZ",
@@ -366,15 +366,6 @@
       "premium_rate": 0.49
     },
     {
-      "code": "159172.SZ",
-      "name": "养殖ETF汇添富",
-      "price": 0.835,
-      "change": 2.08,
-      "vol_yi": 0.14,
-      "tag": "📈 强势",
-      "premium_rate": 0.36
-    },
-    {
       "code": "520870.SH",
       "name": "巴西ETF易方达",
       "price": 1.328,
@@ -382,6 +373,15 @@
       "vol_yi": 1.97,
       "tag": "📈 强势",
       "premium_rate": 0.67
+    },
+    {
+      "code": "159172.SZ",
+      "name": "养殖ETF汇添富",
+      "price": 0.835,
+      "change": 2.08,
+      "vol_yi": 0.14,
+      "tag": "📈 强势",
+      "premium_rate": 0.36
     }
   ],
   "ai_analysis": ""
