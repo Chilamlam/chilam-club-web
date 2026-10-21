@@ -134,7 +134,7 @@
     ],
     "watch": "明日重合 ≥7 转主升判读；≤3 转轮动判读。"
   },
-  "generated_at": "2026-10-21 22:56:33 CST",
+  "generated_at": "2026-10-22 00:18:23 CST",
   "source": "eastmoney_concept_boards",
   "data_channel": "tushare_dc",
   "channel_note": "东财 clist 本次取数失败或残缺（行数不足），改用 Tushare dc_index/dc_daily 重建——那是同一份东财概念板块数据",
