@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-22 19:07:05",
+  "date": "2026-10-23 00:00:39",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -140,7 +140,7 @@
       "change": 3.12,
       "vol_yi": 25.98,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 5.58
+      "premium_rate": 6.13
     },
     {
       "code": "508058.SH",
@@ -167,7 +167,7 @@
       "change": 1.62,
       "vol_yi": 12.95,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 3.01
+      "premium_rate": 3.54
     },
     {
       "code": "160723.SZ",
@@ -176,7 +176,7 @@
       "change": 1.51,
       "vol_yi": 3.14,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 2.84
+      "premium_rate": 2.87
     },
     {
       "code": "501018.SH",
@@ -185,7 +185,7 @@
       "change": 1.22,
       "vol_yi": 5.52,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 2.27
+      "premium_rate": 2.22
     },
     {
       "code": "508068.SH",
@@ -203,7 +203,7 @@
       "change": 1.05,
       "vol_yi": 9.72,
       "tag": "📈 强势",
-      "premium_rate": 1.21
+      "premium_rate": 0.54
     },
     {
       "code": "160416.SZ",
@@ -212,7 +212,7 @@
       "change": 0.78,
       "vol_yi": 0.13,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 0.37
+      "premium_rate": -0.07
     },
     {
       "code": "162411.SZ",
@@ -221,7 +221,7 @@
       "change": 0.77,
       "vol_yi": 0.78,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 0.78
+      "premium_rate": 1.28
     },
     {
       "code": "508028.SH",
@@ -248,7 +248,7 @@
       "change": 0.55,
       "vol_yi": 1.69,
       "tag": "📈 强势",
-      "premium_rate": 0.35
+      "premium_rate": 0.3
     },
     {
       "code": "161129.SZ",
@@ -257,7 +257,7 @@
       "change": 0.52,
       "vol_yi": 8.32,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 2.21
+      "premium_rate": 2.26
     },
     {
       "code": "508082.SH",
@@ -293,7 +293,7 @@
       "change": 0.44,
       "vol_yi": 0.36,
       "tag": "🏗️ LOF套利",
-      "premium_rate": 0.38
+      "premium_rate": 0.41
     },
     {
       "code": "508048.SH",
