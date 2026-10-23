@@ -134,10 +134,10 @@
     ],
     "watch": "明日重合回升至 ≥7 则转向主升判读；仍 ≤3 则轮动延续。"
   },
-  "generated_at": "2026-10-23 19:31:52 CST",
+  "generated_at": "2026-10-24 00:15:59 CST",
   "source": "eastmoney_concept_boards",
-  "data_channel": "tushare_dc",
-  "channel_note": "东财 clist 本次取数失败或残缺（行数不足），改用 Tushare dc_index/dc_daily 重建——那是同一份东财概念板块数据",
+  "data_channel": "clist",
+  "note": "今日非交易日/数据停滞，未新增归档，以下为最近交易日的分析",
   "fallback_probe": {
     "ok": true,
     "checked_date": "2026-10-23",
