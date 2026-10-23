@@ -728,6 +728,10 @@ def main():
             st.link_button(_shop["label"], _shop["url"],
                            use_container_width=True)
 
+        # 📈 命运K线 (人生流年量化推演) 专属外链入口
+        st.link_button("📈 命运K线 (人生运势推演)", "https://metaphysics.chilam.club",
+                       use_container_width=True)
+
         st.markdown("---")
         menu_items = [
             "🛸 全市场看板",
@@ -745,6 +749,7 @@ def main():
             "🚨 核心龙头雷达",
             "📚 投资作业本",
             "📏 黄金分割预测",
+            "📈 命运K线 (人生运势)",
             "📖 使用说明文档"
         ]
         page = st.radio("导航菜单", menu_items, index=0)
@@ -812,6 +817,13 @@ def main():
         render_guru_tracker()
     elif page == "📏 黄金分割预测":
         render_fibonacci_chart()
+    elif page == "📈 命运K线 (人生运势)":
+        st.title("📈 命运K线 · 人生流年量化推演")
+        st.caption("融合传统生辰八字大运与现代金融K线交易图表，测算人生流年起伏趋势、五维走势与天体逆行雷达。")
+        col1, _ = st.columns([1, 4])
+        with col1:
+            st.link_button("🚀 全屏独立窗口打开", "https://metaphysics.chilam.club", use_container_width=True)
+        html_embed('<iframe src="https://metaphysics.chilam.club" width="100%" height="860" frameborder="0" style="border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.06);"></iframe>', height=880)
     elif page == "📖 使用说明文档":
         render_manual_page()
 
