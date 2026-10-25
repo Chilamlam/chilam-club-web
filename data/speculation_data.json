@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-25 23:03:43",
+  "date": "2026-10-26 01:42:34",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -339,15 +339,6 @@
       "premium_rate": 0.48
     },
     {
-      "code": "560630.SH",
-      "name": "机器人ETF万家",
-      "price": 1.008,
-      "change": 6.89,
-      "vol_yi": 0.15,
-      "tag": "📈 强势",
-      "premium_rate": 0.28
-    },
-    {
       "code": "159213.SZ",
       "name": "机器人ETF汇添富",
       "price": 1.071,
@@ -357,13 +348,13 @@
       "premium_rate": 0.39
     },
     {
-      "code": "562500.SH",
-      "name": "机器人ETF华夏",
-      "price": 0.885,
-      "change": 6.76,
-      "vol_yi": 10.98,
+      "code": "560630.SH",
+      "name": "机器人ETF万家",
+      "price": 1.008,
+      "change": 6.89,
+      "vol_yi": 0.15,
       "tag": "📈 强势",
-      "premium_rate": 0.14
+      "premium_rate": 0.28
     },
     {
       "code": "560770.SH",
@@ -373,6 +364,15 @@
       "vol_yi": 0.41,
       "tag": "📈 强势",
       "premium_rate": 0.18
+    },
+    {
+      "code": "562500.SH",
+      "name": "机器人ETF华夏",
+      "price": 0.885,
+      "change": 6.76,
+      "vol_yi": 10.98,
+      "tag": "📈 强势",
+      "premium_rate": 0.14
     },
     {
       "code": "159770.SZ",
