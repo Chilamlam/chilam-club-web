@@ -1,336 +1,584 @@
 {
-  "date": "2026-10-27",
-  "update_time": "2026-10-27 19:29:52",
-  "total_count": 41,
+  "date": "2026-10-28",
+  "update_time": "2026-10-28 11:06:39",
+  "total_count": 72,
   "max_height": 5,
   "stocks": [
-    {
-      "code": "600838",
-      "name": "上海九百",
-      "industry": "一般零售",
-      "limit_times": 5,
-      "first_time": "09:30:26",
-      "reason": "封板资金 1.5 亿 | 炸板 0 次"
-    },
-    {
-      "code": "603528",
-      "name": "多伦科技",
-      "industry": "软件开发",
-      "limit_times": 4,
-      "first_time": "09:25:01",
-      "reason": "封板资金 1.15 亿 | 炸板 1 次"
-    },
     {
       "code": "000678",
       "name": "襄阳轴承",
       "industry": "汽车零部",
-      "limit_times": 4,
-      "first_time": "09:34:09",
-      "reason": "封板资金 1.28 亿 | 炸板 1 次"
-    },
-    {
-      "code": "603028",
-      "name": "赛福天",
-      "industry": "通用设备",
-      "limit_times": 4,
-      "first_time": "09:25:02",
-      "reason": "封板资金 0.25 亿 | 炸板 1 次"
+      "limit_times": 5,
+      "first_time": "09:32:15",
+      "reason": "封板资金 2.92 亿 | 炸板 0 次"
     },
     {
       "code": "002708",
       "name": "光洋股份",
       "industry": "汽车零部",
-      "limit_times": 2,
-      "first_time": "09:30:03",
-      "reason": "封板资金 1.7 亿 | 炸板 0 次"
-    },
-    {
-      "code": "002093",
-      "name": "国脉科技",
-      "industry": "教育",
-      "limit_times": 2,
-      "first_time": "09:30:51",
-      "reason": "封板资金 0.46 亿 | 炸板 2 次"
-    },
-    {
-      "code": "002820",
-      "name": "桂发祥",
-      "industry": "休闲食品",
-      "limit_times": 2,
-      "first_time": "10:11:54",
-      "reason": "封板资金 0.44 亿 | 炸板 0 次"
-    },
-    {
-      "code": "605333",
-      "name": "沪光股份",
-      "industry": "汽车零部",
-      "limit_times": 2,
-      "first_time": "10:21:27",
-      "reason": "封板资金 0.05 亿 | 炸板 2 次"
-    },
-    {
-      "code": "301314",
-      "name": "科瑞思",
-      "industry": "通信设备",
-      "limit_times": 2,
-      "first_time": "13:46:48",
-      "reason": "封板资金 0.11 亿 | 炸板 1 次"
-    },
-    {
-      "code": "001331",
-      "name": "胜通能源",
-      "industry": "燃气Ⅱ",
-      "limit_times": 2,
-      "first_time": "09:39:18",
-      "reason": "封板资金 0.88 亿 | 炸板 3 次"
-    },
-    {
-      "code": "001318",
-      "name": "阳光乳业",
-      "industry": "饮料乳品",
-      "limit_times": 2,
-      "first_time": "10:11:54",
-      "reason": "封板资金 0.17 亿 | 炸板 4 次"
+      "limit_times": 3,
+      "first_time": "09:30:00",
+      "reason": "封板资金 1.78 亿 | 炸板 0 次"
     },
     {
       "code": "001219",
       "name": "青岛食品",
       "industry": "休闲食品",
-      "limit_times": 2,
+      "limit_times": 3,
       "first_time": "09:25:00",
-      "reason": "封板资金 0.32 亿 | 炸板 1 次"
+      "reason": "封板资金 1.85 亿 | 炸板 0 次"
     },
     {
       "code": "601956",
       "name": "东贝集团",
       "industry": "家电零部",
-      "limit_times": 1,
-      "first_time": "09:33:58",
-      "reason": "封板资金 0.34 亿 | 炸板 1 次"
-    },
-    {
-      "code": "603565",
-      "name": "中谷物流",
-      "industry": "航运港口",
-      "limit_times": 1,
-      "first_time": "09:31:15",
-      "reason": "封板资金 0.31 亿 | 炸板 2 次"
-    },
-    {
-      "code": "601566",
-      "name": "九牧王",
-      "industry": "服装家纺",
-      "limit_times": 1,
-      "first_time": "09:31:27",
-      "reason": "封板资金 0.35 亿 | 炸板 1 次"
-    },
-    {
-      "code": "002284",
-      "name": "亚太股份",
-      "industry": "汽车零部",
-      "limit_times": 1,
-      "first_time": "09:30:06",
-      "reason": "封板资金 0.61 亿 | 炸板 4 次"
-    },
-    {
-      "code": "002623",
-      "name": "亚玛顿",
-      "industry": "光伏设备",
-      "limit_times": 1,
-      "first_time": "13:19:18",
-      "reason": "封板资金 0.43 亿 | 炸板 0 次"
-    },
-    {
-      "code": "002823",
-      "name": "凯中精密",
-      "industry": "电机Ⅱ",
-      "limit_times": 1,
-      "first_time": "11:05:33",
-      "reason": "封板资金 0.25 亿 | 炸板 1 次"
+      "limit_times": 2,
+      "first_time": "09:30:17",
+      "reason": "封板资金 1.01 亿 | 炸板 0 次"
     },
     {
       "code": "603037",
       "name": "凯众股份",
       "industry": "汽车零部",
-      "limit_times": 1,
-      "first_time": "13:01:47",
-      "reason": "封板资金 0.23 亿 | 炸板 0 次"
-    },
-    {
-      "code": "603370",
-      "name": "华新精科",
-      "industry": "电机Ⅱ",
-      "limit_times": 1,
-      "first_time": "10:51:48",
-      "reason": "封板资金 0.08 亿 | 炸板 1 次"
-    },
-    {
-      "code": "603813",
-      "name": "原尚股份",
-      "industry": "物流",
-      "limit_times": 1,
-      "first_time": "10:34:15",
-      "reason": "封板资金 0.06 亿 | 炸板 0 次"
-    },
-    {
-      "code": "002205",
-      "name": "国统股份",
-      "industry": "水泥",
-      "limit_times": 1,
-      "first_time": "10:49:57",
-      "reason": "封板资金 0.27 亿 | 炸板 0 次"
-    },
-    {
-      "code": "601086",
-      "name": "国芳集团",
-      "industry": "一般零售",
-      "limit_times": 1,
-      "first_time": "14:52:06",
-      "reason": "封板资金 0.56 亿 | 炸板 0 次"
-    },
-    {
-      "code": "603376",
-      "name": "大明电子",
-      "industry": "汽车零部",
-      "limit_times": 1,
-      "first_time": "09:48:01",
-      "reason": "封板资金 0.03 亿 | 炸板 2 次"
-    },
-    {
-      "code": "002249",
-      "name": "大洋电机",
-      "industry": "电机Ⅱ",
-      "limit_times": 1,
-      "first_time": "09:56:57",
-      "reason": "封板资金 1.1 亿 | 炸板 1 次"
-    },
-    {
-      "code": "300504",
-      "name": "天邑股份",
-      "industry": "通信设备",
-      "limit_times": 1,
-      "first_time": "11:12:18",
-      "reason": "封板资金 0.45 亿 | 炸板 0 次"
-    },
-    {
-      "code": "301682",
-      "name": "宏明电子",
-      "industry": "军工电子",
-      "limit_times": 1,
-      "first_time": "09:55:24",
-      "reason": "封板资金 0.73 亿 | 炸板 2 次"
-    },
-    {
-      "code": "000888",
-      "name": "峨眉山Ａ",
-      "industry": "旅游及景",
-      "limit_times": 1,
-      "first_time": "10:29:06",
-      "reason": "封板资金 0.22 亿 | 炸板 1 次"
-    },
-    {
-      "code": "002187",
-      "name": "广百股份",
-      "industry": "一般零售",
-      "limit_times": 1,
-      "first_time": "09:43:30",
-      "reason": "封板资金 0.35 亿 | 炸板 2 次"
-    },
-    {
-      "code": "301479",
-      "name": "弘景光电",
-      "industry": "光学光电",
-      "limit_times": 1,
-      "first_time": "09:57:06",
-      "reason": "封板资金 0.33 亿 | 炸板 9 次"
+      "limit_times": 2,
+      "first_time": "10:14:09",
+      "reason": "封板资金 0.32 亿 | 炸板 0 次"
     },
     {
       "code": "600715",
       "name": "文投控股",
       "industry": "游戏Ⅱ",
-      "limit_times": 1,
-      "first_time": "09:41:25",
-      "reason": "封板资金 0.07 亿 | 炸板 5 次"
-    },
-    {
-      "code": "600785",
-      "name": "新华百货",
-      "industry": "一般零售",
-      "limit_times": 1,
-      "first_time": "14:50:56",
-      "reason": "封板资金 0.11 亿 | 炸板 1 次"
-    },
-    {
-      "code": "600303",
-      "name": "曙光股份",
-      "industry": "商用车",
-      "limit_times": 1,
-      "first_time": "09:32:42",
-      "reason": "封板资金 0.18 亿 | 炸板 1 次"
-    },
-    {
-      "code": "300539",
-      "name": "横河精密",
-      "industry": "塑料",
-      "limit_times": 1,
-      "first_time": "10:04:51",
-      "reason": "封板资金 0.4 亿 | 炸板 0 次"
+      "limit_times": 2,
+      "first_time": "10:52:53",
+      "reason": "封板资金 0.77 亿 | 炸板 0 次"
     },
     {
       "code": "001400",
       "name": "江顺科技",
       "industry": "专用设备",
-      "limit_times": 1,
-      "first_time": "09:35:18",
-      "reason": "封板资金 0.81 亿 | 炸板 0 次"
-    },
-    {
-      "code": "002724",
-      "name": "海洋王",
-      "industry": "照明设备",
-      "limit_times": 1,
-      "first_time": "10:07:42",
-      "reason": "封板资金 0.33 亿 | 炸板 6 次"
-    },
-    {
-      "code": "000058",
-      "name": "深 赛 格",
-      "industry": "一般零售",
-      "limit_times": 1,
-      "first_time": "09:25:00",
-      "reason": "封板资金 4.01 亿 | 炸板 0 次"
-    },
-    {
-      "code": "600626",
-      "name": "申达股份",
-      "industry": "汽车零部",
-      "limit_times": 1,
-      "first_time": "13:24:30",
-      "reason": "封板资金 0.01 亿 | 炸板 5 次"
-    },
-    {
-      "code": "002011",
-      "name": "盾安环境",
-      "industry": "家电零部",
-      "limit_times": 1,
-      "first_time": "09:30:06",
-      "reason": "封板资金 0.18 亿 | 炸板 1 次"
-    },
-    {
-      "code": "603758",
-      "name": "秦安股份",
-      "industry": "汽车零部",
-      "limit_times": 1,
-      "first_time": "09:33:15",
-      "reason": "封板资金 0.2 亿 | 炸板 1 次"
+      "limit_times": 2,
+      "first_time": "11:05:39",
+      "reason": "封板资金 0.58 亿 | 炸板 1 次"
     },
     {
       "code": "600828",
       "name": "茂业商业",
       "industry": "一般零售",
+      "limit_times": 2,
+      "first_time": "09:56:48",
+      "reason": "封板资金 0.33 亿 | 炸板 1 次"
+    },
+    {
+      "code": "000559",
+      "name": "万向钱潮",
+      "industry": "汽车零部",
       "limit_times": 1,
-      "first_time": "09:40:42",
-      "reason": "封板资金 0.19 亿 | 炸板 0 次"
+      "first_time": "09:44:39",
+      "reason": "封板资金 2.28 亿 | 炸板 0 次"
+    },
+    {
+      "code": "603131",
+      "name": "上海沪工",
+      "industry": "通用设备",
+      "limit_times": 1,
+      "first_time": "11:04:02",
+      "reason": "封板资金 0.32 亿 | 炸板 1 次"
+    },
+    {
+      "code": "603920",
+      "name": "世运电路",
+      "industry": "元件",
+      "limit_times": 1,
+      "first_time": "10:34:23",
+      "reason": "封板资金 0.64 亿 | 炸板 4 次"
+    },
+    {
+      "code": "301359",
+      "name": "东南电子",
+      "industry": "其他电子",
+      "limit_times": 1,
+      "first_time": "09:32:15",
+      "reason": "封板资金 0.27 亿 | 炸板 1 次"
+    },
+    {
+      "code": "002889",
+      "name": "东方嘉盛",
+      "industry": "物流",
+      "limit_times": 1,
+      "first_time": "13:25:24",
+      "reason": "封板资金 0.45 亿 | 炸板 0 次"
+    },
+    {
+      "code": "002915",
+      "name": "中欣氟材",
+      "industry": "化学制品",
+      "limit_times": 1,
+      "first_time": "10:22:48",
+      "reason": "封板资金 0.28 亿 | 炸板 1 次"
+    },
+    {
+      "code": "603135",
+      "name": "中重科技",
+      "industry": "专用设备",
+      "limit_times": 1,
+      "first_time": "13:01:39",
+      "reason": "封板资金 0.19 亿 | 炸板 1 次"
+    },
+    {
+      "code": "002962",
+      "name": "五方光电",
+      "industry": "光学光电",
+      "limit_times": 1,
+      "first_time": "11:24:45",
+      "reason": "封板资金 0.23 亿 | 炸板 0 次"
+    },
+    {
+      "code": "603667",
+      "name": "五洲新春",
+      "industry": "通用设备",
+      "limit_times": 1,
+      "first_time": "09:33:54",
+      "reason": "封板资金 2.0 亿 | 炸板 1 次"
+    },
+    {
+      "code": "603680",
+      "name": "今创集团",
+      "industry": "轨交设备",
+      "limit_times": 1,
+      "first_time": "13:22:48",
+      "reason": "封板资金 0.06 亿 | 炸板 4 次"
+    },
+    {
+      "code": "301525",
+      "name": "儒竞科技",
+      "industry": "通用设备",
+      "limit_times": 1,
+      "first_time": "13:01:09",
+      "reason": "封板资金 0.01 亿 | 炸板 13 次"
+    },
+    {
+      "code": "002741",
+      "name": "光华科技",
+      "industry": "电子化学",
+      "limit_times": 1,
+      "first_time": "09:48:30",
+      "reason": "封板资金 1.11 亿 | 炸板 1 次"
+    },
+    {
+      "code": "605288",
+      "name": "凯迪股份",
+      "industry": "自动化设",
+      "limit_times": 1,
+      "first_time": "09:51:26",
+      "reason": "封板资金 0.4 亿 | 炸板 0 次"
+    },
+    {
+      "code": "002975",
+      "name": "博杰股份",
+      "industry": "自动化设",
+      "limit_times": 1,
+      "first_time": "14:31:57",
+      "reason": "封板资金 0.83 亿 | 炸板 0 次"
+    },
+    {
+      "code": "600173",
+      "name": "卧龙新能",
+      "industry": "房地产开",
+      "limit_times": 1,
+      "first_time": "09:34:30",
+      "reason": "封板资金 0.31 亿 | 炸板 0 次"
+    },
+    {
+      "code": "603418",
+      "name": "友升股份",
+      "industry": "汽车零部",
+      "limit_times": 1,
+      "first_time": "11:27:05",
+      "reason": "封板资金 0.26 亿 | 炸板 1 次"
+    },
+    {
+      "code": "603081",
+      "name": "大丰实业",
+      "industry": "专用设备",
+      "limit_times": 1,
+      "first_time": "09:34:17",
+      "reason": "封板资金 0.41 亿 | 炸板 1 次"
+    },
+    {
+      "code": "002164",
+      "name": "宁波东力",
+      "industry": "通用设备",
+      "limit_times": 1,
+      "first_time": "09:31:39",
+      "reason": "封板资金 1.03 亿 | 炸板 0 次"
+    },
+    {
+      "code": "002943",
+      "name": "宇晶股份",
+      "industry": "通用设备",
+      "limit_times": 1,
+      "first_time": "13:03:18",
+      "reason": "封板资金 0.64 亿 | 炸板 0 次"
+    },
+    {
+      "code": "605366",
+      "name": "宏柏新材",
+      "industry": "化学制品",
+      "limit_times": 1,
+      "first_time": "10:57:55",
+      "reason": "封板资金 0.64 亿 | 炸板 0 次"
+    },
+    {
+      "code": "002862",
+      "name": "实丰文化",
+      "industry": "文娱用品",
+      "limit_times": 1,
+      "first_time": "11:09:18",
+      "reason": "封板资金 1.24 亿 | 炸板 0 次"
+    },
+    {
+      "code": "603219",
+      "name": "富佳股份",
+      "industry": "小家电",
+      "limit_times": 1,
+      "first_time": "09:49:37",
+      "reason": "封板资金 0.4 亿 | 炸板 0 次"
+    },
+    {
+      "code": "300613",
+      "name": "富瀚微",
+      "industry": "半导体",
+      "limit_times": 1,
+      "first_time": "09:32:39",
+      "reason": "封板资金 1.53 亿 | 炸板 2 次"
+    },
+    {
+      "code": "002526",
+      "name": "山东矿机",
+      "industry": "专用设备",
+      "limit_times": 1,
+      "first_time": "09:33:54",
+      "reason": "封板资金 0.57 亿 | 炸板 0 次"
+    },
+    {
+      "code": "002265",
+      "name": "建设工业",
+      "industry": "汽车零部",
+      "limit_times": 1,
+      "first_time": "10:09:33",
+      "reason": "封板资金 0.87 亿 | 炸板 3 次"
+    },
+    {
+      "code": "603633",
+      "name": "徕木股份",
+      "industry": "消费电子",
+      "limit_times": 1,
+      "first_time": "09:38:22",
+      "reason": "封板资金 0.31 亿 | 炸板 2 次"
+    },
+    {
+      "code": "603303",
+      "name": "得邦照明",
+      "industry": "照明设备",
+      "limit_times": 1,
+      "first_time": "13:22:21",
+      "reason": "封板资金 0.05 亿 | 炸板 5 次"
+    },
+    {
+      "code": "688045",
+      "name": "必易微",
+      "industry": "半导体",
+      "limit_times": 1,
+      "first_time": "11:04:21",
+      "reason": "封板资金 0.31 亿 | 炸板 2 次"
+    },
+    {
+      "code": "301261",
+      "name": "恒工精密",
+      "industry": "通用设备",
+      "limit_times": 1,
+      "first_time": "09:48:45",
+      "reason": "封板资金 0.56 亿 | 炸板 0 次"
+    },
+    {
+      "code": "003028",
+      "name": "振邦智能",
+      "industry": "家电零部",
+      "limit_times": 1,
+      "first_time": "09:31:15",
+      "reason": "封板资金 0.24 亿 | 炸板 1 次"
+    },
+    {
+      "code": "603533",
+      "name": "掌阅科技",
+      "industry": "数字媒体",
+      "limit_times": 1,
+      "first_time": "10:49:39",
+      "reason": "封板资金 0.89 亿 | 炸板 0 次"
+    },
+    {
+      "code": "300806",
+      "name": "斯迪克",
+      "industry": "塑料",
+      "limit_times": 1,
+      "first_time": "14:32:09",
+      "reason": "封板资金 0.46 亿 | 炸板 0 次"
+    },
+    {
+      "code": "600601",
+      "name": "方正科技",
+      "industry": "元件",
+      "limit_times": 1,
+      "first_time": "09:48:22",
+      "reason": "封板资金 1.62 亿 | 炸板 1 次"
+    },
+    {
+      "code": "920896",
+      "name": "旺成科技",
+      "industry": "汽车零部",
+      "limit_times": 1,
+      "first_time": "09:46:02",
+      "reason": "封板资金 0.16 亿 | 炸板 1 次"
+    },
+    {
+      "code": "920220",
+      "name": "朗信电气",
+      "industry": "汽车零部",
+      "limit_times": 1,
+      "first_time": "13:14:53",
+      "reason": "封板资金 0.02 亿 | 炸板 10 次"
+    },
+    {
+      "code": "603337",
+      "name": "杰克科技",
+      "industry": "专用设备",
+      "limit_times": 1,
+      "first_time": "10:18:48",
+      "reason": "封板资金 0.21 亿 | 炸板 3 次"
+    },
+    {
+      "code": "603992",
+      "name": "松霖科技",
+      "industry": "家居用品",
+      "limit_times": 1,
+      "first_time": "10:05:13",
+      "reason": "封板资金 0.59 亿 | 炸板 0 次"
+    },
+    {
+      "code": "000554",
+      "name": "泰山石油",
+      "industry": "炼化及贸",
+      "limit_times": 1,
+      "first_time": "10:44:30",
+      "reason": "封板资金 0.03 亿 | 炸板 8 次"
+    },
+    {
+      "code": "600078",
+      "name": "澄星股份",
+      "industry": "农化制品",
+      "limit_times": 1,
+      "first_time": "09:31:33",
+      "reason": "封板资金 0.14 亿 | 炸板 4 次"
+    },
+    {
+      "code": "002172",
+      "name": "澳洋健康",
+      "industry": "医疗服务",
+      "limit_times": 1,
+      "first_time": "13:29:30",
+      "reason": "封板资金 0.61 亿 | 炸板 1 次"
+    },
+    {
+      "code": "301080",
+      "name": "百普赛斯",
+      "industry": "生物制品",
+      "limit_times": 1,
+      "first_time": "13:12:30",
+      "reason": "封板资金 0.37 亿 | 炸板 0 次"
+    },
+    {
+      "code": "002696",
+      "name": "百洋股份",
+      "industry": "饲料",
+      "limit_times": 1,
+      "first_time": "14:49:33",
+      "reason": "封板资金 0.78 亿 | 炸板 0 次"
+    },
+    {
+      "code": "300291",
+      "name": "百纳千成",
+      "industry": "影视院线",
+      "limit_times": 1,
+      "first_time": "13:45:18",
+      "reason": "封板资金 0.1 亿 | 炸板 5 次"
+    },
+    {
+      "code": "000670",
+      "name": "盈方微",
+      "industry": "其他电子",
+      "limit_times": 1,
+      "first_time": "09:37:15",
+      "reason": "封板资金 0.51 亿 | 炸板 3 次"
+    },
+    {
+      "code": "603109",
+      "name": "神驰机电",
+      "industry": "通用设备",
+      "limit_times": 1,
+      "first_time": "09:35:28",
+      "reason": "封板资金 0.16 亿 | 炸板 4 次"
+    },
+    {
+      "code": "605566",
+      "name": "福莱蒽特",
+      "industry": "化学制品",
+      "limit_times": 1,
+      "first_time": "10:29:59",
+      "reason": "封板资金 0.39 亿 | 炸板 0 次"
+    },
+    {
+      "code": "603626",
+      "name": "科森科技",
+      "industry": "消费电子",
+      "limit_times": 1,
+      "first_time": "09:47:19",
+      "reason": "封板资金 0.6 亿 | 炸板 2 次"
+    },
+    {
+      "code": "603612",
+      "name": "索通发展",
+      "industry": "非金属材",
+      "limit_times": 1,
+      "first_time": "09:30:17",
+      "reason": "封板资金 0.31 亿 | 炸板 2 次"
+    },
+    {
+      "code": "605060",
+      "name": "联德股份",
+      "industry": "通用设备",
+      "limit_times": 1,
+      "first_time": "11:19:49",
+      "reason": "封板资金 0.51 亿 | 炸板 0 次"
+    },
+    {
+      "code": "603006",
+      "name": "联明股份",
+      "industry": "汽车零部",
+      "limit_times": 1,
+      "first_time": "09:30:02",
+      "reason": "封板资金 0.76 亿 | 炸板 0 次"
+    },
+    {
+      "code": "300006",
+      "name": "莱美药业",
+      "industry": "化学制药",
+      "limit_times": 1,
+      "first_time": "11:21:51",
+      "reason": "封板资金 0.5 亿 | 炸板 10 次"
+    },
+    {
+      "code": "603226",
+      "name": "菲林格尔",
+      "industry": "家居用品",
+      "limit_times": 1,
+      "first_time": "10:37:14",
+      "reason": "封板资金 0.55 亿 | 炸板 0 次"
+    },
+    {
+      "code": "002731",
+      "name": "萃华退",
+      "industry": "饰品",
+      "limit_times": 1,
+      "first_time": "10:38:27",
+      "reason": "封板资金 0.01 亿 | 炸板 2 次"
+    },
+    {
+      "code": "002534",
+      "name": "西子洁能",
+      "industry": "其他电源",
+      "limit_times": 1,
+      "first_time": "14:27:03",
+      "reason": "封板资金 0.21 亿 | 炸板 0 次"
+    },
+    {
+      "code": "301488",
+      "name": "豪恩汽电",
+      "industry": "汽车零部",
+      "limit_times": 1,
+      "first_time": "09:30:00",
+      "reason": "封板资金 0.77 亿 | 炸板 1 次"
+    },
+    {
+      "code": "688137",
+      "name": "近岸蛋白",
+      "industry": "生物制品",
+      "limit_times": 1,
+      "first_time": "13:14:11",
+      "reason": "封板资金 0.4 亿 | 炸板 3 次"
+    },
+    {
+      "code": "002636",
+      "name": "金安国纪",
+      "industry": "元件",
+      "limit_times": 1,
+      "first_time": "09:25:00",
+      "reason": "封板资金 3.27 亿 | 炸板 1 次"
+    },
+    {
+      "code": "603061",
+      "name": "金海通",
+      "industry": "半导体",
+      "limit_times": 1,
+      "first_time": "13:13:46",
+      "reason": "封板资金 0.46 亿 | 炸板 0 次"
+    },
+    {
+      "code": "603926",
+      "name": "铁流股份",
+      "industry": "汽车零部",
+      "limit_times": 1,
+      "first_time": "11:02:08",
+      "reason": "封板资金 0.07 亿 | 炸板 1 次"
+    },
+    {
+      "code": "001270",
+      "name": "铖昌科技",
+      "industry": "军工电子",
+      "limit_times": 1,
+      "first_time": "13:27:03",
+      "reason": "封板资金 0.81 亿 | 炸板 6 次"
+    },
+    {
+      "code": "603897",
+      "name": "长城科技",
+      "industry": "电网设备",
+      "limit_times": 1,
+      "first_time": "09:30:05",
+      "reason": "封板资金 0.55 亿 | 炸板 0 次"
+    },
+    {
+      "code": "001296",
+      "name": "长江材料",
+      "industry": "非金属材",
+      "limit_times": 1,
+      "first_time": "11:22:42",
+      "reason": "封板资金 0.06 亿 | 炸板 0 次"
+    },
+    {
+      "code": "002879",
+      "name": "长缆科技",
+      "industry": "电网设备",
+      "limit_times": 1,
+      "first_time": "13:24:06",
+      "reason": "封板资金 0.29 亿 | 炸板 0 次"
+    },
+    {
+      "code": "603868",
+      "name": "飞科电器",
+      "industry": "小家电",
+      "limit_times": 1,
+      "first_time": "09:37:34",
+      "reason": "封板资金 0.46 亿 | 炸板 0 次"
     }
   ]
 }
