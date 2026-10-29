@@ -2,7 +2,7 @@
   "status": "complete",
   "date": "20261029",
   "date_display": "2026-10-29",
-  "generated_at": "2026-10-30 01:39:22",
+  "generated_at": "2026-10-30 03:53:34",
   "total_candidates": 108,
   "cycle_and_laws": {
     "trade_date": "20261029",
@@ -1930,7 +1930,7 @@
       "methodology_note": "依据 #077 与 #103：当某个行业内多只机构趋势大票持续创阶段新高或霸榜高 RPS（机构负责打造板块容量与持续性），板块内新启动的小市值、低股价首板往往成为游资进攻的连板补涨先锋。",
       "next_day_anchor": "次日观察同板块趋势大票是否维持红盘强势（板块不倒），若板块延续强势则前排小市值首板具备高1进2晋级潜质。",
       "count": 16,
-      "strong_sector_count": 35,
+      "strong_sector_count": 37,
       "items": [
         {
           "code": "301079",
@@ -2150,7 +2150,7 @@
           "zbc": 0,
           "turnover_rate": null,
           "trend_anchor_count": 6,
-          "trend_anchors": "振邦智能(创60日新高)、超声电子(RPS94)、海洋王(RPS100)",
+          "trend_anchors": "振邦智能(创60日新高)、中石科技(RPS99)、满坤科技(RPS99)",
           "tags": [
             "#103 强趋势行业(6只趋势锚)",
             "日内首板补涨",
