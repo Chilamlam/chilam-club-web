@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-29 19:07:21",
+  "date": "2026-10-30 01:31:56",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -130,7 +130,7 @@
       "change": 2.97,
       "vol_yi": 7.04,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 9.12
+      "premium_rate": 7.6
     },
     {
       "code": "159502.SZ",
@@ -139,7 +139,7 @@
       "change": 2.46,
       "vol_yi": 3.37,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 5.96
+      "premium_rate": 4.17
     },
     {
       "code": "161127.SZ",
@@ -148,7 +148,7 @@
       "change": 2.33,
       "vol_yi": 0.16,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 1.91
+      "premium_rate": 0.28
     },
     {
       "code": "158036.SZ",
@@ -157,7 +157,7 @@
       "change": 2.29,
       "vol_yi": 0.09,
       "tag": "📈 强势",
-      "premium_rate": 2.19
+      "premium_rate": 0.98
     },
     {
       "code": "512730.SH",
@@ -166,7 +166,7 @@
       "change": 2.18,
       "vol_yi": 0.1,
       "tag": "📈 强势",
-      "premium_rate": 2.12
+      "premium_rate": 0.16
     },
     {
       "code": "560670.SH",
@@ -175,7 +175,7 @@
       "change": 2.05,
       "vol_yi": 0.13,
       "tag": "📈 强势",
-      "premium_rate": 1.89
+      "premium_rate": -0.07
     },
     {
       "code": "501025.SH",
@@ -184,7 +184,7 @@
       "change": 2.03,
       "vol_yi": 1.1,
       "tag": "🏗️ LOF套利",
-      "premium_rate": 2.04
+      "premium_rate": 0.98
     },
     {
       "code": "563380.SH",
@@ -193,16 +193,7 @@
       "change": 2.01,
       "vol_yi": 0.74,
       "tag": "📈 强势",
-      "premium_rate": 1.94
-    },
-    {
-      "code": "512820.SH",
-      "name": "银行ETF汇添富",
-      "price": 1.562,
-      "change": 1.96,
-      "vol_yi": 1.34,
-      "tag": "📈 强势",
-      "premium_rate": 2.08
+      "premium_rate": 0.35
     },
     {
       "code": "159887.SZ",
@@ -211,7 +202,16 @@
       "change": 1.96,
       "vol_yi": 0.88,
       "tag": "📈 强势",
-      "premium_rate": 1.94
+      "premium_rate": -0.02
+    },
+    {
+      "code": "512820.SH",
+      "name": "银行ETF汇添富",
+      "price": 1.562,
+      "change": 1.96,
+      "vol_yi": 1.34,
+      "tag": "📈 强势",
+      "premium_rate": 0.1
     },
     {
       "code": "516210.SH",
@@ -220,7 +220,7 @@
       "change": 1.95,
       "vol_yi": 0.11,
       "tag": "📈 强势",
-      "premium_rate": 1.86
+      "premium_rate": -0.1
     },
     {
       "code": "516310.SH",
@@ -229,7 +229,7 @@
       "change": 1.94,
       "vol_yi": 1.53,
       "tag": "📈 强势",
-      "premium_rate": 1.81
+      "premium_rate": -0.18
     },
     {
       "code": "159930.SZ",
@@ -238,7 +238,7 @@
       "change": 1.94,
       "vol_yi": 0.9,
       "tag": "📈 强势",
-      "premium_rate": 1.76
+      "premium_rate": -0.06
     },
     {
       "code": "162719.SZ",
@@ -247,7 +247,7 @@
       "change": 1.89,
       "vol_yi": 0.52,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 3.25
+      "premium_rate": 2.91
     },
     {
       "code": "562420.SH",
@@ -256,7 +256,7 @@
       "change": 1.84,
       "vol_yi": 0.14,
       "tag": "📈 强势",
-      "premium_rate": 1.72
+      "premium_rate": 0.55
     },
     {
       "code": "515020.SH",
@@ -265,7 +265,7 @@
       "change": 1.82,
       "vol_yi": 1.88,
       "tag": "📈 强势",
-      "premium_rate": 1.82
+      "premium_rate": -0.16
     },
     {
       "code": "512410.SH",
@@ -274,7 +274,7 @@
       "change": 1.81,
       "vol_yi": 0.13,
       "tag": "📈 强势",
-      "premium_rate": 1.9
+      "premium_rate": -0.08
     },
     {
       "code": "513190.SH",
@@ -283,7 +283,7 @@
       "change": 1.8,
       "vol_yi": 5.37,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 0.88
+      "premium_rate": -0.48
     },
     {
       "code": "515290.SH",
@@ -292,7 +292,7 @@
       "change": 1.79,
       "vol_yi": 0.95,
       "tag": "📈 强势",
-      "premium_rate": 1.91
+      "premium_rate": -0.08
     },
     {
       "code": "167301.SZ",
@@ -301,7 +301,7 @@
       "change": 1.75,
       "vol_yi": 0.09,
       "tag": "🏗️ LOF套利",
-      "premium_rate": 1.06
+      "premium_rate": -0.67
     }
   ],
   "ai_analysis": ""
