@@ -2,7 +2,7 @@
   "status": "complete",
   "date": "20261030",
   "date_display": "2026-10-30",
-  "generated_at": "2026-10-31 01:17:45",
+  "generated_at": "2026-10-31 03:39:54",
   "total_candidates": 110,
   "cycle_and_laws": {
     "trade_date": "20261030",
@@ -516,7 +516,7 @@
           "close": 20.24,
           "circ_mv_yi": 153.8,
           "seal_yi": 0.7,
-          "zbc": 2,
+          "zbc": 1,
           "turnover_rate": null,
           "tags": [
             "#125 十点前首板",
@@ -838,7 +838,7 @@
       ],
       "methodology_note": "依据 #080 与 #118：在分歧或冰点期，盘中反复炸板（≥2次）检验抛压但尾盘仍顽强回封、尤其是所属板块内唯一涨停的「狗啃板」，代表主力承接了全部恐慌筹码，次日极易弱转强领涨。叠加 #035：近期人气股盘中触板被动炸板但收红盘者，次日若竞价不核按钮则具备反包潜质。",
       "next_day_anchor": "次日 09:25 集合竞价若出现平开或高开（未闷杀低开<-3%），属于标准「弱转强」信号；若大幅低开核按钮则直接放弃。",
-      "count": 19,
+      "count": 18,
       "items": [
         {
           "code": "605338",
@@ -909,24 +909,6 @@
           "pattern_type": "狗啃板(板块独苗)",
           "tags": [
             "🔥 #080 正宗狗啃板(炸3次·板块独苗)"
-          ],
-          "risks": []
-        },
-        {
-          "code": "001287",
-          "name": "中电港",
-          "industry": "其他电子",
-          "limit_times": 1,
-          "first_time": "09:30:12",
-          "zbc": 2,
-          "sector_zt_count": 1,
-          "close": 20.24,
-          "circ_mv_yi": 153.8,
-          "seal_yi": 0.7,
-          "turnover_rate": null,
-          "pattern_type": "狗啃板(板块独苗)",
-          "tags": [
-            "🔥 #080 正宗狗啃板(炸2次·板块独苗)"
           ],
           "risks": []
         },
@@ -1785,8 +1767,8 @@
       ],
       "methodology_note": "依据 #077 与 #103：当某个行业内多只机构趋势大票持续创阶段新高或霸榜高 RPS（机构负责打造板块容量与持续性），板块内新启动的小市值、低股价首板往往成为游资进攻的连板补涨先锋。",
       "next_day_anchor": "次日观察同板块趋势大票是否维持红盘强势（板块不倒），若板块延续强势则前排小市值首板具备高1进2晋级潜质。",
-      "count": 26,
-      "strong_sector_count": 35,
+      "count": 27,
+      "strong_sector_count": 39,
       "items": [
         {
           "code": "603029",
@@ -1872,10 +1854,10 @@
           "close": 20.24,
           "circ_mv_yi": 153.8,
           "seal_yi": 0.7,
-          "zbc": 2,
+          "zbc": 1,
           "turnover_rate": null,
           "trend_anchor_count": 6,
-          "trend_anchors": "盛洋科技(创60日新高)、海洋王(创一年(250日)新高)、超声电子(RPS98)",
+          "trend_anchors": "盛洋科技(创60日新高)、海洋王(创一年(250日)新高)、崇达技术(RPS98)",
           "tags": [
             "#103 强趋势行业(6只趋势锚)",
             "#125 10点前首板"
@@ -1892,26 +1874,8 @@
           "seal_yi": 1.15,
           "zbc": 2,
           "turnover_rate": null,
-          "trend_anchor_count": 6,
-          "trend_anchors": "阳普医疗(创60日新高)、澳洋健康(RPS99)、采纳股份(RPS99)",
-          "tags": [
-            "#103 强趋势行业(6只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "603587",
-          "name": "地素时尚",
-          "industry": "服饰",
-          "first_time": "09:32:13",
-          "close": 12.9,
-          "circ_mv_yi": 60.98,
-          "seal_yi": 0.25,
-          "zbc": 1,
-          "turnover_rate": null,
           "trend_anchor_count": 5,
-          "trend_anchors": "华利集团(创半年(120日)新高)、伟星股份(RPS98)、雅戈尔(RPS93)",
+          "trend_anchors": "阳普医疗(创60日新高)、澳洋健康(RPS99)、采纳股份(RPS99)",
           "tags": [
             "#103 强趋势行业(5只趋势锚)",
             "#125 10点前首板"
@@ -1940,44 +1904,22 @@
           ]
         },
         {
-          "code": "002582",
-          "name": "好想你",
-          "industry": "食品",
-          "first_time": "09:58:00",
-          "close": 9.93,
-          "circ_mv_yi": 34.18,
-          "seal_yi": 0.14,
-          "zbc": 3,
+          "code": "603587",
+          "name": "地素时尚",
+          "industry": "服饰",
+          "first_time": "09:32:13",
+          "close": 12.9,
+          "circ_mv_yi": 60.98,
+          "seal_yi": 0.25,
+          "zbc": 1,
           "turnover_rate": null,
           "trend_anchor_count": 4,
-          "trend_anchors": "巴比食品(创60日新高)、青岛食品(创一年(250日)新高)、金丹科技(RPS100)",
+          "trend_anchors": "华利集团(创半年(120日)新高)、雅戈尔(RPS93)、九牧王(RPS98)",
           "tags": [
             "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
+            "#125 10点前首板"
           ],
           "risks": []
-        },
-        {
-          "code": "000716",
-          "name": "黑芝麻",
-          "industry": "食品",
-          "first_time": "09:30:06",
-          "close": 5.24,
-          "circ_mv_yi": 38.7,
-          "seal_yi": 0.38,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "巴比食品(创60日新高)、青岛食品(创一年(250日)新高)、金丹科技(RPS100)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": [
-            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
-          ]
         },
         {
           "code": "603198",
@@ -2035,6 +1977,66 @@
           "risks": []
         },
         {
+          "code": "002582",
+          "name": "好想你",
+          "industry": "食品",
+          "first_time": "09:58:00",
+          "close": 9.93,
+          "circ_mv_yi": 34.18,
+          "seal_yi": 0.14,
+          "zbc": 3,
+          "turnover_rate": null,
+          "trend_anchor_count": 3,
+          "trend_anchors": "巴比食品(创60日新高)、青岛食品(创一年(250日)新高)、元祖股份(RPS99)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "000716",
+          "name": "黑芝麻",
+          "industry": "食品",
+          "first_time": "09:30:06",
+          "close": 5.24,
+          "circ_mv_yi": 38.7,
+          "seal_yi": 0.38,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 3,
+          "trend_anchors": "巴比食品(创60日新高)、青岛食品(创一年(250日)新高)、元祖股份(RPS99)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": [
+            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "000410",
+          "name": "沈阳机床",
+          "industry": "通用设备",
+          "first_time": "09:33:18",
+          "close": 5.37,
+          "circ_mv_yi": 105.84,
+          "seal_yi": 0.69,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 3,
+          "trend_anchors": "冰山冷热(RPS100)、宁波东力(RPS99)、瑞晨环保(RPS96)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": [
+            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
           "code": "000417",
           "name": "合百集团",
           "industry": "百货",
@@ -2072,25 +2074,6 @@
           "risks": []
         },
         {
-          "code": "300030",
-          "name": "阳普医疗",
-          "industry": "医疗保健",
-          "first_time": "10:19:36",
-          "close": 7.31,
-          "circ_mv_yi": 19.9,
-          "seal_yi": 0.18,
-          "zbc": 0,
-          "turnover_rate": 18.8,
-          "trend_anchor_count": 6,
-          "trend_anchors": "阳普医疗(创60日新高)、澳洋健康(RPS99)、采纳股份(RPS99)",
-          "tags": [
-            "#103 强趋势行业(6只趋势锚)",
-            "日内首板补涨",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
           "code": "301132",
           "name": "满坤科技",
           "industry": "元器件",
@@ -2101,7 +2084,7 @@
           "zbc": 0,
           "turnover_rate": 17.3,
           "trend_anchor_count": 6,
-          "trend_anchors": "盛洋科技(创60日新高)、海洋王(创一年(250日)新高)、超声电子(RPS98)",
+          "trend_anchors": "盛洋科技(创60日新高)、海洋王(创一年(250日)新高)、崇达技术(RPS98)",
           "tags": [
             "#103 强趋势行业(6只趋势锚)",
             "日内首板补涨",
@@ -2120,7 +2103,7 @@
           "zbc": 2,
           "turnover_rate": 10.68,
           "trend_anchor_count": 6,
-          "trend_anchors": "盛洋科技(创60日新高)、海洋王(创一年(250日)新高)、超声电子(RPS98)",
+          "trend_anchors": "盛洋科技(创60日新高)、海洋王(创一年(250日)新高)、崇达技术(RPS98)",
           "tags": [
             "#103 强趋势行业(6只趋势锚)",
             "日内首板补涨"
@@ -2138,7 +2121,7 @@
           "zbc": 1,
           "turnover_rate": null,
           "trend_anchor_count": 6,
-          "trend_anchors": "盛洋科技(创60日新高)、海洋王(创一年(250日)新高)、超声电子(RPS98)",
+          "trend_anchors": "盛洋科技(创60日新高)、海洋王(创一年(250日)新高)、崇达技术(RPS98)",
           "tags": [
             "#103 强趋势行业(6只趋势锚)",
             "日内首板补涨"
@@ -2148,20 +2131,21 @@
           ]
         },
         {
-          "code": "603233",
-          "name": "大参林",
-          "industry": "医药商业",
-          "first_time": "10:57:09",
-          "close": 20.26,
-          "circ_mv_yi": 239.12,
-          "seal_yi": 0.31,
+          "code": "300030",
+          "name": "阳普医疗",
+          "industry": "医疗保健",
+          "first_time": "10:19:36",
+          "close": 7.31,
+          "circ_mv_yi": 19.9,
+          "seal_yi": 0.18,
           "zbc": 0,
-          "turnover_rate": 2.03,
-          "trend_anchor_count": 4,
-          "trend_anchors": "大参林(创半年(120日)新高)、益丰药房(创一年(250日)新高)、老百姓(创半年(120日)新高)",
+          "turnover_rate": 18.8,
+          "trend_anchor_count": 5,
+          "trend_anchors": "阳普医疗(创60日新高)、澳洋健康(RPS99)、采纳股份(RPS99)",
           "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "日内首板补涨"
+            "#103 强趋势行业(5只趋势锚)",
+            "日内首板补涨",
+            "#030 小市值弹性"
           ],
           "risks": []
         }
