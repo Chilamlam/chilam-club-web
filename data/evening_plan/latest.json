@@ -2,8 +2,8 @@
   "status": "complete",
   "date": "20261030",
   "date_display": "2026-10-30",
-  "generated_at": "2026-11-01 00:26:45",
-  "total_candidates": 109,
+  "generated_at": "2026-11-01 02:49:41",
+  "total_candidates": 110,
   "cycle_and_laws": {
     "trade_date": "20261030",
     "weekday": "周五",
@@ -516,7 +516,7 @@
           "close": 20.24,
           "circ_mv_yi": 153.8,
           "seal_yi": 0.7,
-          "zbc": 1,
+          "zbc": 2,
           "turnover_rate": null,
           "tags": [
             "#125 十点前首板",
@@ -838,7 +838,7 @@
       ],
       "methodology_note": "依据 #080 与 #118：在分歧或冰点期，盘中反复炸板（≥2次）检验抛压但尾盘仍顽强回封、尤其是所属板块内唯一涨停的「狗啃板」，代表主力承接了全部恐慌筹码，次日极易弱转强领涨。叠加 #035：近期人气股盘中触板被动炸板但收红盘者，次日若竞价不核按钮则具备反包潜质。",
       "next_day_anchor": "次日 09:25 集合竞价若出现平开或高开（未闷杀低开<-3%），属于标准「弱转强」信号；若大幅低开核按钮则直接放弃。",
-      "count": 18,
+      "count": 19,
       "items": [
         {
           "code": "605338",
@@ -909,6 +909,24 @@
           "pattern_type": "狗啃板(板块独苗)",
           "tags": [
             "🔥 #080 正宗狗啃板(炸3次·板块独苗)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "001287",
+          "name": "中电港",
+          "industry": "其他电子",
+          "limit_times": 1,
+          "first_time": "09:30:12",
+          "zbc": 2,
+          "sector_zt_count": 1,
+          "close": 20.24,
+          "circ_mv_yi": 153.8,
+          "seal_yi": 0.7,
+          "turnover_rate": null,
+          "pattern_type": "狗啃板(板块独苗)",
+          "tags": [
+            "🔥 #080 正宗狗啃板(炸2次·板块独苗)"
           ],
           "risks": []
         },
@@ -1854,7 +1872,7 @@
           "close": 20.24,
           "circ_mv_yi": 153.8,
           "seal_yi": 0.7,
-          "zbc": 1,
+          "zbc": 2,
           "turnover_rate": null,
           "trend_anchor_count": 6,
           "trend_anchors": "盛洋科技(创60日新高)、海洋王(创一年(250日)新高)、超声电子(RPS98)",

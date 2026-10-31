@@ -1,6 +1,6 @@
 {
   "date": "2026-10-30",
-  "update_time": "2026-10-31 16:17:15",
+  "update_time": "2026-10-31 18:39:11",
   "total_count": 47,
   "max_height": 5,
   "stocks": [
@@ -98,7 +98,7 @@
       "industry": "其他电子",
       "limit_times": 1,
       "first_time": "09:30:12",
-      "reason": "封板资金 0.7 亿 | 炸板 1 次"
+      "reason": "封板资金 0.7 亿 | 炸板 2 次"
     },
     {
       "code": "002432",
