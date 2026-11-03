@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-04 02:39:07",
+  "date": "2026-11-04 04:33:14",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -169,15 +169,6 @@
       "premium_rate": -1.11
     },
     {
-      "code": "159265.SZ",
-      "name": "港股消费ETF鹏华",
-      "price": 0.783,
-      "change": 3.3,
-      "vol_yi": 0.22,
-      "tag": "📈 强势",
-      "premium_rate": -1.06
-    },
-    {
       "code": "513230.SH",
       "name": "港股通消费ETF华夏",
       "price": 0.845,
@@ -185,6 +176,15 @@
       "vol_yi": 0.51,
       "tag": "📈 强势",
       "premium_rate": -0.86
+    },
+    {
+      "code": "159265.SZ",
+      "name": "港股消费ETF鹏华",
+      "price": 0.783,
+      "change": 3.3,
+      "vol_yi": 0.22,
+      "tag": "📈 强势",
+      "premium_rate": -1.06
     },
     {
       "code": "520620.SH",
