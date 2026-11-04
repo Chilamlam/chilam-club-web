@@ -23,17 +23,6 @@
     },
     {
       "rank": 2,
-      "code": "BK1718",
-      "name": "外资背景",
-      "pct_chg": 5.02,
-      "pct_5d": 5.25,
-      "pct_10d": 5.25,
-      "pct_20d": 5.25,
-      "pct_60d": 5.25,
-      "streak": 1
-    },
-    {
-      "rank": 3,
       "code": "BK1000",
       "name": "宁组合",
       "pct_chg": 4.29,
@@ -44,29 +33,7 @@
       "streak": 1
     },
     {
-      "rank": 4,
-      "code": "BK1762",
-      "name": "高端装备",
-      "pct_chg": 4.38,
-      "pct_5d": 4.7,
-      "pct_10d": 4.7,
-      "pct_20d": 4.7,
-      "pct_60d": 4.7,
-      "streak": 1
-    },
-    {
-      "rank": 5,
-      "code": "BK1719",
-      "name": "连续亏损",
-      "pct_chg": 2.21,
-      "pct_5d": 4.18,
-      "pct_10d": 4.18,
-      "pct_20d": 4.18,
-      "pct_60d": 4.18,
-      "streak": 2
-    },
-    {
-      "rank": 6,
+      "rank": 3,
       "code": "BK1145",
       "name": "机器人执行器",
       "pct_chg": 4.6,
@@ -77,29 +44,7 @@
       "streak": 1
     },
     {
-      "rank": 7,
-      "code": "BK1724",
-      "name": "高市盈率",
-      "pct_chg": 3.67,
-      "pct_5d": 3.85,
-      "pct_10d": 3.85,
-      "pct_20d": 3.85,
-      "pct_60d": 3.85,
-      "streak": 1
-    },
-    {
-      "rank": 8,
-      "code": "BK1733",
-      "name": "增持计划",
-      "pct_chg": 2.48,
-      "pct_5d": 3.84,
-      "pct_10d": 3.84,
-      "pct_20d": 3.84,
-      "pct_60d": 3.84,
-      "streak": 1
-    },
-    {
-      "rank": 9,
+      "rank": 4,
       "code": "BK1100",
       "name": "减速器",
       "pct_chg": 3.54,
@@ -110,7 +55,7 @@
       "streak": 1
     },
     {
-      "rank": 10,
+      "rank": 5,
       "code": "BK0927",
       "name": "免税概念",
       "pct_chg": 0.4,
@@ -119,24 +64,80 @@
       "pct_20d": -0.11,
       "pct_60d": -2.89,
       "streak": 3
+    },
+    {
+      "rank": 6,
+      "code": "BK0811",
+      "name": "超级品牌",
+      "pct_chg": -0.71,
+      "pct_5d": 3.36,
+      "pct_10d": 3.37,
+      "pct_20d": 1.38,
+      "pct_60d": -2.7,
+      "streak": 2
+    },
+    {
+      "rank": 7,
+      "code": "BK0477",
+      "name": "酿酒概念",
+      "pct_chg": -1.07,
+      "pct_5d": 5.8,
+      "pct_10d": 2.87,
+      "pct_20d": 0.19,
+      "pct_60d": 1.24,
+      "streak": 2
+    },
+    {
+      "rank": 8,
+      "code": "BK0611",
+      "name": "上证50_",
+      "pct_chg": 1.49,
+      "pct_5d": 2.09,
+      "pct_10d": 2.83,
+      "pct_20d": 0.65,
+      "pct_60d": -1.63,
+      "streak": 1
+    },
+    {
+      "rank": 9,
+      "code": "BK0610",
+      "name": "央视50_",
+      "pct_chg": 0.62,
+      "pct_5d": 2.0,
+      "pct_10d": 2.55,
+      "pct_20d": 0.78,
+      "pct_60d": -2.1,
+      "streak": 1
+    },
+    {
+      "rank": 10,
+      "code": "BK1661",
+      "name": "行业龙头",
+      "pct_chg": 2.05,
+      "pct_5d": 1.96,
+      "pct_10d": 2.49,
+      "pct_20d": -1.35,
+      "pct_60d": -6.37,
+      "streak": 1
     }
   ],
-  "overlap_count": 3,
+  "overlap_count": 4,
   "overlap_denominator": 10,
-  "top_median_pct": 4.17,
-  "universe_median_pct": -3.8,
-  "universe_count": 495,
+  "top_median_pct": 3.38,
+  "universe_median_pct": -3.79,
+  "universe_count": 480,
   "verdict": {
-    "label": "快速轮动",
+    "label": "过渡/混合",
     "reasons": [
-      "Top10 与上一交易日（2026-11-03）重合仅 3/10，领涨板块快速换脸；",
-      "Top10 10d涨幅中位数 4.2%，全市场概念板块中位数 -3.8%。"
+      "Top10 与上一交易日（2026-11-03）重合 4/10，介于主升（≥7）与轮动（≤3）之间，主线与轮动并存；",
+      "Top10 10d涨幅中位数 3.4%，全市场概念板块中位数 -3.8%。"
     ],
-    "watch": "明日重合回升至 ≥7 则转向主升判读；仍 ≤3 则轮动延续。"
+    "watch": "明日重合 ≥7 转主升判读；≤3 转轮动判读。"
   },
-  "generated_at": "2026-11-05 03:13:00 CST",
+  "generated_at": "2026-11-05 05:16:01 CST",
   "source": "eastmoney_concept_boards",
-  "data_channel": "clist",
+  "data_channel": "tushare_dc",
+  "channel_note": "东财 clist 本次取数失败或残缺（行数不足），改用 Tushare dc_index/dc_daily 重建——那是同一份东财概念板块数据",
   "fallback_probe": {
     "ok": true,
     "checked_date": "2026-11-04",

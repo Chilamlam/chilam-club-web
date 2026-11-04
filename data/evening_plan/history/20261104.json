@@ -2,8 +2,8 @@
   "status": "complete",
   "date": "20261104",
   "date_display": "2026-11-04",
-  "generated_at": "2026-11-05 03:15:18",
-  "total_candidates": 184,
+  "generated_at": "2026-11-05 05:18:10",
+  "total_candidates": 192,
   "cycle_and_laws": {
     "trade_date": "20261104",
     "weekday": "周三",
@@ -1952,9 +1952,30 @@
       ],
       "methodology_note": "依据 #077 与 #103：当某个行业内多只机构趋势大票持续创阶段新高或霸榜高 RPS（机构负责打造板块容量与持续性），板块内新启动的小市值、低股价首板往往成为游资进攻的连板补涨先锋。",
       "next_day_anchor": "次日观察同板块趋势大票是否维持红盘强势（板块不倒），若板块延续强势则前排小市值首板具备高1进2晋级潜质。",
-      "count": 54,
-      "strong_sector_count": 44,
+      "count": 62,
+      "strong_sector_count": 37,
       "items": [
+        {
+          "code": "002388",
+          "name": "新亚制程",
+          "industry": "元器件",
+          "first_time": "09:34:00",
+          "close": 5.51,
+          "circ_mv_yi": 27.89,
+          "seal_yi": 0.73,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 5,
+          "trend_anchors": "超声电子(RPS95)、海洋王(RPS100)、满坤科技(RPS99)",
+          "tags": [
+            "#103 强趋势行业(5只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": [
+            "ℹ️ 历史 5 次首板均未连板（#032 股性基因）"
+          ]
+        },
         {
           "code": "002275",
           "name": "桂林三金",
@@ -1965,10 +1986,10 @@
           "seal_yi": 0.78,
           "zbc": 1,
           "turnover_rate": 7.29,
-          "trend_anchor_count": 4,
+          "trend_anchor_count": 5,
           "trend_anchors": "羚锐制药(创一年(250日)新高)、济川药业(创60日新高)、马应龙(创60日新高)",
           "tags": [
-            "#103 强趋势行业(4只趋势锚)",
+            "#103 强趋势行业(5只趋势锚)",
             "#125 10点前首板"
           ],
           "risks": []
@@ -1983,27 +2004,48 @@
           "seal_yi": 0.4,
           "zbc": 3,
           "turnover_rate": null,
-          "trend_anchor_count": 2,
-          "trend_anchors": "盟固利(创60日新高)、凯盛新材(创60日新高)",
+          "trend_anchor_count": 3,
+          "trend_anchors": "盟固利(创60日新高)、凯盛新材(创60日新高)、高争民爆(RPS97)",
           "tags": [
-            "#103 强趋势行业(2只趋势锚)",
+            "#103 强趋势行业(3只趋势锚)",
             "#125 10点前首板",
             "#030 小市值弹性"
           ],
           "risks": []
         },
         {
-          "code": "000919",
-          "name": "金陵药业",
-          "industry": "化学制药/化学制品",
-          "first_time": "09:44:33",
-          "close": 6.67,
-          "circ_mv_yi": 41.47,
-          "seal_yi": 0.31,
+          "code": "603598",
+          "name": "引力传媒",
+          "industry": "互联网",
+          "first_time": "09:31:58",
+          "close": 19.69,
+          "circ_mv_yi": 53.2,
+          "seal_yi": 1.02,
           "zbc": 1,
           "turnover_rate": null,
+          "trend_anchor_count": 3,
+          "trend_anchors": "旗天科技(创60日新高)、大晟文化(RPS99)、掌阅科技(RPS99)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": [
+            "ℹ️ 历史 5 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "301583",
+          "name": "托伦斯",
+          "industry": "机械基件",
+          "first_time": "09:52:54",
+          "close": 96.19,
+          "circ_mv_yi": 29.66,
+          "seal_yi": 0.72,
+          "zbc": 2,
+          "turnover_rate": null,
           "trend_anchor_count": 2,
-          "trend_anchors": "高争民爆(RPS97)、金丹科技(RPS99)",
+          "trend_anchors": "冰山冷热(RPS100)、宁波东力(RPS99)",
           "tags": [
             "#103 强趋势行业(2只趋势锚)",
             "#125 10点前首板",
@@ -2014,7 +2056,7 @@
         {
           "code": "605287",
           "name": "德才股份",
-          "industry": "装修装饰/装修装饰Ⅱ",
+          "industry": "装修装饰",
           "first_time": "09:46:34",
           "close": 50.52,
           "circ_mv_yi": 70.52,
@@ -2032,7 +2074,7 @@
         {
           "code": "002081",
           "name": "金 螳 螂",
-          "industry": "装修装饰/装修装饰Ⅱ",
+          "industry": "装修装饰",
           "first_time": "09:30:06",
           "close": 4.3,
           "circ_mv_yi": 114.06,
@@ -2106,233 +2148,196 @@
           ]
         },
         {
-          "code": "300788",
-          "name": "中信出版",
-          "industry": "出版",
-          "first_time": "13:04:18",
-          "close": 36.06,
-          "circ_mv_yi": 68.57,
-          "seal_yi": 0.2,
-          "zbc": 1,
-          "turnover_rate": 9.21,
-          "trend_anchor_count": 4,
-          "trend_anchors": "中信出版(RPS99)、新华传媒(RPS100)、新华文轩(RPS99)",
+          "code": "001233",
+          "name": "海安集团",
+          "industry": "汽车配件",
+          "first_time": "13:01:12",
+          "close": 61.75,
+          "circ_mv_yi": 23.29,
+          "seal_yi": 0.77,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 6,
+          "trend_anchors": "渤海汽车(创60日新高)、襄阳轴承(创一年(250日)新高)、模塑科技(RPS95)",
           "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "日内首板补涨"
+            "#103 强趋势行业(6只趋势锚)",
+            "日内首板补涨",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "001282",
+          "name": "三联锻造",
+          "industry": "汽车配件",
+          "first_time": "10:55:51",
+          "close": 17.0,
+          "circ_mv_yi": 25.96,
+          "seal_yi": 0.69,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 6,
+          "trend_anchors": "渤海汽车(创60日新高)、襄阳轴承(创一年(250日)新高)、模塑科技(RPS95)",
+          "tags": [
+            "#103 强趋势行业(6只趋势锚)",
+            "日内首板补涨",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "688517",
+          "name": "金冠电气",
+          "industry": "电气设备",
+          "first_time": "13:49:49",
+          "close": 21.46,
+          "circ_mv_yi": 29.32,
+          "seal_yi": 0.07,
+          "zbc": 4,
+          "turnover_rate": null,
+          "trend_anchor_count": 6,
+          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)、联域股份(RPS98)",
+          "tags": [
+            "#103 强趋势行业(6只趋势锚)",
+            "日内首板补涨",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603048",
+          "name": "浙江黎明",
+          "industry": "汽车配件",
+          "first_time": "14:01:22",
+          "close": 21.98,
+          "circ_mv_yi": 32.28,
+          "seal_yi": 0.09,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 6,
+          "trend_anchors": "渤海汽车(创60日新高)、襄阳轴承(创一年(250日)新高)、模塑科技(RPS95)",
+          "tags": [
+            "#103 强趋势行业(6只趋势锚)",
+            "日内首板补涨",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603767",
+          "name": "中马传动",
+          "industry": "汽车配件",
+          "first_time": "10:28:28",
+          "close": 15.61,
+          "circ_mv_yi": 48.18,
+          "seal_yi": 0.62,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 6,
+          "trend_anchors": "渤海汽车(创60日新高)、襄阳轴承(创一年(250日)新高)、模塑科技(RPS95)",
+          "tags": [
+            "#103 强趋势行业(6只趋势锚)",
+            "日内首板补涨",
+            "#030 小市值弹性"
           ],
           "risks": [
             "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
           ]
         },
         {
-          "code": "603115",
-          "name": "海星股份",
-          "industry": "元件",
-          "first_time": "14:23:21",
-          "close": 45.05,
-          "circ_mv_yi": 110.18,
-          "seal_yi": 0.05,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "超声电子(RPS95)、满坤科技(RPS99)、威尔高(RPS93)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "日内首板补涨"
-          ],
-          "risks": []
-        },
-        {
-          "code": "001389",
-          "name": "广合科技",
-          "industry": "元件",
-          "first_time": "14:29:30",
-          "close": 90.23,
-          "circ_mv_yi": 137.49,
-          "seal_yi": 0.17,
+          "code": "003033",
+          "name": "征和工业",
+          "industry": "汽车配件",
+          "first_time": "10:00:42",
+          "close": 77.35,
+          "circ_mv_yi": 62.63,
+          "seal_yi": 0.54,
           "zbc": 0,
           "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "超声电子(RPS95)、满坤科技(RPS99)、威尔高(RPS93)",
+          "trend_anchor_count": 6,
+          "trend_anchors": "渤海汽车(创60日新高)、襄阳轴承(创一年(250日)新高)、模塑科技(RPS95)",
           "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "日内首板补涨"
-          ],
-          "risks": [
-            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
-          ]
-        },
-        {
-          "code": "002317",
-          "name": "众生药业",
-          "industry": "中成药",
-          "first_time": "13:58:03",
-          "close": 24.44,
-          "circ_mv_yi": 187.7,
-          "seal_yi": 0.66,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "羚锐制药(创一年(250日)新高)、济川药业(创60日新高)、马应龙(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
+            "#103 强趋势行业(6只趋势锚)",
             "日内首板补涨"
           ],
           "risks": []
         },
         {
-          "code": "603186",
-          "name": "华正新材",
-          "industry": "元件",
-          "first_time": "14:07:25",
-          "close": 145.22,
-          "circ_mv_yi": 227.69,
-          "seal_yi": 0.75,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "超声电子(RPS95)、满坤科技(RPS99)、威尔高(RPS93)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "日内首板补涨"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002436",
-          "name": "兴森科技",
-          "industry": "元件",
-          "first_time": "15:00:00",
-          "close": 27.98,
-          "circ_mv_yi": 424.72,
+          "code": "002309",
+          "name": "中利集团",
+          "industry": "电气设备",
+          "first_time": "13:00:45",
+          "close": 2.65,
+          "circ_mv_yi": 63.76,
           "seal_yi": 0.36,
           "zbc": 0,
           "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "超声电子(RPS95)、满坤科技(RPS99)、威尔高(RPS93)",
+          "trend_anchor_count": 6,
+          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)、联域股份(RPS98)",
           "tags": [
-            "#103 强趋势行业(4只趋势锚)",
+            "#103 强趋势行业(6只趋势锚)",
+            "日内首板补涨"
+          ],
+          "risks": []
+        },
+        {
+          "code": "605288",
+          "name": "凯迪股份",
+          "industry": "电气设备",
+          "first_time": "10:18:21",
+          "close": 72.7,
+          "circ_mv_yi": 71.45,
+          "seal_yi": 0.31,
+          "zbc": 0,
+          "turnover_rate": 2.02,
+          "trend_anchor_count": 6,
+          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)、联域股份(RPS98)",
+          "tags": [
+            "#103 强趋势行业(6只趋势锚)",
             "日内首板补涨"
           ],
           "risks": [
-            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
+            "ℹ️ 历史 8 次首板均未连板（#032 股性基因）"
           ]
         },
         {
-          "code": "002636",
-          "name": "金安国纪",
-          "industry": "元件",
-          "first_time": "13:47:06",
-          "close": 64.41,
-          "circ_mv_yi": 467.12,
-          "seal_yi": 1.41,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "超声电子(RPS95)、满坤科技(RPS99)、威尔高(RPS93)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "日内首板补涨"
-          ],
-          "risks": [
-            "ℹ️ 历史 5 次首板均未连板（#032 股性基因）"
-          ]
-        },
-        {
-          "code": "002916",
-          "name": "深南电路",
-          "industry": "元件",
-          "first_time": "14:27:09",
-          "close": 225.6,
-          "circ_mv_yi": 1499.88,
-          "seal_yi": 1.47,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "超声电子(RPS95)、满坤科技(RPS99)、威尔高(RPS93)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "日内首板补涨"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002463",
-          "name": "沪电股份",
-          "industry": "元件",
-          "first_time": "14:35:03",
-          "close": 85.95,
-          "circ_mv_yi": 1656.29,
-          "seal_yi": 0.96,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "超声电子(RPS95)、满坤科技(RPS99)、威尔高(RPS93)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "日内首板补涨"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002529",
-          "name": "海源复材",
-          "industry": "专用机械",
-          "first_time": "13:04:09",
-          "close": 6.11,
-          "circ_mv_yi": 15.89,
-          "seal_yi": 0.15,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 3,
-          "trend_anchors": "田中精机(创60日新高)、美亚光电(创60日新高)、天地科技(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(3只趋势锚)",
-            "日内首板补涨",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "000017",
-          "name": "深中华A",
-          "industry": "服饰",
-          "first_time": "13:30:57",
-          "close": 6.38,
-          "circ_mv_yi": 28.12,
-          "seal_yi": 0.88,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 3,
-          "trend_anchors": "九牧王(创60日新高)、朗姿股份(创半年(120日)新高)、比音勒芬(创一年(250日)新高)",
-          "tags": [
-            "#103 强趋势行业(3只趋势锚)",
-            "日内首板补涨",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "603657",
-          "name": "春光科技",
-          "industry": "家用电器",
-          "first_time": "14:27:49",
-          "close": 28.0,
-          "circ_mv_yi": 37.85,
-          "seal_yi": 0.04,
+          "code": "603950",
+          "name": "长源东谷",
+          "industry": "汽车配件",
+          "first_time": "14:22:17",
+          "close": 37.31,
+          "circ_mv_yi": 120.84,
+          "seal_yi": 0.07,
           "zbc": 2,
           "turnover_rate": null,
-          "trend_anchor_count": 3,
-          "trend_anchors": "阳光照明(创一年(250日)新高)、惠而浦(创60日新高)、苏泊尔(创60日新高)",
+          "trend_anchor_count": 6,
+          "trend_anchors": "渤海汽车(创60日新高)、襄阳轴承(创一年(250日)新高)、模塑科技(RPS95)",
           "tags": [
-            "#103 强趋势行业(3只趋势锚)",
-            "日内首板补涨",
-            "#030 小市值弹性"
+            "#103 强趋势行业(6只趋势锚)",
+            "日内首板补涨"
           ],
           "risks": [
-            "⚠️ 午后频炸尾板（#032 偷袭回封）",
-            "ℹ️ 历史 5 次首板均未连板（#032 股性基因）"
+            "⚠️ 午后频炸尾板（#032 偷袭回封）"
+          ]
+        },
+        {
+          "code": "002364",
+          "name": "中恒电气",
+          "industry": "电气设备",
+          "first_time": "14:40:42",
+          "close": 24.68,
+          "circ_mv_yi": 137.75,
+          "seal_yi": 0.32,
+          "zbc": 3,
+          "turnover_rate": null,
+          "trend_anchor_count": 6,
+          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)、联域股份(RPS98)",
+          "tags": [
+            "#103 强趋势行业(6只趋势锚)",
+            "日内首板补涨"
+          ],
+          "risks": [
+            "⚠️ 午后频炸尾板（#032 偷袭回封）"
           ]
         }
       ]
