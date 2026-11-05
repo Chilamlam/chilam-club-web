@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-05 19:32:11",
+  "generated_at": "2026-11-06 03:20:44",
   "benchmark": "000300.SH",
   "horizons": [
     1,
@@ -226,13 +226,13 @@
       "beta": {
         "status": "ok",
         "n_days": 36,
-        "beta": 1.8047839033799216,
+        "beta": 1.8047839033799218,
         "r_squared": 0.5204936398262162,
-        "intercept": -0.015756329697900476,
+        "intercept": -0.01575632969790047,
         "raw_alpha_median": -0.027197887142311306,
         "adj_alpha_median": -0.015589962344924276,
         "adj_direction_accuracy": 0.4272639691714836,
-        "adj_alpha_median_independent": -0.008109522723734972,
+        "adj_alpha_median_independent": -0.008109522723734965,
         "adj_direction_accuracy_independent": 0.375,
         "n_independent": 8
       },

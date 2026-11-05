@@ -2,8 +2,8 @@
   "status": "complete",
   "date": "20261105",
   "date_display": "2026-11-05",
-  "generated_at": "2026-11-05 19:33:04",
-  "total_candidates": 181,
+  "generated_at": "2026-11-06 03:21:36",
+  "total_candidates": 177,
   "cycle_and_laws": {
     "trade_date": "20261105",
     "weekday": "周四",
@@ -2313,8 +2313,8 @@
       ],
       "methodology_note": "依据 #077 与 #103：当某个行业内多只机构趋势大票持续创阶段新高或霸榜高 RPS（机构负责打造板块容量与持续性），板块内新启动的小市值、低股价首板往往成为游资进攻的连板补涨先锋。",
       "next_day_anchor": "次日观察同板块趋势大票是否维持红盘强势（板块不倒），若板块延续强势则前排小市值首板具备高1进2晋级潜质。",
-      "count": 44,
-      "strong_sector_count": 38,
+      "count": 40,
+      "strong_sector_count": 48,
       "items": [
         {
           "code": "000710",
@@ -2338,43 +2338,6 @@
           ]
         },
         {
-          "code": "002045",
-          "name": "国光电器",
-          "industry": "元器件",
-          "first_time": "09:34:45",
-          "close": 9.9,
-          "circ_mv_yi": 55.62,
-          "seal_yi": 0.84,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 6,
-          "trend_anchors": "超声电子(RPS96)、海洋王(RPS100)、四会富仕(RPS93)",
-          "tags": [
-            "#103 强趋势行业(6只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "300493",
-          "name": "润欣科技",
-          "industry": "元器件",
-          "first_time": "09:42:57",
-          "close": 13.94,
-          "circ_mv_yi": 71.39,
-          "seal_yi": 0.72,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 6,
-          "trend_anchors": "超声电子(RPS96)、海洋王(RPS100)、四会富仕(RPS93)",
-          "tags": [
-            "#103 强趋势行业(6只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
           "code": "000995",
           "name": "皇台酒业",
           "industry": "白酒",
@@ -2384,211 +2347,10 @@
           "seal_yi": 0.23,
           "zbc": 1,
           "turnover_rate": 1.93,
-          "trend_anchor_count": 5,
+          "trend_anchor_count": 4,
           "trend_anchors": "皇台酒业(创半年(120日)新高)、水井坊(创60日新高)、贵州茅台(创半年(120日)新高)",
           "tags": [
-            "#103 强趋势行业(5只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "000635",
-          "name": "英 力 特",
-          "industry": "化工原料",
-          "first_time": "09:50:42",
-          "close": 8.73,
-          "circ_mv_yi": 32.02,
-          "seal_yi": 0.43,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 5,
-          "trend_anchors": "盟固利(创60日新高)、凯盛新材(创60日新高)、高争民爆(RPS96)",
-          "tags": [
-            "#103 强趋势行业(5只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "688429",
-          "name": "时创能源",
-          "industry": "电气设备",
-          "first_time": "09:33:25",
-          "close": 10.69,
-          "circ_mv_yi": 42.76,
-          "seal_yi": 0.35,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)、联域股份(RPS98)",
-          "tags": [
             "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "605339",
-          "name": "南侨食品",
-          "industry": "食品",
-          "first_time": "09:33:23",
-          "close": 14.36,
-          "circ_mv_yi": 60.93,
-          "seal_yi": 0.15,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "广州酒家(创半年(120日)新高)、西麦食品(创60日新高)、青岛食品(RPS100)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "000533",
-          "name": "顺钠股份",
-          "industry": "电气设备",
-          "first_time": "09:38:39",
-          "close": 9.77,
-          "circ_mv_yi": 66.91,
-          "seal_yi": 0.92,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)、联域股份(RPS98)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "600481",
-          "name": "双良节能",
-          "industry": "电气设备",
-          "first_time": "09:33:37",
-          "close": 4.11,
-          "circ_mv_yi": 84.84,
-          "seal_yi": 0.62,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)、联域股份(RPS98)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002865",
-          "name": "钧达股份",
-          "industry": "电气设备",
-          "first_time": "09:39:42",
-          "close": 43.67,
-          "circ_mv_yi": 99.93,
-          "seal_yi": 0.54,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)、联域股份(RPS98)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "603185",
-          "name": "弘元绿能",
-          "industry": "电气设备",
-          "first_time": "09:45:34",
-          "close": 14.82,
-          "circ_mv_yi": 100.63,
-          "seal_yi": 0.74,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)、联域股份(RPS98)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "600986",
-          "name": "浙文互联",
-          "industry": "互联网",
-          "first_time": "09:40:58",
-          "close": 7.65,
-          "circ_mv_yi": 113.78,
-          "seal_yi": 0.44,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "旗天科技(创60日新高)、天娱数科(RPS92)、大晟文化(RPS99)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002506",
-          "name": "协鑫集成",
-          "industry": "电气设备",
-          "first_time": "09:32:30",
-          "close": 2.54,
-          "circ_mv_yi": 148.45,
-          "seal_yi": 1.65,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)、联域股份(RPS98)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002131",
-          "name": "利欧股份",
-          "industry": "互联网",
-          "first_time": "09:40:57",
-          "close": 4.39,
-          "circ_mv_yi": 257.03,
-          "seal_yi": 1.37,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "旗天科技(创60日新高)、天娱数科(RPS92)、大晟文化(RPS99)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "603098",
-          "name": "森特股份",
-          "industry": "装修装饰",
-          "first_time": "09:35:58",
-          "close": 10.77,
-          "circ_mv_yi": 58.03,
-          "seal_yi": 0.29,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 3,
-          "trend_anchors": "郑中设计(RPS100)、*ST美芝(RPS96)、德才股份(RPS99)",
-          "tags": [
-            "#103 强趋势行业(3只趋势锚)",
             "#125 10点前首板",
             "#030 小市值弹性"
           ],
@@ -2604,8 +2366,46 @@
           "seal_yi": 0.4,
           "zbc": 0,
           "turnover_rate": null,
+          "trend_anchor_count": 3,
+          "trend_anchors": "肯特股份(RPS96)、福莱新材(RPS100)、上纬新材(RPS95)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "000635",
+          "name": "英 力 特",
+          "industry": "化工原料",
+          "first_time": "09:50:42",
+          "close": 8.73,
+          "circ_mv_yi": 32.02,
+          "seal_yi": 0.43,
+          "zbc": 1,
+          "turnover_rate": null,
           "trend_anchor_count": 2,
-          "trend_anchors": "肯特股份(RPS96)、福莱新材(RPS100)",
+          "trend_anchors": "盟固利(创60日新高)、凯盛新材(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(2只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "688429",
+          "name": "时创能源",
+          "industry": "电气设备",
+          "first_time": "09:33:25",
+          "close": 10.69,
+          "circ_mv_yi": 42.76,
+          "seal_yi": 0.35,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 2,
+          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)",
           "tags": [
             "#103 强趋势行业(2只趋势锚)",
             "#125 10点前首板",
@@ -2633,21 +2433,147 @@
           "risks": []
         },
         {
-          "code": "002307",
-          "name": "北新路桥",
-          "industry": "建筑工程",
-          "first_time": "09:37:45",
-          "close": 3.66,
-          "circ_mv_yi": 59.63,
-          "seal_yi": 1.09,
-          "zbc": 0,
-          "turnover_rate": null,
+          "code": "002086",
+          "name": "东方海洋",
+          "industry": "农产品加/农产品加工",
+          "first_time": "09:58:03",
+          "close": 3.61,
+          "circ_mv_yi": 57.07,
+          "seal_yi": 0.18,
+          "zbc": 14,
+          "turnover_rate": 14.58,
           "trend_anchor_count": 2,
-          "trend_anchors": "华阳国际(创半年(120日)新高)、奥雅股份(RPS100)",
+          "trend_anchors": "东方海洋(RPS100)、金健米业(RPS98)",
           "tags": [
             "#103 强趋势行业(2只趋势锚)",
             "#125 10点前首板",
             "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "605339",
+          "name": "南侨食品",
+          "industry": "食品",
+          "first_time": "09:33:23",
+          "close": 14.36,
+          "circ_mv_yi": 60.93,
+          "seal_yi": 0.15,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 2,
+          "trend_anchors": "广州酒家(创半年(120日)新高)、西麦食品(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(2只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "000533",
+          "name": "顺钠股份",
+          "industry": "电气设备",
+          "first_time": "09:38:39",
+          "close": 9.77,
+          "circ_mv_yi": 66.91,
+          "seal_yi": 0.92,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 2,
+          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(2只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600481",
+          "name": "双良节能",
+          "industry": "电气设备",
+          "first_time": "09:33:37",
+          "close": 4.11,
+          "circ_mv_yi": 84.84,
+          "seal_yi": 0.62,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 2,
+          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(2只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002865",
+          "name": "钧达股份",
+          "industry": "电气设备",
+          "first_time": "09:39:42",
+          "close": 43.67,
+          "circ_mv_yi": 99.93,
+          "seal_yi": 0.54,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 2,
+          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(2只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603185",
+          "name": "弘元绿能",
+          "industry": "电气设备",
+          "first_time": "09:45:34",
+          "close": 14.82,
+          "circ_mv_yi": 100.63,
+          "seal_yi": 0.74,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 2,
+          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(2只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002506",
+          "name": "协鑫集成",
+          "industry": "电气设备",
+          "first_time": "09:32:30",
+          "close": 2.54,
+          "circ_mv_yi": 148.45,
+          "seal_yi": 1.65,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 2,
+          "trend_anchors": "太阳电缆(创60日新高)、许继电气(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(2只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002131",
+          "name": "利欧股份",
+          "industry": "通用设备",
+          "first_time": "09:40:57",
+          "close": 4.39,
+          "circ_mv_yi": 257.03,
+          "seal_yi": 1.37,
+          "zbc": 1,
+          "turnover_rate": null,
+          "trend_anchor_count": 2,
+          "trend_anchors": "冰山冷热(RPS100)、宁波东力(RPS99)",
+          "tags": [
+            "#103 强趋势行业(2只趋势锚)",
+            "#125 10点前首板"
           ],
           "risks": []
         },
@@ -2679,10 +2605,84 @@
           "seal_yi": 0.52,
           "zbc": 1,
           "turnover_rate": null,
-          "trend_anchor_count": 6,
+          "trend_anchor_count": 5,
           "trend_anchors": "华智数媒(创半年(120日)新高)、奥飞娱乐(创半年(120日)新高)、文投控股(创半年(120日)新高)",
           "tags": [
-            "#103 强趋势行业(6只趋势锚)",
+            "#103 强趋势行业(5只趋势锚)",
+            "日内首板补涨",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "001330",
+          "name": "博纳影业",
+          "industry": "影视音像",
+          "first_time": "13:25:51",
+          "close": 6.16,
+          "circ_mv_yi": 71.63,
+          "seal_yi": 1.46,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 5,
+          "trend_anchors": "华智数媒(创半年(120日)新高)、奥飞娱乐(创半年(120日)新高)、文投控股(创半年(120日)新高)",
+          "tags": [
+            "#103 强趋势行业(5只趋势锚)",
+            "日内首板补涨"
+          ],
+          "risks": []
+        },
+        {
+          "code": "601929",
+          "name": "吉视传媒",
+          "industry": "影视音像",
+          "first_time": "13:16:56",
+          "close": 2.5,
+          "circ_mv_yi": 87.24,
+          "seal_yi": 0.86,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 5,
+          "trend_anchors": "华智数媒(创半年(120日)新高)、奥飞娱乐(创半年(120日)新高)、文投控股(创半年(120日)新高)",
+          "tags": [
+            "#103 强趋势行业(5只趋势锚)",
+            "日内首板补涨"
+          ],
+          "risks": []
+        },
+        {
+          "code": "301209",
+          "name": "联合化学",
+          "industry": "化学制品",
+          "first_time": "11:04:39",
+          "close": 39.95,
+          "circ_mv_yi": 53.52,
+          "seal_yi": 0.59,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 4,
+          "trend_anchors": "高争民爆(RPS96)、金丹科技(RPS100)、恒兴新材(RPS97)",
+          "tags": [
+            "#103 强趋势行业(4只趋势锚)",
+            "日内首板补涨",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603313",
+          "name": "梦百合",
+          "industry": "家居用品",
+          "first_time": "14:50:12",
+          "close": 6.42,
+          "circ_mv_yi": 36.63,
+          "seal_yi": 0.03,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 3,
+          "trend_anchors": "永艺股份(创60日新高)、ST美克(RPS93)、四通股份(RPS98)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
             "日内首板补涨",
             "#030 小市值弹性"
           ],
