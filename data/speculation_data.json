@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-07 02:20:03",
+  "date": "2026-11-07 04:30:04",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -282,13 +282,13 @@
       "premium_rate": -0.05
     },
     {
-      "code": "516370.SH",
-      "name": "电力ETF汇添富",
-      "price": 0.922,
+      "code": "562960.SH",
+      "name": "绿色电力ETF易方达",
+      "price": 1.151,
       "change": 1.32,
-      "vol_yi": 0.1,
+      "vol_yi": 0.38,
       "tag": "📈 强势",
-      "premium_rate": -0.05
+      "premium_rate": 0.01
     },
     {
       "code": "561170.SH",
@@ -300,13 +300,13 @@
       "premium_rate": -0.03
     },
     {
-      "code": "562960.SH",
-      "name": "绿色电力ETF易方达",
-      "price": 1.151,
+      "code": "516370.SH",
+      "name": "电力ETF汇添富",
+      "price": 0.922,
       "change": 1.32,
-      "vol_yi": 0.38,
+      "vol_yi": 0.1,
       "tag": "📈 强势",
-      "premium_rate": 0.01
+      "premium_rate": -0.05
     },
     {
       "code": "159158.SZ",

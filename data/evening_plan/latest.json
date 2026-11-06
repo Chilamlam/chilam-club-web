@@ -2,8 +2,8 @@
   "status": "complete",
   "date": "20261106",
   "date_display": "2026-11-06",
-  "generated_at": "2026-11-07 02:27:54",
-  "total_candidates": 118,
+  "generated_at": "2026-11-07 04:37:04",
+  "total_candidates": 120,
   "cycle_and_laws": {
     "trade_date": "20261106",
     "weekday": "周五",
@@ -1762,9 +1762,104 @@
       ],
       "methodology_note": "依据 #077 与 #103：当某个行业内多只机构趋势大票持续创阶段新高或霸榜高 RPS（机构负责打造板块容量与持续性），板块内新启动的小市值、低股价首板往往成为游资进攻的连板补涨先锋。",
       "next_day_anchor": "次日观察同板块趋势大票是否维持红盘强势（板块不倒），若板块延续强势则前排小市值首板具备高1进2晋级潜质。",
-      "count": 11,
-      "strong_sector_count": 37,
+      "count": 13,
+      "strong_sector_count": 44,
       "items": [
+        {
+          "code": "603366",
+          "name": "日出东方",
+          "industry": "家用电器",
+          "first_time": "09:45:14",
+          "close": 8.99,
+          "circ_mv_yi": 73.09,
+          "seal_yi": 1.93,
+          "zbc": 0,
+          "turnover_rate": 6.92,
+          "trend_anchor_count": 5,
+          "trend_anchors": "日出东方(创半年(120日)新高)、阳光照明(创一年(250日)新高)、九阳股份(创一年(250日)新高)",
+          "tags": [
+            "#103 强趋势行业(5只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": [
+            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "000595",
+          "name": "新能股份",
+          "industry": "电力",
+          "first_time": "09:31:36",
+          "close": 5.38,
+          "circ_mv_yi": 61.26,
+          "seal_yi": 0.57,
+          "zbc": 1,
+          "turnover_rate": null,
+          "trend_anchor_count": 4,
+          "trend_anchors": "宝新能源(RPS97)、中国广核(RPS97)、川投能源(RPS94)",
+          "tags": [
+            "#103 强趋势行业(4只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "001258",
+          "name": "立新能源",
+          "industry": "电力",
+          "first_time": "09:34:36",
+          "close": 9.57,
+          "circ_mv_yi": 89.32,
+          "seal_yi": 1.44,
+          "zbc": 1,
+          "turnover_rate": null,
+          "trend_anchor_count": 4,
+          "trend_anchors": "宝新能源(RPS97)、中国广核(RPS97)、川投能源(RPS94)",
+          "tags": [
+            "#103 强趋势行业(4只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002310",
+          "name": "东方新能",
+          "industry": "电力",
+          "first_time": "09:48:45",
+          "close": 2.32,
+          "circ_mv_yi": 102.06,
+          "seal_yi": 1.21,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 4,
+          "trend_anchors": "宝新能源(RPS97)、中国广核(RPS97)、川投能源(RPS94)",
+          "tags": [
+            "#103 强趋势行业(4只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600207",
+          "name": "安彩高科",
+          "industry": "电气设备",
+          "first_time": "09:32:05",
+          "close": 4.88,
+          "circ_mv_yi": 53.16,
+          "seal_yi": 0.59,
+          "zbc": 1,
+          "turnover_rate": null,
+          "trend_anchor_count": 3,
+          "trend_anchors": "时创能源(创60日新高)、永臻股份(创60日新高)、许继电气(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": [
+            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
+          ]
+        },
         {
           "code": "600229",
           "name": "城市传媒",
@@ -1775,10 +1870,10 @@
           "seal_yi": 0.62,
           "zbc": 0,
           "turnover_rate": 1.31,
-          "trend_anchor_count": 6,
-          "trend_anchors": "城市传媒(创半年(120日)新高)、粤传媒(创60日新高)、中原传媒(RPS94)",
+          "trend_anchor_count": 2,
+          "trend_anchors": "城市传媒(创半年(120日)新高)、粤传媒(创60日新高)",
           "tags": [
-            "#103 强趋势行业(6只趋势锚)",
+            "#103 强趋势行业(2只趋势锚)",
             "#125 10点前首板",
             "#030 小市值弹性"
           ],
@@ -1794,56 +1889,15 @@
           "seal_yi": 0.39,
           "zbc": 2,
           "turnover_rate": 20.75,
-          "trend_anchor_count": 6,
-          "trend_anchors": "大东方(创半年(120日)新高)、威高血净(创60日新高)、澳洋健康(RPS98)",
+          "trend_anchor_count": 2,
+          "trend_anchors": "大东方(创半年(120日)新高)、威高血净(创60日新高)",
           "tags": [
-            "#103 强趋势行业(6只趋势锚)",
+            "#103 强趋势行业(2只趋势锚)",
             "#125 10点前首板",
             "#030 小市值弹性"
           ],
           "risks": [
             "ℹ️ 历史 4 次首板均未连板（#032 股性基因）"
-          ]
-        },
-        {
-          "code": "603366",
-          "name": "日出东方",
-          "industry": "家用电器",
-          "first_time": "09:45:14",
-          "close": 8.99,
-          "circ_mv_yi": 73.09,
-          "seal_yi": 1.93,
-          "zbc": 0,
-          "turnover_rate": 6.92,
-          "trend_anchor_count": 6,
-          "trend_anchors": "日出东方(创半年(120日)新高)、阳光照明(创一年(250日)新高)、九阳股份(创一年(250日)新高)",
-          "tags": [
-            "#103 强趋势行业(6只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": [
-            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
-          ]
-        },
-        {
-          "code": "600207",
-          "name": "安彩高科",
-          "industry": "电气设备",
-          "first_time": "09:32:05",
-          "close": 4.88,
-          "circ_mv_yi": 53.16,
-          "seal_yi": 0.59,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "时创能源(创60日新高)、永臻股份(创60日新高)、许继电气(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": [
-            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
           ]
         },
         {
@@ -1856,11 +1910,48 @@
           "seal_yi": 0.2,
           "zbc": 4,
           "turnover_rate": 21.58,
+          "trend_anchor_count": 2,
+          "trend_anchors": "龙江交通(创一年(250日)新高)、四川成渝(创一年(250日)新高)",
+          "tags": [
+            "#103 强趋势行业(2只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "601595",
+          "name": "上海电影",
+          "industry": "影视音像",
+          "first_time": "10:27:30",
+          "close": 35.76,
+          "circ_mv_yi": 160.28,
+          "seal_yi": 0.55,
+          "zbc": 1,
+          "turnover_rate": 4.95,
           "trend_anchor_count": 3,
-          "trend_anchors": "龙江交通(创一年(250日)新高)、四川成渝(创一年(250日)新高)、皖通高速(RPS93)",
+          "trend_anchors": "上海电影(创半年(120日)新高)、芒果超媒(创一年(250日)新高)、无线传媒(创60日新高)",
           "tags": [
             "#103 强趋势行业(3只趋势锚)",
-            "#125 10点前首板",
+            "日内首板补涨"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600156",
+          "name": "华升股份",
+          "industry": "纺织制造",
+          "first_time": "13:17:46",
+          "close": 7.07,
+          "circ_mv_yi": 28.43,
+          "seal_yi": 0.29,
+          "zbc": 3,
+          "turnover_rate": null,
+          "trend_anchor_count": 2,
+          "trend_anchors": "伟星股份(RPS97)、浙文影业(RPS100)",
+          "tags": [
+            "#103 强趋势行业(2只趋势锚)",
+            "日内首板补涨",
             "#030 小市值弹性"
           ],
           "risks": []
@@ -1875,10 +1966,10 @@
           "seal_yi": 0.26,
           "zbc": 1,
           "turnover_rate": null,
-          "trend_anchor_count": 6,
-          "trend_anchors": "康冠科技(创60日新高)、兆威机电(创60日新高)、新亚制程(RPS93)",
+          "trend_anchor_count": 2,
+          "trend_anchors": "康冠科技(创60日新高)、兆威机电(创60日新高)",
           "tags": [
-            "#103 强趋势行业(6只趋势锚)",
+            "#103 强趋势行业(2只趋势锚)",
             "日内首板补涨",
             "#030 小市值弹性"
           ],
@@ -1894,10 +1985,10 @@
           "seal_yi": 0.29,
           "zbc": 1,
           "turnover_rate": 10.91,
-          "trend_anchor_count": 6,
-          "trend_anchors": "美晨科技(创半年(120日)新高)、兆丰股份(创60日新高)、襄阳轴承(RPS100)",
+          "trend_anchor_count": 2,
+          "trend_anchors": "美晨科技(创半年(120日)新高)、兆丰股份(创60日新高)",
           "tags": [
-            "#103 强趋势行业(6只趋势锚)",
+            "#103 强趋势行业(2只趋势锚)",
             "日内首板补涨",
             "#030 小市值弹性"
           ],
@@ -1913,67 +2004,11 @@
           "seal_yi": 0.45,
           "zbc": 0,
           "turnover_rate": 2.3,
-          "trend_anchor_count": 6,
-          "trend_anchors": "康冠科技(创60日新高)、兆威机电(创60日新高)、新亚制程(RPS93)",
-          "tags": [
-            "#103 强趋势行业(6只趋势锚)",
-            "日内首板补涨"
-          ],
-          "risks": []
-        },
-        {
-          "code": "601595",
-          "name": "上海电影",
-          "industry": "影视音像",
-          "first_time": "10:27:30",
-          "close": 35.76,
-          "circ_mv_yi": 160.28,
-          "seal_yi": 0.55,
-          "zbc": 1,
-          "turnover_rate": 4.95,
-          "trend_anchor_count": 4,
-          "trend_anchors": "上海电影(创半年(120日)新高)、芒果超媒(创一年(250日)新高)、无线传媒(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "日内首板补涨"
-          ],
-          "risks": []
-        },
-        {
-          "code": "600156",
-          "name": "华升股份",
-          "industry": "纺织",
-          "first_time": "13:17:46",
-          "close": 7.07,
-          "circ_mv_yi": 28.43,
-          "seal_yi": 0.29,
-          "zbc": 3,
-          "turnover_rate": null,
           "trend_anchor_count": 2,
-          "trend_anchors": "浙文影业(创半年(120日)新高)、罗莱生活(RPS92)",
+          "trend_anchors": "康冠科技(创60日新高)、兆威机电(创60日新高)",
           "tags": [
             "#103 强趋势行业(2只趋势锚)",
-            "日内首板补涨",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002973",
-          "name": "侨银股份",
-          "industry": "环境保护",
-          "first_time": "13:11:24",
-          "close": 10.78,
-          "circ_mv_yi": 34.24,
-          "seal_yi": 0.52,
-          "zbc": 2,
-          "turnover_rate": null,
-          "trend_anchor_count": 2,
-          "trend_anchors": "军信股份(创60日新高)、严牌股份(RPS98)",
-          "tags": [
-            "#103 强趋势行业(2只趋势锚)",
-            "日内首板补涨",
-            "#030 小市值弹性"
+            "日内首板补涨"
           ],
           "risks": []
         }
