@@ -1,20 +1,15 @@
 {
   "status": "complete",
-  "date": "20261106",
-  "date_display": "2026-11-06",
-  "generated_at": "2026-11-09 03:02:13",
-  "total_candidates": 120,
+  "date": "20261109",
+  "date_display": "2026-11-09",
+  "generated_at": "2026-11-09 19:22:14",
+  "total_candidates": 164,
   "cycle_and_laws": {
-    "trade_date": "20261106",
-    "weekday": "周五",
-    "gap_days": 1,
-    "current_phase": "冰点期",
+    "trade_date": "20261109",
+    "weekday": "周一",
+    "gap_days": 3,
+    "current_phase": "分歧期",
     "recent_phases": [
-      {
-        "date": "20261102",
-        "r12": 0.15789473684210525,
-        "phase": "退潮期"
-      },
       {
         "date": "20261103",
         "r12": 0.10526315789473684,
@@ -34,101 +29,115 @@
         "date": "20261106",
         "r12": 0.06349206349206349,
         "phase": "冰点期"
+      },
+      {
+        "date": "20261109",
+        "r12": 0.38095238095238093,
+        "phase": "发酵期"
       }
     ],
     "active_laws": [
       {
-        "id": "158",
-        "title": "首冰试错节点（#097/#158 单冰防弱修）",
+        "id": "027",
+        "title": "周末/节后首日开盘反向定律（#027）",
         "level": "info",
-        "summary": "今日首次进入冰点期：单冰次日往往表现为局部弱修复（冲高易回落），观察重点在于淘汰赛中幸存的「烂而不弱」独苗板（#080）。"
-      },
-      {
-        "id": "145",
-        "title": "周五换手二板空间龙定律（#145/#086）",
-        "level": "opportunity",
-        "summary": "今日为周五：历史统计表明，新周期空间龙最高概率诞生于「周五的换手二板」，其次是「周五的10:00前首板」；同时注意周末消息面发酵方向。"
-      },
-      {
-        "id": "121",
-        "title": "周五高位空间板分歧效应（#121）",
-        "level": "warning",
-        "summary": "周五资金天然规避周末监管与不确定性，4板及以上高位股极易出现筹码松动或断板，对高标保持防守视角。"
+        "summary": "经过假期舆情发酵后：若发酵题材大幅高开一致抢跑，盘中极易高开低走兑现；若核心标的分歧低开且9:35后承接有力，反而易低开高走。"
       }
     ],
     "first_board_split_125": {
       "status": "ok",
-      "prev_date": "20261105",
-      "date": "20261106",
+      "prev_date": "20261106",
+      "date": "20261109",
       "pre_10am": {
         "label": "10:00前首板（#125硬核首板）",
-        "base": 24,
-        "promoted": 3,
-        "promo_rate": 0.125,
-        "median_pct": -2.2116,
-        "win_rate": 0.375,
-        "sample_pct": 24
+        "base": 10,
+        "promoted": 5,
+        "promo_rate": 0.5,
+        "median_pct": 9.47665,
+        "win_rate": 0.8,
+        "sample_pct": 10
       },
       "post_10am": {
         "label": "10:00后首板（盘中/午后板）",
-        "base": 38,
-        "promoted": 1,
-        "promo_rate": 0.02631578947368421,
-        "median_pct": -2.3686,
-        "win_rate": 0.2894736842105263,
-        "sample_pct": 38
+        "base": 11,
+        "promoted": 3,
+        "promo_rate": 0.2727272727272727,
+        "median_pct": 8.2215,
+        "win_rate": 0.8181818181818182,
+        "sample_pct": 11
       },
-      "promo_rate_spread": 0.09868421052631579,
-      "median_pct_spread": 0.15700000000000003,
-      "verdict": "昨日首板分时溢价对比：10:00前首板 1进2 晋级率 12.5% (3/24) vs 10:00后首板 2.6% (1/38)；次日中位涨幅 -2.21% vs -2.37%",
+      "promo_rate_spread": 0.2272727272727273,
+      "median_pct_spread": 1.2551499999999987,
+      "verdict": "昨日首板分时溢价对比：10:00前首板 1进2 晋级率 50.0% (5/10) vs 10:00后首板 27.3% (3/11)；次日中位涨幅 +9.48% vs +8.22%",
       "rule_ref": "#125 十点前涨停"
     },
     "mid_tier_diffusion_065": {
       "status": "ok",
-      "prev_date": "20261105",
-      "date": "20261106",
+      "prev_date": "20261106",
+      "date": "20261109",
       "tier_definition": {
-        "high_tier": "≥4板",
-        "mid_tier": "3~4板",
+        "high_tier": "≥5板",
+        "mid_tier": "3~5板",
         "low_tier": "1~2板"
       },
-      "mid_n": 4,
-      "promoted_count": 4,
+      "mid_n": 7,
+      "promoted_count": 1,
       "big_loss_count": 0,
       "big_loss_rate": 0.0,
-      "median_pct": 10.023150000000001,
+      "median_pct": -0.0902,
       "warning": false,
       "stocks": [
         {
           "code": "601599",
           "name": "浙文影业",
-          "prev_boards": 4,
-          "pct_chg": 9.9567,
-          "promoted": true
+          "prev_boards": 5,
+          "pct_chg": 5.9055,
+          "promoted": false
         },
         {
           "code": "002578",
           "name": "闽发铝业",
-          "prev_boards": 4,
-          "pct_chg": 10.1099,
+          "prev_boards": 5,
+          "pct_chg": 9.98,
           "promoted": true
         },
         {
           "code": "603381",
           "name": "永臻股份",
-          "prev_boards": 3,
-          "pct_chg": 10.0265,
-          "promoted": true
+          "prev_boards": 4,
+          "pct_chg": -4.0501,
+          "promoted": false
         },
         {
           "code": "002088",
           "name": "鲁阳节能",
+          "prev_boards": 4,
+          "pct_chg": -0.0902,
+          "promoted": false
+        },
+        {
+          "code": "002388",
+          "name": "新亚制程",
           "prev_boards": 3,
-          "pct_chg": 10.0198,
-          "promoted": true
+          "pct_chg": 2.2489,
+          "promoted": false
+        },
+        {
+          "code": "603657",
+          "name": "春光科技",
+          "prev_boards": 3,
+          "pct_chg": -0.8855,
+          "promoted": false
+        },
+        {
+          "code": "301697",
+          "name": "贝特利",
+          "prev_boards": 3,
+          "pct_chg": -4.2623,
+          "promoted": false
         }
       ],
-      "verdict": "昨日中位股（3~4板）4 只：今日中位涨幅 +10.02%，大面（≤-5%）0 只（占比 0%） —— 中位股承接尚属温和",
+      "verdict": "昨日中位股（3~5板）7 只：今日中位涨幅 -0.09%，大面（≤-5%）0 只（占比 0%） —— 中位股承接尚属温和",
       "rule_ref": "#063/#065 中位股亏钱扩散"
     }
   },
@@ -143,36 +152,18 @@
       ],
       "methodology_note": "依据 #125 与 #030：全天最值得跟踪的首板集中在 09:30~10:00 之间换手封死的标的（代表主力早盘做多意愿坚决、全天经受市场抛压检验），叠加流通市值越小、股价越低弹性越佳。",
       "next_day_anchor": "次日 09:25 观察是否高开（+2%~+6%佳），09:30~09:45 分歧换手不破分时均线且 10:00 前领涨同题材者为 1进2 重点观察锚点。",
-      "count": 10,
+      "count": 28,
       "items": [
         {
-          "code": "600371",
-          "name": "万向德农",
-          "industry": "种植业",
-          "first_time": "09:36:28",
+          "code": "001379",
+          "name": "腾达科技",
+          "industry": "通用设备",
+          "first_time": "09:32:51",
           "limit_times": 1,
-          "close": 12.39,
-          "circ_mv_yi": 36.25,
-          "seal_yi": 0.86,
-          "zbc": 4,
-          "turnover_rate": 22.78,
-          "tags": [
-            "#125 十点前首板",
-            "早盘换手封板",
-            "#030 小市值(<50亿)"
-          ],
-          "risks": []
-        },
-        {
-          "code": "001316",
-          "name": "润贝航科",
-          "industry": "炼化及贸",
-          "first_time": "09:57:24",
-          "limit_times": 1,
-          "close": 27.82,
-          "circ_mv_yi": 42.03,
-          "seal_yi": 0.62,
-          "zbc": 2,
+          "close": 15.85,
+          "circ_mv_yi": 10.67,
+          "seal_yi": 0.19,
+          "zbc": 0,
           "turnover_rate": null,
           "tags": [
             "#125 十点前首板",
@@ -182,16 +173,36 @@
           "risks": []
         },
         {
-          "code": "600229",
-          "name": "城市传媒",
-          "industry": "出版",
-          "first_time": "09:30:08",
+          "code": "001388",
+          "name": "信通电子",
+          "industry": "电网设备",
+          "first_time": "09:35:39",
           "limit_times": 1,
-          "close": 6.42,
-          "circ_mv_yi": 42.42,
-          "seal_yi": 0.62,
+          "close": 23.29,
+          "circ_mv_yi": 29.14,
+          "seal_yi": 0.31,
+          "zbc": 2,
+          "turnover_rate": null,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板",
+            "#030 小市值(<50亿)"
+          ],
+          "risks": [
+            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "600408",
+          "name": "安泰集团",
+          "industry": "焦炭Ⅱ",
+          "first_time": "09:37:06",
+          "limit_times": 1,
+          "close": 3.32,
+          "circ_mv_yi": 33.43,
+          "seal_yi": 0.61,
           "zbc": 0,
-          "turnover_rate": 1.31,
+          "turnover_rate": null,
           "tags": [
             "#125 十点前首板",
             "早盘换手封板",
@@ -201,16 +212,109 @@
           "risks": []
         },
         {
-          "code": "600327",
-          "name": "大东方",
-          "industry": "一般零售",
-          "first_time": "09:57:20",
+          "code": "002347",
+          "name": "泰尔股份",
+          "industry": "通用设备",
+          "first_time": "09:33:45",
           "limit_times": 1,
-          "close": 4.91,
-          "circ_mv_yi": 43.44,
-          "seal_yi": 0.39,
+          "close": 7.0,
+          "circ_mv_yi": 34.54,
+          "seal_yi": 0.68,
+          "zbc": 0,
+          "turnover_rate": null,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板",
+            "#030 低价(<12元)",
+            "#030 小市值(<50亿)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "301226",
+          "name": "祥明智能",
+          "industry": "电机Ⅱ",
+          "first_time": "09:39:48",
+          "limit_times": 1,
+          "close": 33.06,
+          "circ_mv_yi": 35.97,
+          "seal_yi": 0.54,
+          "zbc": 0,
+          "turnover_rate": null,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板",
+            "#030 小市值(<50亿)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603706",
+          "name": "东方环宇",
+          "industry": "燃气Ⅱ",
+          "first_time": "09:55:38",
+          "limit_times": 1,
+          "close": 20.19,
+          "circ_mv_yi": 38.24,
+          "seal_yi": 0.18,
           "zbc": 2,
-          "turnover_rate": 20.75,
+          "turnover_rate": 5.26,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板",
+            "#030 小市值(<50亿)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600853",
+          "name": "龙建股份",
+          "industry": "基础建设",
+          "first_time": "09:55:17",
+          "limit_times": 1,
+          "close": 3.85,
+          "circ_mv_yi": 39.03,
+          "seal_yi": 0.35,
+          "zbc": 1,
+          "turnover_rate": 7.54,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板",
+            "#030 低价(<12元)",
+            "#030 小市值(<50亿)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603121",
+          "name": "华培动力",
+          "industry": "汽车零部",
+          "first_time": "09:32:41",
+          "limit_times": 1,
+          "close": 11.98,
+          "circ_mv_yi": 40.56,
+          "seal_yi": 0.27,
+          "zbc": 0,
+          "turnover_rate": null,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板",
+            "#030 低价(<12元)",
+            "#030 小市值(<50亿)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002124",
+          "name": "天邦食品",
+          "industry": "养殖业",
+          "first_time": "09:50:48",
+          "limit_times": 1,
+          "close": 2.2,
+          "circ_mv_yi": 43.39,
+          "seal_yi": 0.45,
+          "zbc": 0,
+          "turnover_rate": null,
           "tags": [
             "#125 十点前首板",
             "早盘换手封板",
@@ -218,20 +322,20 @@
             "#030 小市值(<50亿)"
           ],
           "risks": [
-            "ℹ️ 历史 4 次首板均未连板（#032 股性基因）"
+            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
           ]
         },
         {
-          "code": "601188",
-          "name": "龙江交通",
-          "industry": "铁路公路",
-          "first_time": "09:40:39",
+          "code": "603703",
+          "name": "盛洋科技",
+          "industry": "光学光电",
+          "first_time": "09:34:01",
           "limit_times": 1,
-          "close": 3.81,
-          "circ_mv_yi": 49.74,
-          "seal_yi": 0.2,
-          "zbc": 4,
-          "turnover_rate": 21.58,
+          "close": 11.1,
+          "circ_mv_yi": 46.06,
+          "seal_yi": 1.13,
+          "zbc": 1,
+          "turnover_rate": null,
           "tags": [
             "#125 十点前首板",
             "早盘换手封板",
@@ -241,35 +345,53 @@
           "risks": []
         },
         {
-          "code": "600207",
-          "name": "安彩高科",
-          "industry": "光伏设备",
-          "first_time": "09:32:05",
+          "code": "002172",
+          "name": "澳洋健康",
+          "industry": "医疗服务",
+          "first_time": "09:37:42",
           "limit_times": 1,
-          "close": 4.88,
-          "circ_mv_yi": 53.16,
+          "close": 6.18,
+          "circ_mv_yi": 47.29,
+          "seal_yi": 0.94,
+          "zbc": 2,
+          "turnover_rate": 23.99,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板",
+            "#030 低价(<12元)",
+            "#030 小市值(<50亿)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603683",
+          "name": "晶华新材",
+          "industry": "化学制品",
+          "first_time": "09:38:13",
+          "limit_times": 1,
+          "close": 18.13,
+          "circ_mv_yi": 52.29,
+          "seal_yi": 0.68,
+          "zbc": 1,
+          "turnover_rate": 12.99,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板"
+          ],
+          "risks": [
+            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "603660",
+          "name": "苏州科达",
+          "industry": "计算机设",
+          "first_time": "09:30:34",
+          "limit_times": 1,
+          "close": 9.26,
+          "circ_mv_yi": 52.92,
           "seal_yi": 0.59,
-          "zbc": 1,
-          "turnover_rate": null,
-          "tags": [
-            "#125 十点前首板",
-            "早盘换手封板",
-            "#030 低价(<12元)"
-          ],
-          "risks": [
-            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
-          ]
-        },
-        {
-          "code": "000595",
-          "name": "新能股份",
-          "industry": "电力",
-          "first_time": "09:31:36",
-          "limit_times": 1,
-          "close": 5.38,
-          "circ_mv_yi": 61.26,
-          "seal_yi": 0.57,
-          "zbc": 1,
+          "zbc": 0,
           "turnover_rate": null,
           "tags": [
             "#125 十点前首板",
@@ -279,34 +401,88 @@
           "risks": []
         },
         {
-          "code": "603366",
-          "name": "日出东方",
-          "industry": "厨卫电器",
-          "first_time": "09:45:14",
-          "limit_times": 1,
-          "close": 8.99,
-          "circ_mv_yi": 73.09,
-          "seal_yi": 1.93,
-          "zbc": 0,
-          "turnover_rate": 6.92,
-          "tags": [
-            "#125 十点前首板",
-            "早盘换手封板",
-            "#030 低价(<12元)"
-          ],
-          "risks": [
-            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
-          ]
-        },
-        {
-          "code": "001258",
-          "name": "立新能源",
-          "industry": "电力",
-          "first_time": "09:34:36",
+          "code": "000530",
+          "name": "冰山冷热",
+          "industry": "通用设备",
+          "first_time": "09:32:21",
           "limit_times": 1,
           "close": 9.57,
-          "circ_mv_yi": 89.32,
-          "seal_yi": 1.44,
+          "circ_mv_yi": 57.43,
+          "seal_yi": 2.41,
+          "zbc": 0,
+          "turnover_rate": 14.8,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板",
+            "#030 低价(<12元)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600121",
+          "name": "郑州煤电",
+          "industry": "煤炭开采",
+          "first_time": "09:53:35",
+          "limit_times": 1,
+          "close": 4.73,
+          "circ_mv_yi": 57.63,
+          "seal_yi": 0.66,
+          "zbc": 2,
+          "turnover_rate": null,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板",
+            "#030 低价(<12元)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002811",
+          "name": "郑中设计",
+          "industry": "装修装饰",
+          "first_time": "09:32:57",
+          "limit_times": 1,
+          "close": 22.59,
+          "circ_mv_yi": 63.94,
+          "seal_yi": 0.73,
+          "zbc": 0,
+          "turnover_rate": 1.89,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板"
+          ],
+          "risks": [
+            "ℹ️ 历史 7 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "603286",
+          "name": "日盈电子",
+          "industry": "汽车零部",
+          "first_time": "09:34:32",
+          "limit_times": 1,
+          "close": 55.36,
+          "circ_mv_yi": 64.71,
+          "seal_yi": 0.73,
+          "zbc": 0,
+          "turnover_rate": 2.33,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板"
+          ],
+          "risks": [
+            "ℹ️ 历史 5 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "002488",
+          "name": "金固股份",
+          "industry": "汽车零部",
+          "first_time": "09:45:06",
+          "limit_times": 1,
+          "close": 7.48,
+          "circ_mv_yi": 68.82,
+          "seal_yi": 0.63,
           "zbc": 1,
           "turnover_rate": null,
           "tags": [
@@ -317,20 +493,123 @@
           "risks": []
         },
         {
-          "code": "002310",
-          "name": "东方新能",
-          "industry": "电力",
-          "first_time": "09:48:45",
+          "code": "600715",
+          "name": "文投控股",
+          "industry": "游戏Ⅱ",
+          "first_time": "09:35:42",
           "limit_times": 1,
-          "close": 2.32,
-          "circ_mv_yi": 102.06,
-          "seal_yi": 1.21,
-          "zbc": 0,
-          "turnover_rate": null,
+          "close": 2.59,
+          "circ_mv_yi": 74.14,
+          "seal_yi": 0.7,
+          "zbc": 1,
+          "turnover_rate": 14.94,
           "tags": [
             "#125 十点前首板",
             "早盘换手封板",
             "#030 低价(<12元)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002931",
+          "name": "锋龙股份",
+          "industry": "通用设备",
+          "first_time": "09:41:24",
+          "limit_times": 1,
+          "close": 43.86,
+          "circ_mv_yi": 88.85,
+          "seal_yi": 0.4,
+          "zbc": 1,
+          "turnover_rate": null,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "001331",
+          "name": "胜通能源",
+          "industry": "燃气Ⅱ",
+          "first_time": "09:41:33",
+          "limit_times": 1,
+          "close": 31.35,
+          "circ_mv_yi": 89.61,
+          "seal_yi": 0.73,
+          "zbc": 0,
+          "turnover_rate": null,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002565",
+          "name": "顺灏股份",
+          "industry": "包装印刷",
+          "first_time": "09:30:06",
+          "limit_times": 1,
+          "close": 10.54,
+          "circ_mv_yi": 111.72,
+          "seal_yi": 1.41,
+          "zbc": 0,
+          "turnover_rate": 4.66,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板",
+            "#030 低价(<12元)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002708",
+          "name": "光洋股份",
+          "industry": "汽车零部",
+          "first_time": "09:34:15",
+          "limit_times": 1,
+          "close": 21.97,
+          "circ_mv_yi": 111.97,
+          "seal_yi": 0.67,
+          "zbc": 6,
+          "turnover_rate": 14.66,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600776",
+          "name": "东方通信",
+          "industry": "通信设备",
+          "first_time": "09:48:20",
+          "limit_times": 1,
+          "close": 12.22,
+          "circ_mv_yi": 116.82,
+          "seal_yi": 0.58,
+          "zbc": 0,
+          "turnover_rate": null,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002149",
+          "name": "西部材料",
+          "industry": "小金属",
+          "first_time": "09:30:00",
+          "limit_times": 1,
+          "close": 41.51,
+          "circ_mv_yi": 202.63,
+          "seal_yi": 2.74,
+          "zbc": 0,
+          "turnover_rate": null,
+          "tags": [
+            "#125 十点前首板",
+            "早盘换手封板"
           ],
           "risks": []
         }
@@ -348,147 +627,28 @@
       ],
       "methodology_note": "依据 #033/#071：二板是经过首板初筛后的换手定龙节点；若恰逢周五，#145 统计显示新周期空间龙最高概率出自周五换手二板。对于 ≥3 板同身位竞争组，应用 #049《中庸》法则：次日竞价去最高、去最低，观察中间温和高开分歧换手股。",
       "next_day_anchor": "次日 09:25 按同身位横向比对开盘涨幅，剔除一字顶死无换手及低开核按钮，锁定分歧换手放量晋级。",
-      "count": 11,
-      "two_board_count": 4,
+      "count": 9,
+      "two_board_count": 8,
       "pk_groups": [
         {
-          "height": 5,
-          "count": 2,
-          "rule_hint": "【双龙卡位观察】当前 5 板有 2 只同身位标的，次日 9:25~9:35 对比竞价强弱与封单卡位。",
+          "height": 6,
+          "count": 1,
+          "rule_hint": "【独苗空间标】当前 6 板唯一身位，代表市场情绪高度锚点（#063）。",
           "stocks": [
             {
               "code": "002578",
               "name": "闽发铝业",
               "industry": "工业金属",
-              "limit_times": 5,
+              "limit_times": 6,
               "first_time": "09:25:00",
-              "close": 5.01,
-              "circ_mv_yi": 43.14,
-              "seal_yi": 2.2,
+              "close": 5.51,
+              "circ_mv_yi": 47.45,
+              "seal_yi": 1.88,
               "zbc": 1,
-              "turnover_rate": 12.5,
+              "turnover_rate": 14.94,
               "is_turnover_board": true,
               "tags": [
-                "5连板身位"
-              ],
-              "risks": []
-            },
-            {
-              "code": "601599",
-              "name": "浙文影业",
-              "industry": "纺织制造",
-              "limit_times": 5,
-              "first_time": "09:25:01",
-              "close": 5.08,
-              "circ_mv_yi": 58.96,
-              "seal_yi": 1.69,
-              "zbc": 1,
-              "turnover_rate": 21.97,
-              "is_turnover_board": true,
-              "tags": [
-                "5连板身位"
-              ],
-              "risks": []
-            }
-          ]
-        },
-        {
-          "height": 4,
-          "count": 2,
-          "rule_hint": "【双龙卡位观察】当前 4 板有 2 只同身位标的，次日 9:25~9:35 对比竞价强弱与封单卡位。",
-          "stocks": [
-            {
-              "code": "603381",
-              "name": "永臻股份",
-              "industry": "光伏设备",
-              "limit_times": 4,
-              "first_time": "09:25:01",
-              "close": 20.74,
-              "circ_mv_yi": 29.48,
-              "seal_yi": 1.46,
-              "zbc": 0,
-              "turnover_rate": 5.29,
-              "is_turnover_board": false,
-              "tags": [
-                "4连板身位",
-                "#004 一字加速"
-              ],
-              "risks": [
-                "⚠️ 一字筹码断层（#004 缺换手承接）"
-              ]
-            },
-            {
-              "code": "002088",
-              "name": "鲁阳节能",
-              "industry": "装修建材",
-              "limit_times": 4,
-              "first_time": "14:27:18",
-              "close": 11.09,
-              "circ_mv_yi": 56.11,
-              "seal_yi": 0.04,
-              "zbc": 6,
-              "turnover_rate": 12.43,
-              "is_turnover_board": true,
-              "tags": [
-                "4连板身位"
-              ],
-              "risks": []
-            }
-          ]
-        },
-        {
-          "height": 3,
-          "count": 3,
-          "rule_hint": "【#049 中庸选股法】当前 3 板共有 3 只同身位竞争（多龙同台）：次日 9:25 竞价去掉开盘最高分（防大热一致被砸）、去掉开盘最低分（防不及预期被核），重点观察开盘居中（+3%~+7%）分歧换手晋级者。",
-          "stocks": [
-            {
-              "code": "603657",
-              "name": "春光科技",
-              "industry": "家电零部",
-              "limit_times": 3,
-              "first_time": "09:31:27",
-              "close": 33.88,
-              "circ_mv_yi": 45.8,
-              "seal_yi": 0.17,
-              "zbc": 1,
-              "turnover_rate": null,
-              "is_turnover_board": true,
-              "tags": [
-                "3连板身位"
-              ],
-              "risks": []
-            },
-            {
-              "code": "301697",
-              "name": "贝特利",
-              "industry": "光伏设备",
-              "limit_times": 3,
-              "first_time": "09:34:06",
-              "close": 36.6,
-              "circ_mv_yi": 16.1,
-              "seal_yi": 0.83,
-              "zbc": 1,
-              "turnover_rate": 40.68,
-              "is_turnover_board": true,
-              "tags": [
-                "3连板身位"
-              ],
-              "risks": []
-            },
-            {
-              "code": "002388",
-              "name": "新亚制程",
-              "industry": "其他电子",
-              "limit_times": 3,
-              "first_time": "10:27:24",
-              "close": 6.67,
-              "circ_mv_yi": 33.77,
-              "seal_yi": 0.58,
-              "zbc": 0,
-              "turnover_rate": 19.95,
-              "is_turnover_board": true,
-              "tags": [
-                "3连板身位"
+                "6连板身位"
               ],
               "risks": []
             }
@@ -500,189 +660,151 @@
           "code": "002578",
           "name": "闽发铝业",
           "industry": "工业金属",
-          "limit_times": 5,
+          "limit_times": 6,
           "first_time": "09:25:00",
-          "close": 5.01,
-          "circ_mv_yi": 43.14,
-          "seal_yi": 2.2,
+          "close": 5.51,
+          "circ_mv_yi": 47.45,
+          "seal_yi": 1.88,
           "zbc": 1,
-          "turnover_rate": 12.5,
+          "turnover_rate": 14.94,
           "is_turnover_board": true,
           "tags": [
-            "5连板身位"
+            "6连板身位"
           ],
           "risks": []
         },
         {
-          "code": "601599",
-          "name": "浙文影业",
-          "industry": "纺织制造",
-          "limit_times": 5,
-          "first_time": "09:25:01",
-          "close": 5.08,
-          "circ_mv_yi": 58.96,
-          "seal_yi": 1.69,
-          "zbc": 1,
-          "turnover_rate": 21.97,
-          "is_turnover_board": true,
-          "tags": [
-            "5连板身位"
-          ],
-          "risks": []
-        },
-        {
-          "code": "603381",
-          "name": "永臻股份",
-          "industry": "光伏设备",
-          "limit_times": 4,
-          "first_time": "09:25:01",
-          "close": 20.74,
-          "circ_mv_yi": 29.48,
-          "seal_yi": 1.46,
+          "code": "002889",
+          "name": "东方嘉盛",
+          "industry": "物流",
+          "limit_times": 2,
+          "first_time": "09:30:00",
+          "close": 16.4,
+          "circ_mv_yi": 41.21,
+          "seal_yi": 1.77,
           "zbc": 0,
-          "turnover_rate": 5.29,
+          "turnover_rate": 3.79,
+          "is_turnover_board": true,
+          "tags": [
+            "#033/#071 换手二板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "601188",
+          "name": "龙江交通",
+          "industry": "铁路公路",
+          "limit_times": 2,
+          "first_time": "09:30:04",
+          "close": 4.19,
+          "circ_mv_yi": 54.7,
+          "seal_yi": 1.01,
+          "zbc": 1,
+          "turnover_rate": 8.85,
+          "is_turnover_board": true,
+          "tags": [
+            "#033/#071 换手二板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600327",
+          "name": "大东方",
+          "industry": "一般零售",
+          "limit_times": 2,
+          "first_time": "09:30:05",
+          "close": 5.4,
+          "circ_mv_yi": 47.78,
+          "seal_yi": 0.68,
+          "zbc": 4,
+          "turnover_rate": 19.72,
+          "is_turnover_board": true,
+          "tags": [
+            "#033/#071 换手二板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "001316",
+          "name": "润贝航科",
+          "industry": "炼化及贸",
+          "limit_times": 2,
+          "first_time": "09:41:39",
+          "close": 30.6,
+          "circ_mv_yi": 46.23,
+          "seal_yi": 0.39,
+          "zbc": 0,
+          "turnover_rate": null,
+          "is_turnover_board": true,
+          "tags": [
+            "#033/#071 换手二板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600278",
+          "name": "东方创业",
+          "industry": "贸易Ⅱ",
+          "limit_times": 2,
+          "first_time": "09:57:57",
+          "close": 7.83,
+          "circ_mv_yi": 67.38,
+          "seal_yi": 0.24,
+          "zbc": 9,
+          "turnover_rate": 8.98,
+          "is_turnover_board": true,
+          "tags": [
+            "#033/#071 换手二板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "000525",
+          "name": "红太阳",
+          "industry": "农化制品",
+          "limit_times": 2,
+          "first_time": "13:56:48",
+          "close": 5.52,
+          "circ_mv_yi": 61.37,
+          "seal_yi": 0.05,
+          "zbc": 10,
+          "turnover_rate": 20.16,
+          "is_turnover_board": true,
+          "tags": [
+            "#033/#071 换手二板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002310",
+          "name": "东方新能",
+          "industry": "电力",
+          "limit_times": 2,
+          "first_time": "09:25:00",
+          "close": 2.55,
+          "circ_mv_yi": 112.17,
+          "seal_yi": 2.32,
+          "zbc": 0,
+          "turnover_rate": null,
           "is_turnover_board": false,
           "tags": [
-            "4连板身位",
-            "#004 一字加速"
+            "#004 一字二板(防断层)"
           ],
           "risks": [
             "⚠️ 一字筹码断层（#004 缺换手承接）"
           ]
         },
         {
-          "code": "002088",
-          "name": "鲁阳节能",
-          "industry": "装修建材",
-          "limit_times": 4,
-          "first_time": "14:27:18",
-          "close": 11.09,
-          "circ_mv_yi": 56.11,
-          "seal_yi": 0.04,
-          "zbc": 6,
-          "turnover_rate": 12.43,
-          "is_turnover_board": true,
-          "tags": [
-            "4连板身位"
-          ],
-          "risks": []
-        },
-        {
-          "code": "603657",
-          "name": "春光科技",
-          "industry": "家电零部",
-          "limit_times": 3,
-          "first_time": "09:31:27",
-          "close": 33.88,
-          "circ_mv_yi": 45.8,
-          "seal_yi": 0.17,
-          "zbc": 1,
-          "turnover_rate": null,
-          "is_turnover_board": true,
-          "tags": [
-            "3连板身位"
-          ],
-          "risks": []
-        },
-        {
-          "code": "301697",
-          "name": "贝特利",
-          "industry": "光伏设备",
-          "limit_times": 3,
-          "first_time": "09:34:06",
-          "close": 36.6,
-          "circ_mv_yi": 16.1,
-          "seal_yi": 0.83,
-          "zbc": 1,
-          "turnover_rate": 40.68,
-          "is_turnover_board": true,
-          "tags": [
-            "3连板身位"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002388",
-          "name": "新亚制程",
-          "industry": "其他电子",
-          "limit_times": 3,
-          "first_time": "10:27:24",
-          "close": 6.67,
-          "circ_mv_yi": 33.77,
-          "seal_yi": 0.58,
+          "code": "603366",
+          "name": "日出东方",
+          "industry": "厨卫电器",
+          "limit_times": 2,
+          "first_time": "09:25:02",
+          "close": 9.89,
+          "circ_mv_yi": 80.41,
+          "seal_yi": 8.0,
           "zbc": 0,
-          "turnover_rate": 19.95,
-          "is_turnover_board": true,
-          "tags": [
-            "3连板身位"
-          ],
-          "risks": []
-        },
-        {
-          "code": "600261",
-          "name": "阳光照明",
-          "industry": "照明设备",
-          "limit_times": 2,
-          "first_time": "09:49:59",
-          "close": 5.4,
-          "circ_mv_yi": 72.09,
-          "seal_yi": 1.39,
-          "zbc": 1,
-          "turnover_rate": 18.01,
-          "is_turnover_board": true,
-          "tags": [
-            "#033/#071 换手二板",
-            "🔥 #145 周五二板空间龙候选"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002086",
-          "name": "东方海洋",
-          "industry": "农产品加",
-          "limit_times": 2,
-          "first_time": "10:02:33",
-          "close": 3.97,
-          "circ_mv_yi": 62.76,
-          "seal_yi": 1.11,
-          "zbc": 2,
-          "turnover_rate": 42.55,
-          "is_turnover_board": true,
-          "tags": [
-            "#033/#071 换手二板",
-            "🔥 #145 周五二板空间龙候选"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002929",
-          "name": "润建股份",
-          "industry": "通信服务",
-          "limit_times": 2,
-          "first_time": "13:05:51",
-          "close": 63.11,
-          "circ_mv_yi": 136.71,
-          "seal_yi": 1.81,
-          "zbc": 1,
-          "turnover_rate": 19.55,
-          "is_turnover_board": true,
-          "tags": [
-            "#033/#071 换手二板",
-            "🔥 #145 周五二板空间龙候选"
-          ],
-          "risks": []
-        },
-        {
-          "code": "605339",
-          "name": "南侨食品",
-          "industry": "休闲食品",
-          "limit_times": 2,
-          "first_time": "09:25:01",
-          "close": 15.8,
-          "circ_mv_yi": 67.04,
-          "seal_yi": 0.44,
-          "zbc": 0,
-          "turnover_rate": 0.6,
+          "turnover_rate": 0.73,
           "is_turnover_board": false,
           "tags": [
             "#004 一字二板(防断层)"
@@ -703,59 +825,23 @@
       ],
       "methodology_note": "依据 #080 与 #118：在分歧或冰点期，盘中反复炸板（≥2次）检验抛压但尾盘仍顽强回封、尤其是所属板块内唯一涨停的「狗啃板」，代表主力承接了全部恐慌筹码，次日极易弱转强领涨。叠加 #035：近期人气股盘中触板被动炸板但收红盘者，次日若竞价不核按钮则具备反包潜质。",
       "next_day_anchor": "次日 09:25 集合竞价若出现平开或高开（未闷杀低开<-3%），属于标准「弱转强」信号；若大幅低开核按钮则直接放弃。",
-      "count": 11,
+      "count": 17,
       "items": [
         {
-          "code": "002088",
-          "name": "鲁阳节能",
-          "industry": "装修建材",
-          "limit_times": 4,
-          "first_time": "14:27:18",
-          "zbc": 6,
-          "sector_zt_count": 1,
-          "close": 11.09,
-          "circ_mv_yi": 56.11,
-          "seal_yi": 0.04,
-          "turnover_rate": 12.43,
-          "pattern_type": "狗啃板(板块独苗)",
-          "tags": [
-            "🔥 #080 正宗狗啃板(炸6次·板块独苗)"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002086",
-          "name": "东方海洋",
-          "industry": "农产品加",
+          "code": "000525",
+          "name": "红太阳",
+          "industry": "农化制品",
           "limit_times": 2,
-          "first_time": "10:02:33",
-          "zbc": 2,
+          "first_time": "13:56:48",
+          "zbc": 10,
           "sector_zt_count": 1,
-          "close": 3.97,
-          "circ_mv_yi": 62.76,
-          "seal_yi": 1.11,
-          "turnover_rate": 42.55,
+          "close": 5.52,
+          "circ_mv_yi": 61.37,
+          "seal_yi": 0.05,
+          "turnover_rate": 20.16,
           "pattern_type": "狗啃板(板块独苗)",
           "tags": [
-            "🔥 #080 正宗狗啃板(炸2次·板块独苗)"
-          ],
-          "risks": []
-        },
-        {
-          "code": "601188",
-          "name": "龙江交通",
-          "industry": "铁路公路",
-          "limit_times": 1,
-          "first_time": "09:40:39",
-          "zbc": 4,
-          "sector_zt_count": 1,
-          "close": 3.81,
-          "circ_mv_yi": 49.74,
-          "seal_yi": 0.2,
-          "turnover_rate": 21.58,
-          "pattern_type": "狗啃板(板块独苗)",
-          "tags": [
-            "🔥 #080 正宗狗啃板(炸4次·板块独苗)"
+            "🔥 #080 正宗狗啃板(炸10次·板块独苗)"
           ],
           "risks": []
         },
@@ -763,31 +849,141 @@
           "code": "600278",
           "name": "东方创业",
           "industry": "贸易Ⅱ",
-          "limit_times": 1,
-          "first_time": "10:04:18",
-          "zbc": 3,
+          "limit_times": 2,
+          "first_time": "09:57:57",
+          "zbc": 9,
           "sector_zt_count": 1,
-          "close": 7.12,
-          "circ_mv_yi": 61.27,
-          "seal_yi": 0.27,
-          "turnover_rate": 5.99,
+          "close": 7.83,
+          "circ_mv_yi": 67.38,
+          "seal_yi": 0.24,
+          "turnover_rate": 8.98,
           "pattern_type": "狗啃板(板块独苗)",
           "tags": [
-            "🔥 #080 正宗狗啃板(炸3次·板块独苗)"
+            "🔥 #080 正宗狗啃板(炸9次·板块独苗)"
           ],
           "risks": []
         },
         {
-          "code": "002973",
-          "name": "侨银股份",
-          "industry": "环境治理",
+          "code": "688585",
+          "name": "上纬新材",
+          "industry": "塑料",
           "limit_times": 1,
-          "first_time": "13:11:24",
+          "first_time": "09:42:23",
+          "zbc": 4,
+          "sector_zt_count": 1,
+          "close": 216.02,
+          "circ_mv_yi": 871.34,
+          "seal_yi": 1.36,
+          "turnover_rate": 3.92,
+          "pattern_type": "狗啃板(板块独苗)",
+          "tags": [
+            "🔥 #080 正宗狗啃板(炸4次·板块独苗)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "001390",
+          "name": "古麒绒材",
+          "industry": "纺织制造",
+          "limit_times": 1,
+          "first_time": "10:00:51",
+          "zbc": 4,
+          "sector_zt_count": 1,
+          "close": 17.39,
+          "circ_mv_yi": 20.48,
+          "seal_yi": 0.25,
+          "turnover_rate": null,
+          "pattern_type": "狗啃板(板块独苗)",
+          "tags": [
+            "🔥 #080 正宗狗啃板(炸4次·板块独苗)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603389",
+          "name": "亚振家居",
+          "industry": "家居用品",
+          "limit_times": 1,
+          "first_time": "11:20:25",
           "zbc": 2,
           "sector_zt_count": 1,
-          "close": 10.78,
-          "circ_mv_yi": 34.24,
-          "seal_yi": 0.52,
+          "close": 53.44,
+          "circ_mv_yi": 140.41,
+          "seal_yi": 0.58,
+          "turnover_rate": 2.27,
+          "pattern_type": "狗啃板(板块独苗)",
+          "tags": [
+            "🔥 #080 正宗狗啃板(炸2次·板块独苗)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "001388",
+          "name": "信通电子",
+          "industry": "电网设备",
+          "limit_times": 1,
+          "first_time": "09:35:39",
+          "zbc": 2,
+          "sector_zt_count": 1,
+          "close": 23.29,
+          "circ_mv_yi": 29.14,
+          "seal_yi": 0.31,
+          "turnover_rate": null,
+          "pattern_type": "狗啃板(板块独苗)",
+          "tags": [
+            "🔥 #080 正宗狗啃板(炸2次·板块独苗)"
+          ],
+          "risks": [
+            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "301010",
+          "name": "晶雪节能",
+          "industry": "装修建材",
+          "limit_times": 1,
+          "first_time": "13:10:15",
+          "zbc": 2,
+          "sector_zt_count": 1,
+          "close": 26.21,
+          "circ_mv_yi": 28.31,
+          "seal_yi": 0.32,
+          "turnover_rate": null,
+          "pattern_type": "狗啃板(板块独苗)",
+          "tags": [
+            "🔥 #080 正宗狗啃板(炸2次·板块独苗)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002172",
+          "name": "澳洋健康",
+          "industry": "医疗服务",
+          "limit_times": 1,
+          "first_time": "09:37:42",
+          "zbc": 2,
+          "sector_zt_count": 1,
+          "close": 6.18,
+          "circ_mv_yi": 47.29,
+          "seal_yi": 0.94,
+          "turnover_rate": 23.99,
+          "pattern_type": "狗啃板(板块独苗)",
+          "tags": [
+            "🔥 #080 正宗狗啃板(炸2次·板块独苗)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600121",
+          "name": "郑州煤电",
+          "industry": "煤炭开采",
+          "limit_times": 1,
+          "first_time": "09:53:35",
+          "zbc": 2,
+          "sector_zt_count": 1,
+          "close": 4.73,
+          "circ_mv_yi": 57.63,
+          "seal_yi": 0.66,
           "turnover_rate": null,
           "pattern_type": "狗啃板(板块独苗)",
           "tags": [
@@ -799,52 +995,14 @@
           "code": "600327",
           "name": "大东方",
           "industry": "一般零售",
-          "limit_times": 1,
-          "first_time": "09:57:20",
-          "zbc": 2,
-          "sector_zt_count": 1,
-          "close": 4.91,
-          "circ_mv_yi": 43.44,
-          "seal_yi": 0.39,
-          "turnover_rate": 20.75,
-          "pattern_type": "狗啃板(板块独苗)",
-          "tags": [
-            "🔥 #080 正宗狗啃板(炸2次·板块独苗)"
-          ],
-          "risks": [
-            "ℹ️ 历史 4 次首板均未连板（#032 股性基因）"
-          ]
-        },
-        {
-          "code": "001316",
-          "name": "润贝航科",
-          "industry": "炼化及贸",
-          "limit_times": 1,
-          "first_time": "09:57:24",
-          "zbc": 2,
-          "sector_zt_count": 1,
-          "close": 27.82,
-          "circ_mv_yi": 42.03,
-          "seal_yi": 0.62,
-          "turnover_rate": null,
-          "pattern_type": "狗啃板(板块独苗)",
-          "tags": [
-            "🔥 #080 正宗狗啃板(炸2次·板块独苗)"
-          ],
-          "risks": []
-        },
-        {
-          "code": "600371",
-          "name": "万向德农",
-          "industry": "种植业",
-          "limit_times": 1,
-          "first_time": "09:36:28",
+          "limit_times": 2,
+          "first_time": "09:30:05",
           "zbc": 4,
           "sector_zt_count": 2,
-          "close": 12.39,
-          "circ_mv_yi": 36.25,
-          "seal_yi": 0.86,
-          "turnover_rate": 22.78,
+          "close": 5.4,
+          "circ_mv_yi": 47.78,
+          "seal_yi": 0.68,
+          "turnover_rate": 19.72,
           "pattern_type": "分歧回封烂板",
           "tags": [
             "#118 烂而不弱分歧板(炸4次回封)"
@@ -852,17 +1010,73 @@
           "risks": []
         },
         {
-          "code": "600156",
-          "name": "华升股份",
-          "industry": "纺织制造",
+          "code": "002708",
+          "name": "光洋股份",
+          "industry": "汽车零部",
           "limit_times": 1,
-          "first_time": "13:17:46",
+          "first_time": "09:34:15",
+          "zbc": 6,
+          "sector_zt_count": 5,
+          "close": 21.97,
+          "circ_mv_yi": 111.97,
+          "seal_yi": 0.67,
+          "turnover_rate": 14.66,
+          "pattern_type": "分歧回封烂板",
+          "tags": [
+            "#118 烂而不弱分歧板(炸6次回封)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "301718",
+          "name": "通则康威",
+          "industry": "通信设备",
+          "limit_times": 1,
+          "first_time": "10:06:39",
+          "zbc": 4,
+          "sector_zt_count": 2,
+          "close": 57.48,
+          "circ_mv_yi": 19.87,
+          "seal_yi": 0.53,
+          "turnover_rate": null,
+          "pattern_type": "分歧回封烂板",
+          "tags": [
+            "#118 烂而不弱分歧板(炸4次回封)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002639",
+          "name": "雪人集团",
+          "industry": "通用设备",
+          "limit_times": 1,
+          "first_time": "13:09:57",
+          "zbc": 4,
+          "sector_zt_count": 5,
+          "close": 15.95,
+          "circ_mv_yi": 105.29,
+          "seal_yi": 0.69,
+          "turnover_rate": 26.76,
+          "pattern_type": "分歧回封烂板",
+          "tags": [
+            "#118 烂而不弱分歧板(炸4次回封)"
+          ],
+          "risks": [
+            "ℹ️ 历史 4 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "600892",
+          "name": "大晟文化",
+          "industry": "游戏Ⅱ",
+          "limit_times": 1,
+          "first_time": "10:07:32",
           "zbc": 3,
           "sector_zt_count": 2,
-          "close": 7.07,
-          "circ_mv_yi": 28.43,
-          "seal_yi": 0.29,
-          "turnover_rate": null,
+          "close": 5.09,
+          "circ_mv_yi": 28.47,
+          "seal_yi": 0.12,
+          "turnover_rate": 35.18,
           "pattern_type": "分歧回封烂板",
           "tags": [
             "#118 烂而不弱分歧板(炸3次回封)"
@@ -870,39 +1084,57 @@
           "risks": []
         },
         {
-          "code": "603151",
-          "name": "邦基科技",
-          "industry": "饲料",
+          "code": "603706",
+          "name": "东方环宇",
+          "industry": "燃气Ⅱ",
+          "limit_times": 1,
+          "first_time": "09:55:38",
+          "zbc": 2,
+          "sector_zt_count": 2,
+          "close": 20.19,
+          "circ_mv_yi": 38.24,
+          "seal_yi": 0.18,
+          "turnover_rate": 5.26,
+          "pattern_type": "分歧回封烂板",
+          "tags": [
+            "#118 烂而不弱分歧板(炸2次回封)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002827",
+          "name": "高争民爆",
+          "industry": "化工原料",
           "limit_times": 0,
           "first_time": "盘中触板炸板",
           "zbc": 1,
           "sector_zt_count": 0,
-          "close": 20.77,
-          "circ_mv_yi": 35.79,
+          "close": 63.34,
+          "circ_mv_yi": 174.82,
           "seal_yi": null,
-          "turnover_rate": 7.66,
-          "pattern_type": "#035 触板炸板(收+5.5%)",
+          "turnover_rate": 10.42,
+          "pattern_type": "#035 触板炸板(收+3.9%)",
           "tags": [
-            "#035 冲板回落(+5.5%)",
+            "#035 冲板回落(+3.9%)",
             "观察次日竞价反包"
           ],
           "risks": []
         },
         {
-          "code": "002275",
-          "name": "桂林三金",
-          "industry": "中成药",
+          "code": "002388",
+          "name": "新亚制程",
+          "industry": "元器件",
           "limit_times": 0,
           "first_time": "盘中触板炸板",
           "zbc": 1,
           "sector_zt_count": 0,
-          "close": 18.2,
-          "circ_mv_yi": 102.78,
+          "close": 6.82,
+          "circ_mv_yi": 34.52,
           "seal_yi": null,
-          "turnover_rate": 12.59,
-          "pattern_type": "#035 触板炸板(收+3.6%)",
+          "turnover_rate": 31.94,
+          "pattern_type": "#035 触板炸板(收+2.2%)",
           "tags": [
-            "#035 冲板回落(+3.6%)",
+            "#035 冲板回落(+2.2%)",
             "观察次日竞价反包"
           ],
           "risks": []
@@ -919,116 +1151,70 @@
       ],
       "methodology_note": "依据 #128：作者实盘将常规 5日/10日均线改良为 **6日均线（MA6）与 12日均线（MA12）**，专门防范主力故意击穿 MA5/MA10 制造破位假象的洗盘骗线。近期连板人气龙头断板后首次缩量回踩 MA6（强势洗盘）或 MA12（波段防守线），是高盈亏比观察位。",
       "next_day_anchor": "次日盘中观察回踩 MA6 或 MA12 时的分时承接（急跌缩量不破均线、分时双底企稳），若放量有效跌破 MA12 且无反抽则放弃。",
-      "count": 31,
+      "count": 30,
       "items": [
         {
-          "code": "001219",
-          "name": "青岛食品",
-          "industry": "食品",
-          "max_boards": 6,
+          "code": "000678",
+          "name": "襄阳轴承",
+          "industry": "汽车配件",
+          "max_boards": 5,
           "last_zt_date": "2026-11-02",
-          "close": 22.49,
-          "pct_chg": -3.19,
-          "ma6": 21.91,
-          "ma12": 18.27,
-          "dist_ma6_pct": 2.66,
-          "dist_ma12_pct": 23.1,
-          "circ_mv_yi": 42.78,
-          "turnover_rate": 18.96,
-          "support_anchor": "贴近MA6(+2.7%)",
+          "close": 17.51,
+          "pct_chg": -1.46,
+          "ma6": 19.11,
+          "ma12": 17.74,
+          "dist_ma6_pct": -8.36,
+          "dist_ma12_pct": -1.3,
+          "circ_mv_yi": 80.48,
+          "turnover_rate": 24.01,
+          "support_anchor": "贴近MA12(-1.3%)",
           "tags": [
-            "#128 最高6板龙头",
-            "贴近MA6(+2.7%)"
+            "#128 最高5板龙头",
+            "贴近MA12(-1.3%)"
+          ],
+          "risks": [
+            "⚠️ 高位双上影滞涨（#176 近5日3次冲高回落）"
+          ]
+        },
+        {
+          "code": "603028",
+          "name": "赛福天",
+          "industry": "钢加工",
+          "max_boards": 4,
+          "last_zt_date": "2026-10-27",
+          "close": 7.03,
+          "pct_chg": 3.69,
+          "ma6": 7.11,
+          "ma12": 8.26,
+          "dist_ma6_pct": -1.13,
+          "dist_ma12_pct": -14.87,
+          "circ_mv_yi": 19.93,
+          "turnover_rate": null,
+          "support_anchor": "贴近MA6(-1.1%)",
+          "tags": [
+            "#128 最高4板龙头",
+            "贴近MA6(-1.1%)"
           ],
           "risks": []
         },
         {
-          "code": "002708",
-          "name": "光洋股份",
-          "industry": "汽车配件",
+          "code": "603528",
+          "name": "多伦科技",
+          "industry": "软件服务",
           "max_boards": 4,
-          "last_zt_date": "2026-10-29",
-          "close": 19.97,
-          "pct_chg": -3.48,
-          "ma6": 19.77,
-          "ma12": 18.27,
-          "dist_ma6_pct": 0.99,
-          "dist_ma12_pct": 9.3,
-          "circ_mv_yi": 101.77,
-          "turnover_rate": 16.21,
-          "support_anchor": "贴近MA6(+1.0%)",
+          "last_zt_date": "2026-10-27",
+          "close": 6.82,
+          "pct_chg": 1.94,
+          "ma6": 6.92,
+          "ma12": 7.71,
+          "dist_ma6_pct": -1.47,
+          "dist_ma12_pct": -11.52,
+          "circ_mv_yi": 48.14,
+          "turnover_rate": null,
+          "support_anchor": "贴近MA6(-1.5%)",
           "tags": [
             "#128 最高4板龙头",
-            "贴近MA6(+1.0%)"
-          ],
-          "risks": [
-            "⚠️ 高位双上影滞涨（#176 近5日3次冲高回落）"
-          ]
-        },
-        {
-          "code": "002172",
-          "name": "澳洋健康",
-          "industry": "医疗保健",
-          "max_boards": 4,
-          "last_zt_date": "2026-11-02",
-          "close": 5.62,
-          "pct_chg": -7.11,
-          "ma6": 6.17,
-          "ma12": 5.4,
-          "dist_ma6_pct": -8.86,
-          "dist_ma12_pct": 3.99,
-          "circ_mv_yi": 43.0,
-          "turnover_rate": 26.41,
-          "support_anchor": "贴近MA12(+4.0%)",
-          "tags": [
-            "#128 最高4板龙头",
-            "贴近MA12(+4.0%)"
-          ],
-          "risks": [
-            "⚠️ 高位双上影滞涨（#176 近5日3次冲高回落）"
-          ]
-        },
-        {
-          "code": "600715",
-          "name": "文投控股",
-          "industry": "影视音像",
-          "max_boards": 3,
-          "last_zt_date": "2026-11-03",
-          "close": 2.35,
-          "pct_chg": -6.75,
-          "ma6": 2.35,
-          "ma12": 2.12,
-          "dist_ma6_pct": 0.14,
-          "dist_ma12_pct": 10.72,
-          "circ_mv_yi": 67.27,
-          "turnover_rate": null,
-          "support_anchor": "贴近MA6(+0.1%)",
-          "tags": [
-            "#128 最高3板龙头",
-            "贴近MA6(+0.1%)"
-          ],
-          "risks": [
-            "⚠️ 高位双上影滞涨（#176 近5日3次冲高回落）"
-          ]
-        },
-        {
-          "code": "002076",
-          "name": "星光股份",
-          "industry": "家用电器",
-          "max_boards": 3,
-          "last_zt_date": "2026-10-22",
-          "close": 13.1,
-          "pct_chg": -4.88,
-          "ma6": 13.03,
-          "ma12": 14.03,
-          "dist_ma6_pct": 0.6,
-          "dist_ma12_pct": -6.62,
-          "circ_mv_yi": 20.33,
-          "turnover_rate": null,
-          "support_anchor": "贴近MA6(+0.6%)",
-          "tags": [
-            "#128 最高3板龙头",
-            "贴近MA6(+0.6%)"
+            "贴近MA6(-1.5%)"
           ],
           "risks": []
         },
@@ -1038,62 +1224,85 @@
           "industry": "白酒",
           "max_boards": 3,
           "last_zt_date": "2026-11-05",
-          "close": 16.43,
-          "pct_chg": -8.72,
-          "ma6": 16.29,
-          "ma12": 14.68,
-          "dist_ma6_pct": 0.87,
-          "dist_ma12_pct": 11.91,
-          "circ_mv_yi": 29.15,
-          "turnover_rate": 35.8,
-          "support_anchor": "贴近MA6(+0.9%)",
+          "close": 16.7,
+          "pct_chg": 1.64,
+          "ma6": 16.71,
+          "ma12": 15.06,
+          "dist_ma6_pct": -0.05,
+          "dist_ma12_pct": 10.88,
+          "circ_mv_yi": 29.63,
+          "turnover_rate": 28.64,
+          "support_anchor": "贴近MA6(-0.0%)",
           "tags": [
             "#128 最高3板龙头",
-            "贴近MA6(+0.9%)"
+            "贴近MA6(-0.0%)"
           ],
           "risks": []
         },
         {
-          "code": "002058",
-          "name": "紫竹高科",
-          "industry": "电气设备",
+          "code": "002827",
+          "name": "高争民爆",
+          "industry": "化工原料",
           "max_boards": 3,
           "last_zt_date": "2026-11-04",
-          "close": 20.31,
-          "pct_chg": -7.18,
-          "ma6": 20.54,
-          "ma12": 19.29,
-          "dist_ma6_pct": -1.11,
-          "dist_ma12_pct": 5.31,
-          "circ_mv_yi": 29.12,
-          "turnover_rate": null,
-          "support_anchor": "贴近MA6(-1.1%)",
+          "close": 63.34,
+          "pct_chg": 3.85,
+          "ma6": 63.45,
+          "ma12": 58.2,
+          "dist_ma6_pct": -0.18,
+          "dist_ma12_pct": 8.84,
+          "circ_mv_yi": 174.82,
+          "turnover_rate": 10.42,
+          "support_anchor": "贴近MA6(-0.2%)",
           "tags": [
             "#128 最高3板龙头",
-            "贴近MA6(-1.1%)"
+            "贴近MA6(-0.2%)"
           ],
           "risks": [
             "⚠️ 高位双上影滞涨（#176 近5日2次冲高回落）"
           ]
         },
         {
-          "code": "600293",
-          "name": "三峡新材",
-          "industry": "玻璃",
+          "code": "002275",
+          "name": "桂林三金",
+          "industry": "中成药",
           "max_boards": 3,
-          "last_zt_date": "2026-11-03",
-          "close": 12.23,
-          "pct_chg": -5.64,
-          "ma6": 12.44,
-          "ma12": 13.46,
-          "dist_ma6_pct": -1.69,
-          "dist_ma12_pct": -9.15,
-          "circ_mv_yi": 42.69,
-          "turnover_rate": null,
-          "support_anchor": "贴近MA6(-1.7%)",
+          "last_zt_date": "2026-11-04",
+          "close": 17.15,
+          "pct_chg": -5.77,
+          "ma6": 17.09,
+          "ma12": 15.0,
+          "dist_ma6_pct": 0.32,
+          "dist_ma12_pct": 14.35,
+          "circ_mv_yi": 96.85,
+          "turnover_rate": 10.64,
+          "support_anchor": "贴近MA6(+0.3%)",
           "tags": [
             "#128 最高3板龙头",
-            "贴近MA6(-1.7%)"
+            "贴近MA6(+0.3%)"
+          ],
+          "risks": [
+            "⚠️ 高位双上影滞涨（#176 近5日3次冲高回落）"
+          ]
+        },
+        {
+          "code": "603089",
+          "name": "正裕工业",
+          "industry": "汽车配件",
+          "max_boards": 3,
+          "last_zt_date": "2026-10-26",
+          "close": 19.83,
+          "pct_chg": 3.23,
+          "ma6": 19.97,
+          "ma12": null,
+          "dist_ma6_pct": -0.69,
+          "dist_ma12_pct": null,
+          "circ_mv_yi": 24.65,
+          "turnover_rate": null,
+          "support_anchor": "贴近MA6(-0.7%)",
+          "tags": [
+            "#128 最高3板龙头",
+            "贴近MA6(-0.7%)"
           ],
           "risks": []
         },
@@ -1103,230 +1312,86 @@
           "industry": "工程机械",
           "max_boards": 3,
           "last_zt_date": "2026-10-26",
-          "close": 2.47,
-          "pct_chg": -4.26,
-          "ma6": 2.52,
-          "ma12": 2.71,
-          "dist_ma6_pct": -1.79,
-          "dist_ma12_pct": -8.86,
-          "circ_mv_yi": 18.43,
-          "turnover_rate": null,
-          "support_anchor": "贴近MA6(-1.8%)",
-          "tags": [
-            "#128 最高3板龙头",
-            "贴近MA6(-1.8%)"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002093",
-          "name": "国脉科技",
-          "industry": "文教休闲",
-          "max_boards": 2,
-          "last_zt_date": "2026-10-27",
-          "close": 90.31,
-          "pct_chg": -2.84,
-          "ma6": 90.21,
-          "ma12": 90.49,
-          "dist_ma6_pct": 0.12,
-          "dist_ma12_pct": -0.2,
-          "circ_mv_yi": 72.34,
-          "turnover_rate": null,
-          "support_anchor": "贴近MA6(+0.1%) / 贴近MA12(-0.2%)",
-          "tags": [
-            "#128 最高2板龙头",
-            "贴近MA6(+0.1%)",
-            "贴近MA12(-0.2%)"
-          ],
-          "risks": []
-        },
-        {
-          "code": "600202",
-          "name": "哈空调",
-          "industry": "专用机械",
-          "max_boards": 2,
-          "last_zt_date": "2026-10-22",
-          "close": 24.61,
-          "pct_chg": -3.14,
-          "ma6": 24.48,
-          "ma12": 25.12,
-          "dist_ma6_pct": 0.51,
-          "dist_ma12_pct": -2.03,
-          "circ_mv_yi": 18.94,
-          "turnover_rate": null,
-          "support_anchor": "贴近MA6(+0.5%) / 贴近MA12(-2.0%)",
-          "tags": [
-            "#128 最高2板龙头",
-            "贴近MA6(+0.5%)",
-            "贴近MA12(-2.0%)"
-          ],
-          "risks": []
-        },
-        {
-          "code": "603258",
-          "name": "电魂网络",
-          "industry": "互联网",
-          "max_boards": 2,
-          "last_zt_date": "2026-11-03",
-          "close": 17.94,
-          "pct_chg": -5.93,
-          "ma6": 17.81,
-          "ma12": 17.24,
-          "dist_ma6_pct": 0.71,
-          "dist_ma12_pct": 4.05,
-          "circ_mv_yi": 38.25,
-          "turnover_rate": null,
-          "support_anchor": "贴近MA6(+0.7%)",
-          "tags": [
-            "#128 最高2板龙头",
-            "贴近MA6(+0.7%)"
-          ],
-          "risks": []
-        },
-        {
-          "code": "603138",
-          "name": "海量数据",
-          "industry": "软件服务",
-          "max_boards": 2,
-          "last_zt_date": "2026-11-02",
-          "close": 46.14,
-          "pct_chg": -5.06,
-          "ma6": 46.49,
-          "ma12": 48.58,
-          "dist_ma6_pct": -0.77,
-          "dist_ma12_pct": -5.02,
-          "circ_mv_yi": 43.52,
-          "turnover_rate": null,
-          "support_anchor": "贴近MA6(-0.8%)",
-          "tags": [
-            "#128 最高2板龙头",
-            "贴近MA6(-0.8%)"
-          ],
-          "risks": []
-        },
-        {
-          "code": "603006",
-          "name": "联明股份",
-          "industry": "汽车配件",
-          "max_boards": 2,
-          "last_zt_date": "2026-10-29",
-          "close": 28.42,
-          "pct_chg": -1.44,
-          "ma6": 28.2,
-          "ma12": null,
-          "dist_ma6_pct": 0.78,
-          "dist_ma12_pct": null,
-          "circ_mv_yi": 27.84,
+          "close": 9.03,
+          "pct_chg": 3.64,
+          "ma6": 8.96,
+          "ma12": 9.51,
+          "dist_ma6_pct": 0.79,
+          "dist_ma12_pct": -4.98,
+          "circ_mv_yi": 19.11,
           "turnover_rate": null,
           "support_anchor": "贴近MA6(+0.8%)",
           "tags": [
-            "#128 最高2板龙头",
+            "#128 最高3板龙头",
             "贴近MA6(+0.8%)"
           ],
           "risks": []
         },
         {
-          "code": "003032",
-          "name": "传智教育",
-          "industry": "文教休闲",
-          "max_boards": 2,
-          "last_zt_date": "2026-10-30",
-          "close": 9.47,
-          "pct_chg": -2.79,
-          "ma6": 9.54,
-          "ma12": 8.85,
-          "dist_ma6_pct": -0.81,
-          "dist_ma12_pct": 7.0,
-          "circ_mv_yi": 26.8,
-          "turnover_rate": null,
-          "support_anchor": "贴近MA6(-0.8%)",
-          "tags": [
-            "#128 最高2板龙头",
-            "贴近MA6(-0.8%)"
-          ],
-          "risks": []
-        },
-        {
-          "code": "605338",
-          "name": "巴比食品",
-          "industry": "食品",
-          "max_boards": 2,
-          "last_zt_date": "2026-10-30",
-          "close": 24.24,
-          "pct_chg": 0.53,
-          "ma6": 24.01,
-          "ma12": null,
-          "dist_ma6_pct": 0.94,
-          "dist_ma12_pct": null,
-          "circ_mv_yi": 50.19,
-          "turnover_rate": null,
-          "support_anchor": "贴近MA6(+0.9%)",
-          "tags": [
-            "#128 最高2板龙头",
-            "贴近MA6(+0.9%)"
-          ],
-          "risks": []
-        },
-        {
-          "code": "603901",
-          "name": "永创智能",
+          "code": "603131",
+          "name": "上海沪工",
           "industry": "专用机械",
-          "max_boards": 2,
-          "last_zt_date": "2026-10-26",
-          "close": 44.09,
-          "pct_chg": -3.96,
-          "ma6": 44.61,
-          "ma12": null,
-          "dist_ma6_pct": -1.17,
-          "dist_ma12_pct": null,
-          "circ_mv_yi": 57.91,
+          "max_boards": 3,
+          "last_zt_date": "2026-10-30",
+          "close": 16.91,
+          "pct_chg": 4.71,
+          "ma6": 16.5,
+          "ma12": 15.59,
+          "dist_ma6_pct": 2.48,
+          "dist_ma12_pct": 8.47,
+          "circ_mv_yi": 56.97,
           "turnover_rate": null,
-          "support_anchor": "贴近MA6(-1.2%)",
+          "support_anchor": "贴近MA6(+2.5%)",
           "tags": [
-            "#128 最高2板龙头",
-            "贴近MA6(-1.2%)"
+            "#128 最高3板龙头",
+            "贴近MA6(+2.5%)"
           ],
-          "risks": []
+          "risks": [
+            "⚠️ 高位双上影滞涨（#176 近5日4次冲高回落）"
+          ]
         },
         {
-          "code": "000559",
-          "name": "万向钱潮",
-          "industry": "汽车配件",
-          "max_boards": 2,
-          "last_zt_date": "2026-10-28",
-          "close": 513.82,
-          "pct_chg": -4.14,
-          "ma6": 520.06,
-          "ma12": null,
-          "dist_ma6_pct": -1.2,
-          "dist_ma12_pct": null,
-          "circ_mv_yi": 415.55,
-          "turnover_rate": null,
-          "support_anchor": "贴近MA6(-1.2%)",
+          "code": "605577",
+          "name": "龙版传媒",
+          "industry": "出版业",
+          "max_boards": 3,
+          "last_zt_date": "2026-11-04",
+          "close": 15.71,
+          "pct_chg": 1.22,
+          "ma6": 15.18,
+          "ma12": 14.09,
+          "dist_ma6_pct": 3.51,
+          "dist_ma12_pct": 11.51,
+          "circ_mv_yi": 69.82,
+          "turnover_rate": 8.72,
+          "support_anchor": "贴近MA6(+3.5%)",
           "tags": [
-            "#128 最高2板龙头",
-            "贴近MA6(-1.2%)"
+            "#128 最高3板龙头",
+            "贴近MA6(+3.5%)"
           ],
-          "risks": []
+          "risks": [
+            "⚠️ 高位双上影滞涨（#176 近5日2次冲高回落）"
+          ]
         },
         {
-          "code": "603337",
-          "name": "杰克科技",
-          "industry": "纺织机械",
+          "code": "600293",
+          "name": "三峡新材",
+          "industry": "玻璃",
           "max_boards": 2,
-          "last_zt_date": "2026-10-28",
-          "close": 112.81,
-          "pct_chg": -3.44,
-          "ma6": 111.16,
-          "ma12": null,
-          "dist_ma6_pct": 1.48,
-          "dist_ma12_pct": null,
-          "circ_mv_yi": 212.52,
-          "turnover_rate": null,
-          "support_anchor": "贴近MA6(+1.5%)",
+          "last_zt_date": "2026-11-03",
+          "close": 12.73,
+          "pct_chg": 4.08,
+          "ma6": 12.73,
+          "ma12": 13.07,
+          "dist_ma6_pct": 0.0,
+          "dist_ma12_pct": -2.65,
+          "circ_mv_yi": 44.43,
+          "turnover_rate": 15.85,
+          "support_anchor": "贴近MA6(+0.0%) / 贴近MA12(-2.6%)",
           "tags": [
             "#128 最高2板龙头",
-            "贴近MA6(+1.5%)"
+            "贴近MA6(+0.0%)",
+            "贴近MA12(-2.6%)"
           ],
           "risks": []
         },
@@ -1336,18 +1401,189 @@
           "industry": "区域地产",
           "max_boards": 2,
           "last_zt_date": "2026-10-26",
-          "close": 12.86,
-          "pct_chg": 1.32,
-          "ma6": 12.65,
+          "close": 12.63,
+          "pct_chg": -1.73,
+          "ma6": 12.67,
           "ma12": null,
-          "dist_ma6_pct": 1.61,
+          "dist_ma6_pct": -0.29,
           "dist_ma12_pct": null,
-          "circ_mv_yi": 98.23,
+          "circ_mv_yi": 96.53,
           "turnover_rate": null,
-          "support_anchor": "贴近MA6(+1.6%)",
+          "support_anchor": "贴近MA6(-0.3%)",
           "tags": [
             "#128 最高2板龙头",
-            "贴近MA6(+1.6%)"
+            "贴近MA6(-0.3%)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600828",
+          "name": "茂业商业",
+          "industry": "百货",
+          "max_boards": 2,
+          "last_zt_date": "2026-10-28",
+          "close": 54.85,
+          "pct_chg": 2.3,
+          "ma6": 55.05,
+          "ma12": 54.57,
+          "dist_ma6_pct": -0.37,
+          "dist_ma12_pct": 0.51,
+          "circ_mv_yi": 76.87,
+          "turnover_rate": null,
+          "support_anchor": "贴近MA6(-0.4%) / 贴近MA12(+0.5%)",
+          "tags": [
+            "#128 最高2板龙头",
+            "贴近MA6(-0.4%)",
+            "贴近MA12(+0.5%)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "003032",
+          "name": "传智教育",
+          "industry": "文教休闲",
+          "max_boards": 2,
+          "last_zt_date": "2026-10-30",
+          "close": 9.5,
+          "pct_chg": 0.32,
+          "ma6": 9.46,
+          "ma12": 8.99,
+          "dist_ma6_pct": 0.41,
+          "dist_ma12_pct": 5.66,
+          "circ_mv_yi": 26.88,
+          "turnover_rate": null,
+          "support_anchor": "贴近MA6(+0.4%)",
+          "tags": [
+            "#128 最高2板龙头",
+            "贴近MA6(+0.4%)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "605338",
+          "name": "巴比食品",
+          "industry": "食品",
+          "max_boards": 2,
+          "last_zt_date": "2026-10-30",
+          "close": 23.81,
+          "pct_chg": -1.77,
+          "ma6": 23.96,
+          "ma12": null,
+          "dist_ma6_pct": -0.6,
+          "dist_ma12_pct": null,
+          "circ_mv_yi": 49.3,
+          "turnover_rate": null,
+          "support_anchor": "贴近MA6(-0.6%)",
+          "tags": [
+            "#128 最高2板龙头",
+            "贴近MA6(-0.6%)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603258",
+          "name": "电魂网络",
+          "industry": "互联网",
+          "max_boards": 2,
+          "last_zt_date": "2026-11-03",
+          "close": 18.11,
+          "pct_chg": 0.95,
+          "ma6": 18.23,
+          "ma12": 17.47,
+          "dist_ma6_pct": -0.66,
+          "dist_ma12_pct": 3.65,
+          "circ_mv_yi": 38.61,
+          "turnover_rate": null,
+          "support_anchor": "贴近MA6(-0.7%) / 贴近MA12(+3.6%)",
+          "tags": [
+            "#128 最高2板龙头",
+            "贴近MA6(-0.7%)",
+            "贴近MA12(+3.6%)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "605333",
+          "name": "沪光股份",
+          "industry": "汽车配件",
+          "max_boards": 2,
+          "last_zt_date": "2026-11-02",
+          "close": 20.28,
+          "pct_chg": 4.05,
+          "ma6": 20.15,
+          "ma12": null,
+          "dist_ma6_pct": 0.67,
+          "dist_ma12_pct": null,
+          "circ_mv_yi": 91.83,
+          "turnover_rate": null,
+          "support_anchor": "贴近MA6(+0.7%)",
+          "tags": [
+            "#128 最高2板龙头",
+            "贴近MA6(+0.7%)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002093",
+          "name": "国脉科技",
+          "industry": "文教休闲",
+          "max_boards": 2,
+          "last_zt_date": "2026-10-27",
+          "close": 91.7,
+          "pct_chg": 1.53,
+          "ma6": 91.0,
+          "ma12": 91.47,
+          "dist_ma6_pct": 0.76,
+          "dist_ma12_pct": 0.24,
+          "circ_mv_yi": 73.45,
+          "turnover_rate": null,
+          "support_anchor": "贴近MA6(+0.8%) / 贴近MA12(+0.2%)",
+          "tags": [
+            "#128 最高2板龙头",
+            "贴近MA6(+0.8%)",
+            "贴近MA12(+0.2%)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "000559",
+          "name": "万向钱潮",
+          "industry": "汽车配件",
+          "max_boards": 2,
+          "last_zt_date": "2026-10-28",
+          "close": 527.81,
+          "pct_chg": 2.72,
+          "ma6": 521.64,
+          "ma12": null,
+          "dist_ma6_pct": 1.18,
+          "dist_ma12_pct": null,
+          "circ_mv_yi": 426.86,
+          "turnover_rate": null,
+          "support_anchor": "贴近MA6(+1.2%)",
+          "tags": [
+            "#128 最高2板龙头",
+            "贴近MA6(+1.2%)"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603006",
+          "name": "联明股份",
+          "industry": "汽车配件",
+          "max_boards": 2,
+          "last_zt_date": "2026-10-29",
+          "close": 28.76,
+          "pct_chg": 1.19,
+          "ma6": 28.4,
+          "ma12": null,
+          "dist_ma6_pct": 1.28,
+          "dist_ma12_pct": null,
+          "circ_mv_yi": 28.17,
+          "turnover_rate": null,
+          "support_anchor": "贴近MA6(+1.3%)",
+          "tags": [
+            "#128 最高2板龙头",
+            "贴近MA6(+1.3%)"
           ],
           "risks": []
         }
@@ -1364,216 +1600,81 @@
       ],
       "methodology_note": "依据 #169：前日长上影试盘测试抛压、今日长下影探底洗盘拉起的「揉搓线」组合，是主力洗盘结束的经典右侧信号。依据 #139/#172：创阶段新高或进入高 RPS 池的强势股，首次缩量回踩 MA6/MA12 企稳，盈亏比显著优于突破当日追高。",
       "next_day_anchor": "揉搓线标的次日重点看能否放量站稳前日上影线半分位；突破回踩标的看 MA6/MA12 缩量止跌转阳。",
-      "count": 44,
+      "count": 47,
       "items": [
         {
-          "code": "002966",
-          "name": "苏州银行",
-          "industry": "银行",
-          "pattern": "#172 突破回踩（RPS50=91.77）",
-          "close": 14.03,
-          "pct_chg": 2.03,
-          "ma6": 14.09,
-          "ma12": 14.09,
-          "dist_ma6_pct": -0.43,
-          "dist_ma12_pct": -0.43,
-          "circ_mv_yi": 420.3,
-          "turnover_rate": 0.99,
+          "code": "002275",
+          "name": "桂林三金",
+          "industry": "中成药",
+          "pattern": "#169 揉搓线洗盘",
+          "close": 17.15,
+          "pct_chg": -5.77,
+          "ma6": 17.09,
+          "ma12": 15.0,
+          "dist_ma6_pct": 0.32,
+          "dist_ma12_pct": 14.35,
+          "circ_mv_yi": 96.85,
+          "turnover_rate": 10.64,
           "tags": [
-            "#172 突破回踩MA6(-0.4%)",
-            "RPS50=91.77"
-          ],
-          "risks": []
-        },
-        {
-          "code": "601939",
-          "name": "建设银行",
-          "industry": "银行",
-          "pattern": "#172 突破回踩（RPS50=93.27）",
-          "close": 30.29,
-          "pct_chg": 2.14,
-          "ma6": 30.16,
-          "ma12": 30.16,
-          "dist_ma6_pct": 0.44,
-          "dist_ma12_pct": 0.44,
-          "circ_mv_yi": 1142.6,
-          "turnover_rate": 1.75,
-          "tags": [
-            "#172 突破回踩MA6(+0.4%)",
-            "RPS50=93.27"
-          ],
-          "risks": []
-        },
-        {
-          "code": "000530",
-          "name": "冰山冷热",
-          "industry": "机械基件",
-          "pattern": "#172 突破回踩（RPS50=99.71）",
-          "close": 8.7,
-          "pct_chg": -3.76,
-          "ma6": 8.74,
-          "ma12": 8.66,
-          "dist_ma6_pct": -0.44,
-          "dist_ma12_pct": 0.44,
-          "circ_mv_yi": 52.21,
-          "turnover_rate": 30.1,
-          "tags": [
-            "#172 突破回踩MA6(-0.4%)",
-            "RPS50=99.71"
+            "🔥 #169 揉搓线(前日长上影(52%)试盘 + 今日长下影(57%)探底回升)"
           ],
           "risks": [
             "⚠️ 高位双上影滞涨（#176 近5日3次冲高回落）"
           ]
         },
         {
-          "code": "003816",
-          "name": "中国广核",
-          "industry": "新型电力",
-          "pattern": "#172 突破回踩（RPS50=97.07）",
-          "close": 5.68,
-          "pct_chg": 1.93,
-          "ma6": 5.65,
-          "ma12": 5.65,
-          "dist_ma6_pct": 0.46,
-          "dist_ma12_pct": 0.46,
-          "circ_mv_yi": 1869.99,
-          "turnover_rate": 0.35,
+          "code": "002565",
+          "name": "顺灏股份",
+          "industry": "造纸",
+          "pattern": "#169 揉搓线洗盘",
+          "close": 10.54,
+          "pct_chg": 10.02,
+          "ma6": 9.2,
+          "ma12": 8.45,
+          "dist_ma6_pct": 14.57,
+          "dist_ma12_pct": 24.72,
+          "circ_mv_yi": 111.72,
+          "turnover_rate": 4.66,
           "tags": [
-            "#172 突破回踩MA6(+0.5%)",
-            "RPS50=97.07"
+            "🔥 #169 揉搓线(前日长上影(65%)试盘 + 今日长下影(69%)探底回升)"
           ],
           "risks": []
         },
         {
-          "code": "601598",
-          "name": "中国外运",
-          "industry": "仓储物流",
-          "pattern": "#172 突破回踩（RPS50=90.31）",
-          "close": 10.18,
-          "pct_chg": 0.0,
-          "ma6": 10.24,
-          "ma12": 10.24,
-          "dist_ma6_pct": -0.54,
-          "dist_ma12_pct": -0.54,
-          "circ_mv_yi": 364.63,
-          "turnover_rate": 0.31,
+          "code": "603766",
+          "name": "隆鑫通用",
+          "industry": "摩托车",
+          "pattern": "#172 突破回踩（RPS50=93.51）",
+          "close": 54.94,
+          "pct_chg": -2.04,
+          "ma6": 54.94,
+          "ma12": 53.86,
+          "dist_ma6_pct": 0.0,
+          "dist_ma12_pct": 2.01,
+          "circ_mv_yi": 325.69,
+          "turnover_rate": 0.89,
           "tags": [
-            "#172 突破回踩MA6(-0.5%)",
-            "RPS50=90.31"
+            "#172 突破回踩MA6(+0.0%)",
+            "RPS50=93.51"
           ],
           "risks": []
         },
         {
-          "code": "601998",
-          "name": "中信银行",
-          "industry": "银行",
-          "pattern": "#172 突破回踩（RPS50=91.32）",
-          "close": 19.27,
-          "pct_chg": 0.88,
-          "ma6": 19.38,
-          "ma12": 19.38,
-          "dist_ma6_pct": -0.54,
-          "dist_ma12_pct": -0.54,
-          "circ_mv_yi": 3729.81,
-          "turnover_rate": 0.11,
+          "code": "000995",
+          "name": "皇台酒业",
+          "industry": "白酒",
+          "pattern": "#172 突破回踩（RPS50=99.33）",
+          "close": 16.7,
+          "pct_chg": 1.64,
+          "ma6": 16.71,
+          "ma12": 15.06,
+          "dist_ma6_pct": -0.05,
+          "dist_ma12_pct": 10.88,
+          "circ_mv_yi": 29.63,
+          "turnover_rate": 28.64,
           "tags": [
-            "#172 突破回踩MA6(-0.5%)",
-            "RPS50=91.32"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002293",
-          "name": "罗莱生活",
-          "industry": "纺织",
-          "pattern": "#172 突破回踩（RPS50=92.46）",
-          "close": 12.35,
-          "pct_chg": -0.08,
-          "ma6": 12.28,
-          "ma12": 11.95,
-          "dist_ma6_pct": 0.57,
-          "dist_ma12_pct": 3.37,
-          "circ_mv_yi": 102.58,
-          "turnover_rate": 0.58,
-          "tags": [
-            "#172 突破回踩MA6(+0.6%)",
-            "RPS50=92.46"
-          ],
-          "risks": []
-        },
-        {
-          "code": "301550",
-          "name": "斯菱智驱",
-          "industry": "汽车配件",
-          "pattern": "#172 突破回踩（RPS50=99.28）",
-          "close": 391.89,
-          "pct_chg": -1.64,
-          "ma6": 389.51,
-          "ma12": 384.43,
-          "dist_ma6_pct": 0.61,
-          "dist_ma12_pct": 1.94,
-          "circ_mv_yi": 259.85,
-          "turnover_rate": 3.72,
-          "tags": [
-            "#172 突破回踩MA6(+0.6%)",
-            "RPS50=99.28"
-          ],
-          "risks": []
-        },
-        {
-          "code": "601298",
-          "name": "青岛港",
-          "industry": "港口",
-          "pattern": "#172 突破回踩（RPS50=92.1）",
-          "close": 13.57,
-          "pct_chg": 0.72,
-          "ma6": 13.66,
-          "ma12": 13.41,
-          "dist_ma6_pct": -0.66,
-          "dist_ma12_pct": 1.2,
-          "circ_mv_yi": 525.73,
-          "turnover_rate": 0.2,
-          "tags": [
-            "#172 突破回踩MA6(-0.7%)",
-            "RPS50=92.1"
-          ],
-          "risks": []
-        },
-        {
-          "code": "001872",
-          "name": "招商港口",
-          "industry": "港口",
-          "pattern": "#172 突破回踩（RPS50=92.55）",
-          "close": 25.35,
-          "pct_chg": 1.85,
-          "ma6": 25.17,
-          "ma12": 24.54,
-          "dist_ma6_pct": 0.7,
-          "dist_ma12_pct": 3.3,
-          "circ_mv_yi": 583.62,
-          "turnover_rate": 0.16,
-          "tags": [
-            "#172 突破回踩MA6(+0.7%)",
-            "RPS50=92.55"
-          ],
-          "risks": []
-        },
-        {
-          "code": "300234",
-          "name": "开尔新材",
-          "industry": "陶瓷",
-          "pattern": "#172 突破回踩（RPS50=96.91）",
-          "close": 70.48,
-          "pct_chg": -2.38,
-          "ma6": 69.98,
-          "ma12": 67.82,
-          "dist_ma6_pct": 0.72,
-          "dist_ma12_pct": 3.93,
-          "circ_mv_yi": 39.52,
-          "turnover_rate": 4.19,
-          "tags": [
-            "#172 突破回踩MA6(+0.7%)",
-            "RPS50=96.91"
+            "#172 突破回踩MA6(-0.0%)",
+            "RPS50=99.33"
           ],
           "risks": []
         },
@@ -1581,37 +1682,153 @@
           "code": "600863",
           "name": "华能蒙电",
           "industry": "火力发电",
-          "pattern": "#172 突破回踩（RPS50=93.38）",
-          "close": 128.75,
-          "pct_chg": 2.29,
-          "ma6": 127.67,
-          "ma12": 124.69,
-          "dist_ma6_pct": 0.85,
-          "dist_ma12_pct": 3.26,
-          "circ_mv_yi": 378.59,
-          "turnover_rate": 1.58,
+          "pattern": "#172 突破回踩（RPS50=94.14）",
+          "close": 127.79,
+          "pct_chg": -0.75,
+          "ma6": 127.63,
+          "ma12": 125.31,
+          "dist_ma6_pct": 0.13,
+          "dist_ma12_pct": 1.98,
+          "circ_mv_yi": 375.77,
+          "turnover_rate": 1.13,
           "tags": [
-            "#172 突破回踩MA6(+0.8%)",
-            "RPS50=93.38"
+            "#172 突破回踩MA6(+0.1%)",
+            "RPS50=94.14"
           ],
           "risks": []
         },
         {
-          "code": "001228",
-          "name": "永泰运",
-          "industry": "仓储物流",
-          "pattern": "#172 突破回踩（RPS50=96.11）",
-          "close": 32.28,
-          "pct_chg": -0.22,
-          "ma6": 31.99,
-          "ma12": 32.56,
-          "dist_ma6_pct": 0.9,
-          "dist_ma12_pct": -0.85,
-          "circ_mv_yi": 25.78,
-          "turnover_rate": 1.68,
+          "code": "603303",
+          "name": "得邦照明",
+          "industry": "家用电器",
+          "pattern": "#172 突破回踩（RPS50=93.91）",
+          "close": 70.34,
+          "pct_chg": 1.54,
+          "ma6": 70.43,
+          "ma12": 70.43,
+          "dist_ma6_pct": -0.13,
+          "dist_ma12_pct": -0.13,
+          "circ_mv_yi": 125.91,
+          "turnover_rate": 0.5,
           "tags": [
-            "#172 突破回踩MA6(+0.9%)",
-            "RPS50=96.11"
+            "#172 突破回踩MA6(-0.1%)",
+            "RPS50=93.91"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600901",
+          "name": "江苏金租",
+          "industry": "多元金融",
+          "pattern": "#172 突破回踩（RPS50=94.25）",
+          "close": 16.2,
+          "pct_chg": -1.95,
+          "ma6": 16.17,
+          "ma12": 15.94,
+          "dist_ma6_pct": 0.15,
+          "dist_ma12_pct": 1.58,
+          "circ_mv_yi": 437.76,
+          "turnover_rate": 0.56,
+          "tags": [
+            "#172 突破回踩MA6(+0.2%)",
+            "RPS50=94.25"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600887",
+          "name": "伊利股份",
+          "industry": "乳制品",
+          "pattern": "#172 突破回踩（RPS50=96.67）",
+          "close": 2931.42,
+          "pct_chg": -0.99,
+          "ma6": 2925.15,
+          "ma12": 2925.15,
+          "dist_ma6_pct": 0.21,
+          "dist_ma12_pct": 0.21,
+          "circ_mv_yi": 1959.93,
+          "turnover_rate": 0.85,
+          "tags": [
+            "#172 突破回踩MA6(+0.2%)",
+            "RPS50=96.67"
+          ],
+          "risks": []
+        },
+        {
+          "code": "601298",
+          "name": "青岛港",
+          "industry": "港口",
+          "pattern": "#172 突破回踩（RPS50=91.74）",
+          "close": 13.56,
+          "pct_chg": -0.1,
+          "ma6": 13.6,
+          "ma12": 13.46,
+          "dist_ma6_pct": -0.31,
+          "dist_ma12_pct": 0.74,
+          "circ_mv_yi": 525.19,
+          "turnover_rate": 0.17,
+          "tags": [
+            "#172 突破回踩MA6(-0.3%)",
+            "RPS50=91.74"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002696",
+          "name": "百洋股份",
+          "industry": "饲料",
+          "pattern": "#172 突破回踩（RPS50=99.73）",
+          "close": 41.41,
+          "pct_chg": 2.17,
+          "ma6": 41.54,
+          "ma12": 41.38,
+          "dist_ma6_pct": -0.31,
+          "dist_ma12_pct": 0.09,
+          "circ_mv_yi": 37.77,
+          "turnover_rate": 27.54,
+          "tags": [
+            "#172 突破回踩MA6(-0.3%)",
+            "RPS50=99.73"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002354",
+          "name": "天娱数科",
+          "industry": "互联网",
+          "pattern": "#172 突破回踩（RPS50=91.94）",
+          "close": 8.09,
+          "pct_chg": -0.37,
+          "ma6": 8.06,
+          "ma12": 8.07,
+          "dist_ma6_pct": 0.31,
+          "dist_ma12_pct": 0.22,
+          "circ_mv_yi": 131.62,
+          "turnover_rate": 15.35,
+          "tags": [
+            "#172 突破回踩MA6(+0.3%)",
+            "RPS50=91.94"
+          ],
+          "risks": [
+            "⚠️ 高位双上影滞涨（#176 近5日3次冲高回落）"
+          ]
+        },
+        {
+          "code": "603976",
+          "name": "正川股份",
+          "industry": "医疗保健",
+          "pattern": "#172 突破回踩（RPS50=90.89）",
+          "close": 47.09,
+          "pct_chg": 2.61,
+          "ma6": 46.94,
+          "ma12": 46.42,
+          "dist_ma6_pct": 0.32,
+          "dist_ma12_pct": 1.45,
+          "circ_mv_yi": 52.6,
+          "turnover_rate": 2.23,
+          "tags": [
+            "#172 突破回踩MA6(+0.3%)",
+            "RPS50=90.89"
           ],
           "risks": []
         },
@@ -1619,134 +1836,151 @@
           "code": "002003",
           "name": "伟星股份",
           "industry": "服饰",
-          "pattern": "#172 突破回踩（RPS50=96.78）",
-          "close": 12.76,
-          "pct_chg": 1.11,
-          "ma6": 12.64,
-          "ma12": 12.26,
-          "dist_ma6_pct": 0.92,
-          "dist_ma12_pct": 4.08,
-          "circ_mv_yi": 132.11,
-          "turnover_rate": 1.1,
+          "pattern": "#172 突破回踩（RPS50=96.37）",
+          "close": 12.61,
+          "pct_chg": -1.18,
+          "ma6": 12.66,
+          "ma12": 12.34,
+          "dist_ma6_pct": -0.38,
+          "dist_ma12_pct": 2.16,
+          "circ_mv_yi": 130.56,
+          "turnover_rate": 0.81,
           "tags": [
-            "#172 突破回踩MA6(+0.9%)",
-            "RPS50=96.78"
+            "#172 突破回踩MA6(-0.4%)",
+            "RPS50=96.37"
           ],
           "risks": []
         },
         {
-          "code": "002708",
-          "name": "光洋股份",
-          "industry": "汽车配件",
-          "pattern": "#172 突破回踩（RPS50=99.75）",
-          "close": 19.97,
-          "pct_chg": -3.48,
-          "ma6": 19.77,
-          "ma12": 18.27,
-          "dist_ma6_pct": 0.99,
-          "dist_ma12_pct": 9.3,
-          "circ_mv_yi": 101.77,
-          "turnover_rate": 16.21,
-          "tags": [
-            "#172 突破回踩MA6(+1.0%)",
-            "RPS50=99.75"
-          ],
-          "risks": [
-            "⚠️ 高位双上影滞涨（#176 近5日3次冲高回落）"
-          ]
-        },
-        {
-          "code": "601083",
-          "name": "锦江航运",
-          "industry": "水运",
-          "pattern": "#172 突破回踩（RPS50=96.94）",
-          "close": 16.26,
-          "pct_chg": -1.87,
-          "ma6": 16.43,
-          "ma12": 16.43,
-          "dist_ma6_pct": -1.06,
-          "dist_ma12_pct": -1.06,
-          "circ_mv_yi": 27.55,
-          "turnover_rate": 5.8,
-          "tags": [
-            "#172 突破回踩MA6(-1.1%)",
-            "RPS50=96.94"
-          ],
-          "risks": []
-        },
-        {
-          "code": "301017",
-          "name": "漱玉平民",
-          "industry": "医药商业",
-          "pattern": "#172 突破回踩（RPS50=88.72）",
-          "close": 14.69,
-          "pct_chg": -2.12,
-          "ma6": 14.53,
-          "ma12": 14.7,
-          "dist_ma6_pct": 1.07,
-          "dist_ma12_pct": -0.06,
-          "circ_mv_yi": 37.1,
-          "turnover_rate": 1.95,
-          "tags": [
-            "#172 突破回踩MA6(+1.1%)",
-            "RPS50=88.72"
-          ],
-          "risks": []
-        },
-        {
-          "code": "601328",
-          "name": "交通银行",
+          "code": "601998",
+          "name": "中信银行",
           "industry": "银行",
-          "pattern": "#172 突破回踩（RPS50=95.57）",
-          "close": 23.18,
-          "pct_chg": 1.22,
-          "ma6": 23.43,
-          "ma12": 23.27,
-          "dist_ma6_pct": -1.07,
-          "dist_ma12_pct": -0.41,
-          "circ_mv_yi": 2164.01,
-          "turnover_rate": 0.82,
+          "pattern": "#172 突破回踩（RPS50=88.88）",
+          "close": 19.16,
+          "pct_chg": -0.55,
+          "ma6": 19.25,
+          "ma12": 19.25,
+          "dist_ma6_pct": -0.44,
+          "dist_ma12_pct": -0.44,
+          "circ_mv_yi": 3709.43,
+          "turnover_rate": 0.11,
           "tags": [
-            "#172 突破回踩MA6(-1.1%)",
-            "RPS50=95.57"
+            "#172 突破回踩MA6(-0.4%)",
+            "RPS50=88.88"
           ],
           "risks": []
         },
         {
-          "code": "000333",
-          "name": "美的集团",
-          "industry": "家用电器",
-          "pattern": "#172 突破回踩（🏆 创一年(250日)新高）",
-          "close": 530.52,
-          "pct_chg": 1.68,
-          "ma6": 524.42,
-          "ma12": 524.42,
-          "dist_ma6_pct": 1.16,
-          "dist_ma12_pct": 1.16,
-          "circ_mv_yi": 6169.95,
-          "turnover_rate": 0.38,
+          "code": "002966",
+          "name": "苏州银行",
+          "industry": "银行",
+          "pattern": "#172 突破回踩（RPS50=91.96）",
+          "close": 14.07,
+          "pct_chg": 0.31,
+          "ma6": 14.0,
+          "ma12": 14.0,
+          "dist_ma6_pct": 0.49,
+          "dist_ma12_pct": 0.49,
+          "circ_mv_yi": 421.62,
+          "turnover_rate": 0.64,
           "tags": [
-            "#172 突破回踩MA6(+1.2%)",
-            "🏆 创一年(250日)新高"
+            "#172 突破回踩MA6(+0.5%)",
+            "RPS50=91.96"
           ],
           "risks": []
         },
         {
-          "code": "300307",
-          "name": "慈星股份",
-          "industry": "纺织机械",
-          "pattern": "#172 突破回踩（RPS50=96.56）",
-          "close": 19.79,
-          "pct_chg": -4.07,
-          "ma6": 20.03,
-          "ma12": 20.03,
-          "dist_ma6_pct": -1.23,
-          "dist_ma12_pct": -1.23,
-          "circ_mv_yi": 68.6,
-          "turnover_rate": 6.64,
+          "code": "601598",
+          "name": "中国外运",
+          "industry": "仓储物流",
+          "pattern": "#172 突破回踩（RPS50=91.99）",
+          "close": 10.28,
+          "pct_chg": 0.99,
+          "ma6": 10.23,
+          "ma12": 10.23,
+          "dist_ma6_pct": 0.49,
+          "dist_ma12_pct": 0.49,
+          "circ_mv_yi": 368.24,
+          "turnover_rate": 0.35,
           "tags": [
-            "#172 突破回踩MA6(-1.2%)",
-            "RPS50=96.56"
+            "#172 突破回踩MA6(+0.5%)",
+            "RPS50=91.99"
+          ],
+          "risks": []
+        },
+        {
+          "code": "000719",
+          "name": "中原传媒",
+          "industry": "出版业",
+          "pattern": "#172 突破回踩（RPS50=92.88）",
+          "close": 13.65,
+          "pct_chg": -2.92,
+          "ma6": 13.72,
+          "ma12": 13.16,
+          "dist_ma6_pct": -0.5,
+          "dist_ma12_pct": 3.74,
+          "circ_mv_yi": 91.07,
+          "turnover_rate": 1.69,
+          "tags": [
+            "#172 突破回踩MA6(-0.5%)",
+            "RPS50=92.88"
+          ],
+          "risks": []
+        },
+        {
+          "code": "001228",
+          "name": "永泰运",
+          "industry": "仓储物流",
+          "pattern": "#172 突破回踩（RPS50=92.41）",
+          "close": 32.29,
+          "pct_chg": 0.03,
+          "ma6": 32.12,
+          "ma12": 32.44,
+          "dist_ma6_pct": 0.54,
+          "dist_ma12_pct": -0.46,
+          "circ_mv_yi": 25.79,
+          "turnover_rate": 1.15,
+          "tags": [
+            "#172 突破回踩MA6(+0.5%)",
+            "RPS50=92.41"
+          ],
+          "risks": []
+        },
+        {
+          "code": "601000",
+          "name": "唐山港",
+          "industry": "港口",
+          "pattern": "#172 突破回踩（RPS50=88.61）",
+          "close": 36.55,
+          "pct_chg": 1.04,
+          "ma6": 36.33,
+          "ma12": 36.33,
+          "dist_ma6_pct": 0.62,
+          "dist_ma12_pct": 0.62,
+          "circ_mv_yi": 287.41,
+          "turnover_rate": 0.69,
+          "tags": [
+            "#172 突破回踩MA6(+0.6%)",
+            "RPS50=88.61"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002856",
+          "name": "*ST美芝",
+          "industry": "装修装饰",
+          "pattern": "#172 突破回踩（RPS50=93.55）",
+          "close": 20.36,
+          "pct_chg": -2.6,
+          "ma6": 20.49,
+          "ma12": 20.6,
+          "dist_ma6_pct": -0.66,
+          "dist_ma12_pct": -1.19,
+          "circ_mv_yi": 20.92,
+          "turnover_rate": 2.18,
+          "tags": [
+            "#172 突破回踩MA6(-0.7%)",
+            "RPS50=93.55"
           ],
           "risks": []
         }
@@ -1762,253 +1996,385 @@
       ],
       "methodology_note": "依据 #077 与 #103：当某个行业内多只机构趋势大票持续创阶段新高或霸榜高 RPS（机构负责打造板块容量与持续性），板块内新启动的小市值、低股价首板往往成为游资进攻的连板补涨先锋。",
       "next_day_anchor": "次日观察同板块趋势大票是否维持红盘强势（板块不倒），若板块延续强势则前排小市值首板具备高1进2晋级潜质。",
-      "count": 13,
-      "strong_sector_count": 44,
+      "count": 33,
+      "strong_sector_count": 42,
       "items": [
         {
-          "code": "603366",
-          "name": "日出东方",
-          "industry": "家用电器",
-          "first_time": "09:45:14",
-          "close": 8.99,
-          "circ_mv_yi": 73.09,
-          "seal_yi": 1.93,
-          "zbc": 0,
-          "turnover_rate": 6.92,
-          "trend_anchor_count": 5,
-          "trend_anchors": "日出东方(创半年(120日)新高)、阳光照明(创一年(250日)新高)、九阳股份(创一年(250日)新高)",
-          "tags": [
-            "#103 强趋势行业(5只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": [
-            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
-          ]
-        },
-        {
-          "code": "000595",
-          "name": "新能股份",
-          "industry": "电力",
-          "first_time": "09:31:36",
-          "close": 5.38,
-          "circ_mv_yi": 61.26,
-          "seal_yi": 0.57,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "宝新能源(RPS97)、中国广核(RPS97)、川投能源(RPS94)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "001258",
-          "name": "立新能源",
-          "industry": "电力",
-          "first_time": "09:34:36",
-          "close": 9.57,
-          "circ_mv_yi": 89.32,
-          "seal_yi": 1.44,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "宝新能源(RPS97)、中国广核(RPS97)、川投能源(RPS94)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002310",
-          "name": "东方新能",
-          "industry": "电力",
-          "first_time": "09:48:45",
-          "close": 2.32,
-          "circ_mv_yi": 102.06,
-          "seal_yi": 1.21,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "宝新能源(RPS97)、中国广核(RPS97)、川投能源(RPS94)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "600207",
-          "name": "安彩高科",
-          "industry": "电气设备",
-          "first_time": "09:32:05",
-          "close": 4.88,
-          "circ_mv_yi": 53.16,
-          "seal_yi": 0.59,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 3,
-          "trend_anchors": "时创能源(创60日新高)、永臻股份(创60日新高)、许继电气(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(3只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": [
-            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
-          ]
-        },
-        {
-          "code": "600229",
-          "name": "城市传媒",
-          "industry": "出版业",
-          "first_time": "09:30:08",
-          "close": 6.42,
-          "circ_mv_yi": 42.42,
-          "seal_yi": 0.62,
-          "zbc": 0,
-          "turnover_rate": 1.31,
-          "trend_anchor_count": 2,
-          "trend_anchors": "城市传媒(创半年(120日)新高)、粤传媒(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(2只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "600327",
-          "name": "大东方",
-          "industry": "医疗保健",
-          "first_time": "09:57:20",
-          "close": 4.91,
-          "circ_mv_yi": 43.44,
-          "seal_yi": 0.39,
-          "zbc": 2,
-          "turnover_rate": 20.75,
-          "trend_anchor_count": 2,
-          "trend_anchors": "大东方(创半年(120日)新高)、威高血净(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(2只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": [
-            "ℹ️ 历史 4 次首板均未连板（#032 股性基因）"
-          ]
-        },
-        {
-          "code": "601188",
-          "name": "龙江交通",
-          "industry": "路桥",
-          "first_time": "09:40:39",
-          "close": 3.81,
-          "circ_mv_yi": 49.74,
-          "seal_yi": 0.2,
-          "zbc": 4,
-          "turnover_rate": 21.58,
-          "trend_anchor_count": 2,
-          "trend_anchors": "龙江交通(创一年(250日)新高)、四川成渝(创一年(250日)新高)",
-          "tags": [
-            "#103 强趋势行业(2只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "601595",
-          "name": "上海电影",
-          "industry": "影视音像",
-          "first_time": "10:27:30",
-          "close": 35.76,
-          "circ_mv_yi": 160.28,
-          "seal_yi": 0.55,
-          "zbc": 1,
-          "turnover_rate": 4.95,
-          "trend_anchor_count": 3,
-          "trend_anchors": "上海电影(创半年(120日)新高)、芒果超媒(创一年(250日)新高)、无线传媒(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(3只趋势锚)",
-            "日内首板补涨"
-          ],
-          "risks": []
-        },
-        {
-          "code": "600156",
-          "name": "华升股份",
-          "industry": "纺织制造",
-          "first_time": "13:17:46",
-          "close": 7.07,
-          "circ_mv_yi": 28.43,
-          "seal_yi": 0.29,
-          "zbc": 3,
-          "turnover_rate": null,
-          "trend_anchor_count": 2,
-          "trend_anchors": "伟星股份(RPS97)、浙文影业(RPS100)",
-          "tags": [
-            "#103 强趋势行业(2只趋势锚)",
-            "日内首板补涨",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "300686",
-          "name": "智动力",
-          "industry": "元器件",
-          "first_time": "11:08:33",
-          "close": 13.68,
-          "circ_mv_yi": 35.43,
-          "seal_yi": 0.26,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 2,
-          "trend_anchors": "康冠科技(创60日新高)、兆威机电(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(2只趋势锚)",
-            "日内首板补涨",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "300237",
-          "name": "美晨科技",
+          "code": "603121",
+          "name": "华培动力",
           "industry": "汽车配件",
-          "first_time": "13:20:39",
-          "close": 2.82,
-          "circ_mv_yi": 40.66,
-          "seal_yi": 0.29,
-          "zbc": 1,
-          "turnover_rate": 10.91,
-          "trend_anchor_count": 2,
-          "trend_anchors": "美晨科技(创半年(120日)新高)、兆丰股份(创60日新高)",
+          "first_time": "09:32:41",
+          "close": 11.98,
+          "circ_mv_yi": 40.56,
+          "seal_yi": 0.27,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 13,
+          "trend_anchors": "德尔股份(创一年(250日)新高)、光洋股份(创一年(250日)新高)、日盈电子(创60日新高)",
           "tags": [
-            "#103 强趋势行业(2只趋势锚)",
-            "日内首板补涨",
+            "#103 强趋势行业(13只趋势锚)",
+            "#125 10点前首板",
             "#030 小市值弹性"
           ],
           "risks": []
         },
         {
-          "code": "001308",
-          "name": "康冠科技",
-          "industry": "元器件",
-          "first_time": "10:41:39",
-          "close": 20.94,
-          "circ_mv_yi": 110.42,
-          "seal_yi": 0.45,
+          "code": "603286",
+          "name": "日盈电子",
+          "industry": "汽车配件",
+          "first_time": "09:34:32",
+          "close": 55.36,
+          "circ_mv_yi": 64.71,
+          "seal_yi": 0.73,
           "zbc": 0,
-          "turnover_rate": 2.3,
+          "turnover_rate": 2.33,
+          "trend_anchor_count": 13,
+          "trend_anchors": "德尔股份(创一年(250日)新高)、光洋股份(创一年(250日)新高)、日盈电子(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(13只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": [
+            "ℹ️ 历史 5 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "002488",
+          "name": "金固股份",
+          "industry": "汽车配件",
+          "first_time": "09:45:06",
+          "close": 7.48,
+          "circ_mv_yi": 68.82,
+          "seal_yi": 0.63,
+          "zbc": 1,
+          "turnover_rate": null,
+          "trend_anchor_count": 13,
+          "trend_anchors": "德尔股份(创一年(250日)新高)、光洋股份(创一年(250日)新高)、日盈电子(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(13只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002708",
+          "name": "光洋股份",
+          "industry": "汽车配件",
+          "first_time": "09:34:15",
+          "close": 21.97,
+          "circ_mv_yi": 111.97,
+          "seal_yi": 0.67,
+          "zbc": 6,
+          "turnover_rate": 14.66,
+          "trend_anchor_count": 13,
+          "trend_anchors": "德尔股份(创一年(250日)新高)、光洋股份(创一年(250日)新高)、日盈电子(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(13只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "001388",
+          "name": "信通电子",
+          "industry": "电气设备",
+          "first_time": "09:35:39",
+          "close": 23.29,
+          "circ_mv_yi": 29.14,
+          "seal_yi": 0.31,
+          "zbc": 2,
+          "turnover_rate": null,
+          "trend_anchor_count": 4,
+          "trend_anchors": "众智科技(创60日新高)、金杨精密(创60日新高)、东方日升(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(4只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": [
+            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "301226",
+          "name": "祥明智能",
+          "industry": "电气设备",
+          "first_time": "09:39:48",
+          "close": 33.06,
+          "circ_mv_yi": 35.97,
+          "seal_yi": 0.54,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 4,
+          "trend_anchors": "众智科技(创60日新高)、金杨精密(创60日新高)、东方日升(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(4只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603703",
+          "name": "盛洋科技",
+          "industry": "元器件",
+          "first_time": "09:34:01",
+          "close": 11.1,
+          "circ_mv_yi": 46.06,
+          "seal_yi": 1.13,
+          "zbc": 1,
+          "turnover_rate": null,
+          "trend_anchor_count": 4,
+          "trend_anchors": "科森科技(创一年(250日)新高)、国光电器(创60日新高)、康冠科技(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(4只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600715",
+          "name": "文投控股",
+          "industry": "影视音像",
+          "first_time": "09:35:42",
+          "close": 2.59,
+          "circ_mv_yi": 74.14,
+          "seal_yi": 0.7,
+          "zbc": 1,
+          "turnover_rate": 14.94,
+          "trend_anchor_count": 4,
+          "trend_anchors": "文投控股(创半年(120日)新高)、上海电影(创一年(250日)新高)、幸福蓝海(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(4只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603920",
+          "name": "世运电路",
+          "industry": "元器件",
+          "first_time": "09:43:53",
+          "close": 33.58,
+          "circ_mv_yi": 241.97,
+          "seal_yi": 0.39,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 4,
+          "trend_anchors": "科森科技(创一年(250日)新高)、国光电器(创60日新高)、康冠科技(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(4只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "001379",
+          "name": "腾达科技",
+          "industry": "机械基件",
+          "first_time": "09:32:51",
+          "close": 15.85,
+          "circ_mv_yi": 10.67,
+          "seal_yi": 0.19,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 3,
+          "trend_anchors": "力星股份(创60日新高)、冰山冷热(创一年(250日)新高)、宁波东力(创一年(250日)新高)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002347",
+          "name": "泰尔股份",
+          "industry": "机械基件",
+          "first_time": "09:33:45",
+          "close": 7.0,
+          "circ_mv_yi": 34.54,
+          "seal_yi": 0.68,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 3,
+          "trend_anchors": "力星股份(创60日新高)、冰山冷热(创一年(250日)新高)、宁波东力(创一年(250日)新高)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002037",
+          "name": "保利联合",
+          "industry": "化工原料",
+          "first_time": "09:25:00",
+          "close": 7.23,
+          "circ_mv_yi": 34.98,
+          "seal_yi": 4.35,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 3,
+          "trend_anchors": "上纬新材(创60日新高)、泛亚微透(创60日新高)、晶华新材(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603706",
+          "name": "东方环宇",
+          "industry": "供气供热",
+          "first_time": "09:55:38",
+          "close": 20.19,
+          "circ_mv_yi": 38.24,
+          "seal_yi": 0.18,
+          "zbc": 2,
+          "turnover_rate": 5.26,
+          "trend_anchor_count": 3,
+          "trend_anchors": "东方环宇(创60日新高)、佛燃能源(创60日新高)、新奥股份(创半年(120日)新高)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603683",
+          "name": "晶华新材",
+          "industry": "化工原料",
+          "first_time": "09:38:13",
+          "close": 18.13,
+          "circ_mv_yi": 52.29,
+          "seal_yi": 0.68,
+          "zbc": 1,
+          "turnover_rate": 12.99,
+          "trend_anchor_count": 3,
+          "trend_anchors": "上纬新材(创60日新高)、泛亚微透(创60日新高)、晶华新材(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": [
+            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "000530",
+          "name": "冰山冷热",
+          "industry": "机械基件",
+          "first_time": "09:32:21",
+          "close": 9.57,
+          "circ_mv_yi": 57.43,
+          "seal_yi": 2.41,
+          "zbc": 0,
+          "turnover_rate": 14.8,
+          "trend_anchor_count": 3,
+          "trend_anchors": "力星股份(创60日新高)、冰山冷热(创一年(250日)新高)、宁波东力(创一年(250日)新高)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002811",
+          "name": "郑中设计",
+          "industry": "装修装饰/装修装饰Ⅱ",
+          "first_time": "09:32:57",
+          "close": 22.59,
+          "circ_mv_yi": 63.94,
+          "seal_yi": 0.73,
+          "zbc": 0,
+          "turnover_rate": 1.89,
+          "trend_anchor_count": 3,
+          "trend_anchors": "郑中设计(RPS99)、*ST美芝(RPS94)、德才股份(RPS98)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": [
+            "ℹ️ 历史 7 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "002931",
+          "name": "锋龙股份",
+          "industry": "机械基件",
+          "first_time": "09:41:24",
+          "close": 43.86,
+          "circ_mv_yi": 88.85,
+          "seal_yi": 0.4,
+          "zbc": 1,
+          "turnover_rate": null,
+          "trend_anchor_count": 3,
+          "trend_anchors": "力星股份(创60日新高)、冰山冷热(创一年(250日)新高)、宁波东力(创一年(250日)新高)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "001331",
+          "name": "胜通能源",
+          "industry": "供气供热",
+          "first_time": "09:41:33",
+          "close": 31.35,
+          "circ_mv_yi": 89.61,
+          "seal_yi": 0.73,
+          "zbc": 0,
+          "turnover_rate": null,
+          "trend_anchor_count": 3,
+          "trend_anchors": "东方环宇(创60日新高)、佛燃能源(创60日新高)、新奥股份(创半年(120日)新高)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "688585",
+          "name": "上纬新材",
+          "industry": "化工原料",
+          "first_time": "09:42:23",
+          "close": 216.02,
+          "circ_mv_yi": 871.34,
+          "seal_yi": 1.36,
+          "zbc": 4,
+          "turnover_rate": 3.92,
+          "trend_anchor_count": 3,
+          "trend_anchors": "上纬新材(创60日新高)、泛亚微透(创60日新高)、晶华新材(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(3只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "600853",
+          "name": "龙建股份",
+          "industry": "建筑工程",
+          "first_time": "09:55:17",
+          "close": 3.85,
+          "circ_mv_yi": 39.03,
+          "seal_yi": 0.35,
+          "zbc": 1,
+          "turnover_rate": 7.54,
           "trend_anchor_count": 2,
-          "trend_anchors": "康冠科技(创60日新高)、兆威机电(创60日新高)",
+          "trend_anchors": "龙建股份(创60日新高)、大千生态(创半年(120日)新高)",
           "tags": [
             "#103 强趋势行业(2只趋势锚)",
-            "日内首板补涨"
+            "#125 10点前首板",
+            "#030 小市值弹性"
           ],
           "risks": []
         }
@@ -2018,64 +2384,64 @@
   "pool_scorecard": {
     "status": "ok",
     "date_from": "20260810",
-    "date_to": "20261106",
-    "trade_days": 56,
+    "date_to": "20261109",
+    "trade_days": 57,
     "strategies": {
       "pre_10am_first": {
         "label": "#125 10:00前硬核首板（1进2）",
-        "base": 1150,
-        "promoted": 222,
-        "promo_rate": 0.19304347826086957,
+        "base": 1160,
+        "promoted": 227,
+        "promo_rate": 0.1956896551724138,
         "benchmark_label": "10:00后普通首板（1进2）",
-        "benchmark_base": 1562,
-        "benchmark_promoted": 188,
-        "benchmark_rate": 0.1203585147247119,
-        "edge_pct": 7.27
+        "benchmark_base": 1573,
+        "benchmark_promoted": 191,
+        "benchmark_rate": 0.12142403051493961,
+        "edge_pct": 7.43
       },
       "turnover_2b": {
         "label": "#033/#071 换手二板（2进3）",
-        "base": 326,
+        "base": 329,
         "promoted": 89,
-        "promo_rate": 0.27300613496932513,
+        "promo_rate": 0.270516717325228,
         "benchmark_label": "09:25 一字二板（2进3）",
-        "benchmark_base": 102,
+        "benchmark_base": 103,
         "benchmark_promoted": 54,
-        "benchmark_rate": 0.5294117647058824,
-        "edge_pct": -25.64
+        "benchmark_rate": 0.5242718446601942,
+        "edge_pct": -25.38
       }
     },
     "by_phase": [
       {
         "phase": "发酵期",
-        "trade_days": 11,
-        "pre10_1to2_rate": 0.3333333333333333,
-        "pre10_sample": "55/165",
-        "turnover_2to3_rate": 0.29310344827586204,
-        "turnover_2to3_sample": "17/58"
+        "trade_days": 12,
+        "pre10_1to2_rate": 0.34285714285714286,
+        "pre10_sample": "60/175",
+        "turnover_2to3_rate": 0.2786885245901639,
+        "turnover_2to3_sample": "17/61"
       },
       {
         "phase": "分歧期",
-        "trade_days": 13,
-        "pre10_1to2_rate": 0.2283464566929134,
-        "pre10_sample": "58/254",
-        "turnover_2to3_rate": 0.23684210526315788,
-        "turnover_2to3_sample": "18/76"
+        "trade_days": 15,
+        "pre10_1to2_rate": 0.2179930795847751,
+        "pre10_sample": "63/289",
+        "turnover_2to3_rate": 0.24444444444444444,
+        "turnover_2to3_sample": "22/90"
       },
       {
         "phase": "退潮期",
-        "trade_days": 16,
-        "pre10_1to2_rate": 0.2023121387283237,
-        "pre10_sample": "70/346",
-        "turnover_2to3_rate": 0.3225806451612903,
-        "turnover_2to3_sample": "30/93"
+        "trade_days": 15,
+        "pre10_1to2_rate": 0.20175438596491227,
+        "pre10_sample": "69/342",
+        "turnover_2to3_rate": 0.32941176470588235,
+        "turnover_2to3_sample": "28/85"
       },
       {
         "phase": "冰点期",
-        "trade_days": 15,
-        "pre10_1to2_rate": 0.1012987012987013,
-        "pre10_sample": "39/385",
-        "turnover_2to3_rate": 0.24242424242424243,
-        "turnover_2to3_sample": "24/99"
+        "trade_days": 14,
+        "pre10_1to2_rate": 0.09887005649717515,
+        "pre10_sample": "35/354",
+        "turnover_2to3_rate": 0.23655913978494625,
+        "turnover_2to3_sample": "22/93"
       }
     ],
     "note": "基于站内真实涨停历史归档逐日回验（不构成未来收益承诺）。"
@@ -2085,21 +2451,21 @@
       "time_window": "09:15 - 09:25",
       "node_name": "集合竞价定方向（#049 中庸选股 × #080 弱转强检验）",
       "core_task": "① 09:20 前挂单可撤，重点看 09:20 后真实封单与前排连板跌停是否减少；② 对同身位连板组执行 #049「去最高、去最低，看中间温和高开(+3%~+7%)」；③ 检验昨日烂板/狗啃板今日是否高开实现「弱转强」。",
-      "watch_targets": "多龙PK：5板同台(闽发铝业,浙文影业)；4板同台(永臻股份,鲁阳节能)；3板同台(春光科技,贝特利,新亚制程) ｜ 弱转强观察：鲁阳节能、东方海洋、龙江交通、东方创业",
+      "watch_targets": "多龙PK：今日无≥3板多龙同台组 ｜ 弱转强观察：红太阳、东方创业、上纬新材、古麒绒材",
       "red_line": "若高标批量一字跌停（核按钮未消退）或目标股大幅低开<-4%，放弃早盘接力计划。"
     },
     {
       "time_window": "09:30 - 10:00",
       "node_name": "开盘黄金半小时（#125 十点前涨停 × #033 换手晋级）",
       "core_task": "① 全天最核心的连板晋级与新题材首板集中在此时段诞生；② 观察昨日 10:00 前硬核首板与换手二板的分歧换手承接（分时均线之上缩量承接后放量拉升）。",
-      "watch_targets": "1进2锚点：万向德农、润贝航科、城市传媒、大东方 ｜ 连板锚点：闽发铝业、浙文影业、永臻股份、鲁阳节能",
+      "watch_targets": "1进2锚点：腾达科技、信通电子、安泰集团、泰尔股份 ｜ 连板锚点：闽发铝业、东方嘉盛、龙江交通、大东方",
       "red_line": "高潮次日早盘直线缩量秒板且无板块梯队配合者，谨防冲高炸板大面（#069）。"
     },
     {
       "time_window": "10:00 - 11:30",
       "node_name": "早盘分歧检验与均线支撑观察（#128 MA6/MA12 低吸）",
       "core_task": "① 10:00 后连板跟风溢价显著下降，转向观察前期人气龙头回踩 MA6 / MA12 均线时的缩量企稳信号；② 观察早盘涨停股封单是否稳定、炸板率是否飙升。",
-      "watch_targets": "MA6/MA12观察：青岛食品、光洋股份、澳洋健康、文投控股",
+      "watch_targets": "MA6/MA12观察：襄阳轴承、赛福天、多伦科技、皇台酒业",
       "red_line": "下跌通道标的严禁左侧潜伏（#025）；放量跌破 MA12 且反抽无力者剔除。"
     },
     {
@@ -2113,7 +2479,7 @@
       "time_window": "14:30 - 15:00",
       "node_name": "尾盘节点确认（#169 揉搓线 × #035 被动炸板观察）",
       "core_task": "① 14:45 后日内大盘风险基本释放，确认当日走出「长下影探底回升」构成 #169 揉搓线或 #172 突破回踩企稳的标的；② 记录尾盘因大盘跳水而被动炸板的核心人气股（#035），纳入当晚反包复盘池。",
-      "watch_targets": "揉搓线/突破回踩：苏州银行、建设银行、冰山冷热、中国广核",
+      "watch_targets": "揉搓线/突破回踩：桂林三金、顺灏股份、隆鑫通用、皇台酒业",
       "red_line": "尾盘最后10分钟无故竞价抢筹拉升但全天成交稀疏的庄股形态（#154）坚决回避。"
     }
   ],
