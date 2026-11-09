@@ -134,7 +134,7 @@
     ],
     "watch": "明日重合 ≥7 转主升判读；≤3 转轮动判读。"
   },
-  "generated_at": "2026-11-10 05:47:48 CST",
+  "generated_at": "2026-11-10 07:40:36 CST",
   "source": "eastmoney_concept_boards",
   "data_channel": "clist",
   "fallback_probe": {
