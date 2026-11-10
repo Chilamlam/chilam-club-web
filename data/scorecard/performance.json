@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-10 07:41:34",
+  "generated_at": "2026-11-10 19:32:19",
   "benchmark": "000300.SH",
   "horizons": [
     1,
@@ -14,38 +14,38 @@
       "days": 40,
       "horizons": {
         "1": {
-          "n": 2255,
+          "n": 2315,
           "status": "ok",
-          "alpha_median": -0.008358174388330086,
-          "alpha_mean": 0.0018059309268230366,
-          "alpha_p25": -0.03935893201259133,
-          "alpha_p75": 0.03632756188197411,
-          "direction_accuracy": 0.4328159645232816,
-          "win_count": 976,
+          "alpha_median": -0.006859458361041293,
+          "alpha_mean": 0.002965339922786557,
+          "alpha_p25": -0.038592294518042525,
+          "alpha_p75": 0.03841607371958333,
+          "direction_accuracy": 0.44362850971922246,
+          "win_count": 1027,
           "worst": -0.18403279758517332,
           "best": 0.23954755872663358
         },
         "5": {
-          "n": 2126,
+          "n": 2186,
           "status": "ok",
-          "alpha_median": -0.02702020967604918,
-          "alpha_mean": -0.010041760165518221,
-          "alpha_p25": -0.08537874183583846,
-          "alpha_p75": 0.03369429741098945,
-          "direction_accuracy": 0.3682972718720602,
-          "win_count": 783,
+          "alpha_median": -0.026600495968594318,
+          "alpha_mean": -0.00950981319753365,
+          "alpha_p25": -0.08436154670778634,
+          "alpha_p75": 0.03299748539160924,
+          "direction_accuracy": 0.3673376029277219,
+          "win_count": 803,
           "worst": -0.3378928695516016,
           "best": 0.9540418368110372
         },
         "10": {
-          "n": 1965,
+          "n": 2020,
           "status": "ok",
-          "alpha_median": -0.04932242183742286,
-          "alpha_mean": -0.027438983123306813,
-          "alpha_p25": -0.12347580110053924,
-          "alpha_p75": 0.031691900594223665,
-          "direction_accuracy": 0.3414758269720102,
-          "win_count": 671,
+          "alpha_median": -0.04894632451422293,
+          "alpha_mean": -0.026317541674733297,
+          "alpha_p25": -0.12245664448727461,
+          "alpha_p75": 0.03183982650571762,
+          "direction_accuracy": 0.3445544554455445,
+          "win_count": 696,
           "worst": -0.39406756349754235,
           "best": 1.1946055259094877
         }
@@ -56,23 +56,23 @@
         "buckets": [
           {
             "bucket": "1-10",
-            "n": 367,
-            "alpha_median": -0.03751888529488734
+            "n": 377,
+            "alpha_median": -0.033109809229044385
           },
           {
             "bucket": "11-30",
-            "n": 735,
+            "n": 755,
             "alpha_median": -0.028310533807170968
           },
           {
             "bucket": "31-50",
-            "n": 709,
+            "n": 729,
             "alpha_median": -0.025750278325477383
           },
           {
             "bucket": "51+",
-            "n": 315,
-            "alpha_median": -0.021635601182371844
+            "n": 325,
+            "alpha_median": -0.021751855274622756
           }
         ],
         "verdict": "排序未通过单调性检验：靠前档位并未更优。注意这里的每档样本同样存在窗口重叠与同日相关，不单调只能说明「暂未观察到区分度」，不足以断定排序无信息量"
@@ -225,74 +225,78 @@
         {
           "date": "20261030",
           "alpha_median": -0.01526798575855981
+        },
+        {
+          "date": "20261103",
+          "alpha_median": -0.024254162840127658
         }
       ],
       "beta": {
         "status": "ok",
-        "n_days": 37,
-        "beta": 1.763792160504022,
-        "r_squared": 0.5338471514142924,
-        "intercept": -0.01671201944562606,
-        "raw_alpha_median": -0.02702020967604918,
-        "adj_alpha_median": -0.016631413257116017,
-        "adj_direction_accuracy": 0.42003762935089367,
-        "adj_alpha_median_independent": -0.009208121368409185,
+        "n_days": 38,
+        "beta": 1.7231871789067177,
+        "r_squared": 0.5363914067234153,
+        "intercept": -0.01772145038657208,
+        "raw_alpha_median": -0.026600495968594318,
+        "adj_alpha_median": -0.017851702218347358,
+        "adj_direction_accuracy": 0.4149130832570906,
+        "adj_alpha_median_independent": -0.010296354622722634,
         "adj_direction_accuracy_independent": 0.375,
         "n_independent": 8
       },
       "effective_sample": {
         "status": "insufficient",
-        "raw_n": 2126,
-        "n_days": 37,
+        "raw_n": 2186,
+        "n_days": 38,
         "n_independent": 8,
         "win_independent": 2,
         "alpha_median_independent": -0.029678122726557038,
         "direction_accuracy_independent": 0.25,
         "p_value": 0.2890625,
         "significant": false,
-        "same_day_std": 0.13010091286603354,
-        "across_day_std": 0.030836710142505025,
-        "reason": "记录条数 2126 条看起来很多，但 T+5 窗口互相重叠、同日上榜标的又高度相关，折算后只有 8 个独立观测（阈值 20）。这个量级判不出策略方向，负数不等于策略失效，正数也不等于策略有效。"
+        "same_day_std": 0.12997178421113664,
+        "across_day_std": 0.030422494507250878,
+        "reason": "记录条数 2186 条看起来很多，但 T+5 窗口互相重叠、同日上榜标的又高度相关，折算后只有 8 个独立观测（阈值 20）。这个量级判不出策略方向，负数不等于策略失效，正数也不等于策略有效。"
       }
     },
     "rps": {
       "label": "RPS 强势股榜",
-      "total_picks": 5040,
-      "days": 84,
+      "total_picks": 5100,
+      "days": 85,
       "horizons": {
         "1": {
-          "n": 4970,
+          "n": 5030,
           "status": "ok",
-          "alpha_median": -0.008257411904353973,
-          "alpha_mean": -0.004606629542862116,
-          "alpha_p25": -0.044204341204027636,
-          "alpha_p75": 0.03100888125971496,
-          "direction_accuracy": 0.4388329979879276,
-          "win_count": 2181,
+          "alpha_median": -0.007629367020007827,
+          "alpha_mean": -0.004074195743702837,
+          "alpha_p25": -0.0434411342908948,
+          "alpha_p75": 0.03194083396695638,
+          "direction_accuracy": 0.4437375745526839,
+          "win_count": 2232,
           "worst": -0.21533374181180598,
           "best": 0.22292101811092313
         },
         "5": {
-          "n": 4711,
+          "n": 4771,
           "status": "ok",
-          "alpha_median": -0.036126952674675805,
-          "alpha_mean": -0.02632831943995768,
-          "alpha_p25": -0.11227912196828932,
-          "alpha_p75": 0.04603199134408137,
-          "direction_accuracy": 0.3761409467204415,
-          "win_count": 1772,
+          "alpha_median": -0.03528424576848932,
+          "alpha_mean": -0.02519230639787107,
+          "alpha_p25": -0.11093375666649602,
+          "alpha_p75": 0.047147506005157935,
+          "direction_accuracy": 0.37895619367009015,
+          "win_count": 1808,
           "worst": -0.45320618201574747,
           "best": 0.5935395998819379
         },
         "10": {
-          "n": 4412,
+          "n": 4472,
           "status": "ok",
-          "alpha_median": -0.05726785333850376,
-          "alpha_mean": -0.041520852392136626,
-          "alpha_p25": -0.16311042551821772,
-          "alpha_p75": 0.04896050683742656,
-          "direction_accuracy": 0.349728014505893,
-          "win_count": 1543,
+          "alpha_median": -0.05666345575023796,
+          "alpha_mean": -0.04061687923074483,
+          "alpha_p25": -0.16179099339308148,
+          "alpha_p75": 0.05022828273505889,
+          "direction_accuracy": 0.35174418604651164,
+          "win_count": 1573,
           "worst": -0.4910983946515227,
           "best": 1.1010547515903233
         }
@@ -303,23 +307,23 @@
         "buckets": [
           {
             "bucket": "1-10",
-            "n": 784,
-            "alpha_median": -0.04909137767303662
+            "n": 794,
+            "alpha_median": -0.04822267669889435
           },
           {
             "bucket": "11-30",
-            "n": 1566,
-            "alpha_median": -0.038987485468299166
+            "n": 1586,
+            "alpha_median": -0.03743251912070106
           },
           {
             "bucket": "31-50",
-            "n": 1572,
-            "alpha_median": -0.030594245700674594
+            "n": 1592,
+            "alpha_median": -0.030360130510145078
           },
           {
             "bucket": "51+",
-            "n": 789,
-            "alpha_median": -0.03363561082827071
+            "n": 799,
+            "alpha_median": -0.033088551889156825
           }
         ],
         "verdict": "排序未通过单调性检验：靠前档位并未更优。注意这里的每档样本同样存在窗口重叠与同日相关，不单调只能说明「暂未观察到区分度」，不足以断定排序无信息量"
@@ -640,43 +644,47 @@
         {
           "date": "20261102",
           "alpha_median": -0.01047688779534639
+        },
+        {
+          "date": "20261103",
+          "alpha_median": 0.024861955557238025
         }
       ],
       "beta": {
         "status": "ok",
-        "n_days": 79,
-        "beta": 2.954611717140699,
-        "r_squared": 0.4667844890323973,
-        "intercept": -0.019373495290098894,
-        "raw_alpha_median": -0.036126952674675805,
-        "adj_alpha_median": -0.013124472494433964,
-        "adj_direction_accuracy": 0.4491615368286988,
-        "adj_alpha_median_independent": 0.007579523131928077,
+        "n_days": 80,
+        "beta": 2.968397411076232,
+        "r_squared": 0.47279234200202985,
+        "intercept": -0.0189898554558924,
+        "raw_alpha_median": -0.03528424576848932,
+        "adj_alpha_median": -0.012858358355693558,
+        "adj_direction_accuracy": 0.4506392789771536,
+        "adj_alpha_median_independent": 0.008011087657716187,
         "adj_direction_accuracy_independent": 0.5625,
         "n_independent": 16
       },
       "effective_sample": {
         "status": "insufficient",
-        "raw_n": 4711,
-        "n_days": 79,
+        "raw_n": 4771,
+        "n_days": 80,
         "n_independent": 16,
         "win_independent": 4,
         "alpha_median_independent": -0.03772438769794573,
         "direction_accuracy_independent": 0.25,
         "p_value": 0.076812744140625,
         "significant": false,
-        "same_day_std": 0.11499028179887381,
-        "across_day_std": 0.07481310251095924,
-        "reason": "记录条数 4711 条看起来很多，但 T+5 窗口互相重叠、同日上榜标的又高度相关，折算后只有 16 个独立观测（阈值 20）。这个量级判不出策略方向，负数不等于策略失效，正数也不等于策略有效。"
+        "same_day_std": 0.11570553252601554,
+        "across_day_std": 0.07468378203793478,
+        "reason": "记录条数 4771 条看起来很多，但 T+5 窗口互相重叠、同日上榜标的又高度相关，折算后只有 16 个独立观测（阈值 20）。这个量级判不出策略方向，负数不等于策略失效，正数也不等于策略有效。"
       }
     }
   },
   "archive": {
-    "pick_rows": 9718,
-    "price_rows": 52401,
+    "pick_rows": 9838,
+    "price_rows": 53849,
     "date_from": "20260706",
-    "date_to": "20261109",
-    "trade_days": 85
+    "date_to": "20261110",
+    "trade_days": 86
   },
   "status": "complete"
 }
