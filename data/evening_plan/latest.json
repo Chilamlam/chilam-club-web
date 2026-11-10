@@ -2,8 +2,8 @@
   "status": "complete",
   "date": "20261110",
   "date_display": "2026-11-10",
-  "generated_at": "2026-11-10 19:33:17",
-  "total_candidates": 191,
+  "generated_at": "2026-11-11 03:10:18",
+  "total_candidates": 197,
   "cycle_and_laws": {
     "trade_date": "20261110",
     "weekday": "周二",
@@ -170,7 +170,7 @@
           "circ_mv_yi": 29.37,
           "seal_yi": 0.57,
           "zbc": 0,
-          "turnover_rate": null,
+          "turnover_rate": 3.45,
           "tags": [
             "#125 十点前首板",
             "早盘换手封板",
@@ -228,7 +228,7 @@
           "circ_mv_yi": 38.25,
           "seal_yi": 0.6,
           "zbc": 1,
-          "turnover_rate": 9.69,
+          "turnover_rate": 8.54,
           "tags": [
             "#125 十点前首板",
             "早盘换手封板",
@@ -301,7 +301,7 @@
           "circ_mv_yi": 51.06,
           "seal_yi": 0.27,
           "zbc": 2,
-          "turnover_rate": 9.27,
+          "turnover_rate": 8.08,
           "tags": [
             "#125 十点前首板",
             "早盘换手封板"
@@ -338,7 +338,7 @@
           "circ_mv_yi": 58.6,
           "seal_yi": 0.5,
           "zbc": 0,
-          "turnover_rate": null,
+          "turnover_rate": 2.3,
           "tags": [
             "#125 十点前首板",
             "早盘换手封板"
@@ -442,7 +442,7 @@
           "circ_mv_yi": 171.03,
           "seal_yi": 0.94,
           "zbc": 2,
-          "turnover_rate": 13.18,
+          "turnover_rate": 7.62,
           "tags": [
             "#125 十点前首板",
             "早盘换手封板"
@@ -481,7 +481,7 @@
               "circ_mv_yi": 52.19,
               "seal_yi": 0.94,
               "zbc": 0,
-              "turnover_rate": 14.94,
+              "turnover_rate": 38.9,
               "is_turnover_board": true,
               "tags": [
                 "7连板身位"
@@ -505,7 +505,7 @@
               "circ_mv_yi": 123.61,
               "seal_yi": 3.24,
               "zbc": 0,
-              "turnover_rate": null,
+              "turnover_rate": 1.37,
               "is_turnover_board": false,
               "tags": [
                 "3连板身位",
@@ -525,7 +525,7 @@
               "circ_mv_yi": 88.46,
               "seal_yi": 7.8,
               "zbc": 0,
-              "turnover_rate": 0.73,
+              "turnover_rate": 0.71,
               "is_turnover_board": false,
               "tags": [
                 "3连板身位",
@@ -545,7 +545,7 @@
               "circ_mv_yi": 60.18,
               "seal_yi": 0.14,
               "zbc": 11,
-              "turnover_rate": 8.85,
+              "turnover_rate": 32.44,
               "is_turnover_board": true,
               "tags": [
                 "3连板身位"
@@ -562,7 +562,7 @@
               "circ_mv_yi": 52.56,
               "seal_yi": 2.17,
               "zbc": 0,
-              "turnover_rate": 19.72,
+              "turnover_rate": 7.17,
               "is_turnover_board": true,
               "tags": [
                 "3连板身位"
@@ -583,7 +583,7 @@
           "circ_mv_yi": 52.19,
           "seal_yi": 0.94,
           "zbc": 0,
-          "turnover_rate": 14.94,
+          "turnover_rate": 38.9,
           "is_turnover_board": true,
           "tags": [
             "7连板身位"
@@ -600,7 +600,7 @@
           "circ_mv_yi": 123.61,
           "seal_yi": 3.24,
           "zbc": 0,
-          "turnover_rate": null,
+          "turnover_rate": 1.37,
           "is_turnover_board": false,
           "tags": [
             "3连板身位",
@@ -620,7 +620,7 @@
           "circ_mv_yi": 88.46,
           "seal_yi": 7.8,
           "zbc": 0,
-          "turnover_rate": 0.73,
+          "turnover_rate": 0.71,
           "is_turnover_board": false,
           "tags": [
             "3连板身位",
@@ -640,7 +640,7 @@
           "circ_mv_yi": 60.18,
           "seal_yi": 0.14,
           "zbc": 11,
-          "turnover_rate": 8.85,
+          "turnover_rate": 32.44,
           "is_turnover_board": true,
           "tags": [
             "3连板身位"
@@ -657,7 +657,7 @@
           "circ_mv_yi": 52.56,
           "seal_yi": 2.17,
           "zbc": 0,
-          "turnover_rate": 19.72,
+          "turnover_rate": 7.17,
           "is_turnover_board": true,
           "tags": [
             "3连板身位"
@@ -674,7 +674,7 @@
           "circ_mv_yi": 37.99,
           "seal_yi": 0.6,
           "zbc": 0,
-          "turnover_rate": null,
+          "turnover_rate": 8.49,
           "is_turnover_board": true,
           "tags": [
             "#033/#071 换手二板"
@@ -691,7 +691,7 @@
           "circ_mv_yi": 123.18,
           "seal_yi": 2.65,
           "zbc": 0,
-          "turnover_rate": 14.66,
+          "turnover_rate": 3.14,
           "is_turnover_board": true,
           "tags": [
             "#033/#071 换手二板"
@@ -708,7 +708,7 @@
           "circ_mv_yi": 63.19,
           "seal_yi": 1.26,
           "zbc": 5,
-          "turnover_rate": 14.8,
+          "turnover_rate": 24.45,
           "is_turnover_board": true,
           "tags": [
             "#033/#071 换手二板"
@@ -725,7 +725,7 @@
           "circ_mv_yi": 81.58,
           "seal_yi": 1.85,
           "zbc": 0,
-          "turnover_rate": 14.94,
+          "turnover_rate": 6.42,
           "is_turnover_board": true,
           "tags": [
             "#033/#071 换手二板"
@@ -759,7 +759,7 @@
           "circ_mv_yi": 42.06,
           "seal_yi": 0.08,
           "zbc": 9,
-          "turnover_rate": 5.26,
+          "turnover_rate": 8.33,
           "is_turnover_board": true,
           "tags": [
             "#033/#071 换手二板"
@@ -827,7 +827,7 @@
           "circ_mv_yi": 49.96,
           "seal_yi": 0.48,
           "zbc": 0,
-          "turnover_rate": null,
+          "turnover_rate": 7.88,
           "is_turnover_board": true,
           "tags": [
             "#033/#071 换手二板"
@@ -844,7 +844,7 @@
           "circ_mv_yi": 50.67,
           "seal_yi": 0.11,
           "zbc": 5,
-          "turnover_rate": null,
+          "turnover_rate": 29.17,
           "is_turnover_board": true,
           "tags": [
             "#033/#071 换手二板"
@@ -861,7 +861,7 @@
           "circ_mv_yi": 71.18,
           "seal_yi": 0.05,
           "zbc": 2,
-          "turnover_rate": 2.33,
+          "turnover_rate": 11.27,
           "is_turnover_board": true,
           "tags": [
             "#033/#071 换手二板"
@@ -878,7 +878,7 @@
           "circ_mv_yi": 11.74,
           "seal_yi": 0.11,
           "zbc": 0,
-          "turnover_rate": null,
+          "turnover_rate": 26.05,
           "is_turnover_board": true,
           "tags": [
             "#033/#071 换手二板"
@@ -912,7 +912,7 @@
           "circ_mv_yi": 40.86,
           "seal_yi": 2.37,
           "zbc": 0,
-          "turnover_rate": null,
+          "turnover_rate": 0.69,
           "is_turnover_board": false,
           "tags": [
             "#004 一字二板(防断层)"
@@ -933,7 +933,7 @@
       ],
       "methodology_note": "依据 #080 与 #118：在分歧或冰点期，盘中反复炸板（≥2次）检验抛压但尾盘仍顽强回封、尤其是所属板块内唯一涨停的「狗啃板」，代表主力承接了全部恐慌筹码，次日极易弱转强领涨。叠加 #035：近期人气股盘中触板被动炸板但收红盘者，次日若竞价不核按钮则具备反包潜质。",
       "next_day_anchor": "次日 09:25 集合竞价若出现平开或高开（未闷杀低开<-3%），属于标准「弱转强」信号；若大幅低开核按钮则直接放弃。",
-      "count": 22,
+      "count": 20,
       "items": [
         {
           "code": "601188",
@@ -946,7 +946,7 @@
           "close": 4.61,
           "circ_mv_yi": 60.18,
           "seal_yi": 0.14,
-          "turnover_rate": 8.85,
+          "turnover_rate": 32.44,
           "pattern_type": "狗啃板(板块独苗)",
           "tags": [
             "🔥 #080 正宗狗啃板(炸11次·板块独苗)"
@@ -1000,7 +1000,7 @@
           "close": 16.38,
           "circ_mv_yi": 35.15,
           "seal_yi": 0.08,
-          "turnover_rate": null,
+          "turnover_rate": 5.52,
           "pattern_type": "狗啃板(板块独苗)",
           "tags": [
             "🔥 #080 正宗狗啃板(炸3次·板块独苗)"
@@ -1036,7 +1036,7 @@
           "close": 37.62,
           "circ_mv_yi": 51.06,
           "seal_yi": 0.27,
-          "turnover_rate": 9.27,
+          "turnover_rate": 8.08,
           "pattern_type": "狗啃板(板块独苗)",
           "tags": [
             "🔥 #080 正宗狗啃板(炸2次·板块独苗)"
@@ -1074,7 +1074,7 @@
           "close": 8.16,
           "circ_mv_yi": 84.21,
           "seal_yi": 0.4,
-          "turnover_rate": 2.55,
+          "turnover_rate": 2.52,
           "pattern_type": "狗啃板(板块独苗)",
           "tags": [
             "🔥 #080 正宗狗啃板(炸2次·板块独苗)"
@@ -1092,7 +1092,7 @@
           "close": 22.21,
           "circ_mv_yi": 42.06,
           "seal_yi": 0.08,
-          "turnover_rate": 5.26,
+          "turnover_rate": 8.33,
           "pattern_type": "分歧回封烂板",
           "tags": [
             "#118 烂而不弱分歧板(炸9次回封)"
@@ -1110,7 +1110,7 @@
           "close": 10.53,
           "circ_mv_yi": 63.19,
           "seal_yi": 1.26,
-          "turnover_rate": 14.8,
+          "turnover_rate": 24.45,
           "pattern_type": "分歧回封烂板",
           "tags": [
             "#118 烂而不弱分歧板(炸5次回封)"
@@ -1128,7 +1128,7 @@
           "close": 12.21,
           "circ_mv_yi": 50.67,
           "seal_yi": 0.11,
-          "turnover_rate": null,
+          "turnover_rate": 29.17,
           "pattern_type": "分歧回封烂板",
           "tags": [
             "#118 烂而不弱分歧板(炸5次回封)"
@@ -1146,7 +1146,7 @@
           "close": 60.9,
           "circ_mv_yi": 71.18,
           "seal_yi": 0.05,
-          "turnover_rate": 2.33,
+          "turnover_rate": 11.27,
           "pattern_type": "分歧回封烂板",
           "tags": [
             "#118 烂而不弱分歧板(炸2次回封)"
@@ -1202,7 +1202,7 @@
           "close": 20.86,
           "circ_mv_yi": 147.72,
           "seal_yi": 0.1,
-          "turnover_rate": null,
+          "turnover_rate": 9.37,
           "pattern_type": "分歧回封烂板",
           "tags": [
             "#118 烂而不弱分歧板(炸5次回封)"
@@ -1220,7 +1220,7 @@
           "close": 21.89,
           "circ_mv_yi": 31.11,
           "seal_yi": 0.2,
-          "turnover_rate": null,
+          "turnover_rate": 29.58,
           "pattern_type": "分歧回封烂板",
           "tags": [
             "#118 烂而不弱分歧板(炸4次回封)"
@@ -1292,7 +1292,7 @@
           "close": 57.3,
           "circ_mv_yi": 171.03,
           "seal_yi": 0.94,
-          "turnover_rate": 13.18,
+          "turnover_rate": 7.62,
           "pattern_type": "分歧回封烂板",
           "tags": [
             "#118 烂而不弱分歧板(炸2次回封)"
@@ -1757,7 +1757,7 @@
       ],
       "methodology_note": "依据 #169：前日长上影试盘测试抛压、今日长下影探底洗盘拉起的「揉搓线」组合，是主力洗盘结束的经典右侧信号。依据 #139/#172：创阶段新高或进入高 RPS 池的强势股，首次缩量回踩 MA6/MA12 企稳，盈亏比显著优于突破当日追高。",
       "next_day_anchor": "揉搓线标的次日重点看能否放量站稳前日上影线半分位；突破回踩标的看 MA6/MA12 缩量止跌转阳。",
-      "count": 44,
+      "count": 45,
       "items": [
         {
           "code": "002058",
@@ -1851,25 +1851,6 @@
           "tags": [
             "#172 突破回踩MA6(+0.1%)",
             "RPS50=91.65"
-          ],
-          "risks": []
-        },
-        {
-          "code": "600419",
-          "name": "天润乳业",
-          "industry": "乳制品",
-          "pattern": "#172 突破回踩（🔥 创半年(120日)新高）",
-          "close": 33.26,
-          "pct_chg": -1.89,
-          "ma6": 33.32,
-          "ma12": 33.32,
-          "dist_ma6_pct": -0.2,
-          "dist_ma12_pct": -0.2,
-          "circ_mv_yi": 31.08,
-          "turnover_rate": 2.78,
-          "tags": [
-            "#172 突破回踩MA6(-0.2%)",
-            "🔥 创半年(120日)新高"
           ],
           "risks": []
         },
@@ -2083,6 +2064,25 @@
           "risks": []
         },
         {
+          "code": "301487",
+          "name": "盟固利",
+          "industry": "化工原料",
+          "pattern": "#172 突破回踩（⚡ 创60日新高）",
+          "close": 20.88,
+          "pct_chg": 2.21,
+          "ma6": 20.67,
+          "ma12": 19.87,
+          "dist_ma6_pct": 1.0,
+          "dist_ma12_pct": 5.09,
+          "circ_mv_yi": 95.83,
+          "turnover_rate": 7.03,
+          "tags": [
+            "#172 突破回踩MA6(+1.0%)",
+            "⚡ 创60日新高"
+          ],
+          "risks": []
+        },
+        {
           "code": "601107",
           "name": "四川成渝",
           "industry": "路桥",
@@ -2151,8 +2151,8 @@
       ],
       "methodology_note": "依据 #077 与 #103：当某个行业内多只机构趋势大票持续创阶段新高或霸榜高 RPS（机构负责打造板块容量与持续性），板块内新启动的小市值、低股价首板往往成为游资进攻的连板补涨先锋。",
       "next_day_anchor": "次日观察同板块趋势大票是否维持红盘强势（板块不倒），若板块延续强势则前排小市值首板具备高1进2晋级潜质。",
-      "count": 61,
-      "strong_sector_count": 41,
+      "count": 68,
+      "strong_sector_count": 53,
       "items": [
         {
           "code": "603037",
@@ -2163,11 +2163,11 @@
           "circ_mv_yi": 38.25,
           "seal_yi": 0.6,
           "zbc": 1,
-          "turnover_rate": 9.69,
-          "trend_anchor_count": 13,
-          "trend_anchors": "德尔股份(创一年(250日)新高)、光洋股份(创一年(250日)新高)、日盈电子(创60日新高)",
+          "turnover_rate": 8.54,
+          "trend_anchor_count": 16,
+          "trend_anchors": "兆丰股份(创60日新高)、金杯汽车(创60日新高)、凯众股份(创60日新高)",
           "tags": [
-            "#103 强趋势行业(13只趋势锚)",
+            "#103 强趋势行业(16只趋势锚)",
             "#125 10点前首板",
             "#030 小市值弹性"
           ],
@@ -2183,10 +2183,10 @@
           "seal_yi": 0.38,
           "zbc": 0,
           "turnover_rate": null,
-          "trend_anchor_count": 13,
-          "trend_anchors": "德尔股份(创一年(250日)新高)、光洋股份(创一年(250日)新高)、日盈电子(创60日新高)",
+          "trend_anchor_count": 16,
+          "trend_anchors": "兆丰股份(创60日新高)、金杯汽车(创60日新高)、凯众股份(创60日新高)",
           "tags": [
-            "#103 强趋势行业(13只趋势锚)",
+            "#103 强趋势行业(16只趋势锚)",
             "#125 10点前首板"
           ],
           "risks": []
@@ -2201,11 +2201,163 @@
           "seal_yi": 1.85,
           "zbc": 0,
           "turnover_rate": 15.35,
-          "trend_anchor_count": 13,
-          "trend_anchors": "德尔股份(创一年(250日)新高)、光洋股份(创一年(250日)新高)、日盈电子(创60日新高)",
+          "trend_anchor_count": 16,
+          "trend_anchors": "兆丰股份(创60日新高)、金杯汽车(创60日新高)、凯众股份(创60日新高)",
           "tags": [
-            "#103 强趋势行业(13只趋势锚)",
+            "#103 强趋势行业(16只趋势锚)",
             "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002905",
+          "name": "金逸影视",
+          "industry": "影视音像",
+          "first_time": "09:44:45",
+          "close": 9.34,
+          "circ_mv_yi": 32.64,
+          "seal_yi": 0.25,
+          "zbc": 1,
+          "turnover_rate": null,
+          "trend_anchor_count": 14,
+          "trend_anchors": "华智数媒(创一年(250日)新高)、华策影视(创一年(250日)新高)、百纳千成(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(14只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002343",
+          "name": "慈文传媒",
+          "industry": "影视音像",
+          "first_time": "09:38:27",
+          "close": 9.33,
+          "circ_mv_yi": 44.19,
+          "seal_yi": 1.22,
+          "zbc": 0,
+          "turnover_rate": 21.93,
+          "trend_anchor_count": 14,
+          "trend_anchors": "华智数媒(创一年(250日)新高)、华策影视(创一年(250日)新高)、百纳千成(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(14只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603666",
+          "name": "亿嘉和",
+          "industry": "专用机械",
+          "first_time": "09:31:32",
+          "close": 28.51,
+          "circ_mv_yi": 58.6,
+          "seal_yi": 0.5,
+          "zbc": 0,
+          "turnover_rate": 2.3,
+          "trend_anchor_count": 9,
+          "trend_anchors": "亿嘉和(创60日新高)、永创智能(创60日新高)、航天晨光(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(9只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "002425",
+          "name": "凯撒文化",
+          "industry": "互联网",
+          "first_time": "09:34:09",
+          "close": 3.48,
+          "circ_mv_yi": 32.02,
+          "seal_yi": 0.45,
+          "zbc": 1,
+          "turnover_rate": null,
+          "trend_anchor_count": 7,
+          "trend_anchors": "大晟文化(创一年(250日)新高)、天地在线(创60日新高)、掌阅科技(创半年(120日)新高)",
+          "tags": [
+            "#103 强趋势行业(7只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": [
+            "ℹ️ 历史 3 次首板均未连板（#032 股性基因）"
+          ]
+        },
+        {
+          "code": "600261",
+          "name": "阳光照明",
+          "industry": "家用电器",
+          "first_time": "09:30:16",
+          "close": 5.85,
+          "circ_mv_yi": 78.1,
+          "seal_yi": 2.25,
+          "zbc": 0,
+          "turnover_rate": 7.89,
+          "trend_anchor_count": 7,
+          "trend_anchors": "日出东方(创半年(120日)新高)、比依股份(创60日新高)、创维数字(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(7只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "603533",
+          "name": "掌阅科技",
+          "industry": "互联网",
+          "first_time": "09:36:05",
+          "close": 32.8,
+          "circ_mv_yi": 143.96,
+          "seal_yi": 1.49,
+          "zbc": 1,
+          "turnover_rate": 14.51,
+          "trend_anchor_count": 7,
+          "trend_anchors": "大晟文化(创一年(250日)新高)、天地在线(创60日新高)、掌阅科技(创半年(120日)新高)",
+          "tags": [
+            "#103 强趋势行业(7只趋势锚)",
+            "#125 10点前首板"
+          ],
+          "risks": []
+        },
+        {
+          "code": "301255",
+          "name": "通力科技",
+          "industry": "机械基件",
+          "first_time": "09:32:51",
+          "close": 21.97,
+          "circ_mv_yi": 29.37,
+          "seal_yi": 0.57,
+          "zbc": 0,
+          "turnover_rate": 3.45,
+          "trend_anchor_count": 6,
+          "trend_anchors": "通力科技(创60日新高)、瑞凌股份(创一年(250日)新高)、腾达科技(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(6只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
+          ],
+          "risks": []
+        },
+        {
+          "code": "605398",
+          "name": "新炬网络",
+          "industry": "软件服务",
+          "first_time": "09:30:37",
+          "close": 25.75,
+          "circ_mv_yi": 41.9,
+          "seal_yi": 0.38,
+          "zbc": 1,
+          "turnover_rate": null,
+          "trend_anchor_count": 5,
+          "trend_anchors": "丝路视觉(创60日新高)、龙软科技(创一年(250日)新高)、索辰科技(创60日新高)",
+          "tags": [
+            "#103 强趋势行业(5只趋势锚)",
+            "#125 10点前首板",
+            "#030 小市值弹性"
           ],
           "risks": []
         },
@@ -2231,111 +2383,17 @@
           ]
         },
         {
-          "code": "002905",
-          "name": "金逸影视",
-          "industry": "影视音像",
-          "first_time": "09:44:45",
-          "close": 9.34,
-          "circ_mv_yi": 32.64,
-          "seal_yi": 0.25,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 4,
-          "trend_anchors": "文投控股(创半年(120日)新高)、上海电影(创一年(250日)新高)、幸福蓝海(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002343",
-          "name": "慈文传媒",
-          "industry": "影视音像",
-          "first_time": "09:38:27",
-          "close": 9.33,
-          "circ_mv_yi": 44.19,
-          "seal_yi": 1.22,
-          "zbc": 0,
-          "turnover_rate": 21.93,
-          "trend_anchor_count": 4,
-          "trend_anchors": "文投控股(创半年(120日)新高)、上海电影(创一年(250日)新高)、幸福蓝海(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "603533",
-          "name": "掌阅科技",
-          "industry": "数字媒体",
-          "first_time": "09:36:05",
-          "close": 32.8,
-          "circ_mv_yi": 143.96,
-          "seal_yi": 1.49,
-          "zbc": 1,
-          "turnover_rate": 14.51,
-          "trend_anchor_count": 4,
-          "trend_anchors": "芒果超媒(RPS100)、凡拓数创(RPS100)、风语筑(RPS98)",
-          "tags": [
-            "#103 强趋势行业(4只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "301255",
-          "name": "通力科技",
-          "industry": "机械基件",
-          "first_time": "09:32:51",
-          "close": 21.97,
-          "circ_mv_yi": 29.37,
-          "seal_yi": 0.57,
-          "zbc": 0,
-          "turnover_rate": null,
+          "code": "605488",
+          "name": "福莱新材",
+          "industry": "塑料",
+          "first_time": "09:32:32",
+          "close": 57.3,
+          "circ_mv_yi": 171.03,
+          "seal_yi": 0.94,
+          "zbc": 2,
+          "turnover_rate": 7.62,
           "trend_anchor_count": 3,
-          "trend_anchors": "力星股份(创60日新高)、冰山冷热(创一年(250日)新高)、宁波东力(创一年(250日)新高)",
-          "tags": [
-            "#103 强趋势行业(3只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "603666",
-          "name": "亿嘉和",
-          "industry": "专用机械",
-          "first_time": "09:31:32",
-          "close": 28.51,
-          "circ_mv_yi": 58.6,
-          "seal_yi": 0.5,
-          "zbc": 0,
-          "turnover_rate": null,
-          "trend_anchor_count": 3,
-          "trend_anchors": "雪人集团(创60日新高)、永创智能(创60日新高)、大丰实业(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(3只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "600261",
-          "name": "阳光照明",
-          "industry": "家用电器",
-          "first_time": "09:30:16",
-          "close": 5.85,
-          "circ_mv_yi": 78.1,
-          "seal_yi": 2.25,
-          "zbc": 0,
-          "turnover_rate": 7.89,
-          "trend_anchor_count": 3,
-          "trend_anchors": "日出东方(创半年(120日)新高)、九阳股份(创一年(250日)新高)、极米科技(创半年(120日)新高)",
+          "trend_anchors": "福莱新材(创一年(250日)新高)、鹿山新材(创半年(120日)新高)、肯特股份(RPS92)",
           "tags": [
             "#103 强趋势行业(3只趋势锚)",
             "#125 10点前首板"
@@ -2364,7 +2422,7 @@
         {
           "code": "002535",
           "name": "林州重机",
-          "industry": "专用设备",
+          "industry": "工程机械",
           "first_time": "09:53:48",
           "close": 2.82,
           "circ_mv_yi": 21.05,
@@ -2372,7 +2430,7 @@
           "zbc": 0,
           "turnover_rate": null,
           "trend_anchor_count": 2,
-          "trend_anchors": "慈星股份(RPS96)、华依科技(RPS99)",
+          "trend_anchors": "天奇股份(创60日新高)、中力股份(创60日新高)",
           "tags": [
             "#103 强趋势行业(2只趋势锚)",
             "#125 10点前首板",
@@ -2400,25 +2458,6 @@
           "risks": []
         },
         {
-          "code": "605398",
-          "name": "新炬网络",
-          "industry": "IT服务Ⅱ",
-          "first_time": "09:30:37",
-          "close": 25.75,
-          "circ_mv_yi": 41.9,
-          "seal_yi": 0.38,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 2,
-          "trend_anchors": "华是科技(RPS100)、博汇科技(RPS100)",
-          "tags": [
-            "#103 强趋势行业(2只趋势锚)",
-            "#125 10点前首板",
-            "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
           "code": "603955",
           "name": "大千生态",
           "industry": "建筑工程",
@@ -2427,9 +2466,9 @@
           "circ_mv_yi": 51.06,
           "seal_yi": 0.27,
           "zbc": 2,
-          "turnover_rate": 9.27,
+          "turnover_rate": 8.08,
           "trend_anchor_count": 2,
-          "trend_anchors": "龙建股份(创60日新高)、大千生态(创半年(120日)新高)",
+          "trend_anchors": "大千生态(创一年(250日)新高)、龙建股份(创60日新高)",
           "tags": [
             "#103 强趋势行业(2只趋势锚)",
             "#125 10点前首板",
@@ -2469,25 +2508,7 @@
           "zbc": 0,
           "turnover_rate": null,
           "trend_anchor_count": 2,
-          "trend_anchors": "龙建股份(创60日新高)、大千生态(创半年(120日)新高)",
-          "tags": [
-            "#103 强趋势行业(2只趋势锚)",
-            "#125 10点前首板"
-          ],
-          "risks": []
-        },
-        {
-          "code": "605488",
-          "name": "福莱新材",
-          "industry": "塑料",
-          "first_time": "09:32:32",
-          "close": 57.3,
-          "circ_mv_yi": 171.03,
-          "seal_yi": 0.94,
-          "zbc": 2,
-          "turnover_rate": 13.18,
-          "trend_anchor_count": 2,
-          "trend_anchors": "福莱新材(创一年(250日)新高)、肯特股份(RPS92)",
+          "trend_anchors": "大千生态(创一年(250日)新高)、龙建股份(创60日新高)",
           "tags": [
             "#103 强趋势行业(2只趋势锚)",
             "#125 10点前首板"
@@ -2504,30 +2525,12 @@
           "seal_yi": 0.64,
           "zbc": 0,
           "turnover_rate": null,
-          "trend_anchor_count": 13,
-          "trend_anchors": "德尔股份(创一年(250日)新高)、光洋股份(创一年(250日)新高)、日盈电子(创60日新高)",
+          "trend_anchor_count": 16,
+          "trend_anchors": "兆丰股份(创60日新高)、金杯汽车(创60日新高)、凯众股份(创60日新高)",
           "tags": [
-            "#103 强趋势行业(13只趋势锚)",
+            "#103 强趋势行业(16只趋势锚)",
             "日内首板补涨",
             "#030 小市值弹性"
-          ],
-          "risks": []
-        },
-        {
-          "code": "002664",
-          "name": "信质集团",
-          "industry": "汽车配件",
-          "first_time": "14:08:18",
-          "close": 15.2,
-          "circ_mv_yi": 61.25,
-          "seal_yi": 0.14,
-          "zbc": 1,
-          "turnover_rate": null,
-          "trend_anchor_count": 13,
-          "trend_anchors": "德尔股份(创一年(250日)新高)、光洋股份(创一年(250日)新高)、日盈电子(创60日新高)",
-          "tags": [
-            "#103 强趋势行业(13只趋势锚)",
-            "日内首板补涨"
           ],
           "risks": []
         }

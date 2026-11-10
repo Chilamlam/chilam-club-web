@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-10 19:07:11",
+  "date": "2026-11-11 02:48:01",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -200,7 +200,7 @@
       "change": 5.35,
       "vol_yi": 0.57,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 5.55
+      "premium_rate": 1.02
     },
     {
       "code": "159855.SZ",
@@ -209,7 +209,7 @@
       "change": 4.21,
       "vol_yi": 1.02,
       "tag": "📈 强势",
-      "premium_rate": 4.3
+      "premium_rate": 0.38
     },
     {
       "code": "158031.SZ",
@@ -218,7 +218,7 @@
       "change": 4.2,
       "vol_yi": 0.14,
       "tag": "📈 强势",
-      "premium_rate": 4.23
+      "premium_rate": 0.84
     },
     {
       "code": "516620.SH",
@@ -227,7 +227,7 @@
       "change": 4.0,
       "vol_yi": 3.09,
       "tag": "📈 强势",
-      "premium_rate": 4.3
+      "premium_rate": 0.31
     },
     {
       "code": "159388.SZ",
@@ -236,7 +236,7 @@
       "change": 3.91,
       "vol_yi": 1.19,
       "tag": "📈 强势",
-      "premium_rate": 3.96
+      "premium_rate": 0.58
     },
     {
       "code": "159632.SZ",
@@ -245,7 +245,7 @@
       "change": 3.87,
       "vol_yi": 3.11,
       "tag": "📈 强势",
-      "premium_rate": 17.88
+      "premium_rate": 13.99
     },
     {
       "code": "159659.SZ",
@@ -254,7 +254,7 @@
       "change": 3.81,
       "vol_yi": 2.15,
       "tag": "📈 强势",
-      "premium_rate": 20.07
+      "premium_rate": 16.11
     },
     {
       "code": "513110.SH",
@@ -263,7 +263,7 @@
       "change": 3.72,
       "vol_yi": 2.61,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 17.09
+      "premium_rate": 13.24
     },
     {
       "code": "159513.SZ",
@@ -272,7 +272,7 @@
       "change": 3.71,
       "vol_yi": 2.99,
       "tag": "📈 强势",
-      "premium_rate": 17.08
+      "premium_rate": 13.21
     },
     {
       "code": "159941.SZ",
@@ -281,7 +281,7 @@
       "change": 3.69,
       "vol_yi": 12.4,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 20.75
+      "premium_rate": 16.75
     },
     {
       "code": "159246.SZ",
@@ -290,7 +290,7 @@
       "change": 3.66,
       "vol_yi": 0.79,
       "tag": "📈 强势",
-      "premium_rate": 3.56
+      "premium_rate": 0.18
     },
     {
       "code": "513390.SH",
@@ -299,7 +299,7 @@
       "change": 3.61,
       "vol_yi": 1.93,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 18.88
+      "premium_rate": 14.96
     },
     {
       "code": "513870.SH",
@@ -308,16 +308,7 @@
       "change": 3.58,
       "vol_yi": 1.1,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 19.5
-    },
-    {
-      "code": "588850.SH",
-      "name": "科创机械ETF嘉实",
-      "price": 1.434,
-      "change": 3.54,
-      "vol_yi": 0.36,
-      "tag": "📈 强势",
-      "premium_rate": 3.42
+      "premium_rate": 15.55
     },
     {
       "code": "159696.SZ",
@@ -326,7 +317,16 @@
       "change": 3.54,
       "vol_yi": 0.75,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 21.86
+      "premium_rate": 17.82
+    },
+    {
+      "code": "588850.SH",
+      "name": "科创机械ETF嘉实",
+      "price": 1.434,
+      "change": 3.54,
+      "vol_yi": 0.36,
+      "tag": "📈 强势",
+      "premium_rate": 0.17
     },
     {
       "code": "513300.SH",
@@ -335,7 +335,7 @@
       "change": 3.53,
       "vol_yi": 3.36,
       "tag": "📈 强势",
-      "premium_rate": 19.19
+      "premium_rate": 15.21
     },
     {
       "code": "159660.SZ",
@@ -344,7 +344,7 @@
       "change": 3.49,
       "vol_yi": 1.44,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 18.87
+      "premium_rate": 14.93
     },
     {
       "code": "159509.SZ",
@@ -353,7 +353,7 @@
       "change": 3.47,
       "vol_yi": 9.72,
       "tag": "🌍 跨境(注意溢价风险)",
-      "premium_rate": 43.57
+      "premium_rate": 39.04
     },
     {
       "code": "159381.SZ",
@@ -362,7 +362,7 @@
       "change": 3.38,
       "vol_yi": 1.8,
       "tag": "📈 强势",
-      "premium_rate": 3.47
+      "premium_rate": 0.11
     },
     {
       "code": "159363.SZ",
@@ -371,7 +371,7 @@
       "change": 3.33,
       "vol_yi": 7.77,
       "tag": "📈 强势",
-      "premium_rate": 3.36
+      "premium_rate": 0.01
     }
   ],
   "ai_analysis": ""
