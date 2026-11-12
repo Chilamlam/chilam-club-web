@@ -62,7 +62,7 @@
       "pct_5d": 1.7,
       "pct_10d": 9.24,
       "pct_20d": -6.63,
-      "pct_60d": 17.58,
+      "pct_60d": null,
       "streak": 3
     },
     {
@@ -72,7 +72,7 @@
       "pct_chg": -1.21,
       "pct_5d": -0.32,
       "pct_10d": 9.15,
-      "pct_20d": 4.4,
+      "pct_20d": 4.39,
       "pct_60d": -12.42,
       "streak": 1
     },
@@ -124,8 +124,8 @@
   "overlap_count": 7,
   "overlap_denominator": 10,
   "top_median_pct": 9.2,
-  "universe_median_pct": 2.76,
-  "universe_count": 495,
+  "universe_median_pct": 2.77,
+  "universe_count": 480,
   "verdict": {
     "label": "主线主升",
     "reasons": [
@@ -134,9 +134,10 @@
     ],
     "watch": "明日重合仍 ≥7 则维持主升判读；若掉到 ≤3 则转向轮动判读。"
   },
-  "generated_at": "2026-11-12 19:12:26 CST",
+  "generated_at": "2026-11-13 03:11:13 CST",
   "source": "eastmoney_concept_boards",
-  "data_channel": "clist",
+  "data_channel": "tushare_dc",
+  "channel_note": "东财 clist 本次取数失败或残缺（行数不足），改用 Tushare dc_index/dc_daily 重建——那是同一份东财概念板块数据",
   "fallback_probe": {
     "ok": true,
     "checked_date": "2026-11-12",
