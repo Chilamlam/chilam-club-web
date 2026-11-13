@@ -20,6 +20,7 @@ from page_evening_plan import render_evening_plan_page
 from ui_compat import image_stretch, html_embed
 import data_freshness as freshness
 import auth
+from page_news import render_news_page
 
 # ================= 1. 基础配置 (必须放在最前面) =================
 st.set_page_config(
@@ -741,7 +742,8 @@ def main():
             "📚 投资作业本",
             "📏 黄金分割预测",
             "📈 命运K线 (人生运势)",
-            "📖 使用说明文档"
+            "📖 使用说明文档",
+            "📰 资讯雷达"
         ]
         page = st.radio("导航菜单", menu_items, index=0)
         st.markdown("---")
@@ -817,6 +819,8 @@ def main():
         html_embed('<iframe src="https://metaphysics.chilam.club" width="100%" height="860" frameborder="0" style="border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.06);"></iframe>', height=880)
     elif page == "📖 使用说明文档":
         render_manual_page()
+    elif page == "📰 资讯雷达":
+        render_news_page()
 
 if __name__ == "__main__":
     main()

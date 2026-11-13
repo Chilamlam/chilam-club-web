@@ -241,8 +241,8 @@ def _test_app_config_render():
         ck(any("Chilam.Club" in str(t.value) for t in at.sidebar.title),
            "元断言：前台侧边栏确实渲染（排除空跑）")
         nav = at.sidebar.radio[0] if at.sidebar.radio else None
-        ck(nav is not None and len(nav.options) == 17,
-           "元断言：导航仍为 17 项（改动没误伤其他入口）")
+        ck(nav is not None and len(nav.options) == 18,
+           "元断言：原有 17 项导航加资讯雷达")
 
 
 # ==================== 3. 后台真渲染 ====================
