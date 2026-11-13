@@ -6,6 +6,7 @@ import json
 import base64
 import hmac
 import hashlib
+import math
 import secrets as _pysecrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
@@ -105,12 +106,13 @@ def _b64url_decode(s: str) -> bytes:
 def create_jwt_token(user_id: int, email: str, is_admin: bool = False) -> str:
     """创建 HS256 JWT Token (stdlib 实现，零第三方库依赖)"""
     header = {"alg": "HS256", "typ": "JWT"}
+    now = datetime.now(timezone.utc)
     payload = {
         "user_id": user_id,
         "email": email,
         "is_admin": is_admin,
-        "exp": int((datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS)).timestamp()),
-        "iat": int(datetime.utcnow().timestamp())
+        "exp": int((now + timedelta(hours=JWT_EXPIRATION_HOURS)).timestamp()),
+        "iat": int(now.timestamp())
     }
     
     h_bytes = _b64url_encode(json.dumps(header).encode('utf-8'))
@@ -129,19 +131,28 @@ def decode_jwt_token(token: str) -> Optional[Dict[str, Any]]:
     if len(parts) != 3:
         return None
     h_b64, p_b64, s_b64 = parts
-    msg = f"{h_b64}.{p_b64}"
-    expected_sig = hmac.new(JWT_SECRET.encode('utf-8'), msg.encode('utf-8'), hashlib.sha256).digest()
-    actual_sig = _b64url_decode(s_b64)
-    
-    if not hmac.compare_digest(expected_sig, actual_sig):
-        return None
-        
     try:
+        msg = f"{h_b64}.{p_b64}"
+        expected_sig = hmac.new(
+            JWT_SECRET.encode('utf-8'), msg.encode('utf-8'), hashlib.sha256
+        ).digest()
+        actual_sig = _b64url_decode(s_b64)
+        if not hmac.compare_digest(expected_sig, actual_sig):
+            return None
+
+        header = json.loads(_b64url_decode(h_b64).decode('utf-8'))
+        if not isinstance(header, dict) or header.get("alg") != "HS256":
+            return None
         payload = json.loads(_b64url_decode(p_b64).decode('utf-8'))
-        if "exp" in payload and datetime.utcnow().timestamp() > payload["exp"]:
+        if not isinstance(payload, dict):
+            return None
+        expires = payload.get("exp")
+        if (isinstance(expires, bool) or not isinstance(expires, (int, float))
+                or not math.isfinite(expires)
+                or datetime.now(timezone.utc).timestamp() >= expires):
             return None
         return payload
-    except Exception:
+    except (ValueError, TypeError, UnicodeDecodeError, json.JSONDecodeError):
         return None
 
 

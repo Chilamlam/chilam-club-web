@@ -184,8 +184,8 @@ def main() -> int:
         backups[rel] = raw
         with open(os.path.join(TMP, rel.replace("/", "__")), "wb") as f:
             f.write(raw)
-        print(f"   备份 {rel}  sha256={sha_bytes(raw)[:12]}"
-              f"{'  (CRLF)' if b'\\r\\n' in raw else ''}")
+        newline_hint = "  (CRLF)" if b'\r\n' in raw else ""
+        print(f"   备份 {rel}  sha256={sha_bytes(raw)[:12]}{newline_hint}")
     print()
 
     caught = escaped = ineffective = 0

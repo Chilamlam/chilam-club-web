@@ -58,6 +58,12 @@ def _supabase_request(method: str, endpoint: str, params: dict = None, json_data
     管理员照着去执行迁移脚本，脚本幂等地成功，问题一点没变。
     """
     base_url, api_key = _get_config()
+    parsed_url = urllib.parse.urlsplit(base_url)
+    if (parsed_url.scheme not in ("http", "https")
+            or not parsed_url.netloc or not api_key):
+        err = {"status": 0, "code": "configuration_error",
+               "message": "Supabase URL 或 API key 未配置或无效", "detail": ""}
+        return (None, err) if return_error else None
     query_str = ""
     if params:
         query_str = "?" + "&".join([f"{k}={urllib.parse.quote(str(v))}" for k, v in params.items()])

@@ -170,7 +170,8 @@ def test_read_budget():
         calls.append(timeout)
         raise OSError("simulated network down")
 
-    with patched(_u, "urlopen", fake_urlopen):
+    with patched(_u, "urlopen", fake_urlopen), patched(
+            database, "_get_config", lambda: ("https://example.invalid", "test-key")):
         vals, err = database.get_site_settings(["shop_entry_enabled"])
     ck(len(calls) == 1, "站点设置读失败只尝试 1 次（不按默认 3 次重试）", f"实际 {len(calls)} 次")
     ck(calls and calls[0] == database.SITE_SETTINGS_TIMEOUT,
@@ -188,19 +189,34 @@ def render_app(timeout=300):
     return at
 
 
+def _shop_buttons(at):
+    return [button for button in at.get("link_button")
+            if "metaphysics.chilam.club" not in str(getattr(button, "url", ""))]
+
+
 def test_app_render():
+    with patched(ss, "read_shop_entry", lambda: cfg(enabled=True)):
+        at = render_app()
+        ck(not at.exception and not _shop_buttons(at),
+           "暂停店铺时，即使数据库开启也不展示入口")
+    with patched(ss, "SHOP_ENTRY_PAUSED", False):
+        _test_app_config_render()
+    ss.clear_shop_entry_cache()
+
+
+def _test_app_config_render():
     # 关闭（当前线上状态）
     with patched(ss, "read_shop_entry", lambda: cfg(enabled=False)):
         at = render_app()
         ck(not at.exception, "前台（关闭）：渲染无异常", str(at.exception)[:200])
-        ck(len(at.get("link_button")) == 0, "前台（关闭）：没有店铺按钮",
+        ck(len(_shop_buttons(at)) == 0, "前台（关闭）：没有店铺按钮",
            f"剩 {len(at.get('link_button'))} 个")
 
     # 打开 —— 反向用例。没有这一条，「关闭」那条把整段代码删掉也能绿。
     with patched(ss, "read_shop_entry",
                  lambda: cfg(enabled=True, label="🛒 测试小店", url="https://t.example.com")):
         at = render_app()
-        lbs = at.get("link_button")
+        lbs = _shop_buttons(at)
         ck(len(lbs) == 1, "前台（打开）：按钮出现（证明隐藏是配置所致，不是代码被删）",
            f"实际 {len(lbs)} 个")
         if len(lbs) == 1:
@@ -217,7 +233,7 @@ def test_app_render():
         with patched(ss, "read_shop_entry", lambda _c=c: _c):
             at = render_app()
             ck(not at.exception, f"前台（{desc}）：渲染不崩", str(at.exception)[:160])
-            ck(len(at.get("link_button")) == 0, f"前台（{desc}）：不显示店铺按钮")
+            ck(len(_shop_buttons(at)) == 0, f"前台（{desc}）：不显示店铺按钮")
 
     # 元断言：确认 app.py 真的渲染了（否则「没有按钮」是空洞通过）
     with patched(ss, "read_shop_entry", lambda: cfg(enabled=False)):
@@ -225,8 +241,8 @@ def test_app_render():
         ck(any("Chilam.Club" in str(t.value) for t in at.sidebar.title),
            "元断言：前台侧边栏确实渲染（排除空跑）")
         nav = at.sidebar.radio[0] if at.sidebar.radio else None
-        ck(nav is not None and len(nav.options) == 15,
-           "元断言：导航仍为 15 项（改动没误伤其他入口）")
+        ck(nav is not None and len(nav.options) == 17,
+           "元断言：导航仍为 17 项（改动没误伤其他入口）")
 
 
 # ==================== 3. 后台真渲染 ====================
@@ -249,6 +265,7 @@ def _admin_patches(shop_cfg):
         (database, "get_pending_password_reset_requests", lambda: []),
         # 不 patch 这个，tab_reset 里的 st.stop() 会中断整页，tab_site 根本渲染不到
         (database, "check_password_reset_tables", lambda: True),
+        (database, "check_payments_table", lambda: True),
         (ss, "read_shop_entry", lambda: shop_cfg),
     ]
 

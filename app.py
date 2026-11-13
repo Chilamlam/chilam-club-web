@@ -50,47 +50,38 @@ def inject_ga_safe():
     # 走 ui_compat.html_embed 统一降级（同 image_stretch 的处理思路）
     html_embed(ga_code, width=10, height=10)
 
-def inject_ga():
-    GA_ID = "G-1HFTXNLL20"
-    try:
-        import streamlit
-        index_path = os.path.join(os.path.dirname(streamlit.__file__), "static", "index.html")
-        with open(index_path, "r", encoding="utf-8") as f:
-            html = f.read()
-        if GA_ID not in html:
-            ga_script = f"""
-            <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
-            <script>
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){{dataLayer.push(arguments);}}
-              gtag('js', new Date());
-              gtag('config', '{GA_ID}');
-            </script>
-            </head>
-            """
-            new_html = html.replace("</head>", ga_script)
-            with open(index_path, "w", encoding="utf-8") as f:
-                f.write(new_html)
-    except Exception as e:
-        pass
-
 inject_ga_safe()
-inject_ga()
 
 # ================= 2. 核心辅助函数 =================
 
 @st.cache_data(ttl=600)
 def load_data(path):
-    if not os.path.exists(path): return None
-    try: return pd.read_csv(path)
-    except: return None
+    """Read a repository data file once per cache window.
+
+    Streamlit runs the app from different working directories locally and in
+    hosted deployments. Resolving paths from this module keeps all callers
+    consistent and avoids a second uncached read of the same CSV.
+    """
+    full_path = path if os.path.isabs(path) else os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), path
+    )
+    if not os.path.exists(full_path):
+        return None
+    try:
+        return pd.read_csv(full_path)
+    except (OSError, ValueError, pd.errors.ParserError):
+        return None
 
 @st.cache_data(ttl=600)
 def load_json(path):
-    if not os.path.exists(path): return None
+    full_path = path if os.path.isabs(path) else os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), path
+    )
+    if not os.path.exists(full_path): return None
     try:
-        with open(path, 'r', encoding='utf-8') as f: return json.load(f)
-    except: return None
+        with open(full_path, 'r', encoding='utf-8') as f: return json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return None
 
 
 # 站内参考日期：取同批产物里最新的日期戳。
@@ -186,8 +177,8 @@ def render_market_dashboard():
     
     # === C. 赚钱效应趋势 ===
     st.subheader("📊 市场情绪 (进攻热度监控)")
-    if os.path.exists("data/market_sentiment.csv"):
-        df_sent = pd.read_csv("data/market_sentiment.csv").sort_values('date')
+    if df_sent is not None and not df_sent.empty:
+        df_sent = df_sent.sort_values('date').copy()
         df_sent['up_ma5'] = df_sent['up_count'].rolling(window=5, min_periods=1).mean()
         df_show = df_sent.tail(60).copy()
         df_show['date_str'] = df_show['date'].astype(str)
@@ -516,8 +507,8 @@ def render_guru_tracker():
             
         st.subheader("📝 最新持仓/交易明细")
         csv_path = f"data/gurus/{gid}_latest.csv"
-        if os.path.exists(csv_path):
-            df = pd.read_csv(csv_path)
+        df = load_data(csv_path)
+        if df is not None:
             st.dataframe(df, use_container_width=True, height=500)
         else:
             st.warning(f"🚧 暂未获取到 {info['name']} 的数据。请等待后台自动抓取脚本运行。")

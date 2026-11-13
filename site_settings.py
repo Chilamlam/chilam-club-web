@@ -40,6 +40,8 @@ SHOP_KEYS = (KEY_ENABLED, KEY_LABEL, KEY_URL)
 # 代码侧默认值：表里没有记录、或读失败时回落到这里。
 # 换商品**不需要**改这里 —— 在后台页改三项并保存即可；只有想改「永久默认」才动它。
 SHOP_ENTRY_DEFAULT_ENABLED = False
+# 临时关店：部署后即使数据库仍为开启，前台也不展示入口。
+SHOP_ENTRY_PAUSED = True
 SHOP_ENTRY_DEFAULT_LABEL = "🛒 全天候小店"
 SHOP_ENTRY_DEFAULT_URL = "https://shop.chilam.club"
 
@@ -125,6 +127,10 @@ def shop_entry_config() -> dict:
     缓存的是「数据库往返」，不是「最终结论」——所以后台保存后必须
     调 `clear_shop_entry_cache()`，否则最长要等 CACHE_TTL 才生效。
     """
+    if SHOP_ENTRY_PAUSED:
+        return {"enabled": False, "label": SHOP_ENTRY_DEFAULT_LABEL,
+                "url": SHOP_ENTRY_DEFAULT_URL, "source": "paused",
+                "err": None, "warn": "店铺入口已暂停展示。"}
     return read_shop_entry()
 
 
