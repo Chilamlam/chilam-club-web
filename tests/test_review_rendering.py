@@ -73,8 +73,11 @@ class ReviewRenderingTests(unittest.TestCase):
             self.assertNotIn(phrase, rendered + evidence)
         self.assertIn("上涨占比", evidence)
         self.assertIn("缺失行情 1 只", evidence)
-        detail = next(e for e in app.expander if e.label == "统计档位与次日收盘核对")
-        self.assertFalse(detail.proto.expanded)
+        for phrase in ("统计档位", "次日收盘核对", "发酵期", "验证条件"):
+            self.assertNotIn(phrase, rendered)
+            self.assertFalse(any(phrase in e.label for e in app.expander))
+        self.assertEqual(len(app.metric), 4)
+        self.assertTrue(any(e.label == "📖 统计口径" for e in app.expander))
 
 
 if __name__ == "__main__":

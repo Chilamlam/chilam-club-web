@@ -13,18 +13,6 @@ import streamlit as st
 
 import sentiment as sm
 
-C_UP = "#e74c3c"      # 涨=红（A 股习惯）
-C_DOWN = "#2ecc71"    # 跌=绿
-C_FLAT = "#95a5a6"
-
-PHASE_STYLE = {
-    "发酵期": ("🔥", C_UP),
-    "分歧期": ("⚖️", "#f39c12"),
-    "退潮期": ("🌊", C_DOWN),
-    "冰点期": ("🧊", "#3498db"),
-}
-
-
 def _pct(v, digits: int = 1, sign: bool = False) -> str:
     """None/NaN 一律显示 —，禁止用 0 冒充缺失值。"""
     if v is None:
@@ -36,49 +24,6 @@ def _pct(v, digits: int = 1, sign: bool = False) -> str:
     if f != f:  # NaN
         return "—"
     return f"{f:+.{digits}f}%" if sign else f"{f:.{digits}f}%"
-
-
-def _threshold_caption(phase: dict, th: dict) -> str:
-    """
-    把判定基准摊开写——不带基准的判断无法核对，也看不出档位是否失衡。
-
-    旧版阈值（45/30/15）的问题恰恰是「看不出来」：它一样显示得漂漂亮亮，
-    但 36 天里 97% 的日子被归进退潮/冰点，而页面上没有任何一处能让你发现
-    门槛与真实分布不同刻度。
-    """
-    r12 = phase.get("r12")
-    cur = f"当前晋级率 {r12 * 100:.1f}%" if isinstance(r12, (int, float)) else ""
-    if th.get("method") == "percentile":
-        span = f"{th.get('window_from', '—')}~{th.get('window_to', '—')}"
-        return (f"📐 判定基准（自适应）：近 {th.get('samples', 0)} 个交易日晋级率分位"
-                f"（{span}）→ 发酵 ≥{th['high'] * 100:.1f}% ｜ "
-                f"分歧 ≥{th['mid'] * 100:.1f}% ｜ 退潮 ≥{th['low'] * 100:.1f}% ｜ "
-                f"冰点 <{th['low'] * 100:.1f}%　·　{cur}")
-    if th:
-        return f"📐 判定基准：{th.get('note', '经验阈值')}　·　{cur}"
-    return ""
-
-
-def _render_phase(phase: dict, date: str, prev_date, generated_at) -> None:
-    if not phase or phase.get("status") != "ok":
-        reason = (phase or {}).get("reason", "派生指标缺失")
-        st.warning(f"⚠️ 情绪周期暂不定位：{reason}")
-        return
-
-    icon, color = PHASE_STYLE.get(phase["phase"], ("📍", C_FLAT))
-    st.markdown(
-        f"<div style='padding:14px 18px;border-left:5px solid {color};"
-        f"background:rgba(128,128,128,0.08);border-radius:6px;'>"
-        f"<span style='font-size:1.6em;font-weight:700;color:{color};'>"
-        f"{icon} 统计档位：{phase['phase']}</span>"
-        f"<span style='margin-left:14px;opacity:0.85;'>仅按连板样本分组</span>"
-        f"</div>",
-        unsafe_allow_html=True,
-    )
-    cap = _threshold_caption(phase, phase.get("thresholds") or {})
-    if cap:
-        st.caption(cap)
-    st.caption("档位是连板样本的统计分组，不构成参与建议；未验证其预测收益的能力。")
 
 
 def _render_kpi(derived: dict) -> None:
@@ -172,21 +117,6 @@ def _render_promotion_table(promo: dict) -> None:
         )
 
 
-def _render_plan(plan: list) -> None:
-    if not plan:
-        st.info("今日暂无可对账的验证条件（派生指标不足）。")
-        return
-    st.markdown("#### 次日收盘核对项")
-    st.caption("下一交易日收盘后更新，用于比较两日统计。")
-    for i, item in enumerate(plan, 1):
-        with st.container(border=True):
-            st.markdown(f"**{i}. {item.get('指标', '')}**")
-            cA, cB = st.columns([1, 1.4])
-            cA.markdown(f"📍 今日基准：`{item.get('今日基准', '—')}`")
-            cB.markdown(f"🎯 验证条件：{item.get('验证条件', '—')}")
-            st.caption(f"💡 为什么看它：{item.get('为什么看它', '')}")
-
-
 def _render_caliber(derived: dict) -> None:
     with st.expander("📖 统计口径", expanded=False):
         st.markdown(
@@ -199,7 +129,6 @@ def _render_caliber(derived: dict) -> None:
 
 - 晋级率统计昨日首板股在今日继续涨停的比例。
 - 连板样本涨跌幅以昨日收盘为基准；上涨占比为样本中涨幅大于零的比例，未模拟实际买卖。
-- 档位使用此前最多60个交易日的晋级率分位数，至少需要 {sm.PHASE_MIN_SAMPLES} 个有效交易日；不足时使用注明的经验阈值。
 - 中间高度无股票称为缺档，与最高连板数下降分别记录。
 """
         )
@@ -237,11 +166,4 @@ def render_sentiment_block() -> None:
 
     _render_kpi(derived)
     _render_promotion_table(derived.get("promotion") or {})
-    with st.expander("统计档位与次日收盘核对", expanded=False):
-        _render_phase(derived.get("phase") or {}, derived.get("date", ""),
-                      derived.get("prev_date"), derived.get("generated_at"))
-        _render_plan(sm.verification_plan(
-            derived.get("promotion") or {}, derived.get("ladder_gap") or {},
-            derived.get("premium") or {}, derived.get("breadth") or {},
-        ))
     _render_caliber(derived)
