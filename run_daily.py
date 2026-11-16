@@ -63,6 +63,8 @@ BACKFILL_EXTRA_PASS = "extra_pass"
 #   scorecard 用 tushare 重建 RPS 榜，无此限制。
 # ---------------------------------------------------------------------------
 STEPS: list[dict] = [
+    {"key": "calendar", "script": "daily_trading_calendar.py", "label": "交易日历",
+     "backfill": BACKFILL_NONE, "timeout": 60},
     {"key": "expire_orders", "script": "daily_expire_orders.py", "label": "订单过期清理",
      "backfill": BACKFILL_NONE, "timeout": 300},
     {"key": "rps", "script": "daily_rps_pro.py", "label": "RPS 强势股",
@@ -236,6 +238,7 @@ def check_freshness() -> None:
 # 跨产物日期一致性判据：(标签, 相对路径, 取值方式)。
 # 取值方式同看门狗：json:<key> / csv:<列名>（CSV 取最后一行）。
 DATE_PROBES: list[tuple[str, str, str]] = [
+    ("市场情绪", "data/market_sentiment.csv", "csv:date"),
     ("RPS 强势股", "data/strong_stocks.csv", "csv:更新日期"),
     ("突破池", "data/breakout_stocks.csv", "csv:update_date"),
     ("ETF 榜单", "data/strong_etfs.csv", "csv:更新日期"),

@@ -83,6 +83,7 @@ def get_market_data_tushare():
         sector_stats = sector_stats[sector_stats['ts_code'] > 5]
         sector_stats['amount'] = round(sector_stats['amount'] / 100000, 2)
         sector_stats['pct_chg'] = round(sector_stats['pct_chg'], 2)
+        sector_stats['date'] = trade_date_fmt
         sector_stats.sort_values('pct_chg', ascending=False).head(15).to_csv(SECTOR_PATH, index=False)
         print("✅ 板块与情绪数据计算完毕！")
         return trade_date_str, trade_date_fmt

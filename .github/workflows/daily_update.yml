@@ -35,8 +35,8 @@ name: Daily Update
 
 on:
   schedule:
-    - cron: '37 11 * * *' # 北京时间 19:37 主跑批（错开整点/半点高峰，减少 Actions 排队延迟）
-    - cron: '20 14 * * *' # 北京时间 22:20 兜底补跑（主跑批被延迟或失败时保证当日数据落地）
+    - cron: '37 10 * * *' # 北京时间 18:37 主跑批；sw_daily 18:30 发布后运行，目标 19:00 前完成
+    - cron: '20 14 * * *' # 北京时间 22:20 兜底补跑；是否成功以产物日期为准
   workflow_dispatch:
     inputs:
       backfill_days:
@@ -44,7 +44,7 @@ on:
         required: false
         default: '0'
       only:
-        description: '只跑指定步骤，逗号分隔（留空=全跑）。可选：rps,etf,market_monitor,speculation,guru,radar,snapshot,breakout,sentiment,scorecard,digest'
+        description: '只跑指定步骤，逗号分隔（留空=全跑）。可选：calendar,expire_orders,rps,etf,market_monitor,speculation,guru,radar,snapshot,breakout,sector_rotation,industry_signal,sentiment,scorecard,evening_plan,digest,review_ai,review_score'
         required: false
         default: ''
 

@@ -37,8 +37,8 @@ tushare `sw_daily`（申万行业日线，2021 版）**按 trade_date 取当日�
 日期标签怎么定（这里错过一次就会给整个历史打错日期）
 ----------------------------------------------------
 锚定规则：以 tushare 交易日历里 **不晚于「参考时点」的最后一个交易日**为当日目标。
-参考时点 = 若当前北京时间 < 19:00 则取昨天，否则取今天——`sw_daily` 官方更新
-时间为交易日 18:30，早于它跑批会拿到空表。跑批主时点 19:37，正常落在更新后。
+参考时点 = 若当前北京时间 < 18:30 则取昨天，否则取今天——`sw_daily` 官方更新
+时间为交易日 18:30，早于它跑批会拿到空表。跑批主时点 18:37，正常落在更新后。
 
 **并且必须校验返回行自带的 trade_date 等于请求日期**。理由：同一批接口中
 已实测到「参数被静默忽略、返回默认日期数据」的行为（本机探测 sw_daily 的
@@ -82,7 +82,8 @@ MIN_WHITELIST = 100          # 白名单条数合理区间，超出说明接口�
 MAX_WHITELIST = 200
 SECTION_RATIO = 0.90         # 当日行业数 < 白名单 × 此值 → 视为残缺，拒收
 REQUEST_SLEEP = 0.25         # 回填时限速（秒），避免触发接口频率限制
-UPDATE_HOUR = 19             # sw_daily 18:30 更新，19:00 前跑批按昨天算参考日
+UPDATE_HOUR = 18
+UPDATE_MINUTE = 30           # sw_daily 18:30 发布；之后尝试当日，空表/错日仍拒收
 MAX_CAL_LOOKBACK = 400       # 交易日历最多往前取多少自然日
 
 
@@ -167,7 +168,7 @@ def _cal(pro, start: str, end: str) -> list[str]:
 def target_trade_date(pro, ref: datetime.datetime | None = None) -> str:
     """当日跑批的目标交易日：不晚于参考时点的最后一个交易日。"""
     ref = ref or _bj_now()
-    if ref.hour < UPDATE_HOUR:
+    if (ref.hour, ref.minute) < (UPDATE_HOUR, UPDATE_MINUTE):
         ref = ref - datetime.timedelta(days=1)
     start = (ref - datetime.timedelta(days=MAX_CAL_LOOKBACK)).strftime("%Y%m%d")
     dates = _cal(pro, start, ref.strftime("%Y%m%d"))

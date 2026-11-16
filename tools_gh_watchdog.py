@@ -52,7 +52,7 @@ GitHub Actions 的 `schedule` 事件是 **best-effort**，官方文档原文：
    现在：curl 为主通道、urllib 为备用，两条都失败才算这个文件取不到；
    一个产物都没读出日期则判 verdict="blind" 返回 9，
    宁可说「什么都没验到」，也不给一个归因错误的结论。
-2. **「今天还没有今天的数据」在跑批前是正常态。** 主 cron 19:37，
+2. **「今天还没有今天的数据」在跑批前是正常态。** 主 cron 18:37，
    早上 10:00 或过零点后 00:30 去查，必然查不到当天数据。
    旧版此时报「缺失」，若把看门狗挂成每小时一次，整个白天都在空派补跑，
    而 10:00 派发的跑批因为「行情未发布」只会把昨天的数据再写一遍（见
@@ -83,6 +83,8 @@ import tempfile
 import urllib.error
 import urllib.request
 
+from update_schedule import MAIN_CRON_CST, RUNTIME_MIN, JUDGE_MARGIN_MIN
+
 REPO = "Chilamlam/chilam-club-web"
 API = "https://api.github.com"
 RAW = f"https://raw.githubusercontent.com/{REPO}/main"
@@ -91,10 +93,7 @@ WORKFLOW = "daily_update.yml"
 CST = dt.timezone(dt.timedelta(hours=8))
 
 # 主 cron 时点与全量跑批耗时。判定「今天的数据本该已经有了」的时刻由三者相加得出，
-# 写成可读常量而不是硬编码 20:30，是为了改 cron 时不会忘记同步改判定线。
-MAIN_CRON_CST = (19, 37)   # .github/workflows/daily_update.yml 主 cron（37 11 * * * UTC）
-RUNTIME_MIN = 18           # 全量跑批实测 12~18 分钟，取上限
-JUDGE_MARGIN_MIN = 35      # 平台正常排队抖动 10~20 分钟，留一倍余量
+# 与页面共用 update_schedule；当前判定线为 19:30，19:35 巡检。
 
 _CHANNEL = {"urllib": 0, "curl": 0, "fail": 0}  # 供元断言与日志用，不参与判据
 
@@ -108,6 +107,7 @@ _CHANNEL = {"urllib": 0, "curl": 0, "fail": 0}  # 供元断言与日志用，不
 #   "csv:<列名>"   —— CSV 取该列最后一行（RPS 是中文列名，突破池是 update_date，
 #                     两张表列名不同，写死单一列名会静默漏判）
 PROBES = [
+    ("市场情绪", "data/market_sentiment.csv", "csv:date"),
     ("连板天梯", "data/limit_ladder.json", "json:date"),
     ("收盘摘要", "data/digest/latest.json", "json:date"),
     ("RPS 强势股", "data/strong_stocks.csv", "csv:更新日期"),

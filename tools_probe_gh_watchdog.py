@@ -92,8 +92,9 @@ def run_main(argv, now, remote, dispatch_ret=True):
 
 
 def payload(date: str) -> dict:
-    """五个产物全为同一天的正常远端。列名刻意用真实的（RPS 中文列 / 突破池英文列）。"""
+    """全部产物同日的正常远端，列名与真实产物保持一致。"""
     return {
+        "data/market_sentiment.csv": "date,up_count\n%s,1000\n" % date,
         "data/limit_ladder.json": '{"date": "%s", "rows": []}' % date,
         "data/digest/latest.json": '{"date": "%s-%s-%s 22:05:08"}'
         % (date[:4], date[4:6], date[6:]),
@@ -143,11 +144,11 @@ def sec_pure() -> None:
 
     # 判据必须逐产物覆盖：五个产物一个都不能少（2026-09-01 漏判 RPS、
     # 2026-09-03 漏判板块轮动的教训——掉队的产物必须先在清单里）。
-    ck(len(wd.PROBES) == 5, "PROBES 覆盖 5 个产物")
+    ck(len(wd.PROBES) == 6, "PROBES 覆盖 6 个产物，包含首页市场情绪")
     ck({p[1] for p in wd.PROBES} == {
         "data/limit_ladder.json", "data/digest/latest.json",
         "data/strong_stocks.csv", "data/breakout_stocks.csv",
-        "data/sector_rotation/analysis.json"}, "PROBES 路径与跑批产物一致")
+        "data/sector_rotation/analysis.json", "data/market_sentiment.csv"}, "PROBES 路径与跑批产物一致")
 
 
 # ------------------------------------------------- 2. verdict 三态（核心判据）
@@ -159,8 +160,8 @@ def sec_verdict() -> None:
         rem = payload("20260903")
         wd.fetch_remote = lambda p: (True, rem[p], "curl")
         v, lines = wd.check_freshness("20260903")
-        ck(v == "fresh", "五产物全今日 -> fresh")
-        ck(len(lines) == 5, "元断言：明细逐产物 5 行（确实每个都查了）")
+        ck(v == "fresh", "全部产物今日 -> fresh")
+        ck(len(lines) == len(wd.PROBES), "元断言：明细逐产物留痕（确实每个都查了）")
 
         # stale：三个今日、一个落后（2026-09-01 真实事故形状）
         rem2 = payload("20260903")
@@ -173,8 +174,8 @@ def sec_verdict() -> None:
         # blind：一个都取不到 —— 这是本次改动的核心，绝不能变成 stale
         wd.fetch_remote = lambda p: (False, "", "通道挂")
         v, lines = wd.check_freshness("20260903")
-        ck(v == "blind", "五产物全取不到 -> blind（不是 stale）")
-        ck(len(lines) == 5, "元断言：blind 时也逐产物留痕")
+        ck(v == "blind", "全部产物取不到 -> blind（不是 stale）")
+        ck(len(lines) == len(wd.PROBES), "元断言：blind 时也逐产物留痕")
 
         # 部分取到 + 取到的那个是旧的 -> stale（有真实读数支撑）
         def half(p):

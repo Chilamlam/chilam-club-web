@@ -419,6 +419,8 @@ def test_watchdog_probes() -> None:
     saved = wd._get
     try:
         def fake_get(url, tok=None, raw=False):
+            if url.endswith("market_sentiment.csv"):
+                return 200, "date,up_count\n2026-09-01,1000\n"
             if url.endswith("strong_stocks.csv"):
                 return 200, "ts_code,更新日期\n600000.SH,2026-08-31\n"
             if url.endswith("breakout_stocks.csv"):
@@ -807,6 +809,7 @@ def _write_probe_fixture(root: str, rps_date: str) -> None:
     只有 strong_stocks.csv 停在前一天，其余四个产物都是当天。
     正向用例与反向验证共用这一份，避免两处各写一遍再慢慢漂移。"""
     files = {
+        "data/market_sentiment.csv": "date,up_count\n2026-09-01,1000\n",
         "data/strong_stocks.csv": f"ts_code,更新日期\n600000.SH,{rps_date}\n",
         "data/breakout_stocks.csv": "ts_code,update_date\n600000.SH,2026-09-01\n",
         "data/strong_etfs.csv": "ts_code,更新日期\n510050.SH,2026-09-01\n",

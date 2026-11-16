@@ -56,34 +56,41 @@ inject_ga_safe()
 
 # ================= 2. 核心辅助函数 =================
 
-@st.cache_data(ttl=600)
-def load_data(path):
-    """Read a repository data file once per cache window.
-
-    Streamlit runs the app from different working directories locally and in
-    hosted deployments. Resolving paths from this module keeps all callers
-    consistent and avoids a second uncached read of the same CSV.
-    """
+def _data_file(path):
     full_path = path if os.path.isabs(path) else os.path.join(
         os.path.dirname(os.path.abspath(__file__)), path
     )
-    if not os.path.exists(full_path):
-        return None
+    try:
+        stat = os.stat(full_path)
+        return full_path, (stat.st_mtime_ns, stat.st_size)
+    except OSError:
+        return full_path, None
+
+
+@st.cache_data(ttl=600, max_entries=128)
+def _read_csv(full_path, revision):
     try:
         return pd.read_csv(full_path)
     except (OSError, ValueError, pd.errors.ParserError):
         return None
 
-@st.cache_data(ttl=600)
-def load_json(path):
-    full_path = path if os.path.isabs(path) else os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), path
-    )
-    if not os.path.exists(full_path): return None
+
+@st.cache_data(ttl=600, max_entries=128)
+def _read_json(full_path, revision):
     try:
         with open(full_path, 'r', encoding='utf-8') as f: return json.load(f)
     except (OSError, json.JSONDecodeError):
         return None
+
+
+def load_data(path):
+    full_path, revision = _data_file(path)
+    return _read_csv(full_path, revision) if revision is not None else None
+
+
+def load_json(path):
+    full_path, revision = _data_file(path)
+    return _read_json(full_path, revision) if revision is not None else None
 
 
 # 站内参考日期：取同批产物里最新的日期戳。
@@ -91,10 +98,10 @@ def load_json(path):
 # 都会让「今天」不等于「最新交易日」，直接比日历必然误报。而同一次跑批的
 # 产物本该同日，用批内最新值当基准，能精确抓出「某一步单独失败」——
 # 2026-09-01 就是这种情况：突破池/连板/摘要都是 09-01，只有 RPS 停在 08-31。
-@st.cache_data(ttl=600)
 def site_reference_date():
     cands = []
     for path, cols in (
+        ("data/market_sentiment.csv", ("date",)),
         ("data/breakout_stocks.csv", ("update_date",)),
         ("data/strong_etfs.csv", ("更新日期",)),
         ("data/strong_stocks.csv", ("更新日期",)),
@@ -106,6 +113,43 @@ def site_reference_date():
     cands.append(freshness.norm_date(d.get("date")))
     cands = [c for c in cands if c]
     return max(cands) if cands else ""
+
+
+def render_market_update_status(df_sent, df_sector):
+    dates = {"市场概览": freshness.pick_date(df_sent),
+             "领涨行业": freshness.pick_date(df_sector)}
+    for label, path in (("个股 RPS", "data/strong_stocks.csv"),
+                        ("ETF RPS", "data/strong_etfs.csv"),
+                        ("突破池", "data/breakout_stocks.csv")):
+        dates[label] = freshness.pick_date(load_data(path))
+    for label, path in (("连板天梯", "data/limit_ladder.json"),
+                        ("短线情绪", "data/sentiment/derived.json"),
+                        ("板块轮动", "data/sector_rotation/analysis.json"),
+                        ("行业信号", "data/industry_signal/signal.json")):
+        dates[label] = (load_json(path) or {}).get("date")
+    result = freshness.publication_status(dates, calendar=load_json("data/trading_calendar.json"))
+    market_date = freshness.norm_date(dates["市场概览"])
+    shown = f"{market_date[:4]}-{market_date[4:6]}-{market_date[6:]}" if market_date else "未知"
+    st.caption(f"📅 市场概览数据日期：**{shown}** · 状态核对时间：{result['checked_at']}（北京时间）")
+    if result["status"] in ("delayed", "unknown"):
+        st.warning(result["message"])
+    elif result["status"] in ("scheduled", "waiting"):
+        st.info(result["message"])
+    else:
+        st.caption(result["message"])
+    with st.expander("查看各模块的数据日期与更新安排"):
+        for label, date in result["dates"].items():
+            shown = f"{date[:4]}-{date[4:6]}-{date[6:]}" if date else "未知"
+            mark = " · 待更新" if label in result["stale"] else ""
+            if label in result["unknown"]:
+                mark = " · 日期无法确认"
+            st.write(f"{label}：{shown}{mark}")
+        st.caption("交易日计划 18:37 开始，目标 19:00 前完成；19:35 巡检，22:20 兜底补跑。"
+                   "任务排队或数据源延迟可能推迟完成时间，请以各模块实际日期为准。")
+        if st.button("重新读取数据", key="refresh_market_data"):
+            _read_csv.clear()
+            _read_json.clear()
+            st.rerun()
 
 
 def render_freshness_banner(df, label, date_cols=("更新日期", "update_date", "date")):
@@ -156,13 +200,14 @@ def get_market_snapshot_local():
 # ================= 3. 页面渲染模块 =================
 def render_market_dashboard():
     st.header("🛸 全市场情绪看板")
-    st.caption("数据驱动 + AI 逻辑分析 | 每日收盘18：00后更新")
+    st.caption("数据驱动 + AI 逻辑分析 | 收盘后更新，实际数据日期见下方")
     st.info("🧭 使用路径：**看市场**了解环境 → **找标的**筛选与分析 → **做复盘**记录和验证。可在左侧切换功能分组。")
     
     df_index = load_data("data/index_history.csv")
     df_sent = load_data("data/market_sentiment.csv")
     df_sector = load_data("data/sector_hot.csv")
     ai_data = load_json("data/ai_market_analysis.json")
+    render_market_update_status(df_sent, df_sector)
 
     # 「AI 首席策略官复盘」板块已摘除（2026-09-14 用户决策）：
     # 该板块由 Gemini 生成的 ai_market_analysis.json 驱动，Gemini 端点在
@@ -195,7 +240,7 @@ def render_market_dashboard():
         st.info("暂无历史情绪数据，请等待数据积累。")
     
     # === D. 大军团作战 ===
-    st.subheader("🔥 大军团作战 (今日领涨板块)")
+    st.subheader("🔥 大军团作战 (领涨板块)")
     if df_sector is not None and not df_sector.empty:
         fig_sec = px.bar(df_sector, x='industry', y='pct_chg', color='pct_chg', text='amount', labels={'pct_chg': '涨幅(%)', 'industry': '板块'}, color_continuous_scale='Reds', height=350)
         fig_sec.update_traces(texttemplate='%{text}亿', textposition='outside')
@@ -212,7 +257,7 @@ def render_market_dashboard():
     if ladder_raw and "stocks" in ladder_raw and len(ladder_raw["stocks"]) > 0:
         total_zt = ladder_raw.get("total_count", len(ladder_raw["stocks"]))
         max_h = ladder_raw.get("max_height", 1)
-        st.caption(f"👑 今日涨停共 **{total_zt}** 家 | 市场最高板：**{max_h} 连板** (统计日期: `{ladder_raw.get('date', '今日')}`)")
+        st.caption(f"👑 统计日涨停共 **{total_zt}** 家 | 市场最高板：**{max_h} 连板** (统计日期: `{ladder_raw.get('date', '未知')}`)")
         
         df_zt_all = pd.DataFrame(ladder_raw["stocks"])
         df_zt_all['limit_times'] = pd.to_numeric(df_zt_all['limit_times'], errors='coerce').fillna(1).astype(int)
