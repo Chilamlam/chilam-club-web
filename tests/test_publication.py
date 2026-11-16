@@ -10,7 +10,7 @@ from unittest.mock import Mock
 import pandas as pd
 import streamlit as st
 
-import data_freshness as freshness
+from publication_status import publication_status
 from daily_industry_signal import target_trade_date
 from daily_trading_calendar import build_calendar
 from update_schedule import CST, MAIN_CRON_CST
@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class PublicationTests(unittest.TestCase):
     def status(self, hour, minute=0, dates=None, day=16, calendar=None):
         now = dt.datetime(2026, 11, day, hour, minute, tzinfo=CST)
-        return freshness.publication_status(dates or {"市场": "20261113", "RPS": "20261113"},
+        return publication_status(dates or {"市场": "20261113", "RPS": "20261113"},
                                             now, calendar)
 
     def test_monday_previous_friday_is_late_at_seven(self):
@@ -35,7 +35,7 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(self.status(18, 36)["status"], "scheduled")
         self.assertEqual(self.status(18, 37)["status"], "waiting")
         self.assertEqual(self.status(18, 59)["status"], "waiting")
-        result = freshness.publication_status({"市场": "20261113"},
+        result = publication_status({"市场": "20261113"},
                     dt.datetime(2026, 11, 16, 11, tzinfo=dt.timezone.utc))
         self.assertEqual(result["status"], "delayed")
         self.assertEqual(result["checked_at"], "2026-11-16 19:00")
@@ -57,7 +57,7 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(result["expected_date"], "20261113")
         holiday = {"start_date": "20260901", "end_date": "20261031",
                    "open_dates": ["20260929", "20260930", "20261009"]}
-        result = freshness.publication_status({"市场": "20260930"}, dt.datetime(2026, 10, 5, 19), holiday)
+        result = publication_status({"市场": "20260930"}, dt.datetime(2026, 10, 5, 19), holiday)
         self.assertEqual(result["status"], "current")
         self.assertIn("今日休市", result["message"])
 

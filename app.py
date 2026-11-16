@@ -19,6 +19,7 @@ from page_industry_signal import render_industry_signal_page
 from page_evening_plan import render_evening_plan_page
 from ui_compat import image_stretch, html_embed
 import data_freshness as freshness
+from publication_status import publication_status
 import auth
 from navigation import NAV_GROUPS
 from page_news import render_news_page
@@ -127,7 +128,7 @@ def render_market_update_status(df_sent, df_sector):
                         ("板块轮动", "data/sector_rotation/analysis.json"),
                         ("行业信号", "data/industry_signal/signal.json")):
         dates[label] = (load_json(path) or {}).get("date")
-    result = freshness.publication_status(dates, calendar=load_json("data/trading_calendar.json"))
+    result = publication_status(dates, calendar=load_json("data/trading_calendar.json"))
     market_date = freshness.norm_date(dates["市场概览"])
     shown = f"{market_date[:4]}-{market_date[4:6]}-{market_date[6:]}" if market_date else "未知"
     st.caption(f"📅 市场概览数据日期：**{shown}** · 状态核对时间：{result['checked_at']}（北京时间）")
