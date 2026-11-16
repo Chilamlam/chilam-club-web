@@ -1,6 +1,6 @@
 {
   "date": "20261116",
-  "checked_at": "2026-11-17T01:02:14.878408+08:00",
+  "checked_at": "2026-11-17T01:24:42.558542+08:00",
   "sources": {
     "ths_public": {
       "status": "ok",
@@ -208,8 +208,10 @@
       "retained_count": 0
     },
     "kpl": {
-      "status": "unavailable",
+      "status": "empty",
       "records": {},
+      "rejected_dates": 0,
+      "conflicts": [],
       "retained_count": 0
     }
   },
