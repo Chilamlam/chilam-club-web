@@ -1,3 +1,7 @@
+from review_runtime import refresh_review_modules
+
+refresh_review_modules()
+
 import streamlit as st
 import pandas as pd
 import os
