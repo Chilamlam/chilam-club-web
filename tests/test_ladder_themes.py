@@ -1,11 +1,15 @@
 import unittest
-from unittest.mock import Mock
+import datetime as dt
+import io
+import json
+from unittest.mock import Mock, patch
 
 import pandas as pd
 from streamlit.testing.v1 import AppTest
 
-from daily_ladder_themes import fetch_sources
+from daily_ladder_themes import fetch_public_ths, fetch_sources
 from ladder_themes import attribution_for, build_payload, parse_attributions, source_status_text
+from update_schedule import CST
 
 
 def ladder_dashboard(ladder, themes):
@@ -122,7 +126,8 @@ class LadderThemeTests(unittest.TestCase):
             {"ts_code": "002148.SZ", "trade_date": "20261116", "theme": "当日题材"},
             {"ts_code": "002205.SZ", "trade_date": "20261113", "theme": "旧题材"},
         ])
-        result = fetch_sources(pro, {"date": "2026-11-16", "stocks": [{"code": "002148"}, {"code": "002205"}]})
+        with patch("daily_ladder_themes.fetch_public_ths", return_value={"status": "unavailable", "records": {}}):
+            result = fetch_sources(pro, {"date": "2026-11-16", "stocks": [{"code": "002148"}, {"code": "002205"}]})
         self.assertEqual(pro.limit_list_ths.call_args.kwargs["trade_date"], "20261116")
         self.assertEqual(pro.kpl_list.call_args.kwargs["trade_date"], "20261116")
         self.assertEqual(pro.kpl_list.call_args.kwargs["tag"], "涨停")
@@ -150,6 +155,43 @@ class LadderThemeTests(unittest.TestCase):
         self.assertNotIn("卫星互联网", rendered)
         self.assertNotIn("来源提供的当日原因", rendered)
         self.assertIn("当日题材归因暂缺", rendered)
+
+    def test_public_pool_checks_source_date_timestamp_and_completeness(self):
+        stamp = int(dt.datetime(2026, 11, 16, 9, 30, tzinfo=CST).timestamp())
+        def response(date="20261116", timestamp=stamp, total=1):
+            return io.BytesIO(json.dumps({"status_code": 0, "data": {
+                "date": date, "page": {"page": 1, "count": 1, "total": total},
+                "info": [{"code": "002148", "first_limit_up_time": timestamp,
+                          "reason_type": "四足机器人+物联网+手机游戏"}],
+            }}).encode())
+        with patch("daily_ladder_themes.urllib.request.urlopen", return_value=response()) as request:
+            result = fetch_public_ths("20261116", ["002148"])
+        self.assertIn("date=20261116", request.call_args.args[0].full_url)
+        self.assertEqual(result["records"]["002148"]["theme"], "四足机器人+物联网+手机游戏")
+        payload = build_payload({"date": "20261116", "stocks": [{"code": "002148"}]}, {"ths_public": result})
+        self.assertEqual(attribution_for("002148", "20261116", payload)["source"], "同花顺涨停揭秘")
+        for body, expected in ((response(date="20261113"), "date_mismatch"),
+                               (response(timestamp=stamp - 86400), "date_mismatch"),
+                               (response(total=2), "incomplete")):
+            with patch("daily_ladder_themes.urllib.request.urlopen", return_value=body):
+                result = fetch_public_ths("20261116", ["002148"])
+            self.assertEqual(result["status"], expected)
+            self.assertEqual(result["records"], {})
+
+    def test_public_pool_reads_all_pages_and_does_not_require_token(self):
+        responses = [io.BytesIO(json.dumps({"status_code": 0, "data": {
+            "date": "20261116", "page": {"page": page, "count": 2, "total": 2},
+            "info": [{"code": code, "first_limit_up_time": int(dt.datetime(2026, 11, 16, 10, tzinfo=CST).timestamp()),
+                      "reason_type": "来源题材"}],
+        }}).encode()) for page, code in ((1, "002148"), (2, "002205"))]
+        with patch("daily_ladder_themes.urllib.request.urlopen", side_effect=responses) as request:
+            result = fetch_public_ths("20261116", ["002148", "002205"])
+        self.assertEqual(set(result["records"]), {"002148", "002205"})
+        self.assertEqual(request.call_count, 2)
+        with patch("daily_ladder_themes.fetch_public_ths", return_value=result):
+            sources = fetch_sources(None, {"date": "20261116", "stocks": [{"code": "002148"}, {"code": "002205"}]})
+        self.assertEqual(sources["ths"]["status"], "not_needed")
+        self.assertEqual(len(sources["ths_public"]["records"]), 2)
 
 
 if __name__ == "__main__":

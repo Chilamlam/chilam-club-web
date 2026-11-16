@@ -1,3 +1,23 @@
+import hashlib
+import importlib
+from pathlib import Path
+import review_runtime
+
+# The refresh helper can itself be cached across a Streamlit deployment.
+# Refresh its dependency list before asking it to refresh page modules.
+with review_runtime._lock:
+    _runtime_path = Path(review_runtime.__file__).resolve()
+    _runtime_source = _runtime_path.read_bytes()
+    _runtime_digest = hashlib.sha256(_runtime_source).digest()
+    if getattr(review_runtime, "_bootstrap_source", None) != _runtime_digest:
+        compile(_runtime_source, str(_runtime_path), "exec")
+        _runtime_cache = getattr(review_runtime, "__cached__", None)
+        if _runtime_cache and Path(_runtime_cache).resolve().parent == _runtime_path.parent / "__pycache__":
+            Path(_runtime_cache).unlink(missing_ok=True)
+        importlib.invalidate_caches()
+        importlib.reload(review_runtime)
+        review_runtime._bootstrap_source = _runtime_digest
+
 from review_runtime import refresh_review_modules
 
 refresh_review_modules()

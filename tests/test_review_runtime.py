@@ -48,6 +48,29 @@ class ReviewRuntimeTests(unittest.TestCase):
                 for name in names:
                     sys.modules.pop(name, None)
 
+    def test_bootstrap_refreshes_cached_helper_and_new_dependency(self):
+        import ast
+        import ladder_themes
+
+        app_path = Path(__file__).resolve().parents[1] / "app.py"
+        tree = ast.parse(app_path.read_text(encoding="utf-8"))
+        end = next(i for i, node in enumerate(tree.body)
+                   if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call)
+                   and isinstance(node.value.func, ast.Name)
+                   and node.value.func.id == "refresh_review_modules")
+        bootstrap = compile(ast.Module(body=tree.body[:end + 1], type_ignores=[]), str(app_path), "exec")
+        lock = review_runtime._lock
+        with patch.object(review_runtime, "REVIEW_MODULES", ("data_freshness",)), \
+             patch.object(review_runtime, "_bootstrap_source", None, create=True), \
+             patch.object(ladder_themes, "SOURCES", {}):
+            exec(bootstrap, {})
+            self.assertIn("ladder_themes", review_runtime.REVIEW_MODULES)
+            self.assertIn("ths_public", ladder_themes.SOURCES)
+            self.assertIs(review_runtime._lock, lock)
+            with patch.object(importlib, "reload", wraps=importlib.reload) as reload:
+                exec(bootstrap, {})
+                reload.assert_not_called()
+
     def test_bootstrap_precedes_review_imports(self):
         import ast
 

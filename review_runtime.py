@@ -16,7 +16,8 @@ REVIEW_MODULES = (
     "page_evening_plan",
 )
 _ROOT = Path(__file__).resolve().parent
-_lock = threading.RLock()
+# Keep the lock stable when app.py refreshes this helper itself.
+_lock = globals().get("_lock") or threading.RLock()
 _revision = None
 
 

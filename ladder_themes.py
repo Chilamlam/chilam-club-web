@@ -8,6 +8,7 @@ from data_freshness import norm_date
 
 
 SOURCES = {
+    "ths_public": {"name": "同花顺涨停揭秘", "url": "https://data.10jqka.com.cn/limit_up/"},
     "ths": {"name": "同花顺", "url": "https://tushare.pro/document/2?doc_id=355"},
     "kpl": {"name": "开盘啦", "url": "https://tushare.pro/document/2?doc_id=347"},
 }
@@ -57,7 +58,7 @@ def parse_attributions(rows, source: str, trade_date: str, codes) -> dict:
             continue
         reason = clean_text(row.get("lu_desc"))
         # THS tag is 首板/4天4板 etc., not a concept classification.
-        theme = clean_text(row.get("theme")) if source == "kpl" else ""
+        theme = clean_text(row.get("theme")) if source in {"kpl", "ths_public"} else ""
         if not (reason or theme):
             continue
         record = {"code": code, "date": date, "reason": reason, "theme": theme}
@@ -90,6 +91,12 @@ def source_status_text(payload) -> str:
             label = f"{meta['name']}本次暂无匹配"
         elif status == "permission_denied":
             label = f"{meta['name']}权限不足"
+        elif status == "not_needed":
+            continue
+        elif status == "date_mismatch":
+            label = f"{meta['name']}日期不符"
+        elif status == "incomplete":
+            label = f"{meta['name']}数据不完整"
         else:
             label = f"{meta['name']}不可用"
         if retained:
@@ -114,7 +121,7 @@ def attribution_for(code, trade_date, payload) -> dict | None:
             matches.append((source, meta, row))
     if not matches:
         return None
-    themes = _unique_text(row.get("theme") for source, _, row in matches if source == "kpl")
+    themes = _unique_text(row.get("theme") for source, _, row in matches if source in {"kpl", "ths_public"})
     reasons = _unique_text(row.get("reason") for _, _, row in matches)
     providers = [meta["name"] for _, meta, _ in matches]
     urls = [meta["url"] for _, meta, _ in matches]
@@ -153,7 +160,7 @@ def build_payload(ladder: dict, responses: dict, *, previous=None, checked_at=""
             record_code = stock_code(record.get("code") or code)
             record_date = norm_date(record.get("date"))
             reason = clean_text(record.get("reason"))
-            theme = clean_text(record.get("theme")) if source == "kpl" else ""
+            theme = clean_text(record.get("theme")) if source in {"kpl", "ths_public"} else ""
             if record_code in codes and record_date == date and (reason or theme):
                 clean_records[record_code] = {"code": record_code, "date": date,
                                               "reason": reason, "theme": theme}
