@@ -155,7 +155,7 @@ def render_freshness(sig: dict, reference_date: str = "") -> None:
             icon="🚨",
         )
     elif v["status"] == "unknown":
-        st.warning("⚠️ 行业信号产物里找不到日期戳，无法判断是否为最新，请谨慎使用。")
+        st.warning(f"⚠️ 行业信号：{v['reason']}。无法确认是否为最新，请谨慎使用。")
     else:
         st.caption(f"📅 数据日期：**{shown}**　|　归档 **{sig.get('trade_days_available', '—')}** "
                    f"个交易日（自 {sig.get('first_date', '—')} 起）")

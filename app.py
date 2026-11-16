@@ -20,6 +20,7 @@ from page_evening_plan import render_evening_plan_page
 from ui_compat import image_stretch, html_embed
 import data_freshness as freshness
 import auth
+from navigation import NAV_GROUPS
 from page_news import render_news_page
 
 # ================= 1. 基础配置 (必须放在最前面) =================
@@ -125,7 +126,7 @@ def render_freshness_banner(df, label, date_cols=("更新日期", "update_date",
         )
     elif v["status"] == "unknown":
         # 与 stale 分开报：缺日期列要改产物结构，跟跑批没跑成不是一回事。
-        st.warning(f"⚠️ {label}缺少日期戳，无法判断数据是否为最新，请谨慎使用。")
+        st.warning(f"⚠️ {label}：{v['reason']}。无法确认数据是否为最新，请谨慎使用。")
     else:
         st.caption(f"📅 {label}数据日期：**{shown}**")
     return v
@@ -156,6 +157,7 @@ def get_market_snapshot_local():
 def render_market_dashboard():
     st.header("🛸 全市场情绪看板")
     st.caption("数据驱动 + AI 逻辑分析 | 每日收盘18：00后更新")
+    st.info("🧭 使用路径：**看市场**了解环境 → **找标的**筛选与分析 → **做复盘**记录和验证。可在左侧切换功能分组。")
     
     df_index = load_data("data/index_history.csv")
     df_sent = load_data("data/market_sentiment.csv")
@@ -279,7 +281,7 @@ def render_stock_content(df):
     mask = (df['连续天数'] >= min_d) & (df['RPS_50'] >= min_rps)
     if 'pe_ttm' in df.columns: mask &= (df['pe_ttm'] <= max_pe) & (df['pe_ttm'] > 0)
     if ind != "全部": mask &= (df['细分行业'] == ind)
-    if kw: mask &= (df['ts_code'].astype(str).str.contains(kw) | df['name'].str.contains(kw))
+    if kw.strip(): mask &= (df['ts_code'].astype('string').str.contains(kw.strip(), case=False, regex=False, na=False) | df['name'].astype('string').str.contains(kw.strip(), case=False, regex=False, na=False))
     
     show_df = df[mask].sort_values('RPS_50', ascending=False).copy()
     show_df = format_rps_show(show_df, 'RPS_50', 'rps_50_chg')
@@ -337,8 +339,8 @@ def render_breakout_content(df):
     mask = df['vol_ratio'] >= min_vol_ratio
     if sel_level != "全部":
         mask &= (df['level'] == sel_level)
-    if kw_b:
-        mask &= (df['ts_code'].astype(str).str.contains(kw_b) | df['name'].str.contains(kw_b))
+    if kw_b.strip():
+        mask &= (df['ts_code'].astype('string').str.contains(kw_b.strip(), case=False, regex=False, na=False) | df['name'].astype('string').str.contains(kw_b.strip(), case=False, regex=False, na=False))
 
     show_df = df[mask].sort_values(by=['pct_chg', 'vol_ratio'], ascending=[False, False]).copy()
     
@@ -377,7 +379,7 @@ def render_etf_content(df):
     st.success(f"📈 捕捉到 {len(df)} 只强势 ETF")
     kw = st.text_input("🔍 搜 ETF")
     show_df = df.copy()
-    if kw: show_df = show_df[show_df['name'].str.contains(kw) | show_df['ts_code'].str.contains(kw)]
+    if kw.strip(): show_df = show_df[show_df['name'].astype('string').str.contains(kw.strip(), case=False, regex=False, na=False) | show_df['ts_code'].astype('string').str.contains(kw.strip(), case=False, regex=False, na=False)]
     show_df = format_rps_show(show_df, 'RPS_50', 'rps_50_chg')
     target_cols = ['ts_code', 'name', 'price_now', 'RPS_50_Show', 'RPS_120', 'RPS_250', 'xueqiu_url']
     final_cols = [c for c in target_cols if c in show_df.columns]
@@ -725,27 +727,16 @@ def main():
                        use_container_width=True)
 
         st.markdown("---")
-        menu_items = [
-            "🛸 全市场看板",
-            "🔄 板块轮动",
-            "🏭 行业信号",
-            "📮 收盘摘要",
-            "📋 晚间复盘与次日计划",
-            "📝 复盘答卷",
-            "⭐ 我的池子 (每日复盘)",
-            "🎯 战绩回看",
-            "⚡ 实时行情 + 技术分析",
-            "🔥 强势股",
-            "🌐 宏观与股债性价比",
-            "⚡ 投机与套利",
-            "🚨 核心龙头雷达",
-            "📚 投资作业本",
-            "📏 黄金分割预测",
-            "📈 命运K线 (人生运势)",
-            "📖 使用说明文档",
-            "📰 资讯雷达"
-        ]
-        page = st.radio("导航菜单", menu_items, index=0)
+        group = st.selectbox("功能分组", list(NAV_GROUPS), key="nav_group")
+        description, menu_items = NAV_GROUPS[group]
+        st.caption(description)
+        # 非 widget 状态保存每组位置；Streamlit 会清理暂未渲染的 widget key。
+        saved_pages = st.session_state.setdefault("nav_saved_pages", {})
+        saved_page = saved_pages.get(group, menu_items[0])
+        page = st.radio("导航菜单", menu_items,
+                        index=menu_items.index(saved_page) if saved_page in menu_items else 0,
+                        key=f"nav_page_{group}")
+        saved_pages[group] = page
         st.markdown("---")
         st.markdown("💡 **Tip**: 保持独立思考。")
         # 全站免责声明：放在侧边栏意味着无论用户停在哪一页都能看到，

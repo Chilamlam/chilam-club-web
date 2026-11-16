@@ -39,8 +39,12 @@ def norm_date(v) -> str:
     返回空串表示取不出日期——调用方必须区分「没有日期戳」与「日期是旧的」，
     前者是数据格式问题，后者是跑批问题，处置方式完全不同。
     """
-    digits = re.sub(r"\D", "", str(v or ""))[:8]
-    return digits if len(digits) == 8 else ""
+    text = "" if v is None else str(v).strip()
+    match = re.match(r"^(\d{4})-?(\d{2})-?(\d{2})(?=$|[ T]|\.0+$)", text)
+    if not match:
+        return ""
+    digits = "".join(match.groups())
+    return digits if _to_date(digits) is not None else ""
 
 
 def _to_date(s: str):
@@ -58,7 +62,7 @@ def verdict(item_date, reference_date=None, today=None,
     ----
     item_date       本产物的日期戳（任意上述格式）
     reference_date  同批产物里最新的日期戳；None 表示不做同批比对
-    today           判定基准日（date 对象），None 取本机当天
+    today           判定基准日（date 对象），None 取北京时间当天
 
     返回 dict，关键字段：
         status  "ok" | "stale" | "unknown"
@@ -71,14 +75,19 @@ def verdict(item_date, reference_date=None, today=None,
     """
     d = norm_date(item_date)
     if not d:
-        return {"status": "unknown", "date": "", "reason": "产物里找不到日期戳",
+        return {"status": "unknown", "date": "", "reason": "产物缺少有效日期戳（缺失或日期格式错误）",
                 "lag_days": None}
 
-    base = today or dt.date.today()
+    base = today or dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).date()
     dd = _to_date(d)
     lag = (base - dd).days if dd else None
+    if lag is not None and lag < 0:
+        return {"status": "unknown", "date": d, "lag_days": lag,
+                "reason": f"本表数据日期 {_fmt(d)} 晚于北京时间判定日 {_fmt(base.strftime('%Y%m%d'))}，请检查数据日期"}
 
     ref = norm_date(reference_date) if reference_date else ""
+    if ref and _to_date(ref) > base:
+        ref = ""
     if ref and d < ref:
         return {"status": "stale", "date": d, "lag_days": lag,
                 "reason": f"本表数据日期 {_fmt(d)}，而站内其他榜单已更新到 "

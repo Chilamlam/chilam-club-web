@@ -113,7 +113,7 @@ def _render_freshness_and_disclaimer(plan: dict) -> dict:
             icon="🚨",
         )
     elif v["status"] == "unknown":
-        st.warning("⚠️ 晚间战法池缺少有效日期戳，请谨慎参考。")
+        st.warning(f"⚠️ 晚间战法池：{v['reason']}。请谨慎参考。")
     else:
         st.caption(
             f"📅 数据基准交易日：**{shown}**（生成时间：{plan.get('generated_at', '—')}） ｜ "
