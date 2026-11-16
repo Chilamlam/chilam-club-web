@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-16 19:07:02",
+  "date": "2026-11-17 07:27:17",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -179,7 +179,7 @@
       "change": 2.61,
       "vol_yi": 1.58,
       "tag": "📈 强势",
-      "premium_rate": 1.48
+      "premium_rate": -0.3
     },
     {
       "code": "159887.SZ",
@@ -188,7 +188,7 @@
       "change": 2.46,
       "vol_yi": 1.04,
       "tag": "📈 强势",
-      "premium_rate": 1.95
+      "premium_rate": 0.04
     },
     {
       "code": "512800.SH",
@@ -197,7 +197,7 @@
       "change": 2.23,
       "vol_yi": 15.17,
       "tag": "📈 强势",
-      "premium_rate": 2.14
+      "premium_rate": 0.24
     },
     {
       "code": "512730.SH",
@@ -206,7 +206,7 @@
       "change": 2.23,
       "vol_yi": 0.14,
       "tag": "📈 强势",
-      "premium_rate": 2.03
+      "premium_rate": 0.17
     },
     {
       "code": "513230.SH",
@@ -215,7 +215,7 @@
       "change": 2.2,
       "vol_yi": 0.65,
       "tag": "📈 强势",
-      "premium_rate": 1.44
+      "premium_rate": -0.33
     },
     {
       "code": "512410.SH",
@@ -224,7 +224,7 @@
       "change": 2.18,
       "vol_yi": 0.21,
       "tag": "📈 强势",
-      "premium_rate": 1.97
+      "premium_rate": 0.09
     },
     {
       "code": "515290.SH",
@@ -233,7 +233,7 @@
       "change": 2.17,
       "vol_yi": 1.66,
       "tag": "📈 强势",
-      "premium_rate": 2.01
+      "premium_rate": 0.12
     },
     {
       "code": "515450.SH",
@@ -242,7 +242,7 @@
       "change": 2.05,
       "vol_yi": 2.52,
       "tag": "📈 强势",
-      "premium_rate": 1.91
+      "premium_rate": -0.01
     },
     {
       "code": "513070.SH",
@@ -251,16 +251,7 @@
       "change": 2.01,
       "vol_yi": 3.04,
       "tag": "📈 强势",
-      "premium_rate": 1.4
-    },
-    {
-      "code": "560570.SH",
-      "name": "A500红利ETF国联安",
-      "price": 1.07,
-      "change": 2.0,
-      "vol_yi": 0.24,
-      "tag": "📈 强势",
-      "premium_rate": 1.9
+      "premium_rate": -0.37
     },
     {
       "code": "561320.SH",
@@ -269,16 +260,16 @@
       "change": 2.0,
       "vol_yi": 0.07,
       "tag": "📈 强势",
-      "premium_rate": 1.71
+      "premium_rate": 0.07
     },
     {
-      "code": "512820.SH",
-      "name": "银行ETF汇添富",
-      "price": 1.606,
-      "change": 1.97,
-      "vol_yi": 0.98,
+      "code": "560570.SH",
+      "name": "A500红利ETF国联安",
+      "price": 1.07,
+      "change": 2.0,
+      "vol_yi": 0.24,
       "tag": "📈 强势",
-      "premium_rate": 1.97
+      "premium_rate": 0.03
     },
     {
       "code": "563980.SH",
@@ -287,7 +278,16 @@
       "change": 1.97,
       "vol_yi": 0.06,
       "tag": "📈 强势",
-      "premium_rate": 1.74
+      "premium_rate": -0.12
+    },
+    {
+      "code": "512820.SH",
+      "name": "银行ETF汇添富",
+      "price": 1.606,
+      "change": 1.97,
+      "vol_yi": 0.98,
+      "tag": "📈 强势",
+      "premium_rate": 0.08
     },
     {
       "code": "159285.SZ",
@@ -296,7 +296,7 @@
       "change": 1.96,
       "vol_yi": 0.14,
       "tag": "📈 强势",
-      "premium_rate": 1.09
+      "premium_rate": -0.7
     },
     {
       "code": "159253.SZ",
@@ -305,7 +305,7 @@
       "change": 1.96,
       "vol_yi": 0.07,
       "tag": "📈 强势",
-      "premium_rate": 1.98
+      "premium_rate": 0.11
     },
     {
       "code": "159355.SZ",
@@ -314,7 +314,7 @@
       "change": 1.95,
       "vol_yi": 0.27,
       "tag": "📈 强势",
-      "premium_rate": 1.71
+      "premium_rate": -0.12
     },
     {
       "code": "158043.SZ",
@@ -323,7 +323,7 @@
       "change": 1.94,
       "vol_yi": 0.1,
       "tag": "📈 强势",
-      "premium_rate": 1.63
+      "premium_rate": -0.1
     },
     {
       "code": "560720.SH",
@@ -332,7 +332,7 @@
       "change": 1.89,
       "vol_yi": 0.07,
       "tag": "📈 强势",
-      "premium_rate": 1.51
+      "premium_rate": -0.22
     },
     {
       "code": "159085.SZ",
@@ -341,7 +341,7 @@
       "change": 1.89,
       "vol_yi": 0.09,
       "tag": "📈 强势",
-      "premium_rate": 1.64
+      "premium_rate": -0.08
     }
   ],
   "ai_analysis": ""
