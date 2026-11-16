@@ -1,0 +1,22 @@
+{
+  "date": "20261116",
+  "checked_at": "2026-11-17T00:47:32.740151+08:00",
+  "sources": {
+    "ths": {
+      "status": "permission_denied",
+      "records": {},
+      "retained_count": 0
+    },
+    "kpl": {
+      "status": "empty",
+      "records": {},
+      "rejected_dates": 0,
+      "conflicts": [],
+      "retained_count": 0
+    }
+  },
+  "coverage": {
+    "matched": 0,
+    "total": 32
+  }
+}
