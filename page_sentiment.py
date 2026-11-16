@@ -70,15 +70,15 @@ def _render_phase(phase: dict, date: str, prev_date, generated_at) -> None:
         f"<div style='padding:14px 18px;border-left:5px solid {color};"
         f"background:rgba(128,128,128,0.08);border-radius:6px;'>"
         f"<span style='font-size:1.6em;font-weight:700;color:{color};'>"
-        f"{icon} {phase['phase']}</span>"
-        f"<span style='margin-left:14px;opacity:0.85;'>{phase['basis']}</span>"
+        f"{icon} 统计档位：{phase['phase']}</span>"
+        f"<span style='margin-left:14px;opacity:0.85;'>仅按连板样本分组</span>"
         f"</div>",
         unsafe_allow_html=True,
     )
     cap = _threshold_caption(phase, phase.get("thresholds") or {})
     if cap:
         st.caption(cap)
-    st.caption(f"⚠️ {phase['note']}")
+    st.caption("档位是连板样本的统计分组，不构成参与建议；未验证其预测收益的能力。")
 
 
 def _render_kpi(derived: dict) -> None:
@@ -98,7 +98,7 @@ def _render_kpi(derived: dict) -> None:
                 _pct(r12["rate"] * 100),
                 delta=f"{r12['promoted']}/{r12['base']} 只",
                 delta_color="off",
-                help="昨日首板股中，今日成功连板的比例。首板样本大，是次日接力意愿最敏感的前瞻指标。",
+                help="昨日首板股中，今日继续涨停的比例；统计截止今日收盘。",
             )
             if not r12.get("reliable"):
                 st.caption("⚠️ 样本不足 10，比率波动大")
@@ -109,18 +109,18 @@ def _render_kpi(derived: dict) -> None:
     with c2:
         if premium.get("status") in ("ok", "insufficient"):
             st.metric(
-                "昨日连板股今日中位涨幅",
+                "昨日连板股今日中位涨跌幅",
                 _pct(premium["median_pct"], 2, sign=True),
-                delta=f"胜率 {premium['win_rate'] * 100:.0f}% | {premium['n']} 只",
+                delta=f"上涨占比 {premium['win_rate'] * 100:.0f}% | {premium['n']} 只",
                 delta_color="off",
-                help="衡量「昨天追高连板的人今天赚不赚钱」。取中位数而非均值，避免被个别妖股拉飞。",
+                help="昨日连板股今日收盘涨跌幅的中位数；上涨占比是样本内上涨只数比例。",
             )
             if premium.get("reason"):
                 st.caption(f"⚠️ {premium['reason']}")
             if premium.get("missing"):
                 st.caption(f"（{premium['missing']} 只今日行情缺失，未计入）")
         else:
-            st.metric("昨日连板股今日中位涨幅", "—")
+            st.metric("昨日连板股今日中位涨跌幅", "—")
             st.caption(premium.get("reason", "数据缺失"))
 
     with c3:
@@ -130,7 +130,7 @@ def _render_kpi(derived: dict) -> None:
                 f"{gap['max_height']} 板",
                 delta=(f"断层于 {gap['gaps']} 板" if gap.get("gaps") else "梯队连续"),
                 delta_color="inverse" if gap.get("gaps") else "normal",
-                help="高度是情绪的天花板。中间某个高度一只票都没有（断层）说明接力链条不连续。",
+                help="最高连板数与中间空档分别统计；最高板降低不等于出现中间空档。",
             )
             st.caption(f"今日涨停 {gap['total']} 家")
         else:
@@ -145,16 +145,11 @@ def _render_kpi(derived: dict) -> None:
                 f"{d:+.2f} pct",
                 delta=f"均值 {breadth['mean_pct']:+.2f}% / 中位 {breadth['median_pct']:+.2f}%",
                 delta_color="off",
-                help="均值远高于中位数 = 涨幅集中在少数标的，多数个股其实在跌，"
-                     "也就是「指数涨了但我亏钱」的那种日子。",
+                help="全市场个股涨跌幅的算术均值减中位数，单位为百分点。不是指数收益或权重贡献。",
             )
         else:
             st.metric("均值−中位 背离", "—")
             st.caption(breadth.get("reason", "数据缺失"))
-
-    if breadth.get("status") == "ok":
-        st.caption(f"📌 {breadth['verdict']}")
-
 
 def _render_promotion_table(promo: dict) -> None:
     rates = (promo or {}).get("rates") or {}
@@ -181,11 +176,8 @@ def _render_plan(plan: list) -> None:
     if not plan:
         st.info("今日暂无可对账的验证条件（派生指标不足）。")
         return
-    st.markdown("#### ✅ 明日验证条件（可逐条对账）")
-    st.caption(
-        "每条都带今日基准值和明确阈值。明天收盘后可以逐条打勾核对——"
-        "不带基准的判断永远无法被证伪，那种「怎么说都对」的话没有价值。"
-    )
+    st.markdown("#### 次日收盘核对项")
+    st.caption("下一交易日收盘后更新，用于比较两日统计。")
     for i, item in enumerate(plan, 1):
         with st.container(border=True):
             st.markdown(f"**{i}. {item.get('指标', '')}**")
@@ -196,7 +188,7 @@ def _render_plan(plan: list) -> None:
 
 
 def _render_caliber(derived: dict) -> None:
-    with st.expander("📖 口径与局限（建议先读一次）", expanded=False):
+    with st.expander("📖 统计口径", expanded=False):
         st.markdown(
             f"""
 **数据来源**：涨停池来自交易所公开涨停数据归档，全市场涨幅来自 Tushare 日线，
@@ -205,30 +197,17 @@ def _render_caliber(derived: dict) -> None:
 **统计日**：`{derived.get('date', '—')}`　**对比基准日**：`{derived.get('prev_date') or '—'}`　
 **归档天数**：{derived.get('archive_days', 0)} 天　**产出时间**：{derived.get('generated_at', '—')}
 
-**几个必须知道的局限**：
-- **晋级率是事后统计**，它描述的是昨日板今日的接力结果，不是对明日的预测。
-  它的价值在于给「情绪是在升温还是降温」一个可量化、可对账的刻度。
-- **档位阈值是自适应的，不是一组固定数字**。四档刻度按「当日之前的历史」晋级率
-  分布取 p80 / p55 / p25（近 60 个交易日），因此会随市场整体强弱自动抬高或降低——
-  市场转强，门槛跟着上移；转弱则下移。**阈值绝不包含当日自身结果**，否则等于
-  用今天的结果去解释今天的定位。
-- **为什么改成自适应**：旧版硬编码 45% / 30% / 15%，是未按真实分布校准的经验值。
-  用 2026-08-10 ~ 10-09 共 35 个交易日实测，1进2 晋级率均值约 15%（最高仅 36%），
-  45% 从未出现，导致「发酵期」永远不会亮起、97% 的日子被判退潮或冰点。阈值必须与
-  真实分布同刻度，否则标签会系统性失真。
-- **归档天数决定可比性**。归档不足 {sm.PHASE_MIN_SAMPLES} 个交易日时，分位估计不可靠，
-  此时回退到一组经验阈值并在基准行明确标注「样本不足」，只看绝对值、不看分位。
-- **连板溢价用的是当日实际涨幅**，包含开盘就跌的情况，所以它衡量的是
-  「昨天收盘追进去」的处境，不是「今天低吸」的处境。
-- **周期定位只描述状态，不含参与建议、目标价、止损位或仓位指引。**
-  本页所有内容不构成投资建议。
+- 晋级率统计昨日首板股在今日继续涨停的比例。
+- 连板样本涨跌幅以昨日收盘为基准；上涨占比为样本中涨幅大于零的比例，未模拟实际买卖。
+- 档位使用此前最多60个交易日的晋级率分位数，至少需要 {sm.PHASE_MIN_SAMPLES} 个有效交易日；不足时使用注明的经验阈值。
+- 中间高度无股票称为缺档，与最高连板数下降分别记录。
 """
         )
 
 
 def render_sentiment_block() -> None:
     """在全市场看板中渲染情绪派生指标区块。数据缺失时如实说明，绝不编造。"""
-    st.subheader("🌡️ 短线情绪派生指标 (接力成功率与溢价)")
+    st.subheader("🌡️ 短线接力统计")
 
     derived = sm.load_derived()
     if not derived:
@@ -256,11 +235,13 @@ def render_sentiment_block() -> None:
         f"`{derived.get('prev_date') or '—'}` | 归档 {derived.get('archive_days', 0)} 天"
     )
 
-    _render_phase(derived.get("phase") or {}, derived.get("date", ""),
-                  derived.get("prev_date"), derived.get("generated_at"))
-    st.markdown("")
     _render_kpi(derived)
     _render_promotion_table(derived.get("promotion") or {})
-    st.markdown("---")
-    _render_plan(derived.get("verification_plan") or [])
+    with st.expander("统计档位与次日收盘核对", expanded=False):
+        _render_phase(derived.get("phase") or {}, derived.get("date", ""),
+                      derived.get("prev_date"), derived.get("generated_at"))
+        _render_plan(sm.verification_plan(
+            derived.get("promotion") or {}, derived.get("ladder_gap") or {},
+            derived.get("premium") or {}, derived.get("breadth") or {},
+        ))
     _render_caliber(derived)

@@ -2,16 +2,12 @@
 """
 短线情绪派生指标计算层（纯 pandas/numpy，禁止 import streamlit / tushare / akshare）
 
-为什么需要这些派生量：涨停家数、上涨家数这类原始计数只能说明「今天涨了多少」，
-说明不了「明天还能不能接力」。真正有前瞻性的是接力成功率与溢价——
-这也是 vibe-astock 把派生指标层单独抽出来、并且明确「不经过 AI」的原因：
-它们是硬计算，AI 只负责把数串成一段话。
+所有指标都是收盘后的样本统计。统计档位不代表未来收益，文案约束见 REVIEW_CONTENT.md。
 
 四个核心派生量：
   1. 晋级率（1进2 最敏感）：昨日 N 连板中，今日成功晋级 N+1 的比例
-  2. 连板溢价：昨日连板股今日的平均/中位涨幅——衡量接力资金还愿不愿意出价
-  3. 赚钱效应背离：全市场涨幅均值 vs 中位数。均值远高于中位数意味着
-     指数被少数权重拉起、多数个股其实在亏钱，是典型的「指数虚涨」信号
+  2. 连板溢价：昨日连板股今日的平均/中位涨幅
+  3. 全市场个股涨幅均值与中位数之差；不推断指数贡献或资金意图
   4. 梯队断层：某个连板高度上一只票都没有，说明高度接力链条断了
 
 归档文件：
@@ -144,9 +140,9 @@ def ladder_gap(hist: pd.DataFrame, date: str) -> dict:
             gaps.append(n)
 
     first_board = int(counts.get(1, 0))
-    verdict = (f"{max_h} 板成为孤高，中间 {gaps} 板断层，接力链条不连续"
+    verdict = (f"最高 {max_h} 板，中间 {gaps} 板断层（该高度无股票）"
                if gaps else
-               f"{max_h} 板往下梯队连续，接力链条完整")
+               f"最高 {max_h} 板，中间高度无空档")
     if first_board == 0:
         verdict += "；今日无首板（无新增涨停接力）"
 
@@ -204,20 +200,16 @@ def continuation_premium(hist: pd.DataFrame, prev_date: str,
 def profit_effect(mean_pct: float | None, median_pct: float | None,
                   up: int | None, down: int | None) -> dict:
     """
-    赚钱效应与均值-中位数背离。
+    全市场个股涨跌幅均值、中位数及二者之差。
 
-    均值显著高于中位数 = 少数权重/妖股把均值拉高，多数个股其实在跌，
-    也就是「指数涨了但你亏钱」的那种日子。这个背离比涨跌家数更能解释体感。
+    这些汇总值不能单独识别权重贡献、收益集中度或投资者实际盈亏。
     """
     if mean_pct is None or median_pct is None:
         return {"status": "failed", "reason": "缺少全市场涨幅均值/中位数"}
     gap = float(mean_pct) - float(median_pct)
     total = (up or 0) + (down or 0)
-    verdict = "均值与中位数基本一致，涨跌较为普遍"
-    if gap >= 0.5:
-        verdict = "均值明显高于中位数：涨幅集中在少数标的，多数个股跑输体感偏冷"
-    elif gap <= -0.5:
-        verdict = "中位数高于均值：少数大跌股拖低均值，普涨结构其实尚可"
+    verdict = (f"个股涨跌幅均值 {float(mean_pct):+.2f}%，"
+               f"中位数 {float(median_pct):+.2f}%，相差 {gap:+.2f} 个百分点")
     return {
         "status": "ok",
         "mean_pct": float(mean_pct),
@@ -355,10 +347,9 @@ def _normalize_thresholds(thresholds: dict | None) -> dict:
 def classify_phase(r12: float, thresholds: dict | None,
                    prem: float | None = None) -> str:
     """
-    档位判定的**唯一真源**：周期定位与验证条件共用，避免同一规则两处实现漂移。
+    连板统计档位的唯一判定函数。
 
-    只有两处生效条件：1进2 晋级率（主轴）与连板溢价（发酵期需要昨日连板
-    仍有正溢价，否则「接力顺畅」与溢价为负互相矛盾）。
+    输入为1进2晋级率与昨日连板样本今日中位涨跌幅；档位不作为预测条件。
     """
     th = _normalize_thresholds(thresholds)
     if r12 >= th["high"] and (prem is None or prem > 0):
@@ -373,12 +364,8 @@ def classify_phase(r12: float, thresholds: dict | None,
 def cycle_phase(promo: dict, gap: dict, premium: dict,
                 thresholds: dict | None = None) -> dict:
     """
-    情绪周期定位。只给「当前处于哪一段」的判断依据，不给参与建议、不给仓位。
-
-    判据（全部来自上面的硬指标，不经过 AI）：
-      1进2 晋级率是主轴——它决定次日打板资金愿不愿意继续接力
-      连板溢价为负 = 昨日追高的人在亏钱，退潮特征
-      梯队断层 = 高度链条断裂
+    按连板样本的晋级比例与中位涨跌幅划分统计档位。
+    不从档位推断资金意愿或交易盈亏；中间缺档作为独立事实列出。
 
     阈值来源（2026-10-11 修正）：不再写死绝对数字，由 phase_thresholds() 按
     自身历史分位给出（近 60 日 p80/p55/p25），样本不足时回退经验阈值。
@@ -399,23 +386,12 @@ def cycle_phase(promo: dict, gap: dict, premium: dict,
     th = _normalize_thresholds(thresholds)
     phase = classify_phase(r12, th, prem)
     pct = r12 * 100
-    hi, mid, lo = th["high"] * 100, th["mid"] * 100, th["low"] * 100
-
-    if phase == "发酵期":
-        desc = (f"接力顺畅，1进2 晋级率 {pct:.1f}% 站上高位阈值 {hi:.1f}%，"
-                f"且昨日连板仍有正溢价")
-    elif phase == "分歧期":
-        desc = (f"晋级率 {pct:.1f}% 处于中位区间（{mid:.1f}%~{hi:.1f}%），"
-                f"资金在分歧中切换，赚钱效应不均匀")
-    elif phase == "退潮期":
-        desc = (f"晋级率 {pct:.1f}% 已跌破中位阈值 {mid:.1f}%，"
-                f"但仍在低位阈值 {lo:.1f}% 之上，接力开始失败")
-    else:
-        desc = (f"晋级率 {pct:.1f}% 跌破低位阈值 {lo:.1f}%，"
-                f"打板链条基本断裂")
+    desc = f"首板次日继续涨停比例 {pct:.1f}%"
+    if prem is not None:
+        desc += f"；昨日连板样本今日中位涨跌幅 {prem:+.2f}%"
 
     if has_gap and phase in ("发酵期", "分歧期"):
-        desc += "；但梯队存在断层，高度接力并不连续"
+        desc += f"；中间 {gap['gaps']} 板无股票"
 
     return {
         "status": "ok",
@@ -424,66 +400,52 @@ def cycle_phase(promo: dict, gap: dict, premium: dict,
         "r12": r12,
         "premium_median": prem,
         "thresholds": th,
-        "note": "周期定位仅描述当前市场状态，不构成参与建议或仓位指引。",
+        "note": "档位是连板样本的统计分组，不构成参与建议；未验证其预测收益的能力。",
     }
 
 
 def verification_plan(promo: dict, gap: dict, premium: dict,
                       breadth: dict, thresholds: dict | None = None) -> list[dict]:
-    """
-    「明日验证条件」清单：把今晚的判断落成带**今日基准值 + 变动阈值**的可对账条目。
+    """次日收盘数据核对项。只比较观测值，不由阈值推断资金意图或收益。
 
-    为什么必须带基准值：不带基准的判断第二天无法核对，也就永远无法被证伪，
-    这类「怎么说都对」的话术是信任的头号杀手。每条都写清楚
-    「今天是多少 / 明天低于或高于多少算什么」，第二天可以逐条打勾。
-
-    晋级率这一条的刻度直接复用 cycle_phase 的阈值（同一个 classify_phase），
-    不再另算一套——同一规则两处实现必然漂移。
+    保留参数与字段名兼容归档/答卷接口，统计档位放在 phase 明细中。
     """
     plan = []
     rates = (promo or {}).get("rates") or {}
 
     if "1进2" in rates and rates["1进2"].get("reliable"):
         cur = rates["1进2"]["rate"] * 100
-        th = _normalize_thresholds(thresholds)
-        prem = (premium or {}).get("median_pct") if (premium or {}).get("status") == "ok" else None
-        now = classify_phase(cur / 100, th, prem)
         plan.append({
-            "指标": "1进2 晋级率",
-            "今日基准": f"{cur:.1f}%（{rates['1进2']['promoted']}/{rates['1进2']['base']}）"
-                        f"，当前档位「{now}」",
-            "验证条件": f"次日跌破 {th['low'] * 100:.1f}% → 冰点期；"
-                        f"跌破 {th['mid'] * 100:.1f}% → 退潮期；"
-                        f"站上 {th['high'] * 100:.1f}% → 发酵期",
-            "为什么看它": "首板数量足、样本稳定，是次日资金接力意愿最敏感的前瞻指标",
+            "指标": "首板次日继续涨停比例",
+            "今日基准": f"{cur:.1f}%（{rates['1进2']['promoted']}/{rates['1进2']['base']}）",
+            "验证条件": f"下一交易日收盘后，与 {cur:.1f}% 比较，并同时列出继续涨停只数和首板样本数。",
+            "为什么看它": "记录首板群体的次日表现，每日样本会变化。",
         })
 
     if (premium or {}).get("status") == "ok":
         p = premium["median_pct"]
         plan.append({
-            "指标": "昨日连板股今日中位涨幅",
-            "今日基准": f"{p:+.2f}%（{premium['n']} 只，胜率 {premium['win_rate'] * 100:.0f}%）",
-            "验证条件": "明日若转负且胜率跌破 40%，说明接力资金已停止出价（退潮确认）",
-            "为什么看它": "衡量「昨天追高的人今天赚不赚钱」，比涨停家数更贴近真实体感",
+            "指标": "昨日连板股今日中位涨跌幅",
+            "今日基准": f"{p:+.2f}%（{premium['n']} 只，上涨占比 {premium['win_rate'] * 100:.0f}%）",
+            "验证条件": f"下一交易日收盘后，与 {p:+.2f}% 比较，同列上涨占比、样本数及缺失行情数。",
+            "为什么看它": "记录连板样本的收盘涨跌幅，不计算买卖收益。",
         })
 
     if (gap or {}).get("status") == "ok":
         plan.append({
             "指标": "连板梯队最高高度",
             "今日基准": f"{gap['max_height']} 板"
-                        + (f"，断层于 {gap['gaps']} 板" if gap.get("gaps") else "，梯队连续"),
-            "验证条件": f"明日若最高板不足 {gap['max_height']} 板且无新晋高度，高度链条判定为断裂",
-            "为什么看它": "高度是情绪的天花板，塌了通常先于家数走弱",
+                         + (f"，中间缺少 {gap['gaps']} 板" if gap.get("gaps") else "，中间高度无空档"),
+            "验证条件": f"下一交易日收盘后，与 {gap['max_height']} 板比较高度；另查中间高度是否有空档。高度下降与中间缺档分别记录。",
+            "为什么看它": "最高连板数与各高度股票数是两项独立统计。",
         })
 
     if (breadth or {}).get("status") == "ok":
-        d = breadth["divergence"]
         plan.append({
-            "指标": "全市场涨幅 均值−中位数 背离",
-            "今日基准": f"{d:+.2f} 个百分点"
-                        f"（均值 {breadth['mean_pct']:+.2f}% / 中位 {breadth['median_pct']:+.2f}%）",
-            "验证条件": "明日若背离扩大至 +1.0 以上，说明赚钱效应进一步向少数标的集中",
-            "为什么看它": "解释「指数涨了但我亏钱」的直接原因，涨跌家数看不出这一层",
+            "指标": "全市场上涨家数与中位涨跌幅",
+            "今日基准": f"上涨 {breadth['up']} 家 / 下跌 {breadth['down']} 家，中位 {breadth['median_pct']:+.2f}%",
+            "验证条件": f"下一交易日收盘后，与上涨 {breadth['up']} 家及中位 {breadth['median_pct']:+.2f}% 分别比较。",
+            "为什么看它": "观察上涨覆盖面和中间位置个股的表现是否同时改善。",
         })
 
     return plan

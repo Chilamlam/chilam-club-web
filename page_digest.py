@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-收盘摘要展示层（读 data/digest/latest.md + history/）
+收盘摘要展示层（最新正文与推送共用生成器；历史原文读 history/）
 
 门禁设计（与全站门禁原则一致）：
   **摘要内容本身开放**——它是最好的引流物，看得懂就会想每天都收到；
@@ -31,6 +31,7 @@ import streamlit as st
 import auth
 import push_binding as pb
 import narrative
+import digest
 
 DIGEST_DIR = os.path.join("data", "digest")
 LATEST_MD = os.path.join(DIGEST_DIR, "latest.md")
@@ -90,7 +91,7 @@ def _render_subscribe() -> None:
             "👑 推送订阅为 VIP 权益。开通后：\n\n"
             "- 每个交易日收盘后，当日摘要自动推到你的微信\n"
             "- 摘要顶部附「你的池子今日」个性化段落（中位涨幅、最强最弱、命中榜单）\n"
-            "- 明日验证条件逐条带今日基准值，第二天可对账"
+            "- 市场跨日变化、题材强弱和接力样本统一汇总"
         )
         if st.button("👑 查看开通方式", key="digest_vip", use_container_width=False):
             st.switch_page("pages/dashboard.py")
@@ -120,54 +121,37 @@ def _render_subscribe() -> None:
 
 def render_digest_page() -> None:
     st.header("📮 收盘摘要")
-    st.caption("每个交易日收盘后自动生成 | 只播报派生结论与可对账条件，不重复各家 app 都有的原始数据")
-
-    meta = _read_meta()
-    md = _read_text(LATEST_MD)
-
-    if not md:
-        st.info(
-            "⏳ 收盘摘要尚未生成。它依赖当日的情绪派生指标与榜单产出，"
-            "首次跑批（`daily_digest.py`）后开始每日累积。"
-        )
-        _render_subscribe()
-        return
-
-    if meta:
-        c1, c2, c3 = st.columns(3)
-        c1.metric("统计日", meta.get("date", "—"))
-        c2.metric("生成时间", (meta.get("generated_at") or "—")[-8:])
-        c3.metric("数据缺失项", len(meta.get("missing") or []))
-        if meta.get("missing"):
-            with st.expander(f"⚠️ 本次有 {len(meta['missing'])} 项数据未取到（不是「无事发生」）"):
-                for m in meta["missing"]:
-                    st.markdown(f"- {m}")
-
-    story = narrative.load_narrative()
-    st.subheader("🧭 今日复盘：先用人话看懂市场")
-    st.caption("先回答今天炒什么、市场发生了什么变化，再看原始摘要。叙事只依据已生成的数据，不替你做个股买卖决定。")
-    if story.get("status") == "ok":
-        st.caption(f"本段统计日：{narrative._date_display(story['date'])}；下文“今天”指该统计日，“明天”指下一交易日。")
-        with st.container(border=True):
-            st.markdown(story["markdown"])
-            if story.get("missing"):
-                st.caption("部分判断暂缺数据：" + "；".join(story["missing"]))
-    else:
-        st.warning("今日复盘叙事暂时无法生成：" + "；".join(story.get("missing") or ["关键数据缺失"]))
-
+    st.caption("市场较昨日的变化 · 当日领涨题材 · 近期强势方向的内部表现")
     hist = _history_dates()
-    view_md = md
-    view_date = (meta or {}).get("date", "latest")
-    if hist:
-        opts = ["最新"] + hist
-        pick = st.selectbox("查看日期", opts, index=0,
-                            help="历史摘要原样保存，不做事后修改——这样「明日验证条件」才能被回头核对。")
-        if pick != "最新":
-            t = _read_text(os.path.join(HIST_DIR, f"{pick}.md"))
-            if t:
-                view_md, view_date = t, pick
-
-    with st.container(border=True):
+    pick = st.selectbox("查看日期", ["最新"] + hist, index=0,
+                        help="历史记录保留当时的文字和数据；最新复盘使用当前生成规则。")
+    if pick == "最新":
+        # 同一生成器服务网页与后续推送；旧 markdown 不会继续覆盖修正后的口径。
+        current = digest.build_markdown()
+        view_md, view_date = current["markdown"], current.get("date") or "latest"
+        story = current["narrative"]
+        st.subheader("🧭 今日复盘")
+        st.caption(f"统计日：{narrative._date_display(story.get('date'))} · 数据生成：{current.get('generated_at') or '未确认'}")
+        if story.get("markdown"):
+            st.markdown(story["markdown"])
+        else:
+            st.info("市场复盘数据暂未齐备。")
+        if story.get("relay_markdown"):
+            with st.expander("短线接力样本", expanded=False):
+                st.markdown(story["relay_markdown"])
+        if current.get("detail_markdown"):
+            with st.expander("战法池、行业信号与榜单明细", expanded=False):
+                st.markdown(current["detail_markdown"])
+        if current["missing"]:
+            with st.expander(f"数据说明（{len(current['missing'])}项缺失）", expanded=False):
+                for item in current["missing"]:
+                    st.caption(item)
+    else:
+        view_md, view_date = _read_text(os.path.join(HIST_DIR, f"{pick}.md")), pick
+        st.caption("历史原文：保留当时的模板和统计口径，可能含已停用的模型表述。")
+        if not view_md:
+            st.info("该日归档暂不可用。")
+            return
         st.markdown(view_md)
 
     st.download_button(

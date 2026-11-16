@@ -132,11 +132,14 @@ def _evd_breadth(derived: dict) -> dict | None:
     if b.get("status") != "ok":
         return None
     p = derived.get("premium") or {}
-    prem = (f"连板溢价中位 {_pct(p.get('median_pct'))}（{p.get('n')} 只，"
-            f"胜率 {_f((p.get('win_rate') or 0) * 100)}%，再板 {p.get('limit_again')} 只）"
+    share = p.get("win_rate")
+    share_text = _f(share * 100) if isinstance(share, (int, float)) else "—"
+    prem = (f"昨日连板股今日中位涨跌幅 {_pct(p.get('median_pct'))}（{p.get('n')} 只，"
+            f"上涨占比 {share_text}%，再板 {p.get('limit_again')} 只，"
+            f"缺失行情 {p.get('missing', '—')} 只）"
             if p.get("status") == "ok" else "连板溢价数据未就位")
     return {
-        "title": "赚钱效应体感素材",
+        "title": "市场涨跌与连板样本",
         "lines": [
             f"- 上涨 {b.get('up')} 家 / 下跌 {b.get('down')} 家"
             f"（上涨占比 {_f((b.get('up_ratio') or 0) * 100)}%）",
@@ -431,15 +434,17 @@ def _evd_recognition(trade_date: str, ladder: dict) -> dict | None:
 
 
 def _evd_tomorrow(derived: dict) -> dict | None:
-    vp = derived.get("verification_plan") or []
+    from sentiment import verification_plan
+    vp = verification_plan(derived.get("promotion") or {}, derived.get("ladder_gap") or {},
+                           derived.get("premium") or {}, derived.get("breadth") or {})
     if not vp:
         return None
-    lines = ["明日盯这些指标（判断素材，不是结论）："]
+    lines = ["下一交易日收盘后核对以下统计："]
     for i, v in enumerate(vp[:4], 1):
         lines.append(f"- {i}. {v.get('指标')}｜今日基准 {v.get('今日基准')}")
         lines.append(f"　 验证：{v.get('验证条件')}")
-    return {"title": "明日验证条件", "lines": lines,
-            "source": "sentiment/derived.json · verification_plan"}
+    return {"title": "次日收盘核对", "lines": lines,
+            "source": "sentiment/derived.json · 收盘统计"}
 
 
 # ---------------------------------------------------------------------------

@@ -122,7 +122,7 @@ def test_premium() -> None:
     check("样本 n=5（B4 缺失未计入）", p.get("n") == 5, str(p.get("n")))
     check("缺失数量 missing=1", p.get("missing") == 1, str(p.get("missing")))
     check("中位数 = 2.0", abs(p.get("median_pct", 0) - 2.0) < 1e-9, str(p.get("median_pct")))
-    check("胜率 = 3/5 = 60%", abs(p.get("win_rate", 0) - 0.6) < 1e-9, str(p.get("win_rate")))
+    check("上涨占比 = 3/5 = 60%", abs(p.get("win_rate", 0) - 0.6) < 1e-9, str(p.get("win_rate")))
     check("再涨停统计 limit_again=1", p.get("limit_again") == 1)
 
     p2 = sm.continuation_premium(h, "20260101", {})
@@ -131,14 +131,15 @@ def test_premium() -> None:
 
 def test_profit_effect() -> None:
     a = sm.profit_effect(1.5, 0.2, 2800, 2200)
-    check("均值远高于中位 → 判定涨幅集中",
-          a.get("status") == "ok" and "少数" in a.get("verdict", ""), a.get("verdict", ""))
+    check("均值高于中位 → 只报观测值，不推断集中度",
+          a.get("status") == "ok" and "少数" not in a.get("verdict", "")
+          and "1.50" in a.get("verdict", ""), a.get("verdict", ""))
     check("背离值 = 1.3", abs(a.get("divergence", 0) - 1.3) < 1e-9)
     check("上涨占比 = 2800/5000", abs(a.get("up_ratio", 0) - 0.56) < 1e-9)
 
     b = sm.profit_effect(-1.0, 0.1, 1000, 4000)
-    check("中位高于均值 → 判定少数大跌拖低",
-          "拖低" in b.get("verdict", ""), b.get("verdict", ""))
+    check("中位高于均值 → 不推断下跌分布",
+          "拖低" not in b.get("verdict", "") and "-1.00" in b.get("verdict", ""), b.get("verdict", ""))
 
     c = sm.profit_effect(None, 0.1, 1, 1)
     check("缺均值 → failed", c.get("status") == "failed")
@@ -184,25 +185,20 @@ def test_cycle_and_plan() -> None:
         check(f"「{item.get('指标')}」带可对账阈值",
               any(ch.isdigit() for ch in str(item.get("验证条件", ""))))
 
-    # 验证条件的刻度必须与周期定位同源（同一规则两处实现必漂移）
+    # 收盘核对比较实际值；改变模型标签不应改变观测事实。
     plan_th = sm.verification_plan(promo, gap, premium, breadth,
                                    thresholds={"high": 0.30, "mid": 0.20,
                                                "low": 0.12, "method": "percentile"})
     cond = str(plan_th[0].get("验证条件", ""))
-    check("验证条件的档位刻度来自传入阈值（30/20/12）",
-          "30.0%" in cond and "20.0%" in cond and "12.0%" in cond, cond)
-    check("验证条件标注当前档位（40% ≥ 30% → 发酵期）",
-          "发酵期" in str(plan_th[0].get("今日基准", "")),
-          str(plan_th[0].get("今日基准")))
+    check("收盘核对以观测值40%为基准", "40.0%" in cond and "下一交易日收盘后" in cond, cond)
+    check("收盘核对不重复模型阈值", plan_th == plan, str(plan_th[0]))
 
     # 验证条件的档位标注必须随阈值变化——同一 r12 在不同阈值下档位不同，
     # 若两处各算一套（硬编码），这里就会露馅
     plan_th2 = sm.verification_plan(promo, gap, premium, breadth,
                                     thresholds={"high": 0.90, "mid": 0.30,
                                                 "low": 0.10, "method": "percentile"})
-    check("同一 r12 在更严格的阈值下档位降级为分歧期",
-          "分歧期" in str(plan_th2[0].get("今日基准", "")),
-          str(plan_th2[0].get("今日基准")))
+    check("更换阈值不改变收盘核对项", plan_th2 == plan, str(plan_th2[0]))
 
 
 def _hist_long(m_list: list, per_day: int = 20) -> pd.DataFrame:

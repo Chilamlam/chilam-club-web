@@ -50,6 +50,7 @@ os.makedirs(os.path.join(WORK, "data", "sentiment"))
 os.makedirs(os.path.join(WORK, "data", "scorecard"))
 os.makedirs(os.path.join(WORK, "data", "industry_signal"))
 os.makedirs(os.path.join(WORK, "data", "evening_plan"))
+os.makedirs(os.path.join(WORK, "data", "sector_rotation"))
 
 DERIVED = {
     "status": "complete", "date": "20260828", "prev_date": "20260827",
@@ -100,6 +101,17 @@ PERF = {
 
 with open(os.path.join(WORK, "data", "sentiment", "derived.json"), "w", encoding="utf-8") as f:
     json.dump(DERIVED, f, ensure_ascii=False)
+with open(os.path.join(WORK, "data", "trading_calendar.json"), "w", encoding="utf-8") as f:
+    json.dump({"start_date": "20260801", "end_date": "20260831",
+               "open_dates": ["20260827", "20260828"]}, f)
+with open(os.path.join(WORK, "data", "sentiment", "breadth_history.csv"), "w", encoding="utf-8") as f:
+    f.write("date,up,median_pct\n20260827,2600,0.1\n")
+with open(os.path.join(WORK, "data", "sector_rotation", "analysis.json"), "w", encoding="utf-8") as f:
+    json.dump({"status": "ok", "date": "20260828", "window_col": "pct_10d",
+               "universe_count": 1, "top": [
+                   {"code": "A", "name": "测试题材", "pct_chg": 1, "pct_10d": 5}]}, f)
+with open(os.path.join(WORK, "data", "sector_rotation", "history.csv"), "w", encoding="utf-8") as f:
+    f.write("date,code,name,pct_chg,up_count,down_count\n20260828,A,测试题材,1,20,10\n")
 with open(os.path.join(WORK, "data", "scorecard", "performance.json"), "w", encoding="utf-8") as f:
     json.dump(PERF, f, ensure_ascii=False)
 with open(os.path.join(WORK, "data", "industry_signal", "signal.json"), "w", encoding="utf-8") as f:
@@ -107,7 +119,11 @@ with open(os.path.join(WORK, "data", "industry_signal", "signal.json"), "w", enc
                "mv_window_actual": 30, "amt_window_actual": 20, "hits_count": 0, "hits": []}, f, ensure_ascii=False)
 with open(os.path.join(WORK, "data", "evening_plan", "latest.json"), "w", encoding="utf-8") as f:
     json.dump({"status": "complete", "date": "20260828", "date_display": "2026-08-28",
-               "cycle_and_laws": {"weekday": "周五", "active_laws": []},
+               "cycle_and_laws": {"weekday": "周五", "active_laws": [
+                   {"title": "旧规则", "summary": "高潮次日必迎分化"}],
+                   "first_board_split_125": {"status": "ok", "verdict": "无依据的旧判断",
+                       "pre_10am": {"base": 13, "promoted": 4, "median_pct": 3.49, "sample_pct": 12},
+                       "post_10am": {"base": 17, "promoted": 4, "median_pct": -1.90, "sample_pct": 17}}},
                "pools": {"pool_10am_first": {"title": "⚡ 10:00前硬核首板池", "count": 1,
                                              "items": [{"code": "600000", "name": "浦发银行", "first_time": "09:35:00"}]}}}, f, ensure_ascii=False)
 with open(os.path.join(WORK, "data", "strong_stocks.csv"), "w", encoding="utf-8") as f:
@@ -136,10 +152,10 @@ md = full["markdown"]
 ck(full["has_content"] is True, "has_content=True")
 ck(full["missing"] == [], f"无缺失项（实际 {full['missing']}）")
 ck("2026-08-28" in full["title"], f"标题含统计日 — {full['title']}")
-ck("分歧期" in full["title"], "标题含周期定位（打开前就知道今天什么行情）")
-for kw in ("你的池子今日", "情绪周期", "明日验证条件", "榜单变动", "榜单战绩"):
+ck("分歧期" not in full["title"], "连板模型档位不充当全市场标题")
+for kw in ("你的池子今日", "市场与题材", "接力样本", "榜单变动", "榜单战绩"):
     ck(kw in md, f"正文含段落「{kw}」")
-ck(md.index("你的池子今日") < md.index("情绪周期"),
+ck(md.index("你的池子今日") < md.index("市场与题材"),
    "个性化段落排在大盘段落之前（用户关心顺序：我 → 我该盯什么 → 大盘）")
 
 print("=" * 60)
@@ -157,12 +173,20 @@ ck("+1.05%" in md, "自选中位涨幅 = (3.2 + -1.1)/2 = 1.05%（手算对账�
 # 已在榜的平安银行不应算作"今日新进"
 ck("新进 **1** 只" in md, "只播报当日初次入选的 1 只（存量不重复播报）")
 
-# 判定基准必须随周期结论一起播报：同一个「退潮期」在固定阈值与自适应阈值下含义
-# 完全不同，读者看不到刻度就无法判断这个标签值不值得信——这正是本次修 bug 的教训
-ck("档位基准" in md, "周期段落带「档位基准」行（结论必须自带刻度）")
-ck("20.5%" in md and "15.7%" in md and "10.5%" in md,
-   "三档阈值数字原样透出，可逐日核对")
-ck("p80/p55/p25" in md, "基准说明标明分位口径，而不是含糊的「历史值」")
+# 旧档位与推断性文本不得污染新正文；统计明细仍可核对模型阈值。
+ck("档位基准" not in md and "明日验证条件" not in md, "正文不堆模型阈值与验证模板")
+for bad in ("资金已停止出价", "接力意愿转弱", "胜率", "资金在分歧中切换", "高潮次日必迎分化", "无依据的旧判断"):
+    ck(bad not in md, f"旧产物中的「{bad}」不会被重新引用")
+ck("上涨占比 60%" in md and "1 只行情缺失" in md, "样本占比保留样本量和缺失数")
+ck("继续涨停 4/13" in md and "取得行情 12 只" in md and "缺失 1 只" in md,
+   "首板分时统计从数值重建，列出样本与缺失数")
+_phase_detail, _ = dg.section_phase(DERIVED)
+ck("20.5%" in _phase_detail and "15.7%" in _phase_detail and "10.5%" in _phase_detail,
+   "模型明细保留阈值")
+ck("p80/p55/p25" in _phase_detail, "模型明细保留分位口径")
+_plan_detail, _ = dg.section_plan(DERIVED)
+ck("资金已停止出价" not in _plan_detail and "下一交易日收盘后" in _plan_detail,
+   "核对明细也从数值重建，不透传旧文案")
 
 # 缺基准就不写基准——宁可少一行，也不许编造一个刻度
 _min = {"status": "complete",
@@ -239,9 +263,9 @@ print("四、短文本形态")
 print("=" * 60)
 plain = full["plain"]
 ck(len(plain) <= 120, f"短文本 ≤120 字符（实际 {len(plain)}）— {plain}")
-ck("分歧期" in plain, "短文本含周期")
+ck("上涨 2800 / 下跌 2100" in plain, "短文本展示市场实际宽度")
 ck("1进2 40%" in plain, "短文本含 1进2")
-ck("2 条验证条件待明日对账" in plain, "短文本提示需对账条数")
+ck("5只" in plain and "分歧期" not in plain, "短文本标明接力样本数，不用档位代表市场")
 ck(dg.build_plain(None, None) != "", "无数据时短文本仍返回明确说明而非空串")
 
 print("=" * 60)
@@ -254,7 +278,7 @@ body_only = md.replace(dg.DISCLAIMER, "")
 for w in BANNED:
     ck(w not in body_only, f"摘要正文不含「{w}」")
 ck("不构成投资建议" in md, "摘要携带免责声明")
-ck("不构成参与建议或仓位指引" in md, "周期定位免责声明原样透出")
+ck(md.count("不构成投资建议") == 1, "口径说明集中一处，不在每段重复声明")
 
 os.chdir(_cwd)
 shutil.rmtree(WORK, ignore_errors=True)

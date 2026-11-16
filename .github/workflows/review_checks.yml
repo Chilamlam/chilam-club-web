@@ -1,0 +1,40 @@
+name: Review content checks
+
+on:
+  push:
+    paths:
+      - '**.py'
+      - 'requirements*.txt'
+      - 'REVIEW_CONTENT.md'
+      - '.github/workflows/review_checks.yml'
+  pull_request:
+    paths:
+      - '**.py'
+      - 'requirements*.txt'
+      - 'REVIEW_CONTENT.md'
+      - '.github/workflows/review_checks.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Unit and rendering regressions
+        run: python -m unittest discover -s tests -q
+      - name: Sentiment calculation and UI contracts
+        run: |
+          python tools_probe_sentiment.py
+          python tools_probe_sentiment_ui.py
+      - name: Digest content and delivery contracts (offline)
+        run: python tools_probe_digest.py

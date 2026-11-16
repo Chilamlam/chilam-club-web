@@ -2,17 +2,9 @@
 """
 收盘摘要组装层（纯 stdlib + pandas，禁止 import streamlit / 禁止联网）
 
-这一层只做一件事：把已经跑好的产物（derived.json / performance.json / 榜单 CSV）
-组装成一段**可以直接读完就知道明天看什么**的文本。
-
-设计原则（这决定推送是"有用"还是"骚扰"）：
-  1. **不重复用户已经知道的东西**。不播报"今天上涨 2800 家"这种打开任何 app
-     都能看到的数；只播报派生结论 + 需要跨日对账的东西。
-  2. **每条判断必须带今日基准值**。推送是承诺，明天要能被逐条核对。
-  3. **个性化段落放最前**。用户关心的顺序是「我的持仓 → 我该盯什么 → 大盘怎样」，
-     而不是反过来。没有自选的用户直接跳过该段，不塞占位内容。
-  4. **数据缺失就少说一段，绝不编**。任何一段的数据源缺失，就整段不出现，
-     并在末尾统一列出「本次缺失」，让用户知道是缺数据而不是"今天没事发生"。
+读取已生成的收盘数据，使用 narrative 的同一份正文服务网页和推送。
+跨日及相对强弱比较规则见 REVIEW_CONTENT.md；旧产物中的结论性文字不直接复用。
+个性化段落放最前，接力样本和榜单附在明细；缺失项集中列出。
 
 输出两种形态：
   build_markdown() → 邮件 / 企业微信 markdown 消息
@@ -24,6 +16,9 @@ import json
 import os
 
 import pandas as pd
+
+import narrative
+import sentiment as sm
 
 DERIVED_PATH = os.path.join("data", "sentiment", "derived.json")
 PERF_PATH = os.path.join("data", "scorecard", "performance.json")
@@ -75,7 +70,7 @@ def section_phase(derived: dict | None) -> tuple[str, str | None]:
     prem = derived.get("premium") or {}
     gap = derived.get("ladder_gap") or {}
 
-    lines = [f"### 📍 情绪周期：**{ph['phase']}**", f"{ph['basis']}", ""]
+    lines = [f"### 📍 连板统计档位：**{ph['phase']}**", ""]
     # 判定基准必须跟着结论一起播报：同一个「退潮期」在固定阈值和自适应阈值下
     # 含义完全不同，读者看不到基准就无法判断这个标签值不值得信。
     th = ph.get("thresholds") or {}
@@ -87,28 +82,29 @@ def section_phase(derived: dict | None) -> tuple[str, str | None]:
                      + ("" if promo.get("reliable") else " ⚠️样本不足10"))
     if prem.get("status") in ("ok", "insufficient"):
         lines.append(f"- 昨日连板股今日中位涨幅 **{prem['median_pct']:+.2f}%**"
-                     f"，胜率 {prem['win_rate'] * 100:.0f}%（{prem['n']} 只）")
+                     f"，上涨占比 {prem['win_rate'] * 100:.0f}%（{prem['n']} 只）")
     if gap.get("status") == "ok":
         lines.append(f"- 梯队最高 **{gap['max_height']} 板**，"
                      + (f"断层于 {gap['gaps']} 板" if gap.get("gaps") else "梯队连续")
                      + f"，今日涨停 {gap['total']} 家")
     # 周期定位的免责声明必须跟着周期一起走——它出现的地方就是最容易被当成
     # 操作指令的地方，脱开声明单独播报"发酵期"极易被读成"可以进场"。
-    if ph.get("note"):
-        lines += ["", f"_{ph['note']}_"]
+    lines += ["", "_档位只描述连板样本的统计位置，未验证其预测收益的能力。_"]
     return "\n".join(lines), None
 
 
 def section_plan(derived: dict | None) -> tuple[str, str | None]:
-    """明日验证条件——这是整封摘要里唯一"明天要回来对账"的部分，必须完整。"""
-    plan = (derived or {}).get("verification_plan") or []
+    """模型明细用的次日收盘核对项，不读取旧产物中的结论性文案。"""
+    d = derived or {}
+    plan = sm.verification_plan(d.get("promotion") or {}, d.get("ladder_gap") or {},
+                                d.get("premium") or {}, d.get("breadth") or {})
     if not plan:
-        return "", "明日验证条件为空"
-    lines = ["### ✅ 明日验证条件（明天收盘逐条打勾）", ""]
+        return "", "次日收盘核对数据缺失"
+    lines = ["### 🔎 次日收盘核对", ""]
     for i, it in enumerate(plan, 1):
         lines.append(f"**{i}. {it.get('指标', '')}**")
         lines.append(f"　今日基准：`{it.get('今日基准', '—')}`")
-        lines.append(f"　验证条件：{it.get('验证条件', '—')}")
+        lines.append(f"　收盘后比较：{it.get('验证条件', '—')}")
         lines.append("")
     return "\n".join(lines).rstrip(), None
 
@@ -201,7 +197,7 @@ def section_industry_signal() -> tuple[str, str | None]:
         import industry_signal as isig  # noqa: PLC0415
     except Exception as exc:  # noqa: BLE001
         return "", f"行业信号渲染失败（{type(exc).__name__}）"
-    return isig.signal_markdown(sig)
+    return isig.signal_markdown(sig, include_disclaimer=False)
 
 
 def section_evening_plan(watchlist: list[str] | None = None) -> tuple[str, str | None]:
@@ -213,7 +209,7 @@ def section_evening_plan(watchlist: list[str] | None = None) -> tuple[str, str |
         import evening_plan as ep  # noqa: PLC0415
     except Exception as exc:  # noqa: BLE001
         return "", f"晚间战法池渲染失败（{type(exc).__name__}）"
-    return ep.evening_plan_markdown(plan, watchlist=watchlist)
+    return ep.evening_plan_markdown(plan, watchlist=watchlist, include_disclaimer=False)
 
 
 def section_scorecard(perf: dict | None) -> tuple[str, str | None]:
@@ -268,21 +264,32 @@ def build_markdown(watchlist: list[str] | None = None,
 
     missing = []
     blocks = []
+    story = narrative.build_narrative(
+        derived, _load_json(narrative.SECTOR_PATH), _load_json(LADDER_PATH),
+        breadth_history=_load_csv(narrative.BREADTH_HISTORY),
+        sector_history=_load_csv(narrative.SECTOR_HISTORY),
+        calendar=_load_json(narrative.CALENDAR_PATH),
+    )
+    market_md = story.get("markdown") or ""
+    if story.get("relay_markdown"):
+        market_md += "\n\n#### 接力样本\n\n" + story["relay_markdown"]
+    details = []
     for md, miss in (section_watchlist(watchlist, pct_map),
-                     section_phase(derived),
-                     section_plan(derived),
+                     ("### 市场与题材\n\n" + market_md if market_md else "",
+                      None if market_md else "市场复盘数据缺失"),
                      section_evening_plan(watchlist),
                      section_industry_signal(),
                      section_new_picks(),
                      section_scorecard(perf)):
         if md:
             blocks.append(md)
+            if not md.startswith(("### 市场与题材", "### ⭐")):
+                details.append(md)
         if miss:
             missing.append(miss)
 
-    ph = ((derived or {}).get("phase") or {})
-    phase_txt = ph.get("phase") if ph.get("status") == "ok" else "待定"
-    title = f"【Chilam Club】{date_disp} 收盘摘要 · 情绪{phase_txt}"
+    missing.extend(m for m in story.get("missing", []) if m not in missing)
+    title = f"【Chilam Club】{date_disp} 收盘摘要"
 
     body = [f"# {date_disp} 收盘摘要", ""]
     body += ["\n\n---\n\n".join(blocks)] if blocks else \
@@ -299,6 +306,10 @@ def build_markdown(watchlist: list[str] | None = None,
         "plain": build_plain(derived, perf, missing),
         "missing": missing,
         "has_content": bool(blocks),
+        "date": date,
+        "generated_at": (derived or {}).get("generated_at", ""),
+        "narrative": story,
+        "detail_markdown": "\n\n---\n\n".join(details),
     }
 
 
@@ -307,22 +318,19 @@ def build_plain(derived: dict | None, perf: dict | None,
     """短文本形态：一屏能读完，只留最硬的三个数。"""
     if not derived or derived.get("status") == "failed":
         return "今日情绪派生指标未生成，无结论性播报。"
-    ph = derived.get("phase") or {}
     parts = []
-    if ph.get("status") == "ok":
-        parts.append(f"情绪{ph['phase']}")
+    breadth = derived.get("breadth") or {}
+    if breadth.get("status") == "ok":
+        parts.append(f"上涨 {breadth['up']} / 下跌 {breadth['down']}")
     r12 = ((derived.get("promotion") or {}).get("rates") or {}).get("1进2")
     if r12:
         parts.append(f"1进2 {r12['rate'] * 100:.0f}%")
     prem = derived.get("premium") or {}
     if prem.get("status") in ("ok", "insufficient"):
-        parts.append(f"连板溢价 {prem['median_pct']:+.1f}%")
+        parts.append(f"连板样本中位 {prem['median_pct']:+.1f}%（{prem['n']}只）")
     gap = derived.get("ladder_gap") or {}
     if gap.get("status") == "ok":
         parts.append(f"最高 {gap['max_height']} 板")
-    n_plan = len(derived.get("verification_plan") or [])
-    if n_plan:
-        parts.append(f"{n_plan} 条验证条件待明日对账")
     if missing:
         parts.append(f"（{len(missing)} 项数据缺失）")
     return " | ".join(parts) if parts else "关键指标缺失，无结论性播报。"

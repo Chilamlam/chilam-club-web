@@ -1854,6 +1854,7 @@ def build_evening_plan_payload(
 def evening_plan_markdown(
     payload: dict | None,
     watchlist: list[str] | None = None,
+    *, include_disclaimer: bool = True,
 ) -> tuple[str, str | None]:
     """为 digest.py 生成晚间战法精选与自选股战法共振推送段落。
 
@@ -1865,22 +1866,27 @@ def evening_plan_markdown(
 
     dk_disp = payload.get("date_display") or _fmt_date(payload.get("date") or "")
     cycle = payload.get("cycle_and_laws") or {}
-    laws = cycle.get("active_laws") or []
     pools = payload.get("pools") or {}
 
-    lines = [f"### 🎯 晚间战法池与周期法则（{dk_disp} · {cycle.get('weekday', '')}）", ""]
+    lines = [f"### 🎯 晚间战法池（{dk_disp} · {cycle.get('weekday', '')}）", ""]
 
-    # 1. 触发的周期/日历特殊法则
-    if laws:
-        for lw in laws[:3]:
-            icon = "🟢" if lw.get("level") == "opportunity" else ("⚠️" if lw.get("level") == "warning" else "📌")
-            lines.append(f"- {icon} **{lw.get('title')}**：{lw.get('summary')}")
-        lines.append("")
-
-    # 2. 10:00前首板 vs 10:00后首板溢价对比（#125）
+    # 推送只引用数值；旧产物中的周期法则和 verdict 不作为当日事实重发。
     sp125 = cycle.get("first_board_split_125") or {}
     if sp125.get("status") == "ok":
-        lines.append(f"- ⏱️ **#125 分时封板溢价验证**：{sp125.get('verdict')}")
+        for key, label in (("pre_10am", "10:00及以前"), ("post_10am", "10:00以后")):
+            bucket = sp125.get(key) or {}
+            base, promoted = bucket.get("base"), bucket.get("promoted")
+            if not (isinstance(base, int) and not isinstance(base, bool) and base > 0
+                    and isinstance(promoted, int) and not isinstance(promoted, bool)
+                    and 0 <= promoted <= base):
+                continue
+            text = (f"- 昨日{label}首板：今日继续涨停 {promoted}/{base}"
+                    f"（{promoted / base:.1%}）")
+            med, n = bucket.get("median_pct"), bucket.get("sample_pct")
+            if (isinstance(med, (int, float)) and not isinstance(med, bool) and np.isfinite(med)
+                    and isinstance(n, int) and not isinstance(n, bool) and 0 < n <= base):
+                text += f"，取得行情 {n} 只，今日中位涨跌幅 {med:+.2f}%（缺失 {base - n} 只）"
+            lines.append(text + "。")
         lines.append("")
 
     # 3. 六大池代表性客观名单摘要
@@ -1916,15 +1922,15 @@ def evening_plan_markdown(
             for it in p.get("items") or []:
                 c = _bare(it.get("code"))
                 if c in bare_wl:
-                    risk_str = f" ｜ {' '.join(it['risks'])}" if it.get("risks") else ""
-                    wl_hits.append(f"{it['name']} → 命中【{p_title}】{risk_str}")
+                    wl_hits.append(f"{it['name']} → 命中【{p_title}】")
         if wl_hits:
             lines.append("")
             lines.append("**🔍 你的自选股战法池共振**：")
             for h_txt in wl_hits[:6]:
                 lines.append(f"- {h_txt}")
 
-    lines += ["", f"_{DISCLAIMER}_"]
+    if include_disclaimer:
+        lines += ["", f"_{DISCLAIMER}_"]
     return "\n".join(lines), None
 
 

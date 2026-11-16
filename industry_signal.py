@@ -596,7 +596,7 @@ def history_hits(history: pd.DataFrame | None,
     }
 
 
-def signal_markdown(sig: dict | None) -> tuple[str, str | None]:
+def signal_markdown(sig: dict | None, *, include_disclaimer: bool = True) -> tuple[str, str | None]:
     """把 signal 渲染成推送段落。返回 (markdown, 缺失原因)。
 
     规矩与 digest 其余段落一致：**没数据就整段不出现**，并说明原因；
@@ -639,7 +639,8 @@ def signal_markdown(sig: dict | None) -> tuple[str, str | None]:
         if sig.get("hits_count", 0) > len(picks):
             lines.append(f"- （另有 {sig['hits_count'] - len(picks)} 个行业满足条件，"
                          f"按热度分位排序未列入）")
-    lines += ["",
-              "_该筛选只描述「相对自身历史缩水 + 成交占比重回高位」这一状态，"
-              "不含方向判断，不构成投资建议。_"]
+    if include_disclaimer:
+        lines += ["",
+                  "_该筛选只描述「相对自身历史缩水 + 成交占比重回高位」这一状态，"
+                  "不含方向判断，不构成投资建议。_"]
     return "\n".join(lines), None
