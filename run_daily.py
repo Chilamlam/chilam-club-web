@@ -73,6 +73,8 @@ STEPS: list[dict] = [
      "backfill": BACKFILL_NONE, "timeout": 1200},
     {"key": "market_monitor", "script": "daily_market_monitor.py", "label": "全市场监控",
      "backfill": BACKFILL_NONE, "timeout": 1800},
+    {"key": "ladder_themes", "script": "daily_ladder_themes.py", "label": "连板题材归因",
+     "backfill": BACKFILL_NONE, "timeout": 90},
     {"key": "speculation", "script": "daily_speculation.py", "label": "投机与套利",
      "backfill": BACKFILL_NONE, "timeout": 1200},
     {"key": "guru", "script": "daily_guru_loader.py", "label": "核心龙头",
@@ -243,6 +245,7 @@ DATE_PROBES: list[tuple[str, str, str]] = [
     ("突破池", "data/breakout_stocks.csv", "csv:update_date"),
     ("ETF 榜单", "data/strong_etfs.csv", "csv:更新日期"),
     ("连板天梯", "data/limit_ladder.json", "json:date"),
+    ("连板题材归因", "data/limit_themes.json", "json:date"),
     ("收盘摘要", "data/digest/latest.json", "json:date"),
     # 板块轮动必须入列：2026-09-03 它在 Actions 上连续三班取数失败，页面停在
     # 09-02 无人报警——因为之前它不在一致性判据里，掉队了没机器点名。

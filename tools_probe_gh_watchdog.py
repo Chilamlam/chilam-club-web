@@ -96,6 +96,7 @@ def payload(date: str) -> dict:
     return {
         "data/market_sentiment.csv": "date,up_count\n%s,1000\n" % date,
         "data/limit_ladder.json": '{"date": "%s", "rows": []}' % date,
+        "data/limit_themes.json": '{"date": "%s", "sources": {"ths": {"status": "empty", "records": {}}, "kpl": {"status": "empty", "records": {}}}}' % date,
         "data/digest/latest.json": '{"date": "%s-%s-%s 22:05:08"}'
         % (date[:4], date[4:6], date[6:]),
         "data/strong_stocks.csv": "code,\u66f4\u65b0\u65e5\u671f\n600519,%s\n" % date,
@@ -144,11 +145,11 @@ def sec_pure() -> None:
 
     # 判据必须逐产物覆盖：五个产物一个都不能少（2026-09-01 漏判 RPS、
     # 2026-09-03 漏判板块轮动的教训——掉队的产物必须先在清单里）。
-    ck(len(wd.PROBES) == 6, "PROBES 覆盖 6 个产物，包含首页市场情绪")
+    ck(len(wd.PROBES) == 7, "PROBES 覆盖 7 个产物，包含首页市场情绪与连板题材归因")
     ck({p[1] for p in wd.PROBES} == {
         "data/limit_ladder.json", "data/digest/latest.json",
         "data/strong_stocks.csv", "data/breakout_stocks.csv",
-        "data/sector_rotation/analysis.json", "data/market_sentiment.csv"}, "PROBES 路径与跑批产物一致")
+        "data/sector_rotation/analysis.json", "data/market_sentiment.csv", "data/limit_themes.json"}, "PROBES 路径与跑批产物一致")
 
 
 # ------------------------------------------------- 2. verdict 三态（核心判据）
@@ -377,7 +378,8 @@ def run_negative() -> int:
             # 造错后跑正向探针（--offline：反向验证只验判据，不受网络抖动干扰）
             p = subprocess.run(
                 [py, os.path.join(root, "tools_probe_gh_watchdog.py"), "--offline"],
-                capture_output=True, text=True, cwd=root, timeout=300,
+                capture_output=True, text=True, encoding="utf-8", errors="replace",
+                cwd=root, timeout=300, env={**os.environ, "PYTHONIOENCODING": "utf-8"},
             )
             out = (p.stdout or "") + (p.stderr or "")
             # 关键字必须出现在**失败行**里。只判 `kw in out` 会被 PASS 文案喂饱：

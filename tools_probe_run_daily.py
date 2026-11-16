@@ -60,6 +60,8 @@ def main() -> int:
     idx = {s["key"]: i for i, s in enumerate(rd.STEPS)}
     ck(idx["sentiment"] > idx["market_monitor"],
        "sentiment 必须在 market_monitor 之后（依赖 limit_ladder.json）")
+    ck(idx["ladder_themes"] > idx["market_monitor"],
+       "题材归因必须使用 market_monitor 已生成的天梯日期和名单")
     for k in ("rps", "etf", "breakout"):
         ck(idx["scorecard"] > idx[k], f"scorecard 必须在 {k} 之后（读当日榜单）")
     ck(idx["digest"] > idx["sentiment"] and idx["digest"] > idx["scorecard"],

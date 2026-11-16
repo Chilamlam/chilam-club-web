@@ -27,6 +27,7 @@ from publication_status import publication_status
 import auth
 from navigation import NAV_GROUPS
 from page_news import render_news_page
+from ladder_themes import attribution_for, source_status_text
 
 # ================= 1. 基础配置 (必须放在最前面) =================
 st.set_page_config(
@@ -211,7 +212,6 @@ def render_market_dashboard():
     df_index = load_data("data/index_history.csv")
     df_sent = load_data("data/market_sentiment.csv")
     df_sector = load_data("data/sector_hot.csv")
-    ai_data = load_json("data/ai_market_analysis.json")
     render_market_update_status(df_sent, df_sector)
 
     # 「AI 首席策略官复盘」板块已摘除（2026-09-14 用户决策）：
@@ -263,6 +263,13 @@ def render_market_dashboard():
         total_zt = ladder_raw.get("total_count", len(ladder_raw["stocks"]))
         max_h = ladder_raw.get("max_height", 1)
         st.caption(f"👑 统计日涨停共 **{total_zt}** 家 | 市场最高板：**{max_h} 连板** (统计日期: `{ladder_raw.get('date', '未知')}`)")
+        theme_data = load_json("data/limit_themes.json")
+        theme_count = sum(attribution_for(r.get("code"), ladder_raw.get("date"), theme_data) is not None
+                          for r in ladder_raw["stocks"])
+        if theme_data and freshness.norm_date(theme_data.get("date")) == freshness.norm_date(ladder_raw.get("date")):
+            st.caption(f"当日涨停归因覆盖 {theme_count}/{len(ladder_raw['stocks'])} 只 · 来源状态：{source_status_text(theme_data)}")
+        else:
+            st.caption("当日题材归因尚未生成；主营行业仅作公司分类，不代表当天炒作题材。")
         
         df_zt_all = pd.DataFrame(ladder_raw["stocks"])
         df_zt_all['limit_times'] = pd.to_numeric(df_zt_all['limit_times'], errors='coerce').fillna(1).astype(int)
@@ -276,16 +283,18 @@ def render_market_dashboard():
                 for idx, (_, r) in enumerate(sub.iterrows()):
                     with cols[idx % 4]:
                         st.markdown(f"**{r['name']}** `{r.get('code', '')}`")
-                        ind_str = r.get('industry', '-')
-                        st.caption(f"行业: `{ind_str}`")
+                        attribution = attribution_for(r.get('code'), ladder_raw.get('date'), theme_data)
+                        if attribution:
+                            if attribution['theme']:
+                                st.markdown(f"**题材：{attribution['theme']}**")
+                            if attribution['reason']:
+                                st.caption(f"涨停原因：{attribution['reason']}")
+                            st.caption(f"{attribution['source']} · {ladder_raw['date']}")
+                        else:
+                            st.caption("当日题材归因暂缺")
+                        st.caption(f"主营行业：{r.get('industry', '-')}")
                         if r.get('reason'):
-                            st.caption(f"💡 {r['reason']}")
-    elif ai_data and 'limit_reasons' in ai_data and len(ai_data['limit_reasons']) > 0:
-        # 降级展示 AI 抓到的涨停龙头
-        st.caption("💡 当前为 AI 推演提取的重点龙头梯队：")
-        df_reasons = pd.DataFrame(ai_data['limit_reasons'])
-        for idx, r in df_reasons.iterrows():
-            st.markdown(f"- **{r['name']}**: {r.get('reason', '')}")
+                            st.caption(f"盘口：{r['reason']}")
     else:
         st.info("今日暂无涨停连板梯队数据。")
 

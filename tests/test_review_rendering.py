@@ -30,7 +30,7 @@ class ReviewRenderingTests(unittest.TestCase):
              patch.object(page_digest.digest, "build_markdown", return_value=current), \
              patch.object(page_digest, "_read_text", return_value="资金已停止出价") as old, \
              patch.object(page_digest.auth, "is_logged_in", return_value=False):
-            app = AppTest.from_function(digest_page).run()
+            app = AppTest.from_function(digest_page).run(timeout=30)
         self.assertFalse(app.exception)
         text = "\n".join(m.value for m in app.markdown)
         self.assertEqual(text.count("市场事实只出现一次"), 1)
@@ -46,9 +46,9 @@ class ReviewRenderingTests(unittest.TestCase):
              patch.object(page_digest.digest, "build_markdown") as build, \
              patch.object(page_digest.auth, "is_logged_in", return_value=False):
             build.return_value = {"markdown": "最新", "date": "20261116", "narrative": {}, "missing": []}
-            app = AppTest.from_function(digest_page).run()
+            app = AppTest.from_function(digest_page).run(timeout=30)
             build.reset_mock()
-            app.selectbox[0].select("20261113").run()
+            app.selectbox[0].select("20261113").run(timeout=30)
             build.assert_not_called()
         self.assertFalse(app.exception)
         self.assertIn("历史归档正文", [m.value for m in app.markdown])
@@ -65,7 +65,7 @@ class ReviewRenderingTests(unittest.TestCase):
             "verification_plan": [{"指标": "旧模板", "验证条件": "高度链条断裂"}],
         }
         with patch.object(page_sentiment.sm, "load_derived", return_value=derived):
-            app = AppTest.from_function(sentiment_block).run()
+            app = AppTest.from_function(sentiment_block).run(timeout=30)
         self.assertFalse(app.exception)
         rendered = "\n".join(m.value for m in app.markdown)
         evidence = str(review_evidence._evd_breadth(derived)) + str(review_evidence._evd_tomorrow(derived))

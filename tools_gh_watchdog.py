@@ -109,6 +109,7 @@ _CHANNEL = {"urllib": 0, "curl": 0, "fail": 0}  # 供元断言与日志用，不
 PROBES = [
     ("市场情绪", "data/market_sentiment.csv", "csv:date"),
     ("连板天梯", "data/limit_ladder.json", "json:date"),
+    ("连板题材归因", "data/limit_themes.json", "json:date"),
     ("收盘摘要", "data/digest/latest.json", "json:date"),
     ("RPS 强势股", "data/strong_stocks.csv", "csv:更新日期"),
     ("突破池", "data/breakout_stocks.csv", "csv:update_date"),

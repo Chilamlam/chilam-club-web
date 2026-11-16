@@ -37,6 +37,7 @@ on:
   schedule:
     - cron: '37 10 * * *' # 北京时间 18:37 主跑批；sw_daily 18:30 发布后运行，目标 19:00 前完成
     - cron: '20 14 * * *' # 北京时间 22:20 兜底补跑；是否成功以产物日期为准
+    - cron: '17 23 * * *' # 北京时间 07:17 仅补连板题材：开盘啦次日早上提供前一交易日归因
   workflow_dispatch:
     inputs:
       backfill_days:
@@ -44,7 +45,7 @@ on:
         required: false
         default: '0'
       only:
-        description: '只跑指定步骤，逗号分隔（留空=全跑）。可选：calendar,expire_orders,rps,etf,market_monitor,speculation,guru,radar,snapshot,breakout,sector_rotation,industry_signal,sentiment,scorecard,evening_plan,digest,review_ai,review_score'
+        description: '只跑指定步骤，逗号分隔（留空=全跑）。可选：calendar,expire_orders,rps,etf,market_monitor,ladder_themes,speculation,guru,radar,snapshot,breakout,sector_rotation,industry_signal,sentiment,scorecard,evening_plan,digest,review_ai,review_score'
         required: false
         default: ''
 
@@ -112,8 +113,11 @@ jobs:
         # 手动输入一律走 env 而非直接插值进 run 脚本：${{ }} 会被原文拼进 shell，
         # 输入里带引号或分号就变成命令注入。走 env 后 shell 只当它是普通字符串。
         ONLY_STEPS: ${{ github.event.inputs.only }}
+        SCHEDULE_CRON: ${{ github.event.schedule }}
       run: |
-        if [ -n "$ONLY_STEPS" ]; then
+        if [ "$SCHEDULE_CRON" = "17 23 * * *" ]; then
+          python run_daily.py --only ladder_themes
+        elif [ -n "$ONLY_STEPS" ]; then
           python run_daily.py --only "$ONLY_STEPS"
         else
           python run_daily.py
