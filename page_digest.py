@@ -30,6 +30,7 @@ import streamlit as st
 
 import auth
 import push_binding as pb
+import narrative
 
 DIGEST_DIR = os.path.join("data", "digest")
 LATEST_MD = os.path.join(DIGEST_DIR, "latest.md")
@@ -141,6 +142,18 @@ def render_digest_page() -> None:
             with st.expander(f"⚠️ 本次有 {len(meta['missing'])} 项数据未取到（不是「无事发生」）"):
                 for m in meta["missing"]:
                     st.markdown(f"- {m}")
+
+    story = narrative.load_narrative()
+    st.subheader("🧭 今日复盘：先用人话看懂市场")
+    st.caption("先回答今天炒什么、市场发生了什么变化，再看原始摘要。叙事只依据已生成的数据，不替你做个股买卖决定。")
+    if story.get("status") == "ok":
+        st.caption(f"本段统计日：{narrative._date_display(story['date'])}；下文“今天”指该统计日，“明天”指下一交易日。")
+        with st.container(border=True):
+            st.markdown(story["markdown"])
+            if story.get("missing"):
+                st.caption("部分判断暂缺数据：" + "；".join(story["missing"]))
+    else:
+        st.warning("今日复盘叙事暂时无法生成：" + "；".join(story.get("missing") or ["关键数据缺失"]))
 
     hist = _history_dates()
     view_md = md
