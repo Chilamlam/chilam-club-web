@@ -1,0 +1,3305 @@
+{
+  "generated_at": "2026-11-17T14:15:47.258758+08:00",
+  "rows": [
+    {
+      "ts_code": "128044.SZ",
+      "bond_short_name": "岭南转债",
+      "stk_code": "002717.SZ",
+      "stk_short_name": "*ST岭南",
+      "conv_price": 1.4,
+      "remain_size": 348848600.0,
+      "list_date": "20180904",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "124002.SZ",
+      "bond_short_name": "华铭定转",
+      "stk_code": "300462.SZ",
+      "stk_short_name": "ST华铭",
+      "conv_price": 14.03,
+      "remain_size": 15851288.4,
+      "list_date": "",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113575.SH",
+      "bond_short_name": "东时转债",
+      "stk_code": "603377.SH",
+      "stk_short_name": "ST东时",
+      "conv_price": 4.42,
+      "remain_size": 62400000.0,
+      "list_date": "20200430",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "128138.SZ",
+      "bond_short_name": "侨银转债",
+      "stk_code": "002973.SZ",
+      "stk_short_name": "侨银股份",
+      "conv_price": 10.6,
+      "remain_size": 419643400.0,
+      "list_date": "20201224",
+      "delist_date": "20261117"
+    },
+    {
+      "ts_code": "123076.SZ",
+      "bond_short_name": "强力转债",
+      "stk_code": "300429.SZ",
+      "stk_short_name": "强力新材",
+      "conv_price": 10.6,
+      "remain_size": 110935900.0,
+      "list_date": "20201204",
+      "delist_date": "20261119"
+    },
+    {
+      "ts_code": "110077.SH",
+      "bond_short_name": "洪城转债",
+      "stk_code": "600461.SH",
+      "stk_short_name": "洪城环境",
+      "conv_price": 4.41,
+      "remain_size": 8758795.74,
+      "list_date": "20201217",
+      "delist_date": "20261120"
+    },
+    {
+      "ts_code": "113610.SH",
+      "bond_short_name": "灵康转债",
+      "stk_code": "603669.SH",
+      "stk_short_name": "灵康药业",
+      "conv_price": 5.5,
+      "remain_size": 243614119.5,
+      "list_date": "20201222",
+      "delist_date": "20261201"
+    },
+    {
+      "ts_code": "123080.SZ",
+      "bond_short_name": "海波转债",
+      "stk_code": "300517.SZ",
+      "stk_short_name": "海波重科",
+      "conv_price": 11.28,
+      "remain_size": 148401800.0,
+      "list_date": "20201222",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113043.SH",
+      "bond_short_name": "财通转债",
+      "stk_code": "601108.SH",
+      "stk_short_name": "财通证券",
+      "conv_price": 7.98,
+      "remain_size": 3798827093.1,
+      "list_date": "20201228",
+      "delist_date": "20261210"
+    },
+    {
+      "ts_code": "127027.SZ",
+      "bond_short_name": "能化转债",
+      "stk_code": "000552.SZ",
+      "stk_short_name": "甘肃能化",
+      "conv_price": 2.93,
+      "remain_size": 1946203500.0,
+      "list_date": "20210122",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123088.SZ",
+      "bond_short_name": "威唐转债",
+      "stk_code": "300707.SZ",
+      "stk_short_name": "威唐工业",
+      "conv_price": 14.97,
+      "remain_size": 300358500.0,
+      "list_date": "20210106",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "128142.SZ",
+      "bond_short_name": "新乳转债",
+      "stk_code": "002946.SZ",
+      "stk_short_name": "新乳业",
+      "conv_price": 17.5,
+      "remain_size": 717575000.0,
+      "list_date": "20210119",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123090.SZ",
+      "bond_short_name": "三诺转债",
+      "stk_code": "300298.SZ",
+      "stk_short_name": "三诺生物",
+      "conv_price": 34.52,
+      "remain_size": 498376400.0,
+      "list_date": "20210112",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113615.SH",
+      "bond_short_name": "金诚转债",
+      "stk_code": "603979.SH",
+      "stk_short_name": "金诚信",
+      "conv_price": 11.12,
+      "remain_size": 414119471.28,
+      "list_date": "20210114",
+      "delist_date": "20261223"
+    },
+    {
+      "ts_code": "123091.SZ",
+      "bond_short_name": "长海转债",
+      "stk_code": "300196.SZ",
+      "stk_short_name": "长海股份",
+      "conv_price": 14.79,
+      "remain_size": 545613900.0,
+      "list_date": "20210115",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123092.SZ",
+      "bond_short_name": "天壕转债",
+      "stk_code": "300332.SZ",
+      "stk_short_name": "天壕能源",
+      "conv_price": 4.97,
+      "remain_size": 341557700.0,
+      "list_date": "20210115",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113616.SH",
+      "bond_short_name": "韦尔转债",
+      "stk_code": "603501.SH",
+      "stk_short_name": "豪威集团",
+      "conv_price": 159.02,
+      "remain_size": 2432060298.96,
+      "list_date": "20210122",
+      "delist_date": "20261228"
+    },
+    {
+      "ts_code": "123095.SZ",
+      "bond_short_name": "日升转债",
+      "stk_code": "300118.SZ",
+      "stk_short_name": "东方日升",
+      "conv_price": 28.01,
+      "remain_size": null,
+      "list_date": "",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113042.SH",
+      "bond_short_name": "上银转债",
+      "stk_code": "601229.SH",
+      "stk_short_name": "上海银行",
+      "conv_price": 8.05,
+      "remain_size": 17710505060.9,
+      "list_date": "20210210",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123104.SZ",
+      "bond_short_name": "卫宁转债",
+      "stk_code": "300253.SZ",
+      "stk_short_name": "卫宁健康",
+      "conv_price": 7.02,
+      "remain_size": 969860200.0,
+      "list_date": "20210331",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127030.SZ",
+      "bond_short_name": "盛虹转债",
+      "stk_code": "000301.SZ",
+      "stk_short_name": "东方盛虹",
+      "conv_price": 13.21,
+      "remain_size": 4997403400.0,
+      "list_date": "20210421",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127031.SZ",
+      "bond_short_name": "洋丰转债",
+      "stk_code": "000902.SZ",
+      "stk_short_name": "新洋丰",
+      "conv_price": 16.79,
+      "remain_size": 999903400.0,
+      "list_date": "20210423",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123107.SZ",
+      "bond_short_name": "温氏转债",
+      "stk_code": "300498.SZ",
+      "stk_short_name": "温氏股份",
+      "conv_price": 16.09,
+      "remain_size": 7706343000.0,
+      "list_date": "20210421",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123109.SZ",
+      "bond_short_name": "昌红转债",
+      "stk_code": "300151.SZ",
+      "stk_short_name": "昌红科技",
+      "conv_price": 20.93,
+      "remain_size": 459499400.0,
+      "list_date": "20210419",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127033.SZ",
+      "bond_short_name": "中装转2",
+      "stk_code": "002822.SZ",
+      "stk_short_name": "ST中装",
+      "conv_price": 3.79,
+      "remain_size": 9180800.0,
+      "list_date": "20210524",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123113.SZ",
+      "bond_short_name": "仙乐转债",
+      "stk_code": "300791.SZ",
+      "stk_short_name": "仙乐健康",
+      "conv_price": 31.7,
+      "remain_size": 1024815300.0,
+      "list_date": "20210514",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113048.SH",
+      "bond_short_name": "晶科转债",
+      "stk_code": "601778.SH",
+      "stk_short_name": "晶科科技",
+      "conv_price": 4.47,
+      "remain_size": 1545294000.0,
+      "list_date": "20210531",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127034.SZ",
+      "bond_short_name": "绿茵转债",
+      "stk_code": "002887.SZ",
+      "stk_short_name": "绿茵生态",
+      "conv_price": 8.0,
+      "remain_size": 427889000.0,
+      "list_date": "20210528",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111000.SH",
+      "bond_short_name": "起帆转债",
+      "stk_code": "605222.SH",
+      "stk_short_name": "起帆电缆",
+      "conv_price": 17.29,
+      "remain_size": 999092023.3,
+      "list_date": "20210617",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123114.SZ",
+      "bond_short_name": "三角转债",
+      "stk_code": "300775.SZ",
+      "stk_short_name": "三角防务",
+      "conv_price": 22.69,
+      "remain_size": 899874800.0,
+      "list_date": "20210611",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127037.SZ",
+      "bond_short_name": "银轮转债",
+      "stk_code": "002126.SZ",
+      "stk_short_name": "银轮股份",
+      "conv_price": 10.27,
+      "remain_size": 505511700.0,
+      "list_date": "20210709",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113049.SH",
+      "bond_short_name": "长汽转债",
+      "stk_code": "601633.SH",
+      "stk_short_name": "长城汽车",
+      "conv_price": 38.74,
+      "remain_size": 3495017031.5,
+      "list_date": "20210708",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127038.SZ",
+      "bond_short_name": "国微转债",
+      "stk_code": "002049.SZ",
+      "stk_short_name": "紫光国微",
+      "conv_price": 97.01,
+      "remain_size": 1491484700.0,
+      "list_date": "20210714",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113625.SH",
+      "bond_short_name": "江山转债",
+      "stk_code": "603208.SH",
+      "stk_short_name": "江山欧派",
+      "conv_price": 19.84,
+      "remain_size": 582531000.0,
+      "list_date": "20210701",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113051.SH",
+      "bond_short_name": "节能转债",
+      "stk_code": "601016.SH",
+      "stk_short_name": "节能风电",
+      "conv_price": 3.32,
+      "remain_size": 2651916000.68,
+      "list_date": "20210722",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123117.SZ",
+      "bond_short_name": "健帆转债",
+      "stk_code": "300529.SZ",
+      "stk_short_name": "健帆生物",
+      "conv_price": 38.15,
+      "remain_size": 999829200.0,
+      "list_date": "20210712",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127040.SZ",
+      "bond_short_name": "国泰转债",
+      "stk_code": "002091.SZ",
+      "stk_short_name": "江苏国泰",
+      "conv_price": 7.15,
+      "remain_size": 3986226900.0,
+      "list_date": "20210810",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123118.SZ",
+      "bond_short_name": "惠城转债",
+      "stk_code": "300779.SZ",
+      "stk_short_name": "惠城环保",
+      "conv_price": 10.33,
+      "remain_size": 65349600.0,
+      "list_date": "20210726",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123119.SZ",
+      "bond_short_name": "康泰转2",
+      "stk_code": "300601.SZ",
+      "stk_short_name": "康泰生物",
+      "conv_price": 15.66,
+      "remain_size": 1998948900.0,
+      "list_date": "20210805",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113627.SH",
+      "bond_short_name": "太平转债",
+      "stk_code": "603877.SH",
+      "stk_short_name": "太平鸟",
+      "conv_price": 20.61,
+      "remain_size": 799645000.0,
+      "list_date": "20210806",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110081.SH",
+      "bond_short_name": "闻泰转债",
+      "stk_code": "600745.SH",
+      "stk_short_name": "*ST闻泰",
+      "conv_price": 18.36,
+      "remain_size": 7150274041.56,
+      "list_date": "20210820",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123122.SZ",
+      "bond_short_name": "富瀚转债",
+      "stk_code": "300613.SZ",
+      "stk_short_name": "富瀚微",
+      "conv_price": 91.5,
+      "remain_size": 580062100.0,
+      "list_date": "20210824",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123124.SZ",
+      "bond_short_name": "晶瑞转2",
+      "stk_code": "300655.SZ",
+      "stk_short_name": "晶瑞电材",
+      "conv_price": 12.79,
+      "remain_size": 522419400.0,
+      "list_date": "20210907",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127045.SZ",
+      "bond_short_name": "牧原转债",
+      "stk_code": "002714.SZ",
+      "stk_short_name": "牧原股份",
+      "conv_price": 43.32,
+      "remain_size": 9542947200.0,
+      "list_date": "20210910",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127044.SZ",
+      "bond_short_name": "蒙娜转债",
+      "stk_code": "002918.SZ",
+      "stk_short_name": "蒙娜丽莎",
+      "conv_price": 19.76,
+      "remain_size": 336781700.0,
+      "list_date": "20210916",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127046.SZ",
+      "bond_short_name": "百润转债",
+      "stk_code": "002568.SZ",
+      "stk_short_name": "百润股份",
+      "conv_price": 20.33,
+      "remain_size": 1127412400.0,
+      "list_date": "20211103",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127047.SZ",
+      "bond_short_name": "帝欧转债",
+      "stk_code": "002798.SZ",
+      "stk_short_name": "帝欧水华",
+      "conv_price": 5.1,
+      "remain_size": 464329900.0,
+      "list_date": "20211126",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127049.SZ",
+      "bond_short_name": "希望转2",
+      "stk_code": "000876.SZ",
+      "stk_short_name": "新希望",
+      "conv_price": 10.13,
+      "remain_size": 8143398500.0,
+      "list_date": "20211129",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113631.SH",
+      "bond_short_name": "皖天转债",
+      "stk_code": "603689.SH",
+      "stk_short_name": "皖天然气",
+      "conv_price": 6.46,
+      "remain_size": 595764000.0,
+      "list_date": "20211210",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127050.SZ",
+      "bond_short_name": "麒麟转债",
+      "stk_code": "002984.SZ",
+      "stk_short_name": "森麒麟",
+      "conv_price": 15.07,
+      "remain_size": 2086029000.0,
+      "list_date": "20211206",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113633.SH",
+      "bond_short_name": "科沃转债",
+      "stk_code": "603486.SH",
+      "stk_short_name": "科沃斯",
+      "conv_price": 172.39,
+      "remain_size": 1039547000.0,
+      "list_date": "20211229",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123131.SZ",
+      "bond_short_name": "奥飞转债",
+      "stk_code": "300738.SZ",
+      "stk_short_name": "奥飞数据",
+      "conv_price": 10.05,
+      "remain_size": 315915800.0,
+      "list_date": "20211222",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113634.SH",
+      "bond_short_name": "珀莱转债",
+      "stk_code": "603605.SH",
+      "stk_short_name": "珀莱雅",
+      "conv_price": 93.1,
+      "remain_size": 750712069.0,
+      "list_date": "20220104",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111002.SH",
+      "bond_short_name": "特纸转债",
+      "stk_code": "605007.SH",
+      "stk_short_name": "五洲特纸",
+      "conv_price": 13.51,
+      "remain_size": 661882000.0,
+      "list_date": "20211230",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113636.SH",
+      "bond_short_name": "甬金转债",
+      "stk_code": "603995.SH",
+      "stk_short_name": "甬金股份",
+      "conv_price": 25.92,
+      "remain_size": 999498000.0,
+      "list_date": "20211231",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123133.SZ",
+      "bond_short_name": "佩蒂转债",
+      "stk_code": "300673.SZ",
+      "stk_short_name": "佩蒂股份",
+      "conv_price": 15.0,
+      "remain_size": 719765600.0,
+      "list_date": "20220121",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110084.SH",
+      "bond_short_name": "贵燃转债",
+      "stk_code": "600903.SH",
+      "stk_short_name": "贵州燃气",
+      "conv_price": 6.41,
+      "remain_size": 815649002.56,
+      "list_date": "20220118",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113052.SH",
+      "bond_short_name": "兴业转债",
+      "stk_code": "601166.SH",
+      "stk_short_name": "兴业银行",
+      "conv_price": 20.13,
+      "remain_size": 41351780066.06,
+      "list_date": "20220114",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113638.SH",
+      "bond_short_name": "台21转债",
+      "stk_code": "603055.SH",
+      "stk_short_name": "台华新材",
+      "conv_price": 16.01,
+      "remain_size": 599725007.38,
+      "list_date": "20220121",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113053.SH",
+      "bond_short_name": "隆22转债",
+      "stk_code": "601012.SH",
+      "stk_short_name": "隆基绿能",
+      "conv_price": 17.5,
+      "remain_size": 6994591017.5,
+      "list_date": "20220217",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127053.SZ",
+      "bond_short_name": "豪美转债",
+      "stk_code": "002988.SZ",
+      "stk_short_name": "豪美新材",
+      "conv_price": 17.23,
+      "remain_size": 257484700.0,
+      "list_date": "20220304",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118005.SH",
+      "bond_short_name": "天奈转债",
+      "stk_code": "688116.SH",
+      "stk_short_name": "天奈科技",
+      "conv_price": 36.0,
+      "remain_size": 829932000.0,
+      "list_date": "20220301",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127054.SZ",
+      "bond_short_name": "双箭转债",
+      "stk_code": "002381.SZ",
+      "stk_short_name": "双箭股份",
+      "conv_price": 6.96,
+      "remain_size": 513596100.0,
+      "list_date": "20220315",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113640.SH",
+      "bond_short_name": "苏利转债",
+      "stk_code": "603585.SH",
+      "stk_short_name": "苏利股份",
+      "conv_price": 10.84,
+      "remain_size": 738951005.44,
+      "list_date": "20220310",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127055.SZ",
+      "bond_short_name": "精装转债",
+      "stk_code": "002989.SZ",
+      "stk_short_name": "中天精装",
+      "conv_price": 18.5,
+      "remain_size": 208095800.0,
+      "list_date": "20220324",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110085.SH",
+      "bond_short_name": "通22转债",
+      "stk_code": "600438.SH",
+      "stk_short_name": "通威股份",
+      "conv_price": 34.6,
+      "remain_size": 11983080000.0,
+      "list_date": "20220318",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113054.SH",
+      "bond_short_name": "绿动转债",
+      "stk_code": "601330.SH",
+      "stk_short_name": "绿色动力",
+      "conv_price": 8.67,
+      "remain_size": 2359854000.0,
+      "list_date": "20220323",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127056.SZ",
+      "bond_short_name": "中特转债",
+      "stk_code": "000708.SZ",
+      "stk_short_name": "中信特钢",
+      "conv_price": 13.69,
+      "remain_size": 4999609700.0,
+      "list_date": "20220415",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123138.SZ",
+      "bond_short_name": "丝路转债",
+      "stk_code": "300556.SZ",
+      "stk_short_name": "丝路视觉",
+      "conv_price": 26.53,
+      "remain_size": 239321200.0,
+      "list_date": "20220322",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111003.SH",
+      "bond_short_name": "聚合转债",
+      "stk_code": "605166.SH",
+      "stk_short_name": "聚合顺",
+      "conv_price": 8.85,
+      "remain_size": 203513000.0,
+      "list_date": "20220419",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123142.SZ",
+      "bond_short_name": "申昊转债",
+      "stk_code": "300853.SZ",
+      "stk_short_name": "申昊科技",
+      "conv_price": 33.71,
+      "remain_size": 549363600.0,
+      "list_date": "20220411",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118007.SH",
+      "bond_short_name": "山石转债",
+      "stk_code": "688030.SH",
+      "stk_short_name": "山石网科",
+      "conv_price": 16.5,
+      "remain_size": 267109003.5,
+      "list_date": "20220421",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113056.SH",
+      "bond_short_name": "重银转债",
+      "stk_code": "601963.SH",
+      "stk_short_name": "重庆银行",
+      "conv_price": 9.22,
+      "remain_size": 11421642737.94,
+      "list_date": "20220414",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113643.SH",
+      "bond_short_name": "风语转债",
+      "stk_code": "603466.SH",
+      "stk_short_name": "风语筑",
+      "conv_price": 11.8,
+      "remain_size": 499233008.8,
+      "list_date": "20220422",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113058.SH",
+      "bond_short_name": "友发转债",
+      "stk_code": "601686.SH",
+      "stk_short_name": "友发集团",
+      "conv_price": 4.48,
+      "remain_size": 1863835000.96,
+      "list_date": "20220426",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111004.SH",
+      "bond_short_name": "明新转债",
+      "stk_code": "605068.SH",
+      "stk_short_name": "明新旭腾",
+      "conv_price": 20.15,
+      "remain_size": 671501000.0,
+      "list_date": "20220425",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127059.SZ",
+      "bond_short_name": "永东转2",
+      "stk_code": "002753.SZ",
+      "stk_short_name": "永东股份",
+      "conv_price": 8.11,
+      "remain_size": 379044200.0,
+      "list_date": "20220516",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123144.SZ",
+      "bond_short_name": "裕兴转债",
+      "stk_code": "300305.SZ",
+      "stk_short_name": "裕兴股份",
+      "conv_price": 7.0,
+      "remain_size": 599718600.0,
+      "list_date": "20220427",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113646.SH",
+      "bond_short_name": "永吉转债",
+      "stk_code": "603058.SH",
+      "stk_short_name": "永吉股份",
+      "conv_price": 8.05,
+      "remain_size": 137166000.0,
+      "list_date": "20220517",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127060.SZ",
+      "bond_short_name": "湘佳转债",
+      "stk_code": "002982.SZ",
+      "stk_short_name": "湘佳股份",
+      "conv_price": 13.8,
+      "remain_size": 639888500.0,
+      "list_date": "20220610",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127061.SZ",
+      "bond_short_name": "美锦转债",
+      "stk_code": "000723.SZ",
+      "stk_short_name": "美锦能源",
+      "conv_price": 3.47,
+      "remain_size": 2774037500.0,
+      "list_date": "20220530",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127062.SZ",
+      "bond_short_name": "垒知转债",
+      "stk_code": "002398.SZ",
+      "stk_short_name": "垒知集团",
+      "conv_price": 7.56,
+      "remain_size": 395742000.0,
+      "list_date": "20220520",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113647.SH",
+      "bond_short_name": "禾丰转债",
+      "stk_code": "603609.SH",
+      "stk_short_name": "禾丰股份",
+      "conv_price": 10.09,
+      "remain_size": 1466857000.0,
+      "list_date": "20220518",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110086.SH",
+      "bond_short_name": "精工转债",
+      "stk_code": "600496.SH",
+      "stk_short_name": "精工钢构",
+      "conv_price": 4.57,
+      "remain_size": 1999914000.0,
+      "list_date": "20220523",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113648.SH",
+      "bond_short_name": "巨星转债",
+      "stk_code": "603477.SH",
+      "stk_short_name": "巨星农牧",
+      "conv_price": 24.84,
+      "remain_size": 899725000.0,
+      "list_date": "20220517",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127064.SZ",
+      "bond_short_name": "杭氧转债",
+      "stk_code": "002430.SZ",
+      "stk_short_name": "杭氧股份",
+      "conv_price": 25.47,
+      "remain_size": 1136392300.0,
+      "list_date": "20220705",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113059.SH",
+      "bond_short_name": "福莱转债",
+      "stk_code": "601865.SH",
+      "stk_short_name": "福莱特",
+      "conv_price": 41.56,
+      "remain_size": 3999758000.0,
+      "list_date": "20220613",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123149.SZ",
+      "bond_short_name": "通裕转债",
+      "stk_code": "300185.SZ",
+      "stk_short_name": "通裕重工",
+      "conv_price": 2.71,
+      "remain_size": 1106887100.0,
+      "list_date": "20220715",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110087.SH",
+      "bond_short_name": "天业转债",
+      "stk_code": "600075.SH",
+      "stk_short_name": "新疆天业",
+      "conv_price": 5.6,
+      "remain_size": 2997505000.0,
+      "list_date": "20220719",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113649.SH",
+      "bond_short_name": "丰山转债",
+      "stk_code": "603810.SH",
+      "stk_short_name": "丰山集团",
+      "conv_price": 13.55,
+      "remain_size": 457728000.0,
+      "list_date": "20220721",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118010.SH",
+      "bond_short_name": "洁特转债",
+      "stk_code": "688026.SH",
+      "stk_short_name": "洁特生物",
+      "conv_price": 47.88,
+      "remain_size": 439937000.0,
+      "list_date": "20220802",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123150.SZ",
+      "bond_short_name": "九强转债",
+      "stk_code": "300406.SZ",
+      "stk_short_name": "九强生物",
+      "conv_price": 11.45,
+      "remain_size": 1121020100.0,
+      "list_date": "20220720",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123151.SZ",
+      "bond_short_name": "康医转债",
+      "stk_code": "300869.SZ",
+      "stk_short_name": "康泰医学",
+      "conv_price": 27.55,
+      "remain_size": 699793700.0,
+      "list_date": "20220720",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113650.SH",
+      "bond_short_name": "博22转债",
+      "stk_code": "603916.SH",
+      "stk_short_name": "苏博特",
+      "conv_price": 23.27,
+      "remain_size": 799548000.0,
+      "list_date": "20220728",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118012.SH",
+      "bond_short_name": "微芯转债",
+      "stk_code": "688321.SH",
+      "stk_short_name": "微芯生物",
+      "conv_price": 25.34,
+      "remain_size": 499571011.74,
+      "list_date": "20220728",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118013.SH",
+      "bond_short_name": "道通转债",
+      "stk_code": "688208.SH",
+      "stk_short_name": "道通科技",
+      "conv_price": 20.99,
+      "remain_size": 1279618000.0,
+      "list_date": "20220728",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118015.SH",
+      "bond_short_name": "芯海转债",
+      "stk_code": "688595.SH",
+      "stk_short_name": "芯海科技",
+      "conv_price": 54.83,
+      "remain_size": 409951000.0,
+      "list_date": "20220818",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113652.SH",
+      "bond_short_name": "伟22转债",
+      "stk_code": "603568.SH",
+      "stk_short_name": "伟明环保",
+      "conv_price": 19.02,
+      "remain_size": 1476619000.0,
+      "list_date": "20220812",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113655.SH",
+      "bond_short_name": "欧22转债",
+      "stk_code": "603833.SH",
+      "stk_short_name": "欧派家居",
+      "conv_price": 51.29,
+      "remain_size": 1999906000.0,
+      "list_date": "20220901",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118016.SH",
+      "bond_short_name": "京源转债",
+      "stk_code": "688096.SH",
+      "stk_short_name": "京源环保",
+      "conv_price": 6.91,
+      "remain_size": 167493000.0,
+      "list_date": "20220825",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123154.SZ",
+      "bond_short_name": "火星转债",
+      "stk_code": "300894.SZ",
+      "stk_short_name": "火星人",
+      "conv_price": 9.35,
+      "remain_size": 528858000.0,
+      "list_date": "20220823",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127068.SZ",
+      "bond_short_name": "顺博转债",
+      "stk_code": "002996.SZ",
+      "stk_short_name": "顺博合金",
+      "conv_price": 10.0,
+      "remain_size": 829961400.0,
+      "list_date": "20220907",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127069.SZ",
+      "bond_short_name": "小熊转债",
+      "stk_code": "002959.SZ",
+      "stk_short_name": "小熊电器",
+      "conv_price": 43.71,
+      "remain_size": 504000800.0,
+      "list_date": "20220907",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123155.SZ",
+      "bond_short_name": "中陆转债",
+      "stk_code": "301040.SZ",
+      "stk_short_name": "中环海陆",
+      "conv_price": 31.76,
+      "remain_size": 359964700.0,
+      "list_date": "20220831",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127070.SZ",
+      "bond_short_name": "大中转债",
+      "stk_code": "001203.SZ",
+      "stk_short_name": "大中矿业",
+      "conv_price": 10.56,
+      "remain_size": 934154800.0,
+      "list_date": "20221011",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123157.SZ",
+      "bond_short_name": "科蓝转债",
+      "stk_code": "300663.SZ",
+      "stk_short_name": "科蓝软件",
+      "conv_price": 8.8,
+      "remain_size": 233957400.0,
+      "list_date": "20220920",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113656.SH",
+      "bond_short_name": "嘉诚转债",
+      "stk_code": "603535.SH",
+      "stk_short_name": "嘉诚国际",
+      "conv_price": 10.33,
+      "remain_size": 799871227.77,
+      "list_date": "20221012",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113062.SH",
+      "bond_short_name": "常银转债",
+      "stk_code": "601128.SH",
+      "stk_short_name": "常熟银行",
+      "conv_price": 5.12,
+      "remain_size": 5970543156.62,
+      "list_date": "20221017",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127072.SZ",
+      "bond_short_name": "博实转债",
+      "stk_code": "002698.SZ",
+      "stk_short_name": "博实股份",
+      "conv_price": 14.81,
+      "remain_size": 449818100.0,
+      "list_date": "20221103",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110090.SH",
+      "bond_short_name": "爱迪转债",
+      "stk_code": "600933.SH",
+      "stk_short_name": "爱柯迪",
+      "conv_price": 17.15,
+      "remain_size": 1569603000.0,
+      "list_date": "20221028",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118020.SH",
+      "bond_short_name": "芳源转债",
+      "stk_code": "688148.SH",
+      "stk_short_name": "芳源股份",
+      "conv_price": 6.9,
+      "remain_size": 641662000.0,
+      "list_date": "20221107",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123158.SZ",
+      "bond_short_name": "宙邦转债",
+      "stk_code": "300037.SZ",
+      "stk_short_name": "新宙邦",
+      "conv_price": 40.19,
+      "remain_size": 1804589400.0,
+      "list_date": "20221021",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123160.SZ",
+      "bond_short_name": "泰福转债",
+      "stk_code": "300992.SZ",
+      "stk_short_name": "泰福泵业",
+      "conv_price": 19.7,
+      "remain_size": 231443400.0,
+      "list_date": "20221025",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118022.SH",
+      "bond_short_name": "锂科转债",
+      "stk_code": "688779.SH",
+      "stk_short_name": "五矿新能",
+      "conv_price": 15.49,
+      "remain_size": 3249781000.0,
+      "list_date": "20221107",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113659.SH",
+      "bond_short_name": "莱克转债",
+      "stk_code": "603355.SH",
+      "stk_short_name": "莱克电气",
+      "conv_price": 31.72,
+      "remain_size": 1199810000.0,
+      "list_date": "20221115",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118024.SH",
+      "bond_short_name": "冠宇转债",
+      "stk_code": "688772.SH",
+      "stk_short_name": "珠海冠宇",
+      "conv_price": 22.51,
+      "remain_size": 3088929000.0,
+      "list_date": "20221117",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123165.SZ",
+      "bond_short_name": "回天转债",
+      "stk_code": "300041.SZ",
+      "stk_short_name": "回天新材",
+      "conv_price": 11.8,
+      "remain_size": 849617800.0,
+      "list_date": "20221115",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111009.SH",
+      "bond_short_name": "盛泰转债",
+      "stk_code": "605138.SH",
+      "stk_short_name": "盛泰集团",
+      "conv_price": 10.51,
+      "remain_size": 701045000.0,
+      "list_date": "20221201",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113660.SH",
+      "bond_short_name": "寿22转债",
+      "stk_code": "603896.SH",
+      "stk_short_name": "寿仙谷",
+      "conv_price": 36.84,
+      "remain_size": 397688000.0,
+      "list_date": "20221212",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113661.SH",
+      "bond_short_name": "福22转债",
+      "stk_code": "603806.SH",
+      "stk_short_name": "福斯特",
+      "conv_price": 14.47,
+      "remain_size": 3029742000.0,
+      "list_date": "20221222",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123168.SZ",
+      "bond_short_name": "惠云转债",
+      "stk_code": "300891.SZ",
+      "stk_short_name": "惠云钛业",
+      "conv_price": 10.74,
+      "remain_size": 489908900.0,
+      "list_date": "20221214",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123171.SZ",
+      "bond_short_name": "共同转债",
+      "stk_code": "300966.SZ",
+      "stk_short_name": "共同药业",
+      "conv_price": 27.08,
+      "remain_size": 379886800.0,
+      "list_date": "20221216",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118027.SH",
+      "bond_short_name": "宏图转债",
+      "stk_code": "688066.SH",
+      "stk_short_name": "*ST航图",
+      "conv_price": 8.68,
+      "remain_size": 551998145.24,
+      "list_date": "20221222",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127078.SZ",
+      "bond_short_name": "优彩转债",
+      "stk_code": "002998.SZ",
+      "stk_short_name": "优彩资源",
+      "conv_price": 6.11,
+      "remain_size": 415813700.0,
+      "list_date": "20230109",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123172.SZ",
+      "bond_short_name": "漱玉转债",
+      "stk_code": "301017.SZ",
+      "stk_short_name": "漱玉平民",
+      "conv_price": 14.91,
+      "remain_size": 796004100.0,
+      "list_date": "20230106",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113665.SH",
+      "bond_short_name": "汇通转债",
+      "stk_code": "603176.SH",
+      "stk_short_name": "汇通集团",
+      "conv_price": 6.31,
+      "remain_size": 359624000.0,
+      "list_date": "20230111",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118030.SH",
+      "bond_short_name": "睿创转债",
+      "stk_code": "688002.SH",
+      "stk_short_name": "睿创微纳",
+      "conv_price": 38.16,
+      "remain_size": 1262250000.0,
+      "list_date": "20230210",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123173.SZ",
+      "bond_short_name": "恒锋转债",
+      "stk_code": "300605.SZ",
+      "stk_short_name": "恒锋信息",
+      "conv_price": 10.0,
+      "remain_size": 233002500.0,
+      "list_date": "20230208",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127080.SZ",
+      "bond_short_name": "声迅转债",
+      "stk_code": "003004.SZ",
+      "stk_short_name": "声迅股份",
+      "conv_price": 28.94,
+      "remain_size": 279269500.0,
+      "list_date": "20230210",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111012.SH",
+      "bond_short_name": "福新转债",
+      "stk_code": "605488.SH",
+      "stk_short_name": "福莱新材",
+      "conv_price": 11.11,
+      "remain_size": 101590001.0,
+      "list_date": "20230207",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110092.SH",
+      "bond_short_name": "三房转债",
+      "stk_code": "600370.SH",
+      "stk_short_name": "*ST三房",
+      "conv_price": 3.02,
+      "remain_size": 2118474000.44,
+      "list_date": "20230207",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118031.SH",
+      "bond_short_name": "天23转债",
+      "stk_code": "688599.SH",
+      "stk_short_name": "天合光能",
+      "conv_price": 16.0,
+      "remain_size": 5851156000.0,
+      "list_date": "20230315",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123175.SZ",
+      "bond_short_name": "百畅转债",
+      "stk_code": "300614.SZ",
+      "stk_short_name": "百川畅银",
+      "conv_price": 13.0,
+      "remain_size": 419870300.0,
+      "list_date": "20230317",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113666.SH",
+      "bond_short_name": "爱玛转债",
+      "stk_code": "603529.SH",
+      "stk_short_name": "爱玛科技",
+      "conv_price": 36.7,
+      "remain_size": 1999483000.0,
+      "list_date": "20230320",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123176.SZ",
+      "bond_short_name": "精测转2",
+      "stk_code": "300567.SZ",
+      "stk_short_name": "精测电子",
+      "conv_price": 64.51,
+      "remain_size": 1275272300.0,
+      "list_date": "20230322",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123178.SZ",
+      "bond_short_name": "花园转债",
+      "stk_code": "300401.SZ",
+      "stk_short_name": "花园生物",
+      "conv_price": 13.34,
+      "remain_size": 1157956000.0,
+      "list_date": "20230323",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123179.SZ",
+      "bond_short_name": "立高转债",
+      "stk_code": "300973.SZ",
+      "stk_short_name": "立高食品",
+      "conv_price": 94.64,
+      "remain_size": 949934300.0,
+      "list_date": "20230327",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118032.SH",
+      "bond_short_name": "建龙转债",
+      "stk_code": "688357.SH",
+      "stk_short_name": "建龙微纳",
+      "conv_price": 71.41,
+      "remain_size": 699885000.0,
+      "list_date": "20230407",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123180.SZ",
+      "bond_short_name": "浙矿转债",
+      "stk_code": "300837.SZ",
+      "stk_short_name": "浙矿股份",
+      "conv_price": 47.59,
+      "remain_size": 319617300.0,
+      "list_date": "20230328",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127082.SZ",
+      "bond_short_name": "亚科转债",
+      "stk_code": "002540.SZ",
+      "stk_short_name": "亚太科技",
+      "conv_price": 5.18,
+      "remain_size": 1158537400.0,
+      "list_date": "20230427",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110093.SH",
+      "bond_short_name": "神马转债",
+      "stk_code": "600810.SH",
+      "stk_short_name": "神马股份",
+      "conv_price": 8.08,
+      "remain_size": 2219842000.0,
+      "list_date": "20230420",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113066.SH",
+      "bond_short_name": "平煤转债",
+      "stk_code": "601666.SH",
+      "stk_short_name": "平煤股份",
+      "conv_price": 7.46,
+      "remain_size": 1427448001.8,
+      "list_date": "20230410",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123183.SZ",
+      "bond_short_name": "海顺转债",
+      "stk_code": "300501.SZ",
+      "stk_short_name": "海顺新材",
+      "conv_price": 11.63,
+      "remain_size": 632878200.0,
+      "list_date": "20230420",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127083.SZ",
+      "bond_short_name": "山路转债",
+      "stk_code": "000498.SZ",
+      "stk_short_name": "山东路桥",
+      "conv_price": 7.39,
+      "remain_size": 4835884600.0,
+      "list_date": "20230426",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127084.SZ",
+      "bond_short_name": "柳工转2",
+      "stk_code": "000528.SZ",
+      "stk_short_name": "柳工",
+      "conv_price": 6.93,
+      "remain_size": 2480922100.0,
+      "list_date": "20230420",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123187.SZ",
+      "bond_short_name": "超达转债",
+      "stk_code": "301186.SZ",
+      "stk_short_name": "超达装备",
+      "conv_price": 21.73,
+      "remain_size": 224175000.0,
+      "list_date": "20230425",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123189.SZ",
+      "bond_short_name": "晓鸣转债",
+      "stk_code": "300967.SZ",
+      "stk_short_name": "晓鸣股份",
+      "conv_price": 15.18,
+      "remain_size": 328626200.0,
+      "list_date": "20230425",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127085.SZ",
+      "bond_short_name": "韵达转债",
+      "stk_code": "002120.SZ",
+      "stk_short_name": "韵达股份",
+      "conv_price": 11.53,
+      "remain_size": 2449880700.0,
+      "list_date": "20230523",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123193.SZ",
+      "bond_short_name": "海能转债",
+      "stk_code": "300787.SZ",
+      "stk_short_name": "海能实业",
+      "conv_price": 14.5,
+      "remain_size": 599743400.0,
+      "list_date": "20230509",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123192.SZ",
+      "bond_short_name": "科思转债",
+      "stk_code": "300856.SZ",
+      "stk_short_name": "科思股份",
+      "conv_price": 17.32,
+      "remain_size": 718674500.0,
+      "list_date": "20230511",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123194.SZ",
+      "bond_short_name": "百洋转债",
+      "stk_code": "301015.SZ",
+      "stk_short_name": "百洋制药",
+      "conv_price": 24.79,
+      "remain_size": 845923100.0,
+      "list_date": "20230505",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123195.SZ",
+      "bond_short_name": "蓝晓转02",
+      "stk_code": "300487.SZ",
+      "stk_short_name": "蓝晓科技",
+      "conv_price": 59.09,
+      "remain_size": 545514700.0,
+      "list_date": "20230508",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113670.SH",
+      "bond_short_name": "金23转债",
+      "stk_code": "603180.SH",
+      "stk_short_name": "金牌家居",
+      "conv_price": 37.54,
+      "remain_size": 769990000.0,
+      "list_date": "20230516",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123196.SZ",
+      "bond_short_name": "正元转02",
+      "stk_code": "300645.SZ",
+      "stk_short_name": "正元智慧",
+      "conv_price": 21.91,
+      "remain_size": 350147000.0,
+      "list_date": "20230519",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118034.SH",
+      "bond_short_name": "晶能转债",
+      "stk_code": "688223.SH",
+      "stk_short_name": "晶科能源",
+      "conv_price": 4.34,
+      "remain_size": 8322147000.0,
+      "list_date": "20230519",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110815.SH",
+      "bond_short_name": "九丰定01",
+      "stk_code": "605090.SH",
+      "stk_short_name": "九丰能源",
+      "conv_price": 19.68,
+      "remain_size": 235478700.0,
+      "list_date": "20231229",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118035.SH",
+      "bond_short_name": "国力转债",
+      "stk_code": "688103.SH",
+      "stk_short_name": "国力电子",
+      "conv_price": 62.31,
+      "remain_size": 479880000.0,
+      "list_date": "20230706",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123199.SZ",
+      "bond_short_name": "山河转债",
+      "stk_code": "300452.SZ",
+      "stk_short_name": "山河药辅",
+      "conv_price": 13.0,
+      "remain_size": 319721800.0,
+      "list_date": "20230707",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111014.SH",
+      "bond_short_name": "李子转债",
+      "stk_code": "605337.SH",
+      "stk_short_name": "李子园",
+      "conv_price": 18.08,
+      "remain_size": 599921000.0,
+      "list_date": "20230713",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118036.SH",
+      "bond_short_name": "力合转债",
+      "stk_code": "688589.SH",
+      "stk_short_name": "力合微",
+      "conv_price": 18.5,
+      "remain_size": 379962000.0,
+      "list_date": "20230720",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127088.SZ",
+      "bond_short_name": "赫达转债",
+      "stk_code": "002810.SZ",
+      "stk_short_name": "山东赫达",
+      "conv_price": 16.41,
+      "remain_size": 599602500.0,
+      "list_date": "20230719",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111015.SH",
+      "bond_short_name": "东亚转债",
+      "stk_code": "605177.SH",
+      "stk_short_name": "东亚药业",
+      "conv_price": 20.28,
+      "remain_size": 665898059.32,
+      "list_date": "20230802",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118037.SH",
+      "bond_short_name": "上声转债",
+      "stk_code": "688533.SH",
+      "stk_short_name": "上声电子",
+      "conv_price": 28.64,
+      "remain_size": 467950000.0,
+      "list_date": "20230801",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113671.SH",
+      "bond_short_name": "武进转债",
+      "stk_code": "603878.SH",
+      "stk_short_name": "武进不锈",
+      "conv_price": 7.88,
+      "remain_size": 309302000.0,
+      "list_date": "20230803",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113673.SH",
+      "bond_short_name": "岱美转债",
+      "stk_code": "603730.SH",
+      "stk_short_name": "岱美股份",
+      "conv_price": 7.12,
+      "remain_size": 907737013.12,
+      "list_date": "20230810",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127089.SZ",
+      "bond_short_name": "晶澳转债",
+      "stk_code": "002459.SZ",
+      "stk_short_name": "晶澳科技",
+      "conv_price": 8.9,
+      "remain_size": 8958793500.0,
+      "list_date": "20230804",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118039.SH",
+      "bond_short_name": "煜邦转债",
+      "stk_code": "688597.SH",
+      "stk_short_name": "煜邦电力",
+      "conv_price": 7.3,
+      "remain_size": 410404000.0,
+      "list_date": "20230815",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113674.SH",
+      "bond_short_name": "华设转债",
+      "stk_code": "603018.SH",
+      "stk_short_name": "华设集团",
+      "conv_price": 6.91,
+      "remain_size": 399862000.0,
+      "list_date": "20230815",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123207.SZ",
+      "bond_short_name": "冠中转债",
+      "stk_code": "300948.SZ",
+      "stk_short_name": "冠中生态",
+      "conv_price": 10.44,
+      "remain_size": 145472400.0,
+      "list_date": "20230809",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123209.SZ",
+      "bond_short_name": "聚隆转债",
+      "stk_code": "300644.SZ",
+      "stk_short_name": "南京聚隆",
+      "conv_price": 17.51,
+      "remain_size": 167169900.0,
+      "list_date": "20230817",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123211.SZ",
+      "bond_short_name": "阳谷转债",
+      "stk_code": "300121.SZ",
+      "stk_short_name": "阳谷华泰",
+      "conv_price": 9.16,
+      "remain_size": 306972300.0,
+      "list_date": "20230814",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113067.SH",
+      "bond_short_name": "燃23转债",
+      "stk_code": "601139.SH",
+      "stk_short_name": "深圳燃气",
+      "conv_price": 7.24,
+      "remain_size": 2999891000.0,
+      "list_date": "20230818",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123213.SZ",
+      "bond_short_name": "天源转债",
+      "stk_code": "301127.SZ",
+      "stk_short_name": "武汉天源",
+      "conv_price": 7.1,
+      "remain_size": 325949100.0,
+      "list_date": "20230816",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123214.SZ",
+      "bond_short_name": "东宝转债",
+      "stk_code": "300239.SZ",
+      "stk_short_name": "东宝生物",
+      "conv_price": 6.62,
+      "remain_size": 454866000.0,
+      "list_date": "20230818",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123215.SZ",
+      "bond_short_name": "铭利转债",
+      "stk_code": "301268.SZ",
+      "stk_short_name": "铭利达",
+      "conv_price": 12.0,
+      "remain_size": 855542700.0,
+      "list_date": "20230823",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123216.SZ",
+      "bond_short_name": "科顺转债",
+      "stk_code": "300737.SZ",
+      "stk_short_name": "科顺股份",
+      "conv_price": 6.61,
+      "remain_size": 2195922400.0,
+      "list_date": "20230823",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110095.SH",
+      "bond_short_name": "双良转债",
+      "stk_code": "600481.SH",
+      "stk_short_name": "双良节能",
+      "conv_price": 4.02,
+      "remain_size": 1400612000.0,
+      "list_date": "20230908",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118042.SH",
+      "bond_short_name": "奥维转债",
+      "stk_code": "688516.SH",
+      "stk_short_name": "奥特维",
+      "conv_price": 83.39,
+      "remain_size": 1139918000.0,
+      "list_date": "20230901",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111017.SH",
+      "bond_short_name": "蓝天转债",
+      "stk_code": "605368.SH",
+      "stk_short_name": "蓝天燃气",
+      "conv_price": 6.72,
+      "remain_size": 671464000.0,
+      "list_date": "20230908",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123220.SZ",
+      "bond_short_name": "易瑞转债",
+      "stk_code": "300942.SZ",
+      "stk_short_name": "易瑞生物",
+      "conv_price": 7.58,
+      "remain_size": 290719800.0,
+      "list_date": "20230906",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123222.SZ",
+      "bond_short_name": "博俊转债",
+      "stk_code": "300926.SZ",
+      "stk_short_name": "博俊科技",
+      "conv_price": 16.46,
+      "remain_size": 243820200.0,
+      "list_date": "20230928",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118044.SH",
+      "bond_short_name": "赛特转债",
+      "stk_code": "688398.SH",
+      "stk_short_name": "赛特新材",
+      "conv_price": 18.85,
+      "remain_size": 441972000.0,
+      "list_date": "20231012",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113677.SH",
+      "bond_short_name": "华懋转债",
+      "stk_code": "603306.SH",
+      "stk_short_name": "华懋科技",
+      "conv_price": 33.66,
+      "remain_size": 1048897054.1,
+      "list_date": "20231012",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123223.SZ",
+      "bond_short_name": "九典转02",
+      "stk_code": "300705.SZ",
+      "stk_short_name": "九典制药",
+      "conv_price": 14.55,
+      "remain_size": 205215200.0,
+      "list_date": "20231013",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123224.SZ",
+      "bond_short_name": "宇邦转债",
+      "stk_code": "301266.SZ",
+      "stk_short_name": "宇邦新材",
+      "conv_price": 28.09,
+      "remain_size": 284792900.0,
+      "list_date": "20231018",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127092.SZ",
+      "bond_short_name": "运机转债",
+      "stk_code": "001288.SZ",
+      "stk_short_name": "运机集团",
+      "conv_price": 11.91,
+      "remain_size": 524933500.0,
+      "list_date": "20231020",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123225.SZ",
+      "bond_short_name": "翔丰转债",
+      "stk_code": "300890.SZ",
+      "stk_short_name": "翔丰华",
+      "conv_price": 27.34,
+      "remain_size": 558454100.0,
+      "list_date": "20231026",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127093.SZ",
+      "bond_short_name": "章鼓转债",
+      "stk_code": "002598.SZ",
+      "stk_short_name": "ST章鼓",
+      "conv_price": 8.3,
+      "remain_size": 242455900.0,
+      "list_date": "20231103",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127095.SZ",
+      "bond_short_name": "广泰转债",
+      "stk_code": "002111.SZ",
+      "stk_short_name": "威海广泰",
+      "conv_price": 8.68,
+      "remain_size": 692736700.0,
+      "list_date": "20231110",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113678.SH",
+      "bond_short_name": "中贝转债",
+      "stk_code": "603220.SH",
+      "stk_short_name": "中贝通信",
+      "conv_price": 20.47,
+      "remain_size": 510570048.55,
+      "list_date": "20231121",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123229.SZ",
+      "bond_short_name": "艾录转债",
+      "stk_code": "301062.SZ",
+      "stk_short_name": "上海艾录",
+      "conv_price": 9.95,
+      "remain_size": 177946800.0,
+      "list_date": "20231120",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127096.SZ",
+      "bond_short_name": "泰坦转债",
+      "stk_code": "003036.SZ",
+      "stk_short_name": "泰坦股份",
+      "conv_price": 13.2,
+      "remain_size": 287399200.0,
+      "list_date": "20231115",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113679.SH",
+      "bond_short_name": "芯能转债",
+      "stk_code": "603105.SH",
+      "stk_short_name": "芯能科技",
+      "conv_price": 12.55,
+      "remain_size": 879852000.0,
+      "list_date": "20231124",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113680.SH",
+      "bond_short_name": "丽岛转债",
+      "stk_code": "603937.SH",
+      "stk_short_name": "丽岛新材",
+      "conv_price": 12.91,
+      "remain_size": 299843005.93,
+      "list_date": "20231205",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127098.SZ",
+      "bond_short_name": "欧晶转债",
+      "stk_code": "001269.SZ",
+      "stk_short_name": "欧晶科技",
+      "conv_price": 42.0,
+      "remain_size": 469262200.0,
+      "list_date": "20231215",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127099.SZ",
+      "bond_short_name": "盛航转债",
+      "stk_code": "001205.SZ",
+      "stk_short_name": "盛航股份",
+      "conv_price": 15.33,
+      "remain_size": 454067000.0,
+      "list_date": "20231228",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123235.SZ",
+      "bond_short_name": "亿田转债",
+      "stk_code": "300911.SZ",
+      "stk_short_name": "亿田智能",
+      "conv_price": 21.31,
+      "remain_size": 435206300.0,
+      "list_date": "20240112",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111018.SH",
+      "bond_short_name": "华康转债",
+      "stk_code": "605077.SH",
+      "stk_short_name": "华康股份",
+      "conv_price": 15.97,
+      "remain_size": 1302213000.0,
+      "list_date": "20240115",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127102.SZ",
+      "bond_short_name": "浙建转债",
+      "stk_code": "002761.SZ",
+      "stk_short_name": "浙江建投",
+      "conv_price": 10.17,
+      "remain_size": 995078200.0,
+      "list_date": "20240116",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113681.SH",
+      "bond_short_name": "镇洋转债",
+      "stk_code": "603213.SH",
+      "stk_short_name": "镇洋发展",
+      "conv_price": 10.95,
+      "remain_size": 547585000.0,
+      "list_date": "20240117",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127103.SZ",
+      "bond_short_name": "东南转债",
+      "stk_code": "002135.SZ",
+      "stk_short_name": "东南网架",
+      "conv_price": 5.59,
+      "remain_size": 1999862000.0,
+      "list_date": "20240124",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123237.SZ",
+      "bond_short_name": "佳禾转债",
+      "stk_code": "300793.SZ",
+      "stk_short_name": "佳禾智能",
+      "conv_price": 13.46,
+      "remain_size": 431441200.0,
+      "list_date": "20240124",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127104.SZ",
+      "bond_short_name": "姚记转债",
+      "stk_code": "002605.SZ",
+      "stk_short_name": "姚记科技",
+      "conv_price": 19.38,
+      "remain_size": 582221800.0,
+      "list_date": "20240226",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127105.SZ",
+      "bond_short_name": "龙星转债",
+      "stk_code": "002442.SZ",
+      "stk_short_name": "龙星科技",
+      "conv_price": 5.8,
+      "remain_size": 754070200.0,
+      "list_date": "20240306",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113682.SH",
+      "bond_short_name": "益丰转债",
+      "stk_code": "603939.SH",
+      "stk_short_name": "益丰药房",
+      "conv_price": 31.14,
+      "remain_size": 1797232000.0,
+      "list_date": "20240327",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113686.SH",
+      "bond_short_name": "泰瑞转债",
+      "stk_code": "603289.SH",
+      "stk_short_name": "泰瑞机器",
+      "conv_price": 8.0,
+      "remain_size": 336298000.0,
+      "list_date": "20240724",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123241.SZ",
+      "bond_short_name": "欧通转债",
+      "stk_code": "300870.SZ",
+      "stk_short_name": "欧陆通",
+      "conv_price": 30.8,
+      "remain_size": 260348500.0,
+      "list_date": "20240726",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123243.SZ",
+      "bond_short_name": "严牌转债",
+      "stk_code": "301081.SZ",
+      "stk_short_name": "严牌股份",
+      "conv_price": 7.22,
+      "remain_size": 255759300.0,
+      "list_date": "20240726",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111020.SH",
+      "bond_short_name": "合顺转债",
+      "stk_code": "605166.SH",
+      "stk_short_name": "聚合顺",
+      "conv_price": 10.53,
+      "remain_size": 337980000.0,
+      "list_date": "20240815",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111021.SH",
+      "bond_short_name": "奥锐转债",
+      "stk_code": "605116.SH",
+      "stk_short_name": "奥锐特",
+      "conv_price": 24.6,
+      "remain_size": 812086000.0,
+      "list_date": "20240815",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123245.SZ",
+      "bond_short_name": "集智转债",
+      "stk_code": "300553.SZ",
+      "stk_short_name": "集智股份",
+      "conv_price": 18.06,
+      "remain_size": 153733400.0,
+      "list_date": "20240828",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123247.SZ",
+      "bond_short_name": "万凯转债",
+      "stk_code": "301216.SZ",
+      "stk_short_name": "万凯新材",
+      "conv_price": 11.15,
+      "remain_size": 1964096200.0,
+      "list_date": "20240905",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118050.SH",
+      "bond_short_name": "航宇转债",
+      "stk_code": "688239.SH",
+      "stk_short_name": "航宇科技",
+      "conv_price": 24.81,
+      "remain_size": 659673018.78,
+      "list_date": "20240910",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113688.SH",
+      "bond_short_name": "国检转债",
+      "stk_code": "603060.SH",
+      "stk_short_name": "国检集团",
+      "conv_price": 6.45,
+      "remain_size": 799746000.0,
+      "list_date": "20241112",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110097.SH",
+      "bond_short_name": "天润转债",
+      "stk_code": "600419.SH",
+      "stk_short_name": "天润乳业",
+      "conv_price": 8.19,
+      "remain_size": 988944000.0,
+      "list_date": "20241115",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113691.SH",
+      "bond_short_name": "和邦转债",
+      "stk_code": "603077.SH",
+      "stk_short_name": "和邦生物",
+      "conv_price": 2.0,
+      "remain_size": 4598973000.0,
+      "list_date": "20241119",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113692.SH",
+      "bond_short_name": "保隆转债",
+      "stk_code": "603197.SH",
+      "stk_short_name": "保隆科技",
+      "conv_price": 38.78,
+      "remain_size": 1389667061.84,
+      "list_date": "20241127",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123250.SZ",
+      "bond_short_name": "嘉益转债",
+      "stk_code": "301004.SZ",
+      "stk_short_name": "嘉益股份",
+      "conv_price": 78.88,
+      "remain_size": 395514500.0,
+      "list_date": "20241126",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118500.SH",
+      "bond_short_name": "思瑞定转",
+      "stk_code": "688536.SH",
+      "stk_short_name": "思瑞浦",
+      "conv_price": 157.85,
+      "remain_size": 100.0,
+      "list_date": "",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118051.SH",
+      "bond_short_name": "皓元转债",
+      "stk_code": "688131.SH",
+      "stk_short_name": "皓元医药",
+      "conv_price": 40.13,
+      "remain_size": 821816015.26,
+      "list_date": "20241219",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110098.SH",
+      "bond_short_name": "南药转债",
+      "stk_code": "600713.SH",
+      "stk_short_name": "南京医药",
+      "conv_price": 4.86,
+      "remain_size": 1081349000.0,
+      "list_date": "20250120",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123252.SZ",
+      "bond_short_name": "银邦转债",
+      "stk_code": "300337.SZ",
+      "stk_short_name": "银邦股份",
+      "conv_price": 12.5,
+      "remain_size": 784639500.0,
+      "list_date": "20250124",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113070.SH",
+      "bond_short_name": "渝水转债",
+      "stk_code": "601158.SH",
+      "stk_short_name": "重庆水务",
+      "conv_price": 4.72,
+      "remain_size": 1899847008.16,
+      "list_date": "20250213",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118052.SH",
+      "bond_short_name": "浩瀚转债",
+      "stk_code": "688292.SH",
+      "stk_short_name": "浩瀚深度",
+      "conv_price": 24.2,
+      "remain_size": 354186000.0,
+      "list_date": "20250407",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123253.SZ",
+      "bond_short_name": "永贵转债",
+      "stk_code": "300351.SZ",
+      "stk_short_name": "永贵电器",
+      "conv_price": 18.19,
+      "remain_size": 979743400.0,
+      "list_date": "20250328",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113693.SH",
+      "bond_short_name": "志邦转债",
+      "stk_code": "603801.SH",
+      "stk_short_name": "志邦家居",
+      "conv_price": 11.13,
+      "remain_size": 669981000.0,
+      "list_date": "20250408",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127108.SZ",
+      "bond_short_name": "太能转债",
+      "stk_code": "000591.SZ",
+      "stk_short_name": "太阳能",
+      "conv_price": 5.54,
+      "remain_size": 2949757800.0,
+      "list_date": "20250416",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123255.SZ",
+      "bond_short_name": "鼎龙转债",
+      "stk_code": "300054.SZ",
+      "stk_short_name": "鼎龙股份",
+      "conv_price": 28.38,
+      "remain_size": 909516000.0,
+      "list_date": "20250423",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113694.SH",
+      "bond_short_name": "清源转债",
+      "stk_code": "603628.SH",
+      "stk_short_name": "清源股份",
+      "conv_price": 12.85,
+      "remain_size": 499932000.0,
+      "list_date": "20250425",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110817.SH",
+      "bond_short_name": "保利定转",
+      "stk_code": "600048.SH",
+      "stk_short_name": "保利发展",
+      "conv_price": 15.89,
+      "remain_size": 8500000000.0,
+      "list_date": "20250619",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118056.SH",
+      "bond_short_name": "路维转债",
+      "stk_code": "688401.SH",
+      "stk_short_name": "路维光电",
+      "conv_price": 35.29,
+      "remain_size": 614431000.0,
+      "list_date": "20250710",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127109.SZ",
+      "bond_short_name": "电化转债",
+      "stk_code": "002125.SZ",
+      "stk_short_name": "湘潭电化",
+      "conv_price": 9.99,
+      "remain_size": 486555500.0,
+      "list_date": "20250704",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123257.SZ",
+      "bond_short_name": "安克转债",
+      "stk_code": "300866.SZ",
+      "stk_short_name": "安克创新",
+      "conv_price": 105.96,
+      "remain_size": 1104622700.0,
+      "list_date": "20250704",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111022.SH",
+      "bond_short_name": "锡振转债",
+      "stk_code": "605319.SH",
+      "stk_short_name": "无锡振华",
+      "conv_price": 22.19,
+      "remain_size": 519734000.0,
+      "list_date": "20250714",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113695.SH",
+      "bond_short_name": "华辰转债",
+      "stk_code": "603097.SH",
+      "stk_short_name": "江苏华辰",
+      "conv_price": 16.69,
+      "remain_size": 459662000.0,
+      "list_date": "20250710",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113696.SH",
+      "bond_short_name": "伯25转债",
+      "stk_code": "603596.SH",
+      "stk_short_name": "伯特利",
+      "conv_price": 24.76,
+      "remain_size": 2801794000.0,
+      "list_date": "20250728",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127110.SZ",
+      "bond_short_name": "广核转债",
+      "stk_code": "003816.SZ",
+      "stk_short_name": "中国广核",
+      "conv_price": 3.58,
+      "remain_size": 4068537900.0,
+      "list_date": "20250725",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118058.SH",
+      "bond_short_name": "微导转债",
+      "stk_code": "688147.SH",
+      "stk_short_name": "微导纳米",
+      "conv_price": 33.29,
+      "remain_size": 1169686048.1,
+      "list_date": "20250827",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113698.SH",
+      "bond_short_name": "凯众转债",
+      "stk_code": "603037.SH",
+      "stk_short_name": "凯众股份",
+      "conv_price": 12.55,
+      "remain_size": 308331010.75,
+      "list_date": "20250910",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127111.SZ",
+      "bond_short_name": "金威转债",
+      "stk_code": "002626.SZ",
+      "stk_short_name": "金达威",
+      "conv_price": 19.19,
+      "remain_size": 1292350300.0,
+      "list_date": "20250908",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110818.SH",
+      "bond_short_name": "华发定转",
+      "stk_code": "600325.SH",
+      "stk_short_name": "华发股份",
+      "conv_price": 7.06,
+      "remain_size": 4800000000.0,
+      "list_date": "20251104",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113699.SH",
+      "bond_short_name": "金25转债",
+      "stk_code": "603979.SH",
+      "stk_short_name": "金诚信",
+      "conv_price": 62.8,
+      "remain_size": 1999769058.0,
+      "list_date": "20251027",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110099.SH",
+      "bond_short_name": "福能转债",
+      "stk_code": "600483.SH",
+      "stk_short_name": "福能股份",
+      "conv_price": 9.49,
+      "remain_size": 3801895014.2,
+      "list_date": "20251030",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123259.SZ",
+      "bond_short_name": "锦浪转02",
+      "stk_code": "300763.SZ",
+      "stk_short_name": "锦浪科技",
+      "conv_price": 55.47,
+      "remain_size": 1676333900.0,
+      "list_date": "20251106",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118059.SH",
+      "bond_short_name": "颀中转债",
+      "stk_code": "688352.SH",
+      "stk_short_name": "颀中科技",
+      "conv_price": 13.7,
+      "remain_size": 849746003.7,
+      "list_date": "20251121",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123260.SZ",
+      "bond_short_name": "卓镁转债",
+      "stk_code": "301398.SZ",
+      "stk_short_name": "星源卓镁",
+      "conv_price": 45.0,
+      "remain_size": 449915500.0,
+      "list_date": "20251124",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118060.SH",
+      "bond_short_name": "瑞可转债",
+      "stk_code": "688800.SH",
+      "stk_short_name": "瑞可达",
+      "conv_price": 52.53,
+      "remain_size": 999805049.34,
+      "list_date": "20251212",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118061.SH",
+      "bond_short_name": "茂莱转债",
+      "stk_code": "688502.SH",
+      "stk_short_name": "茂莱光学",
+      "conv_price": 364.15,
+      "remain_size": 562123179.25,
+      "list_date": "20251210",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "145904.SH",
+      "bond_short_name": "25钢研K1",
+      "stk_code": "836660.SH",
+      "stk_short_name": "钢研功能",
+      "conv_price": 11.7,
+      "remain_size": 80000000.0,
+      "list_date": "20260105",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123261.SZ",
+      "bond_short_name": "普联转债",
+      "stk_code": "300996.SZ",
+      "stk_short_name": "普联软件",
+      "conv_price": 12.97,
+      "remain_size": 242806900.0,
+      "list_date": "20251222",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111024.SH",
+      "bond_short_name": "澳弘转债",
+      "stk_code": "605058.SH",
+      "stk_short_name": "澳弘电子",
+      "conv_price": 33.54,
+      "remain_size": 579788148.28,
+      "list_date": "20260116",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123262.SZ",
+      "bond_short_name": "神宇转债",
+      "stk_code": "300563.SZ",
+      "stk_short_name": "神宇股份",
+      "conv_price": 38.62,
+      "remain_size": 499529000.0,
+      "list_date": "20251230",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118062.SH",
+      "bond_short_name": "天准转债",
+      "stk_code": "688003.SH",
+      "stk_short_name": "天准科技",
+      "conv_price": 55.13,
+      "remain_size": 871904050.6,
+      "list_date": "20251231",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123263.SZ",
+      "bond_short_name": "鼎捷转债",
+      "stk_code": "300378.SZ",
+      "stk_short_name": "鼎捷数智",
+      "conv_price": 43.42,
+      "remain_size": 827488800.0,
+      "list_date": "20251231",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118063.SH",
+      "bond_short_name": "金05转债",
+      "stk_code": "688676.SH",
+      "stk_short_name": "金盘科技",
+      "conv_price": 88.38,
+      "remain_size": 1671226027.82,
+      "list_date": "20260114",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123264.SZ",
+      "bond_short_name": "双乐转债",
+      "stk_code": "301036.SZ",
+      "stk_short_name": "双乐股份",
+      "conv_price": 36.4,
+      "remain_size": 799984900.0,
+      "list_date": "20260116",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118501.SH",
+      "bond_short_name": "华海定转",
+      "stk_code": "688535.SH",
+      "stk_short_name": "华海诚科",
+      "conv_price": 37.91,
+      "remain_size": 394587784.46,
+      "list_date": "",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118064.SH",
+      "bond_short_name": "联瑞转债",
+      "stk_code": "688300.SH",
+      "stk_short_name": "联瑞新材",
+      "conv_price": 48.5,
+      "remain_size": 694501067.0,
+      "list_date": "20260128",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123265.SZ",
+      "bond_short_name": "耐普转02",
+      "stk_code": "300818.SZ",
+      "stk_short_name": "耐普矿机",
+      "conv_price": 29.42,
+      "remain_size": 449890800.0,
+      "list_date": "20260130",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127112.SZ",
+      "bond_short_name": "尚太转债",
+      "stk_code": "001301.SZ",
+      "stk_short_name": "尚太科技",
+      "conv_price": 60.02,
+      "remain_size": 1733932300.0,
+      "list_date": "20260205",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110100.SH",
+      "bond_short_name": "龙建转债",
+      "stk_code": "600853.SH",
+      "stk_short_name": "龙建股份",
+      "conv_price": 4.59,
+      "remain_size": 999960003.97,
+      "list_date": "20260212",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118065.SH",
+      "bond_short_name": "艾为转债",
+      "stk_code": "688798.SH",
+      "stk_short_name": "艾为电子",
+      "conv_price": 79.4,
+      "remain_size": 1901269077.2,
+      "list_date": "20260226",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113700.SH",
+      "bond_short_name": "海天转债",
+      "stk_code": "603759.SH",
+      "stk_short_name": "海天股份",
+      "conv_price": 12.41,
+      "remain_size": 800988073.99,
+      "list_date": "20260312",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118066.SH",
+      "bond_short_name": "统联转债",
+      "stk_code": "688210.SH",
+      "stk_short_name": "统联精密",
+      "conv_price": 55.96,
+      "remain_size": 575984048.68,
+      "list_date": "20260320",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113701.SH",
+      "bond_short_name": "祥和转债",
+      "stk_code": "603500.SH",
+      "stk_short_name": "祥和实业",
+      "conv_price": 13.37,
+      "remain_size": 399922035.08,
+      "list_date": "20260326",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127113.SZ",
+      "bond_short_name": "长高转债",
+      "stk_code": "002452.SZ",
+      "stk_short_name": "长高电气",
+      "conv_price": 10.92,
+      "remain_size": 758540200.0,
+      "list_date": "20260330",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118067.SH",
+      "bond_short_name": "上26转债",
+      "stk_code": "688533.SH",
+      "stk_short_name": "上声电子",
+      "conv_price": 32.25,
+      "remain_size": 324848000.25,
+      "list_date": "20260414",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123266.SZ",
+      "bond_short_name": "博士转债",
+      "stk_code": "300622.SZ",
+      "stk_short_name": "博士眼镜",
+      "conv_price": 21.3,
+      "remain_size": 374994900.0,
+      "list_date": "20260407",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113702.SH",
+      "bond_short_name": "斯达转债",
+      "stk_code": "603290.SH",
+      "stk_short_name": "斯达半导",
+      "conv_price": 104.79,
+      "remain_size": 1499931257.76,
+      "list_date": "20260511",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123267.SZ",
+      "bond_short_name": "珂玛转债",
+      "stk_code": "301611.SZ",
+      "stk_short_name": "珂玛科技",
+      "conv_price": 97.47,
+      "remain_size": 749967600.0,
+      "list_date": "20260513",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123268.SZ",
+      "bond_short_name": "本川转债",
+      "stk_code": "300964.SZ",
+      "stk_short_name": "本川智能",
+      "conv_price": 54.13,
+      "remain_size": 468952300.0,
+      "list_date": "20260507",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123269.SZ",
+      "bond_short_name": "金杨转债",
+      "stk_code": "301210.SZ",
+      "stk_short_name": "金杨精密",
+      "conv_price": 28.24,
+      "remain_size": 979952200.0,
+      "list_date": "20260511",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123270.SZ",
+      "bond_short_name": "盛德转债",
+      "stk_code": "300881.SZ",
+      "stk_short_name": "盛德鑫泰",
+      "conv_price": 53.43,
+      "remain_size": 405096800.0,
+      "list_date": "20260612",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123271.SZ",
+      "bond_short_name": "通合转债",
+      "stk_code": "300491.SZ",
+      "stk_short_name": "通合科技",
+      "conv_price": 33.18,
+      "remain_size": 521932700.0,
+      "list_date": "20260617",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118068.SH",
+      "bond_short_name": "迪威转债",
+      "stk_code": "688377.SH",
+      "stk_short_name": "迪威尔",
+      "conv_price": 32.49,
+      "remain_size": 907705000.0,
+      "list_date": "20260630",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113703.SH",
+      "bond_short_name": "翔26转债",
+      "stk_code": "603112.SH",
+      "stk_short_name": "华翔股份",
+      "conv_price": 21.75,
+      "remain_size": 1301020000.0,
+      "list_date": "20260707",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113704.SH",
+      "bond_short_name": "春风转债",
+      "stk_code": "603129.SH",
+      "stk_short_name": "春风动力",
+      "conv_price": 241.7,
+      "remain_size": 2178763000.0,
+      "list_date": "20260707",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123272.SZ",
+      "bond_short_name": "中汽转债",
+      "stk_code": "301215.SZ",
+      "stk_short_name": "中汽股份",
+      "conv_price": 5.94,
+      "remain_size": 1039040000.0,
+      "list_date": "20260630",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118069.SH",
+      "bond_short_name": "爱科转债",
+      "stk_code": "688092.SH",
+      "stk_short_name": "爱科科技",
+      "conv_price": 28.61,
+      "remain_size": 266954000.0,
+      "list_date": "20260709",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113706.SH",
+      "bond_short_name": "金帝转债",
+      "stk_code": "603270.SH",
+      "stk_short_name": "金帝股份",
+      "conv_price": 30.62,
+      "remain_size": 970000000.0,
+      "list_date": "20260710",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113705.SH",
+      "bond_short_name": "豪26转债",
+      "stk_code": "603809.SH",
+      "stk_short_name": "豪能股份",
+      "conv_price": 10.74,
+      "remain_size": 1800000000.0,
+      "list_date": "20260710",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123273.SZ",
+      "bond_short_name": "三江转债",
+      "stk_code": "301059.SZ",
+      "stk_short_name": "金三江",
+      "conv_price": 14.43,
+      "remain_size": 290000000.0,
+      "list_date": "20260703",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118070.SH",
+      "bond_short_name": "南芯转债",
+      "stk_code": "688484.SH",
+      "stk_short_name": "南芯科技",
+      "conv_price": 43.71,
+      "remain_size": 1586881000.0,
+      "list_date": "20260710",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118071.SH",
+      "bond_short_name": "华峰转债",
+      "stk_code": "688200.SH",
+      "stk_short_name": "华峰测控",
+      "conv_price": 335.33,
+      "remain_size": 749475000.0,
+      "list_date": "20260717",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110101.SH",
+      "bond_short_name": "宝钛转债",
+      "stk_code": "600456.SH",
+      "stk_short_name": "宝钛股份",
+      "conv_price": 30.98,
+      "remain_size": 3500000000.0,
+      "list_date": "20260716",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118072.SH",
+      "bond_short_name": "鼎通转债",
+      "stk_code": "688668.SH",
+      "stk_short_name": "鼎通科技",
+      "conv_price": 245.7,
+      "remain_size": 930000000.0,
+      "list_date": "20260717",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111025.SH",
+      "bond_short_name": "圣泉转债",
+      "stk_code": "605589.SH",
+      "stk_short_name": "圣泉集团",
+      "conv_price": 42.38,
+      "remain_size": 2500000000.0,
+      "list_date": "20260721",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127114.SZ",
+      "bond_short_name": "宜化转债",
+      "stk_code": "000422.SZ",
+      "stk_short_name": "湖北宜化",
+      "conv_price": 14.04,
+      "remain_size": 3300000000.0,
+      "list_date": "20260714",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123274.SZ",
+      "bond_short_name": "维科转债",
+      "stk_code": "301499.SZ",
+      "stk_short_name": "维科精密",
+      "conv_price": 35.57,
+      "remain_size": 630000000.0,
+      "list_date": "20260710",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113707.SH",
+      "bond_short_name": "科博转债",
+      "stk_code": "603786.SH",
+      "stk_short_name": "科博达",
+      "conv_price": 45.56,
+      "remain_size": 1490740000.0,
+      "list_date": "20260731",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123275.SZ",
+      "bond_short_name": "肇民转债",
+      "stk_code": "301000.SZ",
+      "stk_short_name": "肇民科技",
+      "conv_price": 33.76,
+      "remain_size": 590000000.0,
+      "list_date": "20260724",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110102.SH",
+      "bond_short_name": "江农转债",
+      "stk_code": "600389.SH",
+      "stk_short_name": "江山股份",
+      "conv_price": 20.44,
+      "remain_size": 1185000000.0,
+      "list_date": "20260805",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113708.SH",
+      "bond_short_name": "曙26转债",
+      "stk_code": "603019.SH",
+      "stk_short_name": "中科曙光",
+      "conv_price": 108.93,
+      "remain_size": 8000000000.0,
+      "list_date": "20260806",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118073.SH",
+      "bond_short_name": "赛斯转债",
+      "stk_code": "688480.SH",
+      "stk_short_name": "赛恩斯",
+      "conv_price": 86.9,
+      "remain_size": 551900000.0,
+      "list_date": "20260812",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123276.SZ",
+      "bond_short_name": "久吾转02",
+      "stk_code": "300631.SZ",
+      "stk_short_name": "久吾高科",
+      "conv_price": 23.78,
+      "remain_size": 300000000.0,
+      "list_date": "20260804",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "110103.SH",
+      "bond_short_name": "申能转债",
+      "stk_code": "600642.SH",
+      "stk_short_name": "申能股份",
+      "conv_price": 8.74,
+      "remain_size": 2000000000.0,
+      "list_date": "20260813",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127115.SZ",
+      "bond_short_name": "炬申转债",
+      "stk_code": "001202.SZ",
+      "stk_short_name": "炬申股份",
+      "conv_price": 13.56,
+      "remain_size": 380000000.0,
+      "list_date": "20260813",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118074.SH",
+      "bond_short_name": "特宝转债",
+      "stk_code": "688278.SH",
+      "stk_short_name": "特宝生物",
+      "conv_price": 58.47,
+      "remain_size": 1533266000.0,
+      "list_date": "20260813",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118075.SH",
+      "bond_short_name": "奥普转债",
+      "stk_code": "688686.SH",
+      "stk_short_name": "奥普特",
+      "conv_price": 149.83,
+      "remain_size": 1270000000.0,
+      "list_date": "20260819",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123277.SZ",
+      "bond_short_name": "玉禾转债",
+      "stk_code": "300815.SZ",
+      "stk_short_name": "玉禾田",
+      "conv_price": 16.15,
+      "remain_size": 1500000000.0,
+      "list_date": "20260814",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113709.SH",
+      "bond_short_name": "振26转债",
+      "stk_code": "603067.SH",
+      "stk_short_name": "振华股份",
+      "conv_price": 40.33,
+      "remain_size": 878000000.0,
+      "list_date": "20260817",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123278.SZ",
+      "bond_short_name": "合金转债",
+      "stk_code": "300697.SZ",
+      "stk_short_name": "电工合金",
+      "conv_price": 13.98,
+      "remain_size": 545000000.0,
+      "list_date": "20260818",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123279.SZ",
+      "bond_short_name": "天脉转债",
+      "stk_code": "301626.SZ",
+      "stk_short_name": "苏州天脉",
+      "conv_price": 267.33,
+      "remain_size": 786000000.0,
+      "list_date": "20260818",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123280.SZ",
+      "bond_short_name": "三鑫转债",
+      "stk_code": "300453.SZ",
+      "stk_short_name": "三鑫医疗",
+      "conv_price": 9.62,
+      "remain_size": 530000000.0,
+      "list_date": "20260819",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111026.SH",
+      "bond_short_name": "派克转债",
+      "stk_code": "605123.SH",
+      "stk_short_name": "派克新材",
+      "conv_price": 81.3,
+      "remain_size": 1580000000.0,
+      "list_date": "20260825",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118076.SH",
+      "bond_short_name": "先锋转债",
+      "stk_code": "688605.SH",
+      "stk_short_name": "先锋精科",
+      "conv_price": 86.4,
+      "remain_size": 750000000.0,
+      "list_date": "20260826",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123281.SZ",
+      "bond_short_name": "中仑转债",
+      "stk_code": "301565.SZ",
+      "stk_short_name": "中仑新材",
+      "conv_price": 20.28,
+      "remain_size": 1068000000.0,
+      "list_date": "20260824",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123282.SZ",
+      "bond_short_name": "震裕转02",
+      "stk_code": "300953.SZ",
+      "stk_short_name": "震裕科技",
+      "conv_price": 94.63,
+      "remain_size": 1880000000.0,
+      "list_date": "20260902",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123283.SZ",
+      "bond_short_name": "丰茂转债",
+      "stk_code": "301459.SZ",
+      "stk_short_name": "丰茂股份",
+      "conv_price": 35.59,
+      "remain_size": 607529800.0,
+      "list_date": "20260909",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123284.SZ",
+      "bond_short_name": "强达转债",
+      "stk_code": "301628.SZ",
+      "stk_short_name": "强达电路",
+      "conv_price": 84.04,
+      "remain_size": 550000000.0,
+      "list_date": "20260903",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113710.SH",
+      "bond_short_name": "四方转债",
+      "stk_code": "603339.SH",
+      "stk_short_name": "四方科技",
+      "conv_price": 14.87,
+      "remain_size": 1023395000.0,
+      "list_date": "20260923",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123285.SZ",
+      "bond_short_name": "润禾转02",
+      "stk_code": "300727.SZ",
+      "stk_short_name": "润禾材料",
+      "conv_price": 30.98,
+      "remain_size": 370000000.0,
+      "list_date": "20260929",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127116.SZ",
+      "bond_short_name": "瑞鹄转02",
+      "stk_code": "002997.SZ",
+      "stk_short_name": "瑞鹄模具",
+      "conv_price": 29.18,
+      "remain_size": 686000000.0,
+      "list_date": "20261015",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127117.SZ",
+      "bond_short_name": "奥士转债",
+      "stk_code": "002913.SZ",
+      "stk_short_name": "奥士康",
+      "conv_price": 83.96,
+      "remain_size": 1000000000.0,
+      "list_date": "20261020",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123286.SZ",
+      "bond_short_name": "国科转债",
+      "stk_code": "301571.SZ",
+      "stk_short_name": "国科天成",
+      "conv_price": 74.5,
+      "remain_size": 848800000.0,
+      "list_date": "20261019",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "113711.SH",
+      "bond_short_name": "常青转债",
+      "stk_code": "603125.SH",
+      "stk_short_name": "常青科技",
+      "conv_price": 24.01,
+      "remain_size": 800000000.0,
+      "list_date": "20261023",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123287.SZ",
+      "bond_short_name": "满坤转债",
+      "stk_code": "301132.SZ",
+      "stk_short_name": "满坤科技",
+      "conv_price": 66.97,
+      "remain_size": 760000000.0,
+      "list_date": "20261021",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118077.SH",
+      "bond_short_name": "莱特转债",
+      "stk_code": "688150.SH",
+      "stk_short_name": "莱特光电",
+      "conv_price": 44.62,
+      "remain_size": 524779000.0,
+      "list_date": "20261027",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123288.SZ",
+      "bond_short_name": "隆新转债",
+      "stk_code": "301149.SZ",
+      "stk_short_name": "隆华新材",
+      "conv_price": 9.09,
+      "remain_size": 960000000.0,
+      "list_date": "20261019",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127118.SZ",
+      "bond_short_name": "华纬转债",
+      "stk_code": "001380.SZ",
+      "stk_short_name": "华纬科技",
+      "conv_price": 18.48,
+      "remain_size": 575000000.0,
+      "list_date": "20261103",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123289.SZ",
+      "bond_short_name": "中科转债",
+      "stk_code": "301175.SZ",
+      "stk_short_name": "中科环保",
+      "conv_price": 5.65,
+      "remain_size": 1000000000.0,
+      "list_date": "20261102",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123290.SZ",
+      "bond_short_name": "申菱转债",
+      "stk_code": "301018.SZ",
+      "stk_short_name": "申菱环境",
+      "conv_price": 95.49,
+      "remain_size": 1000000000.0,
+      "list_date": "20261106",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "118078.SH",
+      "bond_short_name": "航亚转债",
+      "stk_code": "688510.SH",
+      "stk_short_name": "航亚科技",
+      "conv_price": 23.93,
+      "remain_size": 600000000.0,
+      "list_date": "20261116",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127119.SZ",
+      "bond_short_name": "中鼎转03",
+      "stk_code": "000887.SZ",
+      "stk_short_name": "中鼎股份",
+      "conv_price": 18.2,
+      "remain_size": 1920000000.0,
+      "list_date": "20261112",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "127120.SZ",
+      "bond_short_name": "千红转债",
+      "stk_code": "002550.SZ",
+      "stk_short_name": "千红制药",
+      "conv_price": 6.42,
+      "remain_size": 1000000000.0,
+      "list_date": "20261113",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "123291.SZ",
+      "bond_short_name": "佐力转债",
+      "stk_code": "300181.SZ",
+      "stk_short_name": "佐力药业",
+      "conv_price": 13.13,
+      "remain_size": 1370929700.0,
+      "list_date": "20261113",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "99SAQ2.SH",
+      "bond_short_name": "芯导定转",
+      "stk_code": "688230.SH",
+      "stk_short_name": "芯导科技",
+      "conv_price": 42.79,
+      "remain_size": 276062600.0,
+      "list_date": "",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "111027.SH",
+      "bond_short_name": "百龙转债",
+      "stk_code": "605016.SH",
+      "stk_short_name": "百龙创园",
+      "conv_price": 19.42,
+      "remain_size": 748149000.0,
+      "list_date": "",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "132026.SH",
+      "bond_short_name": "G三峡EB2",
+      "stk_code": "600900.SH",
+      "stk_short_name": "长江电力",
+      "conv_price": 21.2,
+      "remain_size": 6779498010.0,
+      "list_date": "20220608",
+      "delist_date": ""
+    },
+    {
+      "ts_code": "132024.SH",
+      "bond_short_name": "26江铜EB",
+      "stk_code": "600362.SH",
+      "stk_short_name": "江西铜业",
+      "conv_price": 52.4,
+      "remain_size": 5000000000.0,
+      "list_date": "20260420",
+      "delist_date": ""
+    }
+  ]
+}
