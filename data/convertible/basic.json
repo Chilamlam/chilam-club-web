@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-17T14:34:00.131885+08:00",
+  "generated_at": "2026-11-17T19:07:36.443274+08:00",
   "rows": [
     {
       "ts_code": "128044.SZ",
@@ -30,16 +30,6 @@
       "remain_size": 62400000.0,
       "list_date": "20200430",
       "delist_date": ""
-    },
-    {
-      "ts_code": "128138.SZ",
-      "bond_short_name": "侨银转债",
-      "stk_code": "002973.SZ",
-      "stk_short_name": "侨银股份",
-      "conv_price": 10.6,
-      "remain_size": 419643400.0,
-      "list_date": "20201224",
-      "delist_date": "20261117"
     },
     {
       "ts_code": "123076.SZ",
