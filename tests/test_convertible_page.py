@@ -47,11 +47,13 @@ PAYLOAD = {
             "rank1": {"n": 10, "overnight": {"n": 10, "mean": 1.5, "median": 1.2, "win": 70.0},
                       "open_to_close": {"n": 10, "mean": -0.3, "median": -0.2, "win": 40.0},
                       "low_to_close": {"n": 10, "mean": 2.1, "median": 2.0, "win": 90.0},
+                      "dip": {"n": 6, "total": 10, "mean": 0.8, "median": 0.7, "win": 50.0},
                       "close_to_close": {"n": 10, "mean": 1.2, "median": 1.0, "win": 70.0},
                       "next_high": {"n": 10, "mean": 3.4, "median": 3.0, "win": 90.0}},
             "rank2": {"n": 10, "overnight": {"n": 10, "mean": 0.9, "median": 0.8, "win": 60.0},
                       "open_to_close": {"n": 10, "mean": 0.2, "median": 0.1, "win": 50.0},
                       "low_to_close": {"n": 10, "mean": 1.7, "median": 1.6, "win": 80.0},
+                      "dip": {"n": 4, "total": 10, "mean": -0.4, "median": -0.3, "win": 25.0},
                       "close_to_close": {"n": 10, "mean": 1.1, "median": 1.0, "win": 60.0},
                       "next_high": {"n": 10, "mean": 2.8, "median": 2.5, "win": 80.0}},
             "b_overnight": {"n": 4, "overnight": {"n": 4, "mean": 2.5, "median": 2.4, "win": 75.0},
@@ -60,7 +62,8 @@ PAYLOAD = {
         },
         "rows": [{"date": "20261113", "next_date": "20261116", "rank": 1, "code": "111001.SH",
                   "pct_chg": 8.0, "amount_yi": 5.0, "overnight": 2.0, "open_to_close": 1.0,
-                  "low_to_close": 3.0, "close_to_close": 3.0, "next_high": 4.0, "next_pct": 3.0}],
+                  "low_to_close": 3.0, "dip_to_close": 1.2, "dip_touch": True,
+                  "close_to_close": 3.0, "next_high": 4.0, "next_pct": 3.0}],
         "swap": {"n": 10, "rate": 30.0},
         "b_rows": [{"date": "20261113", "next_date": "20261116", "code": "111002.SH",
                     "pct_chg": 0.5, "stock_pct": 9.0, "overnight": 2.5, "open_to_close": 0.5,
@@ -84,7 +87,9 @@ PAYLOAD = {
              "stock_pct": 5.0, "premium": 5.0, "amount_yi": 8.0, "sub_tag": ""},
         ],
         "yesterday": [{"code": "111001.SH", "name": "甲转债", "prev_pct": 8.0, "today_pct": 3.0,
-                       "overnight": 2.0, "open_to_close": 1.0, "low_to_close": 3.0}],
+                       "overnight": 2.0, "open_to_close": 1.0,
+                       "dip_to_close": 1.2, "dip_touch": True}],
+        "b_total": 4,
         "b_candidates": [{"code": "111002.SH", "name": "乙转债", "stock_name": "乙公司",
                           "stock_pct": 9.0, "pct_chg": 0.5, "premium": 12.0, "amount_yi": 3.0}],
     },
@@ -138,6 +143,21 @@ class ConvertiblePageTests(unittest.TestCase):
         self.assertEqual(list(app.exception), [])
         self.assertTrue(any("接口未返回数据" in str(w.value) for w in app.warning))
         self.assertTrue(any("20261116" in str(c.value) for c in app.caption))
+
+    def test_snapshot_from_before_the_dip_column_still_renders(self):
+        """发布顺序是代码先上、数据后补：旧快照不能让页面崩。"""
+        payload = json.loads(json.dumps(PAYLOAD))
+        for spec in payload["patterns"]["aggregate"].values():
+            spec.pop("dip", None)
+        for row in payload["patterns"]["rows"]:
+            row.pop("dip_to_close", None)
+            row.pop("dip_touch", None)
+        for row in payload["watch"]["yesterday"]:
+            row.pop("dip_to_close", None)
+            row.pop("dip_touch", None)
+        app = self._run(payload)
+        self.assertEqual(list(app.exception), [])
+        self.assertIn("回踩", " ".join(str(m.value) for m in app.markdown))
 
 
 if __name__ == "__main__":

@@ -52,8 +52,10 @@ STAGE_RULES = {
 }
 STAGE_ORDER = ["退潮", "分歧", "高潮", "加速", "回流", "启动"]
 
-LIQUID_AMOUNT = 50_000.0     # 千元 -> 5000 万元
+LIQUID_AMOUNT = 30_000.0     # 千元 -> 3000 万元
 AMOUNT_YI = 100_000.0        # 千元 -> 亿元
+LIQUID_YI = LIQUID_AMOUNT / AMOUNT_YI   # 亿元口径的同一阈值
+DIP_PCT = 3.0                # 盘中回踩幅度：当日开盘价下方 3% 挂单
 
 
 def num(value, default=None):
@@ -173,10 +175,19 @@ def _outcomes(today: pd.Series | None, nxt: pd.Series | None) -> dict:
     if today is None or nxt is None:
         return {}
     close = num(today.get("close"))
+    open_ = num(nxt.get("open"))
+    low, close_next = num(nxt.get("low")), num(nxt.get("close"))
+    # 盘中回踩：以“当日开盘价”为已知参照下调 DIP_PCT%，只有最低价真的触及时才算
+    # 成交样本，成交价就是挂单价，收盘卖出。 这样不会把“事后才知道的最低价”
+    # 当成入场价，样本才有意义。
+    trigger = open_ * (1.0 - DIP_PCT / 100.0) if open_ is not None else None
+    touched = (trigger is not None and low is not None and low <= trigger)
     return {
         "overnight": pct(nxt.get("open"), close),
         "open_to_close": pct(nxt.get("close"), nxt.get("open")),
         "low_to_close": pct(nxt.get("close"), nxt.get("low")),
+        "dip_to_close": pct(close_next, trigger) if touched else None,
+        "dip_touch": touched if trigger is not None and low is not None else None,
         "close_to_close": pct(nxt.get("close"), close),
         "next_high": pct(nxt.get("high"), close),
         "next_pct": num(nxt.get("pct_chg")),
@@ -191,6 +202,8 @@ def _corr(hist: pd.DataFrame, stock_hist: pd.DataFrame) -> float | None:
         stock_hist[["date", "pct_chg"]], on="date", suffixes=("_b", "_s"))
     merged = merged.dropna().tail(20)
     if len(merged) < 10:
+        return None
+    if merged["pct_chg_b"].std() == 0 or merged["pct_chg_s"].std() == 0:
         return None
     value = merged["pct_chg_b"].corr(merged["pct_chg_s"])
     return num(value)
@@ -280,7 +293,8 @@ def build_snapshot(bond: pd.DataFrame, stock: pd.DataFrame, basic: dict,
         "notes": [
             "分类只使用当日涨跌幅，阈值全部写在页面上；不预测涨跌。",
             "溢价率按最新转股价与当日正股收盘计算；转股价下修后如未同步，会短暂失真。",
-            "收益统计为收盘价/开盘价/最低价之间的理论涨幅，未扣交易费用与滑点。",
+            "收益统计只用「昨收→今开」「今开→今收」「回踩挂单→今收」三种可执行口径；"
+            "「最低价→收盘」只是理论天花板，不作胜率统计。均未扣费用与滑点。",
         ],
     }
 
@@ -307,7 +321,8 @@ def _market(frame: pd.DataFrame) -> dict:
         "avg_double_low": sum(dls) / len(dls) if dls else None,
         "avg_premium": sum(premiums) / len(premiums) if premiums else None,
         "amount_yi": sum(amounts) if amounts else None,
-        "liquid": sum(1 for v in amounts if v >= 0.5),
+        "liquid": sum(1 for v in amounts if v >= LIQUID_YI),
+        "liquid_threshold_yi": LIQUID_YI,
     }
 
 
@@ -397,6 +412,7 @@ def _patterns(bond: pd.DataFrame, stock: pd.DataFrame, *, stock_map: dict,
             "overnight": _agg([r.get("overnight") for r in subset]),
             "open_to_close": _agg([r.get("open_to_close") for r in subset]),
             "low_to_close": _agg([r.get("low_to_close") for r in subset]),
+            "dip": {**_agg([r.get("dip_to_close") for r in subset]), "total": len(subset)},
             "close_to_close": _agg([r.get("close_to_close") for r in subset]),
             "next_high": _agg([r.get("next_high") for r in subset]),
         }
@@ -429,40 +445,48 @@ def _patterns(bond: pd.DataFrame, stock: pd.DataFrame, *, stock_map: dict,
         "definitions": {
             "overnight": "昨收 → 今日开盘",
             "open_to_close": "今日开盘 → 今日收盘（开盘低吸）",
-            "low_to_close": "今日最低 → 今日收盘（盘中低吸的理论上限）",
+            "low_to_close": "今日最低 → 今日收盘：理论天花板。收盘必然高于最低价，所以恒为正，只表示当天振幅上限，不作收益统计",
+            "dip": (f"盘中回踩：以今日开盘价为参照，下方 {DIP_PCT:g}% 挂单；当日最低价触及该价才算成交，"
+                    f"成交后按今日收盘计；未触及的日子不计入样本"),
             "close_to_close": "昨收 → 今日收盘",
             "next_high": "昨收 → 今日最高（隔夜最高浮盈）",
             "swap": "昨日第二名今日涨幅超过昨日第一名，记为一次互换",
             "stage_rules": STAGE_RULES,
             "stage_order": STAGE_ORDER,
-            "liquid": "日成交额≥5000万元",
+            "liquid": f"日成交额≥{LIQUID_AMOUNT / 10:g}万元（{LIQUID_YI:g}亿）",
         },
     }
 
 
 def _watch(frame: pd.DataFrame, patterns: dict, by_date_bond: dict, dates: list[str]) -> dict:
     """Observation lists, never framed as buy advice."""
-    liquid = frame[(frame["amount_yi"].fillna(0) >= 0.5) & frame["pct_chg"].notna()]
+    liquid = frame[(frame["amount_yi"].fillna(0) >= LIQUID_YI) & frame["pct_chg"].notna()]
     leaders = liquid.sort_values("pct_chg", ascending=False).head(2)
     indexed = frame.set_index("code")
     out = {"today_leaders": _records(leaders), "yesterday": [], "b_candidates": []}
     if len(dates) >= 2:
-        prev = dates[-2]
+        prev, last = dates[-2], dates[-1]
         prev_frame = by_date_bond[prev]
+        today_bars = by_date_bond[last]
         prev_liquid = prev_frame[(prev_frame["amount"].fillna(0) >= LIQUID_AMOUNT)
                                  & prev_frame["pct_chg"].notna()]
         for code, row in prev_liquid.sort_values("pct_chg", ascending=False).head(2).iterrows():
-            if code not in indexed.index:
+            if code not in indexed.index or code not in today_bars.index:
                 continue
             today_row = indexed.loc[code]
+            # 今日的真实分时口径（开/高/低/收）必须取自行情表，不能取分类快照。
+            outcome = _outcomes(row, today_bars.loc[code])
             out["yesterday"].append({
                 "code": code, "name": today_row.get("name"),
                 "prev_pct": num(row.get("pct_chg")),
                 "today_pct": num(today_row.get("pct_chg")),
-                "overnight": pct(today_row.get("open"), row.get("close")),
-                "open_to_close": pct(today_row.get("close"), today_row.get("open")),
-                "low_to_close": pct(today_row.get("close"), today_row.get("low")),
+                "overnight": outcome.get("overnight"),
+                "open_to_close": outcome.get("open_to_close"),
+                "dip_to_close": outcome.get("dip_to_close"),
+                "dip_touch": outcome.get("dip_touch"),
             })
-    b_part = frame[(frame["class"] == "B") & (frame["amount_yi"].fillna(0) >= 0.5)]
-    out["b_candidates"] = _records(b_part.sort_values("stock_pct", ascending=False).head(10))
+    b_part = frame[(frame["class"] == "B") & (frame["amount_yi"].fillna(0) >= LIQUID_YI)]
+    b_sorted = b_part.sort_values("stock_pct", ascending=False)
+    out["b_total"] = int(len(b_sorted))
+    out["b_candidates"] = _records(b_sorted.head(8))
     return out

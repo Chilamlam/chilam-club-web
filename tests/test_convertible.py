@@ -166,6 +166,72 @@ class PatternTests(unittest.TestCase):
         payload = _build(bond, stock, {"111001.SH": _basic()}, dates[-1])
         self.assertNotIn(dates[-1], {row["date"] for row in payload["patterns"]["rows"]})
 
+    def test_low_to_close_is_a_ceiling_and_not_aggregated_as_a_win_rate(self):
+        dates, bond, stock = self._ten_days()
+        payload = _build(bond, stock, {"111001.SH": _basic()}, dates[-1])
+        definitions = payload["patterns"]["definitions"]
+        self.assertIn("理论天花板", definitions["low_to_close"])
+        self.assertIn("不作收益统计", definitions["low_to_close"])
+        # 收盘必然高于最低价，所以这一列必然全部为正：它只说明振幅上限。
+        rows = payload["patterns"]["rows"]
+        self.assertTrue(rows)
+        self.assertTrue(all(row["low_to_close"] > 0 for row in rows))
+
+    def test_dip_stat_only_counts_days_that_touch_the_trigger(self):
+        dates = _dates(4)
+        bond, stock = [], []
+        close = 100.0
+        # 前两日平稳；第 3 日开盘 100、最低 95（跌破 97 触发价）、收盘 101；
+        # 第 4 日开盘 100、最低 99（未跌破）→ 不构成样本。
+        bond.append(_bar(dates[0], "111001.SH", close=100.0, pct=0.0))
+        bond.append(_bar(dates[1], "111001.SH", close=100.0, pct=0.0))
+        bond.append(_bar(dates[2], "111001.SH", close=101.0, open_=100.0, low=95.0,
+                         high=101.0, pct=1.0))
+        bond.append(_bar(dates[3], "111001.SH", close=100.5, open_=100.0, low=99.0,
+                         high=101.0, pct=-0.5))
+        for date in dates:
+            stock.append(_bar(date, "600001.SH", close=10.0, pct=0.1))
+        payload = _build(bond, stock, {"111001.SH": _basic()}, dates[-1])
+        rows = {row["date"]: row for row in payload["patterns"]["rows"]}
+        touched = rows[dates[1]]
+        self.assertTrue(touched["dip_touch"])
+        self.assertAlmostEqual(touched["dip_to_close"], (101 / 97 - 1) * 100, places=6)
+        untouched = rows[dates[2]]
+        self.assertFalse(untouched["dip_touch"])
+        self.assertIsNone(untouched["dip_to_close"])
+        dip = payload["patterns"]["aggregate"]["rank1"]["dip"]
+        self.assertEqual(dip["n"], 1)
+        self.assertEqual(dip["total"], 3)
+        self.assertAlmostEqual(dip["win"], 100.0, places=6)
+
+    def test_liquid_count_uses_the_shared_amount_threshold(self):
+        dates = _dates(2)
+        bond = [
+            _bar(dates[0], "111001.SH", amount=40_000.0),   # 0.4 亿，达标
+            _bar(dates[0], "111002.SH", amount=20_000.0),   # 0.2 亿，不达标
+        ]
+        stock = [_bar(dates[0], "600001.SH"), _bar(dates[0], "600002.SH")]
+        payload = _build(bond, stock,
+                         {"111001.SH": _basic(stk_code="600001.SH"),
+                          "111002.SH": _basic(stk_code="600002.SH")}, dates[0])
+        market = payload["market"]
+        self.assertEqual(market["liquid"], 1)
+        self.assertAlmostEqual(market["liquid_threshold_yi"],
+                               convertible.LIQUID_AMOUNT / convertible.AMOUNT_YI, places=9)
+        self.assertAlmostEqual(market["liquid_threshold_yi"], 0.3, places=9)
+        self.assertIn("3000", payload["patterns"]["definitions"]["liquid"])
+
+    def test_yesterday_leaders_use_real_bars_for_realised_outcomes(self):
+        dates, bond, stock = self._ten_days()
+        payload = _build(bond, stock, {"111001.SH": _basic()}, dates[-1])
+        realised = payload["watch"]["yesterday"]
+        self.assertTrue(realised)
+        first = realised[0]
+        # 昨日强势榜的“今日表现”必须来自真实开高低收，而不是分类快照里的空值。
+        self.assertIsNotNone(first["overnight"])
+        self.assertIsNotNone(first["open_to_close"])
+        self.assertIsNotNone(first["dip_touch"])
+
     def test_illiquid_bond_never_becomes_a_leader(self):
         dates = _dates(4)
         bond, stock = [], []
