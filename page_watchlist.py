@@ -17,7 +17,8 @@
 from __future__ import annotations
 
 import json
-import os
+import math
+import re
 import urllib.request
 
 import pandas as pd
@@ -28,6 +29,10 @@ import auth
 import database
 import push_binding as pb
 import symbol_resolve as sr
+from data_freshness import norm_date, pick_date, verdict
+from investor_journey import explicit_symbol, candidate_actions, render_plan_book
+from site_data import load_csv as _load_csv, load_json as _load_json
+from update_schedule import beijing_now
 
 # 中国市场配色：涨红跌绿
 C_UP = "#e74c3c"
@@ -52,7 +57,10 @@ def _tx_code(raw: str) -> str:
     深市「厦门港务」。**正常路径请用 fetch_quotes 回填的 tx_code**，那是探过
     沪深北、按当日活跃度取舍后的真值。
     """
-    c = str(raw).strip().upper().split(".")[0]
+    explicit = explicit_symbol(raw).lower()
+    if re.fullmatch(r"(?:sh|sz|bj)\d{6}", explicit):
+        return explicit
+    c = _bare(raw)
     if not c.isdigit():
         return ""
     if len(c) == 6 and c[:2] in _BJ_PREFIX:
@@ -65,7 +73,8 @@ def _tx_code(raw: str) -> str:
 def _num(v, default=None):
     """None 保持 None，绝不折成 0 —— 0 会被当成「今天真的没换手」。"""
     try:
-        return float(v) if v is not None else default
+        value = float(v) if v is not None and not isinstance(v, bool) else None
+        return value if value is not None and math.isfinite(value) else default
     except (TypeError, ValueError):
         return default
 
@@ -87,16 +96,19 @@ def fetch_quotes(codes: tuple) -> dict:
     """
     probe: dict[str, list[str]] = {}
     for c in codes:
-        b = _bare(c)
+        b = _quote_key(c)
         if not b:
             continue
-        if b.isdigit() and len(b) == 6:
+        if re.fullmatch(r"(?:sh|sz|bj)\d{6}", b):
+            probe[b] = [b]
+        elif b.isdigit() and len(b) == 6:
             probe[b] = [f"{p}{b}" for p in sr.prefixes_for(b)]
         else:
             t = _tx_code(b)
             if t:
                 probe[b] = [t]
-    probe.setdefault(BENCH_BARE, [BENCH_TX])      # 基准始终随批，且写死沪市
+    probe[BENCH_TX] = [BENCH_TX]
+    probe[BENCH_BARE] = [BENCH_TX]  # 保留旧调用键；显式 sz000300 仍是独立标的。
 
     flat = [t for lst in probe.values() for t in lst]
     got = sr.fetch_quotes(flat)
@@ -133,29 +145,33 @@ def fetch_quotes(codes: tuple) -> dict:
 
 # ================= 跑批数据加载 =================
 
-@st.cache_data(ttl=600, show_spinner=False)
-def _load_csv(path: str) -> pd.DataFrame:
-    if not os.path.exists(path):
-        return pd.DataFrame()
-    try:
-        return pd.read_csv(path)
-    except Exception:
-        return pd.DataFrame()
-
-
-@st.cache_data(ttl=600, show_spinner=False)
-def _load_json(path: str) -> dict:
-    if not os.path.exists(path):
-        return {}
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
-
-
 def _bare(code) -> str:
-    return str(code).strip().upper().split(".")[0]
+    return sr.bare(code)
+
+
+def _quote_key(code) -> str:
+    return explicit_symbol(code).lower()
+
+
+def _quote_date(value) -> str:
+    text = str(value or "")
+    return norm_date(text[:8] if re.fullmatch(r"\d{14}", text) else text)
+
+
+def _record_date(row) -> str:
+    return next((norm_date(row.get(k)) for k in ("更新日期", "update_date", "trade_date", "date")
+                 if norm_date(row.get(k))), "")
+
+
+def _asset_index(frame: pd.DataFrame) -> dict:
+    if frame.empty or "ts_code" not in frame:
+        return {}
+    return {explicit_symbol(row["ts_code"]).lower(): row for row in frame.to_dict("records")}
+
+
+def _radar_date(node) -> str:
+    dates = re.findall(r"\d{4}-\d{2}-\d{2}|\d{8}", str(node.get("msg") or ""))
+    return norm_date(dates[-1]) if dates else ""
 
 
 def _index_by_bare(df: pd.DataFrame, col: str = "ts_code") -> dict:
@@ -172,11 +188,12 @@ def _index_by_bare(df: pd.DataFrame, col: str = "ts_code") -> dict:
 
 def _render_overview(rows: list[dict], market_pct: float | None) -> None:
     """我的池子整体表现 + 与全市场对比。"""
-    live = [r for r in rows if r["_has_quote"]]
+    live = [r for r in rows if r["_has_quote"] and r.get("_comparison_ok", True)]
     if not live:
-        st.warning("⚠️ 未能取到任何自选标的的实时报价，行情源可能暂时不可用。此处不显示估算值。")
+        st.warning("暂无同一报价日的有效自选行情，无法汇总比较。请查看明细中的报价时间。")
         return
 
+    st.caption(f"比较日期：{live[0].get('报价日期') or '未知'}；覆盖 {len(live)}/{len(rows)} 只自选。")
     pcts = pd.Series([r["涨跌幅"] for r in live], dtype="float64")
     up = int((pcts > 0).sum())
     down = int((pcts < 0).sum())
@@ -189,13 +206,13 @@ def _render_overview(rows: list[dict], market_pct: float | None) -> None:
     c2.metric("红/绿/平", f"{up} / {down} / {flat}")
     if market_pct is not None:
         diff = med - market_pct
-        c3.metric("沪深300 今日", f"{market_pct:+.2f}%")
+        c3.metric("沪深300 数据日涨幅", f"{market_pct:+.2f}%")
         c4.metric("我的池子 vs 大盘", f"{diff:+.2f}%",
                   delta=f"{'跑赢' if diff > 0 else '跑输'}",
                   delta_color="normal" if diff > 0 else "inverse",
                   help="池子中位涨幅 − 沪深300 涨幅")
     else:
-        c3.metric("沪深300 今日", "—")
+        c3.metric("沪深300 数据日涨幅", "—")
         c4.metric("我的池子 vs 大盘", "—")
         st.caption("⚠️ 沪深300 报价缺失，无法计算相对强弱。")
 
@@ -214,7 +231,7 @@ def _render_overview(rows: list[dict], market_pct: float | None) -> None:
     fig.add_hline(y=0, line_color="#888", line_width=1)
     fig.update_layout(height=300, margin=dict(l=10, r=10, t=30, b=10),
                       template="plotly_white", showlegend=False,
-                      title="我的池子今日涨跌分布（虚线为大盘基准）",
+                       title="我的池子同日报价涨跌分布（虚线为大盘基准）",
                       yaxis_title="涨跌幅 %")
     st.plotly_chart(fig, use_container_width=True)
 
@@ -222,24 +239,26 @@ def _render_overview(rows: list[dict], market_pct: float | None) -> None:
 def _render_signals(rows: list[dict]) -> None:
     """我的池子里谁被站内策略命中——把全市场榜单折算成个人视角。"""
     hits = [r for r in rows if r["_signals"]]
-    st.markdown("#### 🎯 站内策略命中")
+    st.markdown("#### 🎯 最近收盘榜单记录")
     if not hits:
-        st.info("今日我的池子里没有标的进入 RPS 强势榜、突破池、龙头雷达或涨停池。")
+        st.info("当前可核验的数据中，自选标的暂无榜单记录；未通过日期核对的来源不会作为信号显示。")
         return
     st.caption(f"{len(hits)} 只自选被站内策略命中：")
     for r in hits:
         tags = "　".join(r["_signals"])
-        color = C_UP if r["涨跌幅"] > 0 else (C_DOWN if r["涨跌幅"] < 0 else C_FLAT)
+        change = r["涨跌幅"]
+        color = C_UP if change is not None and change > 0 else (C_DOWN if change is not None and change < 0 else C_FLAT)
+        change_text = f"{change:+.2f}%" if change is not None else "行情缺失"
         st.markdown(
             f"**{r['名称'] or r['代码']}** `{r['代码']}` "
-            f"<span style='color:{color}'>{r['涨跌幅']:+.2f}%</span> — {tags}",
+            f"<span style='color:{color}'>{change_text}</span> — {tags}",
             unsafe_allow_html=True,
         )
 
 
 def _render_sector(rows: list[dict], df_sector: pd.DataFrame) -> None:
     """我的持仓所在板块今天是领涨还是垫底。"""
-    st.markdown("#### 🏭 我的池子所在板块今日强弱")
+    st.markdown("#### 🏭 我的池子所在行业")
     if df_sector.empty or "industry" not in df_sector.columns:
         st.info("板块热度数据暂无（data/sector_hot.csv 未生成）。")
         return
@@ -272,7 +291,7 @@ def _render_sector(rows: list[dict], df_sector: pd.DataFrame) -> None:
             "板块": ind,
             "我的标的": "、".join(names),
             "板块涨幅": float(s["pct_chg"]) if s else None,
-            "全市场排名": f"{rk} / {total}" if rk else "未入热度榜",
+            "领涨榜内名次": f"{rk} / {total}" if rk else "本榜未覆盖",
         })
     df = pd.DataFrame(recs).sort_values("板块涨幅", ascending=False, na_position="last")
     st.dataframe(
@@ -282,8 +301,8 @@ def _render_sector(rows: list[dict], df_sector: pd.DataFrame) -> None:
         },
     )
     st.caption(
-        f"板块热度榜只收录当日涨幅居前的 {total} 个行业，"
-        "「未入热度榜」表示该板块今日不在领涨行列，不代表数据缺失。"
+        f"数据日期 {pick_date(df_sector) or '未知'}；只覆盖领涨榜中的 {total} 个行业。"
+        "本榜未覆盖的行业无法据此判断强弱。"
     )
 
 
@@ -436,8 +455,11 @@ def _build_rows(watchlist: list[str]) -> tuple[list[dict], float | None, dict]:
     返回 (rows, 沪深300涨幅, 数据源状态)
     """
     quotes = fetch_quotes(tuple(watchlist))
-    bench = quotes.get(BENCH_BARE)
-    market_pct = float(bench["pct"]) if bench else None
+    bench = quotes.get(BENCH_TX) or quotes.get(BENCH_BARE)
+    today = beijing_now().date()
+    quote_dates = [_quote_date(q.get("time")) for q in quotes.values()]
+    quote_date = max((d for d in quote_dates if d and d <= today.strftime("%Y%m%d")), default="")
+    market_pct = (_num(bench.get("pct")) if bench and _quote_date(bench.get("time")) == quote_date else None)
 
     df_snap = _load_csv("data/market_snapshot.csv")
     df_rps = _load_csv("data/strong_stocks.csv")
@@ -446,73 +468,98 @@ def _build_rows(watchlist: list[str]) -> tuple[list[dict], float | None, dict]:
     ladder = _load_json("data/limit_ladder.json")
     radar = _load_json("data/radar_data.json")
     ep_plan = _load_json("data/evening_plan/latest.json")
+    source_dates = {"RPS": pick_date(df_rps), "突破": pick_date(df_break), "ETF": pick_date(df_etf),
+                    "天梯": norm_date(ladder.get("date")), "战法池": norm_date(ep_plan.get("date"))}
+    for win in ("10d", "30d"):
+        source_dates[f"雷达{win}"] = _radar_date(radar.get(win) or {})
+    reference = max((d for d in source_dates.values() if d and d <= today.strftime("%Y%m%d")), default="")
+    source_state = {key: verdict(day, reference_date=reference, today=today) for key, day in source_dates.items()}
+
+    def dated(label, day, qday=""):
+        if not day or (qday and day > qday):
+            return ""
+        if verdict(day, reference_date=reference, today=today)["status"] != "ok":
+            return ""
+        return f"{label} · {day[:4]}-{day[4:6]}-{day[6:]}"
+
+    def equity_key(code):
+        explicit = explicit_symbol(code).lower()
+        if re.fullmatch(r"(?:sh|sz|bj)\d{6}", explicit):
+            return explicit
+        bare = _bare(code)
+        if not re.fullmatch(r"\d{6}", bare):
+            return ""
+        # These sources contain A shares, not arbitrary bare-code quote requests.
+        market = "bj" if bare[:2] in _BJ_PREFIX else ("sh" if bare.startswith(("6", "9")) else "sz")
+        return market + bare
+
     i_ep_pools: dict[str, list[str]] = {}
-    i_ep_risks: dict[str, list[str]] = {}
     for _p in ((ep_plan or {}).get("pools") or {}).values():
         _ptitle = str(_p.get("title") or "").split("（")[0]
         for _it in (_p.get("items") or []):
-            _bc = _bare(_it.get("code"))
+            _bc = equity_key(_it.get("code"))
             if _bc:
                 i_ep_pools.setdefault(_bc, []).append(_ptitle)
-                for _rk in (_it.get("risks") or []):
-                    if _rk not in i_ep_risks.get(_bc, []):
-                        i_ep_risks.setdefault(_bc, []).append(_rk)
-
-    i_snap = _index_by_bare(df_snap)
-    i_rps = _index_by_bare(df_rps)
-    i_break = _index_by_bare(df_break)
-    i_etf = _index_by_bare(df_etf)
-    i_ladder = {_bare(s.get("code")): s for s in (ladder.get("stocks") or [])}
+    i_snap = _asset_index(df_snap)
+    i_rps = _asset_index(df_rps)
+    i_break = _asset_index(df_break)
+    i_etf = _asset_index(df_etf)
+    i_ladder = {equity_key(s.get("code")): s for s in (ladder.get("stocks") or [])}
     i_radar = {}
     for win in ("10d", "30d"):
         for it in ((radar.get(win) or {}).get("data") or []):
-            i_radar.setdefault(_bare(it.get("ts_code")), []).append(win)
+            i_radar.setdefault(equity_key(it.get("ts_code")), []).append(win)
 
     rows = []
     for code in watchlist:
         b = _bare(code)
-        q = quotes.get(b)
-        snap = i_snap.get(b, {})
-        rps = i_rps.get(b, {})
-        brk = i_break.get(b, {})
-        etf = i_etf.get(b, {})
-        lad = i_ladder.get(b, {})
+        q = quotes.get(_quote_key(code))
+        asset = explicit_symbol((q or {}).get("tx_code") or code).lower()
+        qday = _quote_date((q or {}).get("time"))
+        snap = i_snap.get(asset, {})
+        rps = i_rps.get(asset, {})
+        brk = i_break.get(asset, {})
+        etf = i_etf.get(asset, {})
+        lad = i_ladder.get(asset, {})
 
         name = (q or {}).get("name") or snap.get("name") or rps.get("name") or brk.get("name") or etf.get("name") or "-"
         industry = snap.get("industry") or rps.get("细分行业") or brk.get("industry") or lad.get("industry") or "-"
 
         signals = []
         if rps:
-            signals.append(f"🔥 RPS榜 {float(rps.get('RPS_50', 0)):.1f}（在榜{rps.get('连续天数', 1)}天）")
+            score = _num(rps.get('RPS_50'))
+            signals.append(dated(f"🔥 RPS榜 {score:.1f}" if score is not None else "🔥 RPS榜", _record_date(rps), qday))
         if etf:
-            signals.append(f"💰 强势ETF榜 {float(etf.get('RPS_50', 0)):.1f}")
+            signals.append(dated("💰 强势ETF榜", _record_date(etf), qday))
         if brk:
-            signals.append(f"🚀 {brk.get('level', '新高突破')}")
+            signals.append(dated(f"🚀 {brk.get('level', '新高突破')}", _record_date(brk), qday))
         if lad:
-            signals.append(f"🔴 涨停 {lad.get('limit_times', 1)}连板")
-        for win in i_radar.get(b, []):
-            signals.append(f"🚨 龙头雷达({win})")
-        for ep_hit in i_ep_pools.get(b, []):
-            signals.append(f"🌙 {ep_hit}")
-        for ep_rk in i_ep_risks.get(b, []):
-            signals.append(ep_rk)
+            signals.append(dated(f"🔴 涨停 {lad.get('limit_times', 1)}连板", source_dates["天梯"], qday))
+        for win in i_radar.get(asset, []):
+            signals.append(dated(f"🚨 龙头雷达({win})", source_dates[f"雷达{win}"], qday))
+        for ep_hit in i_ep_pools.get(asset, []):
+            signals.append(dated(f"🌙 {ep_hit}", source_dates["战法池"], qday))
+        signals = [s for s in signals if s]
         tr_val = _num((q or {}).get("turnover"))
-        if tr_val is not None and tr_val >= 60.0 and not any("#096" in s for s in signals):
-            signals.append(f"⚠️ #096高换手({tr_val:.1f}%)")
+        if tr_val is not None and tr_val >= 60.0 and qday and qday <= today.strftime("%Y%m%d") and not any("#096" in s for s in signals):
+            signals.append(f"换手率 {tr_val:.1f}% · 报价日 {qday or '未知'}")
 
         rows.append({
             "代码": b,
             "名称": name,
             "行业": industry,
-            "现价": float(q["price"]) if q else None,
-            "涨跌幅": float(q["pct"]) if q else 0.0,
+            "现价": _num((q or {}).get("price")),
+            "涨跌幅": _num((q or {}).get("pct")),
+            "报价日期": qday,
+            "报价时间": (q or {}).get("time"),
             "换手率": _num((q or {}).get("turnover")),
             "振幅": _num((q or {}).get("amplitude")),
             # 雪球前缀取自消歧后的 tx_code，不再按 6/5 开头猜 —— 猜错会跳到
             # 另一只同号标的的页面（000905 会跳到深市厦门港务）。
-            "雪球": sr.xueqiu_url((q or {}).get("tx_code") or _tx_code(b)),
-            "_has_quote": q is not None,
-            "_tx_code": (q or {}).get("tx_code") or "",
+            "雪球": sr.xueqiu_url(asset) if re.fullmatch(r"(?:sh|sz|bj)\d{6}", asset) else "",
+            "_has_quote": q is not None and _num(q.get("pct")) is not None,
+            "_comparison_ok": bool(qday and qday == quote_date),
+            "_tx_code": asset,
             "_ambiguous": bool((q or {}).get("ambiguous")),
             "_alternatives": (q or {}).get("alternatives") or [],
             "_signals": signals,
@@ -522,13 +569,15 @@ def _build_rows(watchlist: list[str]) -> tuple[list[dict], float | None, dict]:
         "报价时间": bench["time"] if bench else None,
         "跑批日期": (df_rps["更新日期"].iloc[0] if not df_rps.empty and "更新日期" in df_rps.columns else None),
         "天梯日期": ladder.get("date"),
+        "来源日期": source_dates,
+        "未采用来源": [f"{key}：{value['reason']}" for key, value in source_state.items() if value["status"] != "ok"],
     }
     return rows, market_pct, src
 
 
 def render_watchlist_page() -> None:
     st.header("⭐ 我的池子 · 每日复盘")
-    st.caption("站内唯一回答「这跟我有什么关系」的页面——把全市场指标折算成你自己的池子视角。")
+    st.caption("核对自选表现、最近收盘榜单记录和关键位置；选择标的后可继续看图并记录条件。")
 
     if not auth.is_logged_in():
         st.warning("🔒 我的池子需要登录后使用，以便云端同步你的自选清单。")
@@ -537,8 +586,9 @@ def render_watchlist_page() -> None:
         return
 
     user_id = auth.get_user_id()
-    if "user_watchlist" not in st.session_state:
+    if "user_watchlist" not in st.session_state or st.session_state.get("user_watchlist_owner") != user_id:
         st.session_state.user_watchlist = database.get_user_watchlist(user_id)
+        st.session_state["user_watchlist_owner"] = user_id
     cur = st.session_state.user_watchlist
 
     # 写库结果用 flash 传递：st.rerun() 会立刻重跑脚本，
@@ -555,7 +605,8 @@ def render_watchlist_page() -> None:
             )
             submitted = st.form_submit_button("添加到自选 💾")
             if submitted and new_input:
-                tokens = [x.strip() for x in new_input.replace("，", ",").split(",") if x.strip()]
+                tokens = [explicit_symbol(x.strip()) for x in new_input.replace("，", ",").split(",") if x.strip()]
+                tokens = [f"{x[2:]}.{x[:2].upper()}" if re.fullmatch(r"(?:sh|sz|bj)\d{6}", x) else x for x in tokens]
                 updated = list(dict.fromkeys(cur + tokens))
                 ok = database.update_user_watchlist(user_id, updated)
                 st.session_state.user_watchlist = updated
@@ -610,6 +661,12 @@ def render_watchlist_page() -> None:
     if src.get("天梯日期"):
         stamp.append(f"涨停池 {src['天梯日期']}")
     st.caption("　·　".join(stamp) if stamp else "⚠️ 未取到任何数据时间戳，下方内容可能不完整。")
+    st.caption("报价与收盘榜单各有日期；标签表示当时入榜记录，行情缺失不补零。")
+    if src.get("未采用来源"):
+        with st.expander("部分来源未通过日期核对"):
+            for note in src["未采用来源"]:
+                st.caption(note)
+    render_plan_book(key="watch_plans")
 
     st.markdown("---")
     _render_overview(rows, market_pct)
@@ -629,7 +686,7 @@ def render_watchlist_page() -> None:
         # 中证500」和「000905 厦门港务」都只会以为是自己那只。
         "市场": (sr.market_label(r["_tx_code"]) or "—"),
         "现价": r["现价"], "涨跌幅": r["涨跌幅"] if r["_has_quote"] else None,
-        "换手率": r["换手率"], "振幅": r["振幅"],
+        "换手率": r["换手率"], "振幅": r["振幅"], "报价时间": r["报价时间"],
         "策略命中": "　".join(s.split("（")[0] for s in r["_signals"]) or "—",
         "雪球": r["雪球"],
     } for r in rows])
@@ -643,6 +700,7 @@ def render_watchlist_page() -> None:
             "雪球": st.column_config.LinkColumn("雪球", display_text="❄️"),
         },
     )
+    candidate_actions(pd.DataFrame(rows), key="watch_next", code_col="_tx_code", name_col="名称")
     missing = [r["代码"] for r in rows if not r["_has_quote"]]
     if missing:
         st.caption(f"⚠️ 以下代码未取到实时报价，相关数值留空而非补 0：{', '.join(missing)}")

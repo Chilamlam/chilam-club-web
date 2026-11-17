@@ -24,7 +24,7 @@ def generate_snapshot():
                     df = pd.merge(df, df_mv, on='ts_code', how='left')
                 else:
                     df['circ_mv'] = 999999999 # 兜底极大值
-                    
+                df['date'] = date_str
                 os.makedirs("data", exist_ok=True)
                 df.to_csv("data/market_snapshot.csv", index=False)
                 print(f"✅ 全市场快照 ({date_str}) 生成完毕并保存为 data/market_snapshot.csv")

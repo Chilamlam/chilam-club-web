@@ -4,6 +4,7 @@ import datetime
 import os
 import json
 import requests
+from fund_review import nav_comparison
 
 # 配置
 MY_TOKEN = os.getenv('TUSHARE_TOKEN', '')
@@ -11,7 +12,7 @@ SPECULATION_PATH = "data/speculation_data.json"
 
 if MY_TOKEN:
     ts.set_token(MY_TOKEN)
-    pro = ts.pro_api()
+    pro = ts.pro_api(timeout=10)
 
 def get_latest_trade_date(api_func, max_days=5):
     """
@@ -97,7 +98,7 @@ def get_cb_opportunities():
         return result[export_cols].to_dict('records')
         
     except Exception as e:
-        print(f"❌ 可转债获取失败: {e}")
+        print(f"❌ 可转债获取失败: {type(e).__name__}")
         return []
 
 def get_fund_arbitrage():
@@ -136,19 +137,11 @@ def get_fund_arbitrage():
                         name_map[ts_code] = vals[1]
             print("   ✅ 基金名称解析成功！")
         except Exception as e:
-            print(f"   ⚠️ 腾讯 API 解析失败: {e}")
+            print(f"   ⚠️ 腾讯 API 解析失败: {type(e).__name__}")
 
-        # Tushare 获取净值算溢价率
-        print("   🔄 正在计算基金溢价率...")
-        nav_map = {}
-        try:
-            start_date = (datetime.datetime.strptime(trade_date, '%Y%m%d') - datetime.timedelta(days=7)).strftime('%Y%m%d')
-            nav_df = pro.fund_nav(ts_code=','.join(top_gainers['ts_code'].tolist()), start_date=start_date)
-            if not nav_df.empty:
-                nav_df = nav_df.sort_values('nav_date', ascending=False).drop_duplicates('ts_code')
-                nav_map = dict(zip(nav_df['ts_code'], nav_df['unit_nav']))
-        except Exception as e:
-            pass
+        # fund_nav accepts one code per request. Keep each NAV's own valuation date.
+        print("   🔄 正在逐只核对价格与净值日期...")
+        start_date = (datetime.datetime.strptime(trade_date, '%Y%m%d') - datetime.timedelta(days=14)).strftime('%Y%m%d')
 
         res = []
         for _, row in top_gainers.iterrows():
@@ -156,15 +149,18 @@ def get_fund_arbitrage():
             name = name_map.get(code, code)
             price = row['close']
             
-            premium_rate = 0.0
-            if code in nav_map and nav_map[code] > 0:
-                premium_rate = (price - nav_map[code]) / nav_map[code] * 100
-            
-            tag = '📈 强势'
-            if any(k in str(name) for k in ['纳指', '标普', '日经', '德国', '法国', '油', '金', '海外', '互联']):
-                tag = '🌍 跨境(注意溢价风险)'
-            elif 'LOF' in str(name) or code.startswith('16'):
-                tag = '🏗️ LOF套利'
+            nav_rows = []
+            nav_failed = False
+            try:
+                nav_df = pro.fund_nav(ts_code=code, start_date=start_date, end_date=trade_date,
+                                      fields="ts_code,nav_date,unit_nav")
+                if nav_df is not None and not nav_df.empty:
+                    nav_rows = nav_df.to_dict("records")
+            except Exception:
+                nav_failed = True
+            comparison = nav_comparison(price, trade_date, nav_rows, code=code)
+            if nav_failed:
+                comparison["nav_status"] = "净值接口暂不可用"
             
             res.append({
                 "code": code,
@@ -172,14 +168,13 @@ def get_fund_arbitrage():
                 "price": price,
                 "change": row['pct_chg'],
                 "vol_yi": round(row['amount']/100000, 2),
-                "tag": tag,
-                "premium_rate": round(premium_rate, 2)
+                **comparison,
             })
             
         return res
         
     except Exception as e:
-        print(f"❌ 基金扫描失败: {e}")
+        print(f"❌ 基金扫描失败: {type(e).__name__}")
         return []
 
 if __name__ == "__main__":

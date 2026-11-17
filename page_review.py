@@ -27,6 +27,10 @@ import auth
 import database
 from review_template import DEFAULT_TEMPLATE, get_checkable_ids
 import review_evidence
+from data_freshness import norm_date
+from site_data import load_json
+from update_schedule import beijing_now
+import investor_journey as journey
 
 AI_DIR = os.path.join("data", "review", "ai_answers")
 
@@ -37,20 +41,22 @@ SECTOR_PATH = os.path.join("data", "sector_rotation", "analysis.json")
 _CST = timezone(timedelta(hours=8))
 
 
-def _current_trade_date() -> str:
-    """答卷针对的交易日（CST 口径，与跑批锚定同套规则）。
-    错误防线：datetime 与 timezone 都从模块顶层导入，不做函数内
-    重新 import——Streamlit Cloud 重载时偶有局部导入失败归到下一行 st.markdown
-    报错，把 import 挪到顶部能彻底消除这类错觉归因。"""
-    now = datetime.now(_CST)
-    if now.weekday() == 5:
-        return (now - timedelta(days=1)).strftime("%Y%m%d")
-    if now.weekday() == 6:
-        return (now - timedelta(days=2)).strftime("%Y%m%d")
-    # 19:30 前（数据未就位）→ 昨日复盘；19:30 后 → 今日
-    if now.hour < 19 or (now.hour == 19 and now.minute < 30):
-        return (now - timedelta(days=1)).strftime("%Y%m%d")
-    return now.strftime("%Y%m%d")
+def _current_trade_date(now=None) -> str:
+    """Use an actually published market date, never a guessed calendar yesterday."""
+    current = beijing_now(now)
+    today = current.strftime("%Y%m%d")
+    calendar = load_json("data/trading_calendar.json")
+    start, end = norm_date(calendar.get("start_date")), norm_date(calendar.get("end_date"))
+    opens = {norm_date(day) for day in calendar.get("open_dates", [])}
+    dates = []
+    for path in ("data/sentiment/derived.json", "data/limit_ladder.json"):
+        date = norm_date(load_json(path).get("date"))
+        if not date or date > today or (date == today and current.hour < 15):
+            continue
+        if start and end and start <= date <= end and date not in opens:
+            continue
+        dates.append(date)
+    return max(dates, default="")
 
 
 def _load_local_ai(trade_date: str) -> dict | None:
@@ -67,16 +73,9 @@ def _load_local_ai(trade_date: str) -> dict | None:
         return None
 
 
-def _sector_options() -> list[str]:
+def _sector_options(trade_date: str) -> list[str]:
     """当日板块涨幅榜 Top10 → 最强题材题选项。"""
-    if not os.path.exists(SECTOR_PATH):
-        return []
-    try:
-        with open(SECTOR_PATH, "r", encoding="utf-8") as f:
-            j = json.load(f)
-        return [t.get("name", "") for t in (j.get("top") or [])[:10] if t.get("name")]
-    except Exception:
-        return []
+    return [row["name"] for row in review_evidence.daily_sector_rows(trade_date) if row.get("name")]
 
 
 def _render_evidence(qid: str, evidence: dict) -> None:
@@ -103,11 +102,20 @@ def _render_form(trade_date: str, existing: dict | None) -> None:
             saved = {}
     saved_plan = (existing or {}).get("plan_text") or ""
 
-    sector_opts = _sector_options()
+    # Widget state belongs to an account and a particular review day.
+    owner = journey._plans_key()
+    scope = f"{owner}_{trade_date}"
+    plan_key = f"rv_{scope}_q15_tomorrow_plan"
+    initial_plan = st.session_state.get(plan_key, saved_plan)
+    merged_plan, imported = journey.take_review_plan(st.session_state, owner, initial_plan)
+    if imported:
+        st.session_state[plan_key] = merged_plan
+        st.info("观察计划已追加到答卷草稿；检查后点击“保存草稿”可存入账号。")
+    sector_opts = _sector_options(trade_date)
     # 每题标的参考一次构建，循环内复用（2026-09-11 用户反馈：题目下
     # 要有对应标的选择参考——纯选择题没有盘面锚点，退化成闭眼猜）
     evidence = review_evidence.build_evidence(trade_date)
-    with st.form("review_form"):
+    with st.form(f"review_form_{scope}"):
         st.caption("草稿自动随「保存」更新；**交卷后锁定**，AI 答卷随即解锁。")
         answers: dict[str, str] = {}
         sections = []
@@ -120,35 +128,36 @@ def _render_form(trade_date: str, existing: dict | None) -> None:
                 if q["section"] != sec:
                     continue
                 qid, qtype = q["id"], q["type"]
+                widget_key = f"rv_{scope}_{qid}"
                 prev = saved.get(qid, "")
                 _render_evidence(qid, evidence)
                 if qtype == "single" or qtype == "yn":
                     opts = q["options"]
                     idx = opts.index(prev) if prev in opts else None
                     answers[qid] = st.radio(
-                        q["prompt"], opts, index=idx, key=f"rv_{qid}",
+                        q["prompt"], opts, index=idx, key=widget_key,
                         label_visibility="visible")
                 elif qtype == "multi":
                     chosen = prev.split("、") if prev and "、" in prev else (
                         [prev] if prev else [])
                     chosen = [c for c in chosen if c in q["options"]]
                     sel = st.multiselect(
-                        q["prompt"], q["options"], default=chosen, key=f"rv_{qid}")
+                        q["prompt"], q["options"], default=chosen, key=widget_key)
                     answers[qid] = "、".join(sel)
                 elif qtype == "choice_from_data":
                     if sector_opts:
                         idx = sector_opts.index(prev) if prev in sector_opts else None
                         answers[qid] = st.selectbox(
                             q["prompt"] + "（选项来自当日板块涨幅榜）",
-                            sector_opts, index=idx, key=f"rv_{qid}")
+                            sector_opts, index=idx, key=widget_key)
                     else:
                         answers[qid] = st.text_input(
                             q["prompt"] + "（当日板块数据未就位，手动填写）",
-                            value=prev, key=f"rv_{qid}")
+                            value=prev, key=widget_key)
                 elif qtype == "text":
-                    answers[qid] = st.text_area(
-                        q["prompt"], value=saved_plan if qid == "q15_tomorrow_plan" else prev,
-                        height=120, key=f"rv_{qid}")
+                    if widget_key not in st.session_state:
+                        st.session_state[widget_key] = saved_plan if qid == "q15_tomorrow_plan" else prev
+                    answers[qid] = st.text_area(q["prompt"], height=120, key=widget_key)
         col_save, col_submit = st.columns(2)
         do_save = col_save.form_submit_button("💾 保存草稿", use_container_width=True)
         do_submit = col_submit.form_submit_button("✅ 交卷（锁定）", type="primary",
@@ -163,7 +172,7 @@ def _render_form(trade_date: str, existing: dict | None) -> None:
                     st.warning("该日答卷已交卷锁定，不能再修改。")
                 else:
                     st.error(f"保存失败：{err.get('message', '未知错误')}")
-                st.rerun()
+                # Keep the error and the unsaved draft visible; rerun would erase the message.
             elif do_submit:
                 row, err = database.submit_review(uid, trade_date)
                 if err:
@@ -182,7 +191,7 @@ def _render_compare(trade_date: str, user_row: dict) -> None:
     ai_row, err = database.get_ai_review(trade_date, uid)
     if err:
         if err.get("code") == "NO_AI":
-            st.info("⏳ 当日 AI 答卷尚未生成（通常 19:35 前后随跑批产出）。"
+            st.info("⏳ 当日 AI 答卷尚未生成，会随收盘跑批产出。"
                     "你的答卷已锁定，生成后自动出现在这里。")
         elif err.get("code") == "TABLE_MISSING":
             st.warning("答卷系统初始化中（管理员执行 init_review_tables.sql 后可用）。")
@@ -290,13 +299,20 @@ def _render_after_login() -> None:
     user = auth.get_current_user() or {}
     uid = user.get("user_id")
     trade_date = _current_trade_date()
+    if not trade_date:
+        st.info("尚无可核验的收盘数据，暂不能确定复盘日期。观察计划仍可下载留存。")
+        journey.render_plan_book(key="review_waiting")
+        return
     d = trade_date
     date_disp = f"{d[:4]}-{d[4:6]}-{d[6:]}"
-    st.markdown(f"**复盘对象：{date_disp} 的盘面**（19:35 后切换为当日）")
+    st.markdown(f"**复盘对象：{date_disp} 的盘面**（以已发布的收盘数据为准）")
 
     existing = database.get_user_review(uid, trade_date)
     if existing and existing.get("submitted"):
         st.success(f"✅ {date_disp} 已交卷（锁定）。")
+        if st.session_state.get("observation_review_text"):
+            st.info("该日答卷已锁定，观察计划保留在本次会话中，未覆盖已交卷内容。")
+            journey.render_plan_book(key="review_locked")
         _render_compare(trade_date, existing)
         _render_scoring(trade_date, uid)
     else:

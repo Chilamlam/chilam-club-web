@@ -10,10 +10,13 @@ import threading
 
 # Dependencies precede their consumers, including consumers using `from ... import`.
 REVIEW_MODULES = (
-    "data_freshness", "ladder_themes", "sector_rotation", "review_template", "sentiment",
+    "data_freshness", "site_data", "investor_journey", "fund_review",
+    "ladder_themes", "sector_rotation", "review_template", "sentiment",
     "industry_signal", "evening_plan", "narrative", "review_evidence", "digest",
     "page_sentiment", "page_digest", "page_review", "page_industry_signal",
     "page_evening_plan", "convertible", "page_convertible",
+    "page_live_quote", "page_fibonacci", "page_watchlist", "page_core_driver",
+    "page_sector_rotation", "page_macro_erp",
 )
 _ROOT = Path(__file__).resolve().parent
 # Keep the lock stable when app.py refreshes this helper itself.

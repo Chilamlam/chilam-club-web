@@ -19,6 +19,7 @@ def ladder_dashboard(ladder, themes):
     import streamlit as st
     import data_freshness as freshness
     from ladder_themes import attribution_for, source_status_text
+    from investor_journey import page_link, candidate_actions, WATCH_PAGE, REVIEW_PAGE
 
     source = Path("app.py").read_text(encoding="utf-8")
     tree = ast.parse(source)
@@ -31,6 +32,8 @@ def ladder_dashboard(ladder, themes):
         "load_json": lambda path: ladder if path.endswith("limit_ladder.json") else themes,
         "render_market_update_status": lambda *args: None,
         "render_sentiment_block": lambda: None,
+        "page_link": page_link, "candidate_actions": candidate_actions,
+        "WATCH_PAGE": WATCH_PAGE, "REVIEW_PAGE": REVIEW_PAGE,
     }
     exec(compile(ast.Module(body=[dashboard], type_ignores=[]), "app.py", "exec"), namespace)
     namespace["render_market_dashboard"]()

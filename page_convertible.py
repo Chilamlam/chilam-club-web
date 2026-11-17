@@ -3,15 +3,16 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
+from investor_journey import candidate_actions
 
-CLASS_TABS = [("A", "🅰️ 债强于股"), ("B", "🅱️ 股强于债"), ("C", "🔗 股债联动"), ("N", "➖ 中性")]
+CLASS_TABS = [("A", "🅰️ 债强于股"), ("B", "🅱️ 股强于债"), ("C", "🔗 股债同向候选"), ("N", "➖ 待进一步判断")]
 
 PLAYBOOK = {
     "A": ("尾盘隔夜当日最强第一/第二；次日开盘低吸昨日最强第一/第二；"
           "盘中低吸昨日最强的一个；盘中追高日内第二，等它追平第一。"),
     "B": "正股全天维持强度、转债还没激活时，尾盘隔夜该债，等次日债性激活。",
     "C": "按题材节奏做启动、分歧、分歧转一致、加速高潮、退潮、回流，进度看盘面。",
-    "N": "两边都没有明显分化，只作为观察池，不单独构成模式。",
+    "N": "未满足当前收盘阈值的标的，需要结合分时走势继续判断。",
 }
 
 
@@ -97,8 +98,8 @@ def _render_overview(payload: dict) -> None:
     _metric_row([
         ("A 债强于股", str((classes.get("A") or {}).get("count", 0)), PLAYBOOK["A"]),
         ("B 股强于债", str((classes.get("B") or {}).get("count", 0)), PLAYBOOK["B"]),
-        ("C 股债联动", str((classes.get("C") or {}).get("count", 0)), PLAYBOOK["C"]),
-        ("N 中性", str((classes.get("N") or {}).get("count", 0)), PLAYBOOK["N"]),
+        ("C 股债同向候选", str((classes.get("C") or {}).get("count", 0)), PLAYBOOK["C"]),
+        ("N 待进一步判断", str((classes.get("N") or {}).get("count", 0)), PLAYBOOK["N"]),
     ])
     _metric_row([
         ("上涨/下跌", f"{market.get('up', 0)}/{market.get('down', 0)}", None),
@@ -107,8 +108,8 @@ def _render_overview(payload: dict) -> None:
         ("合计成交额", f"{_num(market.get('amount_yi'), 0)} 亿", None),
     ])
 
-    st.caption("每个交易日按当日正股与转债涨跌幅把全市场转债分到四类，互斥且穷尽；"
-               "分类只描述今天发生了什么，不预测明天。")
+    st.caption("收盘筛选用于缩小 A/B/C 的观察范围；两个收盘涨跌幅不能确认盘中是否联动。"
+               "N 收录未满足阈值的标的，真正的联动关系仍需对照股债分时走势。")
     labels = dict(CLASS_TABS)
     choice = st.radio("查看分类", [labels[key] for key, _ in CLASS_TABS],
                       horizontal=True, key="cb_class_choice", label_visibility="collapsed")
@@ -116,6 +117,7 @@ def _render_overview(payload: dict) -> None:
     part = classes.get(key) or {}
     st.caption(f"{PLAYBOOK[key]}　共 {part.get('count', 0)} 只，按当日涨幅排序。")
     _table(part.get("rows") or [])
+    candidate_actions(pd.DataFrame(part.get("rows") or []), key="cb_next", code_col="code")
 
 
 def _render_patterns(payload: dict) -> None:
@@ -148,7 +150,7 @@ def _render_patterns(payload: dict) -> None:
     st.markdown("**隔夜（昨收 → 次日开盘）**")
     block("当日最强第一", rank1)
     block("当日最强第二", rank2)
-    st.markdown("**次日开盘低吸（次日开盘 → 次日收盘）**")
+    st.markdown("**次日开盘买入基准（次日开盘 → 次日收盘）**")
     block("昨日第一", rank1, "open_to_close")
     block("昨日第二", rank2, "open_to_close")
     st.markdown("**次日盘中回踩挂单（次日开盘价下方 3% 挂单，最低价触及才算成交）**")
@@ -157,14 +159,14 @@ def _render_patterns(payload: dict) -> None:
     st.markdown("**次日最低 → 收盘（理论天花板，不作收益统计）**")
     block("昨日第一", rank1, "low_to_close", show_win=False)
     block("昨日第二", rank2, "low_to_close", show_win=False)
-    st.caption("「最低→收盘」恒为正：收盘价必然高于当天最低价，它只表示当天振幅上限。"
-               "没有人能在最低点成交，所以这里只给平均值，不统计正收益占比，也不当作策略收益。")
+    st.caption("「最低→收盘」非负，仅展示事后最低价到收盘的空间；最低点无法提前确定，"
+               "因此不统计正收益占比，也不当作策略收益。")
 
     swap = patterns.get("swap") or {}
     if swap.get("n"):
         st.caption(f"次日排序互换：昨日第二今日反超第一 {swap.get('n', 0)} 次样本中"
-                   f"发生 {_num(swap.get('rate'), 0)}%。这是「追高第二、等它追平第一」"
-                   "这类打法的可观测代理指标，不是收益。")
+                   f"发生 {_num(swap.get('rate'), 0)}%。它只比较次日涨幅；"
+                   "盘中第二名何时追到第一、追入后的结果，需要分时数据另行统计。")
 
     st.markdown("**逐日明细**")
     rows = patterns.get("rows") or []
@@ -189,7 +191,7 @@ def _render_patterns(payload: dict) -> None:
             }, use_container_width=True, hide_index=True,
         )
 
-    st.markdown("**联动债的节奏阶段（同一规则判定后再统计次日）**")
+    st.markdown("**C 类收盘形态分组（规则标签，实际题材阶段需结合盘面）**")
     stages = patterns.get("stages") or {}
     definitions = patterns.get("definitions") or {}
     rules = definitions.get("stage_rules") or {}
@@ -222,7 +224,8 @@ def _render_patterns(payload: dict) -> None:
                    "收盘后只能回看，不能当成明日的固定进度。")
 
     b_spec = aggregate.get("b_overnight") or {}
-    st.markdown("**B 类：正股全天强、转债未激活的隔夜样本**")
+    st.markdown("**B 类观察样本：正股收盘强、转债涨幅落后**")
+    st.caption("以正股涨幅和收盘位置筛选，不能仅据日线确认正股全天维持强度。")
     if b_spec.get("n"):
         _metric_row([
             ("样本", str(b_spec.get("n")), "正股涨幅≥3%、收盘位于日内上25%、转债落后≥2个百分点"),
@@ -269,7 +272,7 @@ def _render_watch(payload: dict) -> None:
                 f"今日 {_pct(row.get('pct_chg'))}｜正股 {row.get('stock_name')} "
                 f"{_pct(row.get('stock_pct'))}｜溢价 {_num(row.get('premium'))}%｜"
                 f"成交 {_num(row.get('amount_yi'))} 亿｜{row.get('sub_tag') or row.get('stage') or '—'}"
-                f"　\n　　↳ 历史同类样本 {spec.get('n', 0)} 个：隔夜均值 "
+                 f"　\n　　↳ 历史同排名样本 {spec.get('n', 0)} 个：隔夜均值 "
                 f"{_pct(overnight.get('mean'))}（正收益占比 {_num(overnight.get('win'), 0)}%），"
                 f"开盘→收盘 {_pct(open_close.get('mean'))}，"
                 f"回踩挂单 {_pct(dip.get('mean'))}（触及 {dip.get('n', 0)}/{dip.get('total', 0)}）"
@@ -317,26 +320,25 @@ def _render_watch(payload: dict) -> None:
             }, use_container_width=True, hide_index=True,
         )
         st.caption(f"共 {watch.get('b_total', len(candidates))} 只 B 类转债成交额达标；"
-                   "上表按正股涨幅取前 8 只。B 类的做法是等正股全天维持强度再隔夜；"
-                   "正股尾盘走弱时该类不成立。")
+                   "上表按正股涨幅取前 8 只；是否符合“正股全天维持强度”的打法，需查看正股分时和尾盘表现。")
     else:
         st.caption("今日没有符合条件的 B 类标的。")
 
 
 def _render_rules() -> None:
     st.markdown("""
-**分类只用到当日两个数字：转债涨跌幅、正股涨跌幅。** 四类互斥且穷尽：
+**当前是收盘筛选口径，只用到当日转债与正股涨跌幅。** A/B/C 为待核验候选；其余放入 N：
 
 | 类别 | 判定（按顺序执行） | 含义 |
 | --- | --- | --- |
-| C 股债联动 | 正股与转债同向，\\|正股\\|≥1.5%，且 \\|转债\\|≥max(0.8%, \\|正股\\|×30%) | 转债在跟随正股定价 |
-| A 债强于股 | 转债涨幅 − 正股涨幅 ≥ 1.5 个百分点 | 正股没参与，涨幅由转债自身情绪/资金推动 |
-| B 股强于债 | 正股涨幅 − 转债涨幅 ≥ 2 个百分点，且正股 ≥ 2% | 正股强、转债还没激活 |
-| N 中性 | 上述都不满足 | 不构成模式 |
+| C 股债同向候选 | 正股与转债同向，\\|正股\\|≥1.5%，且 \\|转债\\|≥max(0.8%, \\|正股\\|×30%) | 收盘同向且达到幅度阈值，盘中联动待核验 |
+| A 债强于股 | 转债涨幅 − 正股涨幅 ≥ 1.5 个百分点 | 转债相对更强，原因需结合题材和分时走势 |
+| B 股强于债 | 正股涨幅 − 转债涨幅 ≥ 2 个百分点，且正股 ≥ 2% | 正股收盘涨幅更高 |
+| N 待进一步判断 | 上述都不满足 | 当前日线阈值未归类 |
 
 **A 类的子标签**只描述可观测特征：次新（上市 60 日内）、高溢价（≥30%）、放量（成交额≥5 日均量 1.5 倍）。
 
-**联动债的节奏规则**（收盘后回看，样本低于 3 个不下结论）：
+**C 类收盘形态标签**（收盘后回看，样本低于 3 个不下结论）：
 
 - 退潮：今日跌幅≥5%，前 5 日累计涨幅≥8%
 - 分歧：振幅≥8%，收盘位于当日振幅下 40%，前 5 日累计≥5%
@@ -346,10 +348,11 @@ def _render_rules() -> None:
 - 启动：今日涨幅≥5%，前 5 日累计≤3%，成交额≥5 日均量 1.5 倍
 
 **统计口径**：强势榜只取当日成交额≥3000 万元（0.3 亿）的转债；第一/第二名按当日涨幅排序。
-隔夜 = 昨收→次日开盘；开盘低吸 = 次日开盘→次日收盘；盘中回踩 = 次日开盘价下方 3% 挂单、
+隔夜 = 昨收→次日开盘；开盘买入 = 次日开盘→次日收盘；盘中回踩 = 次日开盘价下方 3% 挂单、
 最低价触及才成交、按次日收盘计（未触及不计样本）；隔夜最高 = 昨收→次日最高。
-「次日最低→次日收盘」恒为正，只作振幅上限参考，不统计正收益占比。
-全部为价格理论涨幅，未扣费用与滑点。
+「次日最低→次日收盘」非负，只作事后空间参考，不统计正收益占比。
+收盘榜单形成后，已无法再按该收盘价买入；隔夜列用于观察后续表现。
+全部为价格理论涨幅，未扣费用与滑点；触价也不保证实际成交。
 
 **已知局限**：溢价率用最新转股价计算，下修后若基础表未同步会短暂失真；
 分类不含成交额门槛，冷门债也会被分类，但不会进入强势榜与观察清单。

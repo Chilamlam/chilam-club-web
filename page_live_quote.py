@@ -1308,6 +1308,9 @@ def render_live_quote_page():
         k[3].metric("昨收", _fmt(quote.get("last_close", 0), market))
     k[4].metric("行情时间", str(quote.get("update_time", ""))[-8:])
 
+    from investor_journey import render_symbol_workspace
+    plan_symbol = sym.get("tx_code") or f"HF_{sym.get('sina_sym') or sym['display']}"
+    render_symbol_workspace(plan_symbol, quote.get("name", ""), key="quote")
     st.markdown("---")
 
     periods = MARKET_PERIODS[market]

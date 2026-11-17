@@ -581,7 +581,7 @@ def _render_subscribe() -> None:
 
 def render_industry_signal_page(reference_date: str = "") -> None:
     st.header("🏭 行业信号")
-    st.caption("申万二级行业｜低市值占比（相对自身历史缩水）+ 高资金热度（成交占比重回高位）｜每日收盘后更新")
+    st.caption("申万二级行业｜市值占比低分位 + 成交额占比高分位｜对照行业走势和历史命中结果继续核验")
 
     sig = load_signal()
     if not sig:
@@ -621,11 +621,11 @@ def render_industry_signal_page(reference_date: str = "") -> None:
     c1.metric("今日命中", f"{hits} 个", help="同时满足两个条件的行业数（含未列入下方的）")
     c2.metric("参与行业", f"{sig.get('industry_count', '—')} 个", help="申万二级行业中已发布的那些")
     tot_mv = sig.get("universe_mv_total_yi")
-    c3.metric("全市场流通市值",
+    c3.metric("参与行业流通市值合计",
               _fmt(None if tot_mv is None else float(tot_mv) / 10000.0, " 万亿"),
               help="当日参与行业流通市值合计（占比的分母）")
     tot_amt = sig.get("universe_amt_total_yi")
-    c4.metric("全市场成交额", _fmt(tot_amt, " 亿"), help="当日参与行业成交额合计")
+    c4.metric("参与行业成交额合计", _fmt(tot_amt, " 亿"), help="当日参与行业成交额合计")
 
     # ---- 命中卡片 ----
     # 刻意放在 frame 判空之前：命中名单只依赖 sig["picks"]，与明细表是否能读出来
@@ -691,17 +691,15 @@ def render_industry_signal_page(reference_date: str = "") -> None:
     with st.expander("📖 口径与判读方法（点击展开）"):
         st.markdown(f"""
 - **在找什么**：同一天同时满足两件事的行业——
-  ①**市值占比处在自己的历史低位**（相对整个市场缩水了）；
-  ②**成交额占比处在自己的历史高位**（资金关注度骤升）。
-  组合含义是「跌够了 + 刚开始有人来」，即低位启动候选。**这是描述性筛选，不是买卖建议。**
+  ①**市值占比处在自己的历史低位**；
+  ②**成交额占比处在自己的历史高位**。
+  占比的位置不等于估值高低；是否转强还需核对价格走势、成分股表现及后续成交变化。
 - **市值占比** = 该行业流通市值 ÷ 当日全部参与行业流通市值之和。
   分母用「同日同口径全体行业之和」而不是外部的全 A 总市值：分子分母同源，
   任何人可以拿归档逐日复算，不存在第二个来源造成的口径漂移。
 - **两个窗口不一样长是刻意的**：
-  - 市值占比分位取近 **{sig.get('mv_window')}** 个交易日 —— 占比是慢变量，
-    看短期会被噪声主导，必须用长窗口才能表达「相对自身历史缩水」。
-  - 成交额占比分位取近 **{sig.get('amt_window')}** 个交易日 —— 资金关注度是快变量，
-    {sig.get('amt_window')} 日才能体现出「最近正在挤进来」而不是「一直很热」。
+  - 市值占比分位取近 **{sig.get('mv_window')}** 个交易日，比较较长时间的相对体量。
+  - 成交额占比分位取近 **{sig.get('amt_window')}** 个交易日，比较近期成交占比的位置。
 - **分位是含当日的中位秩分位**：当日值在窗口里的位置（0=最小，100=最大）。
   用中位秩是为了并列值各分一半——否则一串相同的值会被整体判成高分位。
   样本为空或值缺失一律显示 —，**绝不用 0 或 50 冒充「算出来了」**。

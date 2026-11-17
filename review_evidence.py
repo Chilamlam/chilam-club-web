@@ -26,6 +26,7 @@ from __future__ import annotations
 import csv
 import json
 import os
+from data_freshness import norm_date
 
 DERIVED_PATH = os.path.join("data", "sentiment", "derived.json")
 LADDER_PATH = os.path.join("data", "limit_ladder.json")
@@ -36,6 +37,8 @@ BREAKOUT_PATH = os.path.join("data", "breakout_stocks.csv")
 STRONG_PATH = os.path.join("data", "strong_stocks.csv")
 SNAPSHOT_PATH = os.path.join("data", "market_snapshot.csv")
 INDEX_PATH = os.path.join("data", "index_history.csv")
+CONVERTIBLE_PATH = os.path.join("data", "convertible.json")
+SECTOR_HISTORY_PATH = os.path.join("data", "sector_rotation", "history.csv")
 
 # 泄题词表：这些定性结论一旦混进 evidence 输出即违规（探针断言用）
 PHASE_WORDS = ("启动期", "发酵期", "高潮期", "退潮期", "冰点期")
@@ -64,7 +67,7 @@ def _load_csv(path: str) -> list[dict]:
 
 def _d8(v) -> str:
     """任意日期形态 → YYYYMMDD（'2026-09-02' / 20260902 / '…01:57:42' 前10位）。"""
-    return "".join(ch for ch in str(v or "")[:10] if ch.isdigit())
+    return norm_date(v)
 
 
 def _pct(x, digits: int = 1) -> str:
@@ -176,9 +179,12 @@ def _evd_promotion(derived: dict) -> dict | None:
             "lines": lines, "source": "sentiment/derived.json"}
 
 
-def _index_tail() -> list[tuple[str, float, float, float]]:
+def _index_tail(trade_date: str) -> list[tuple[str, float, float, float]]:
     """index_history 尾部 11 行 → [(date, zz1000, zz500, spread)]。"""
-    rows = _load_csv(INDEX_PATH)
+    rows = sorted((r for r in _load_csv(INDEX_PATH) if _d8(r.get("date")) and _d8(r.get("date")) <= trade_date),
+                  key=lambda r: _d8(r.get("date")))
+    if not rows or _d8(rows[-1].get("date")) != trade_date:
+        return []
     out = []
     for r in rows[-11:]:
         try:
@@ -189,8 +195,8 @@ def _index_tail() -> list[tuple[str, float, float, float]]:
     return out
 
 
-def _evd_index_cycle() -> dict | None:
-    t = _index_tail()
+def _evd_index_cycle(trade_date: str) -> dict | None:
+    t = _index_tail(trade_date)
     if len(t) < 4:
         return None
     lines = ["中证1000 近10日（收盘 / 日涨幅）："]
@@ -203,8 +209,8 @@ def _evd_index_cycle() -> dict | None:
             "source": "index_history.csv"}
 
 
-def _evd_style() -> dict | None:
-    t = _index_tail()
+def _evd_style(trade_date: str) -> dict | None:
+    t = _index_tail(trade_date)
     if len(t) < 7:
         return None
     def chg(i, j):
@@ -290,19 +296,40 @@ def _spec_matches(td: str, spec: dict | None) -> bool:
 
 
 def _evd_convertible(td: str) -> dict | None:
-    spec = _load_json(SPEC_PATH)
-    if not _spec_matches(td, spec):
+    payload = _load_json(CONVERTIBLE_PATH) or {}
+    if _d8(payload.get("date")) != td:
         return None
-    cbs = spec.get("cb_list") or []
-    lines = [f"- {c.get('bond_short_name')} · {c.get('tag')} · {c.get('desc')}"
-             f" · 溢价 {_f(c.get('premium_rate'))}% · 双低 {_f(c.get('double_low'), 2)}"
-             for c in cbs[:6]]
-    funds = spec.get("fund_list") or []
-    for fu in funds[:2]:
-        lines.append(f"- 套利基金：{fu.get('name')} {_pct(fu.get('change'))}（{fu.get('tag')}）")
-    gen = (spec.get("date") or "")[:16]
-    return {"title": "转债与套利参考（双低前列）", "lines": lines,
-            "source": f"speculation_data.json · 生成于 {gen}"}
+    leaders = (payload.get("watch") or {}).get("today_leaders") or []
+    lines = [f"- {row.get('name')} · 转债 {_pct(row.get('pct_chg'))} / 正股 {_pct(row.get('stock_pct'))}"
+             f" · 成交额 {_f(row.get('amount_yi'))}亿" for row in leaders]
+    return {"title": "转债收盘强弱参考（成交额达标榜）", "lines": lines,
+            "source": f"convertible.json · {td}"} if lines else None
+
+
+def daily_sector_rows(trade_date: str) -> list[dict]:
+    """Rank the requested day's complete concept snapshot by DAILY return."""
+    import math
+    from narrative import _theme
+    td = _d8(trade_date)
+    rows = {}
+    for row in _load_csv(SECTOR_HISTORY_PATH):
+        if _d8(row.get("date")) != td or not _theme(row):
+            continue
+        try:
+            value = float(row.get("pct_chg"))
+        except (TypeError, ValueError):
+            continue
+        if math.isfinite(value) and row.get("code"):
+            rows[str(row["code"])] = {**row, "pct_chg": value}
+    analysis = _load_json(SECTOR_PATH) or {}
+    expected = analysis.get("universe_count") if _d8(analysis.get("date")) == td else None
+    try:
+        expected = float(expected) if not isinstance(expected, bool) else 0
+    except (TypeError, ValueError):
+        return []
+    if not math.isfinite(expected) or expected <= 0 or len(rows) < expected * .9:
+        return []
+    return sorted(rows.values(), key=lambda row: (-row["pct_chg"], str(row["code"])))[:10]
 
 
 def _sector_matches(td: str, sector: dict | None) -> bool:
@@ -312,23 +339,12 @@ def _sector_matches(td: str, sector: dict | None) -> bool:
 
 
 def _evd_sector_table(td: str) -> dict | None:
-    sector = _load_json(SECTOR_PATH)
-    if not _sector_matches(td, sector):
-        return None
-    top = sector_snapshot(sector)
+    top = daily_sector_rows(td)
     if not top:
         return None
-    lines = [f"- {i + 1}. {t['name']}　今日 {_pct(t.get('pct'))} / 5日 {_pct(t.get('pct_5d'))}"
-             f"（上榜第 {t.get('streak')} 天）" for i, t in enumerate(top)]
-    ov = sector.get("overlap_count")
-    if ov is not None:
-        # 比较对象的称谓用计算层给的 prev_label（措辞唯一真源）：归档有空档时
-        # 它会写成「上一份数据（日期，相隔 N 天）」，这里不能自己写死「上一交易日」。
-        who = sector.get("prev_label") or "上一交易日"
-        lines.append(f"- 与{who} Top10 重合 {ov}/{sector.get('overlap_denominator')}"
-                     f"（重合少=换脸快）")
+    lines = [f"- {i + 1}. {t['name']}　当日 {_pct(t.get('pct_chg'))} / 5日 {_pct(t.get('pct_5d'))}" for i, t in enumerate(top)]
     return {"title": "当日板块涨幅榜 Top10", "lines": lines,
-            "source": "sector_rotation/analysis.json"}
+            "source": f"sector_rotation/history.csv · {td} · 当日涨幅排序"}
 
 
 def _evd_new_theme(td: str) -> dict | None:
@@ -341,7 +357,7 @@ def _evd_new_theme(td: str) -> dict | None:
     fresh = [t for t in top if (t.get("streak") or 0) <= 1]
     ov, od = sector.get("overlap_count"), sector.get("overlap_denominator")
     if fresh:
-        lines = ["新上榜（streak≤1，篡位/分流候选）："]
+        lines = ["新进入近10日涨幅榜（streak≤1）："]
         lines += [f"- {t['name']}　今日 {_pct(t.get('pct'))} / 5日 {_pct(t.get('pct_5d'))}"
                   for t in fresh]
     else:
@@ -352,7 +368,7 @@ def _evd_new_theme(td: str) -> dict | None:
         else:
             who = sector.get("prev_label") or "上一交易日"
             lines = [f"- Top10 无新面孔（与{who}重合 {ov}/{od}）"]
-    return {"title": "新题材观察素材", "lines": lines,
+    return {"title": "近10日榜单的新面孔（不等于题材首次出现）", "lines": lines,
             "source": "sector_rotation/analysis.json"}
 
 
@@ -362,7 +378,7 @@ def _evd_patterns(trade_date: str, ladder: dict) -> dict | None:
     if snap and snap.get("top5"):
         lines.append("- 连板接力 · 最高板：" + "、".join(
             f"{s['name']}({s['limit_times']}板)" for s in snap["top5"][:3]))
-    snap_rows = _load_csv(SNAPSHOT_PATH)
+    snap_rows = [r for r in _load_csv(SNAPSHOT_PATH) if _d8(r.get("date")) == trade_date]
     if snap_rows:
         def amt(r):
             try:
@@ -370,8 +386,8 @@ def _evd_patterns(trade_date: str, ladder: dict) -> dict | None:
             except (KeyError, ValueError):
                 return 0.0
         top_amt = sorted(snap_rows, key=amt, reverse=True)[:5]
-        lines.append("- 抱团 · 成交额前列：" + "、".join(
-            f"{r.get('name')}({_f(amt(r) / 10000)}亿)" for r in top_amt))
+        lines.append("- 成交额前列：" + "、".join(
+            f"{r.get('name')}({_f(amt(r) / 100000)}亿)" for r in top_amt))
     st = [r for r in _load_csv(STRONG_PATH) if _d8(r.get("更新日期")) == trade_date]
     if st:
         st.sort(key=lambda r: -(float(r["RPS_50"]) if r.get("RPS_50") else 0))
@@ -380,11 +396,11 @@ def _evd_patterns(trade_date: str, ladder: dict) -> dict | None:
         tr = sorted(st, key=lambda r: -(float(r["turnover_rate"]) if r.get("turnover_rate") else 0))
         lines.append("- 人气低吸 · 强势股池换手前列（池内口径）：" + "、".join(
             f"{r.get('name')}(换手 {_f(r.get('turnover_rate'))}%)" for r in tr[:5]))
-    spec = _load_json(SPEC_PATH)
-    cbs = (spec.get("cb_list") or [])[:2] if spec else []
+    spec = _load_json(CONVERTIBLE_PATH) or {}
+    cbs = ((spec.get("watch") or {}).get("today_leaders") or [])[:2] if _d8(spec.get("date")) == trade_date else []
     if cbs:
-        lines.append("- 转债投机 · 双低前列：" + "、".join(
-            c.get("bond_short_name") or "" for c in cbs))
+        lines.append("- 转债投机 · 成交额达标涨幅榜：" + "、".join(
+            c.get("name") or "" for c in cbs))
     hi = [s for s in (ladder.get("stocks") or []) if (s.get("limit_times") or 0) >= 2]
     if hi:
         lines.append(f"- 高板人气池：2板及以上 {len(hi)} 只")
@@ -397,7 +413,7 @@ def _evd_patterns(trade_date: str, ladder: dict) -> dict | None:
 
 def _evd_recognition(trade_date: str, ladder: dict) -> dict | None:
     lines = []
-    snap_rows = _load_csv(SNAPSHOT_PATH)
+    snap_rows = [r for r in _load_csv(SNAPSHOT_PATH) if _d8(r.get("date")) == trade_date]
     if snap_rows:
         def amt(r):
             try:
@@ -406,7 +422,7 @@ def _evd_recognition(trade_date: str, ladder: dict) -> dict | None:
                 return 0.0
         top_amt = sorted(snap_rows, key=amt, reverse=True)[:5]
         lines.append("- 最大成交金额：" + "、".join(
-            f"{r.get('name')}({_f(amt(r) / 10000)}亿·{r.get('industry')})" for r in top_amt))
+            f"{r.get('name')}({_f(amt(r) / 100000)}亿·{r.get('industry')})" for r in top_amt))
     stocks = ladder.get("stocks") or []
     yizi = [s for s in stocks if (s.get("first_time") or "").startswith("09:25:00")]
     if yizi:
@@ -469,8 +485,8 @@ def build_evidence(trade_date: str) -> dict[str, dict]:
         ev["q02_mood"] = _evd_breadth(d_ok)
         ev["q03_emotion_cycle"] = _evd_promotion(d_ok)
         ev["q14_tomorrow_expect"] = _evd_tomorrow(d_ok)
-    ev["q04_index_cycle"] = _evd_index_cycle()
-    ev["q05_lead_index"] = _evd_style()
+    ev["q04_index_cycle"] = _evd_index_cycle(td)
+    ev["q05_lead_index"] = _evd_style(td)
     if l_ok:
         ev["q06_hot_money"] = _evd_popular(l_ok)
         ev["q07_ladder"] = _evd_ladder(l_ok)

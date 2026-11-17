@@ -49,6 +49,8 @@ import auth
 from navigation import NAV_GROUPS
 from page_news import render_news_page
 from ladder_themes import attribution_for, source_status_text
+from investor_journey import apply_handoff, candidate_actions, page_link, WATCH_PAGE, REVIEW_PAGE
+from fund_review import display_funds
 
 # ================= 1. 基础配置 (必须放在最前面) =================
 st.set_page_config(
@@ -228,7 +230,14 @@ def get_market_snapshot_local():
 def render_market_dashboard():
     st.header("🛸 全市场情绪看板")
     st.caption("数据驱动 + AI 逻辑分析 | 收盘后更新，实际数据日期见下方")
-    st.info("🧭 使用路径：**看市场**了解环境 → **找标的**筛选与分析 → **做复盘**记录和验证。可在左侧切换功能分组。")
+    st.caption("先核对市场日期与涨跌分布，再选标的看技术图；把参与条件和失效条件写入观察计划。")
+    links = st.columns(3)
+    with links[0]:
+        page_link("筛选强势股 / ETF →", "🔥 强势股", key="home_candidates")
+    with links[1]:
+        page_link("核对我的池子 →", WATCH_PAGE, key="home_watch")
+    with links[2]:
+        page_link("记录盘面与计划 →", REVIEW_PAGE, key="home_review")
     
     df_index = load_data("data/index_history.csv")
     df_sent = load_data("data/market_sentiment.csv")
@@ -247,7 +256,7 @@ def render_market_dashboard():
         net_up = int(last['up_count'] - last['down_count'])
         c1.metric("上涨家数", f"{int(last['up_count'])}", delta=f"{net_up} (净值)")
         c2.metric("下跌家数", f"{int(last['down_count'])}", delta_color="inverse")
-        c3.metric("全市场成交", f"{last['total_amount_yi']} 亿", help="低于 6000亿 需警惕流动性风险")
+        c3.metric("全市场成交", f"{last['total_amount_yi']} 亿", help="结合近期成交额比较放量或缩量；不同市场规模下不套用固定金额阈值。")
     
     # === C. 赚钱效应趋势 ===
     st.subheader("📊 市场情绪 (进攻热度监控)")
@@ -260,7 +269,7 @@ def render_market_dashboard():
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=df_show['date_str'], y=df_show['up_count'], name='上涨家数', line=dict(color='#ff4d4d', width=1.5), opacity=0.8, mode='lines'))
         fig.add_trace(go.Scatter(x=df_show['date_str'], y=df_show['up_ma5'], name='5日情绪线', line=dict(color='#FF9900', width=3), mode='lines'))
-        fig.update_layout(title="多头情绪趋势 (MA5橙线为生命线)", xaxis=dict(type='category', tickangle=-45, tickmode='auto', nticks=15, gridcolor='rgba(128,128,128,0.2)'), yaxis=dict(title="上涨家数", gridcolor='rgba(128,128,128,0.2)'), legend=dict(orientation="h", y=1.05, x=0, xanchor="left"), margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified", plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+        fig.update_layout(title="上涨家数与5日均值", xaxis=dict(type='category', tickangle=-45, tickmode='auto', nticks=15, gridcolor='rgba(128,128,128,0.2)'), yaxis=dict(title="上涨家数", gridcolor='rgba(128,128,128,0.2)'), legend=dict(orientation="h", y=1.05, x=0, xanchor="left"), margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified", plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("暂无历史情绪数据，请等待数据积累。")
@@ -316,6 +325,7 @@ def render_market_dashboard():
                         st.caption(f"主营行业：{r.get('industry', '-')}")
                         if r.get('reason'):
                             st.caption(f"盘口：{r['reason']}")
+        candidate_actions(df_zt_all, key="ladder_next", code_col="code", equities=True)
     else:
         st.info("今日暂无涨停连板梯队数据。")
 
@@ -337,16 +347,8 @@ def render_stock_content(df):
     # 新鲜度横幅排在免责声明之前：「这份数据是哪天的」比「这份数据不构成建议」更基础。
     # 2026-09-01 本表停在 08-31 而页面毫无提示，用户只能靠肉眼比对才发现。
     render_freshness_banner(df, "强势股榜单")
-    # 免责声明放在榜单「上方」而不是页脚：这份表格最容易被当成选股清单，
-    # 声明必须出现在用户看到代码之前，放页脚等于没放。
-    st.info(
-        "📌 **这是一份事后统计的强度排名，不是选股建议。** "
-        "RPS 只描述「过去涨幅排在全市场前多少」，不含估值、基本面与筹码判断，"
-        "也不预测后续走势；榜内标的多为高波动小盘成长股，大盘回调时跌幅会被放大。"
-        "站内「🎯 战绩回看」页已给出 beta 校正后的历史统计与样本量说明，请对照阅读。"
-        "本表不构成投资建议，不提供买卖点与仓位指引，据此操作风险自担。",
-        icon="ℹ️",
-    )
+    st.caption("RPS 是过去涨幅的相对排名。筛出候选后，查看它距前高、支撑与均线的位置，"
+               "再记录参与条件；筛选规则的历史表现可到“战绩回看”核对。")
     with st.expander("🔍 深度筛选 (点击展开/收起)", expanded=True):
         sc1, sc2, sc3, sc4 = st.columns([1, 1, 1, 1.5])
         min_d = sc1.slider("连榜天数", 1, 30, 1)
@@ -355,7 +357,7 @@ def render_stock_content(df):
         if 'pe_ttm' in df.columns: max_pe = sc3.slider("最大 PE(TTM)", 0, 200, 100)
         opts = ["全部"]
         if '细分行业' in df.columns: opts += sorted([x for x in df['细分行业'].dropna().unique() if str(x) != 'nan'])
-        ind = sc4.selectbox("题材/行业", opts)
+        ind = sc4.selectbox("主营行业", opts)
         kw = st.text_input("搜索代码/名称", placeholder="输入代码或名称...")
 
     mask = (df['连续天数'] >= min_d) & (df['RPS_50'] >= min_rps)
@@ -382,13 +384,16 @@ def render_stock_content(df):
             "ts_code": st.column_config.TextColumn("代码"),
             "xueqiu_url": st.column_config.LinkColumn("雪球", display_text="❄️"),
             "RPS_50_Show": st.column_config.TextColumn("RPS 50 (强度)"),
-            "细分行业": st.column_config.TextColumn("题材"),
+            "细分行业": st.column_config.TextColumn("主营行业"),
             "price_now": st.column_config.NumberColumn("现价", format="%.2f"),
             "pe_ttm": st.column_config.NumberColumn("PE(TTM)", format="%.1f"),
             "mv_亿": st.column_config.NumberColumn("市值(亿)", format="%.1f"),
             "turnover_rate": st.column_config.NumberColumn("换手%", format="%.1f"),
         }, use_container_width=True, hide_index=True, height=800
     )
+
+    candidate_actions(show_df, key="rps_next")
+    page_link("查看榜单历史表现与样本量 →", "🎯 战绩回看", key="rps_score")
 
     # 快捷下载 CSV
     csv_bytes = show_df[final_cols].to_csv(index=False).encode('utf-8-sig')
@@ -406,7 +411,7 @@ def render_breakout_content(df):
 
     # 先说清数据日期，再说「今日共捕获」——否则「今日」二字本身就是误导。
     render_freshness_banner(df, "突破池")
-    st.success(f"🚀 **Stage 2 突破动量捕捉器**：今日共捕获 **{len(df)}** 只突破关键阻力位标的")
+    st.caption(f"该数据日共 {len(df)} 只达到突破筛选条件；重点核对突破位置、放量和回落后的失效价位。")
     
     with st.expander("🔍 突破维度筛选", expanded=True):
         b1, b2, b3 = st.columns([1.5, 1.5, 1])
@@ -441,7 +446,7 @@ def render_breakout_content(df):
             "xueqiu_url": st.column_config.LinkColumn("雪球", display_text="❄️"),
             "level": st.column_config.TextColumn("突破级别"),
             "name": st.column_config.TextColumn("名称"),
-            "industry": st.column_config.TextColumn("题材行业"),
+            "industry": st.column_config.TextColumn("主营行业"),
             "close": st.column_config.NumberColumn("现价", format="%.2f"),
             "pct_chg": st.column_config.NumberColumn("涨幅%", format="%.2f %%"),
             "vol_ratio": st.column_config.NumberColumn("放量(倍)", format="%.2f"),
@@ -450,12 +455,14 @@ def render_breakout_content(df):
             "pe_ttm": st.column_config.TextColumn("PE(TTM)")
         }, use_container_width=True, hide_index=True, height=700
     )
+    candidate_actions(show_df, key="breakout_next")
 
 def render_etf_content(df):
     if df is None or df.empty: 
         st.info("暂无数据")
         return
     render_freshness_banner(df, "ETF 榜单")
+    st.caption("用相对强度筛选方向，再看技术图中的位置；折溢价需到“投机与套利”核对价格与净值日期。")
     st.success(f"📈 捕捉到 {len(df)} 只强势 ETF")
     kw = st.text_input("🔍 搜 ETF")
     show_df = df.copy()
@@ -472,10 +479,11 @@ def render_etf_content(df):
             "price_now": st.column_config.NumberColumn("现价", format="%.3f"),
         }, use_container_width=True, hide_index=True, height=800
     )
+    candidate_actions(show_df, key="etf_next")
 
 def render_arbitrage_page():
     st.header("⚡ 投机与套利")
-    st.caption("可转债按当日股债强弱完全分类，跨境ETF/LOF 监控溢价与错误定价")
+    st.caption("可转债收盘强弱与模式统计；场内基金核对价格、净值日期及折溢价。")
     data = load_json("data/speculation_data.json") or {}
 
     def make_xq_link(code):
@@ -489,26 +497,33 @@ def render_arbitrage_page():
     render_convertible_block(load_json("data/convertible.json"))
 
     st.markdown("---")
-    st.subheader("🧱 跨境/LOF 溢价监控")
+    st.subheader("🧱 场内基金：价格与净值核对")
+    st.caption("范围为成交额达标、涨幅居前的20只场内基金，包含境内ETF、LOF和REIT等。"
+               "同日净值才计算折溢价；滞后净值只显示参考价差。实际申赎还需核对额度、到账时间与费用。")
     if data.get('fund_list'):
-        fund_df = pd.DataFrame(data['fund_list'])
+        fund_df = pd.DataFrame(display_funds(data['fund_list']))
         fund_df['xueqiu_url'] = fund_df['code'].apply(make_xq_link)
-        fund_cols = ['code', 'name', 'price', 'change']
-        if 'premium_rate' in fund_df.columns: fund_cols.append('premium_rate')
-        elif 'est_premium' in fund_df.columns: fund_cols.append('est_premium')
-        fund_cols.extend(['vol_yi', 'tag', 'xueqiu_url'])
+        fund_cols = ['code', 'name', 'price', 'quote_date', 'change', 'nav', 'nav_date',
+                     'premium_rate', 'reference_gap', 'nav_status', 'vol_yi', 'xueqiu_url']
         fund_cols = [c for c in fund_cols if c in fund_df.columns]
-        
+        valid = int(fund_df['premium_rate'].notna().sum())
+        st.caption(f"同日净值已核对 {valid}/{len(fund_df)} 只；空白表示无法计算，不表示零溢价。")
         st.dataframe(
             fund_df[fund_cols], 
             column_config={
                 "code": st.column_config.TextColumn("代码"), "name": st.column_config.TextColumn("名称"),
-                "price": st.column_config.NumberColumn("现价", format="%.3f"), "change": st.column_config.NumberColumn("涨幅%", format="%.2f %%"),
-                "premium_rate": st.column_config.NumberColumn("溢价率%", format="%.2f %%"), "est_premium": st.column_config.NumberColumn("溢价率%", format="%.2f %%"),
-                "vol_yi": st.column_config.NumberColumn("成交额(亿)", format="%.2f"), "tag": st.column_config.TextColumn("状态"),
+                "price": st.column_config.NumberColumn("收盘价", format="%.3f"), "change": st.column_config.NumberColumn("涨幅%", format="%.2f %%"),
+                "quote_date": "行情日期", "nav": st.column_config.NumberColumn("单位净值", format="%.4f"),
+                "nav_date": "净值日期", "nav_status": "核对状态",
+                "premium_rate": st.column_config.NumberColumn("同日折溢价%", format="%.2f %%"),
+                "reference_gap": st.column_config.NumberColumn("对滞后净值价差%", format="%.2f %%"),
+                "vol_yi": st.column_config.NumberColumn("成交额(亿)", format="%.2f"),
                 "xueqiu_url": st.column_config.LinkColumn("雪球", display_text="❄️")
             }, use_container_width=True, hide_index=True
         )
+        candidate_actions(fund_df, key="fund_next", code_col="code")
+    else:
+        st.info("基金行情尚未生成，等待下一次收盘更新。")
 
 def render_guru_tracker():
     st.header("📚 投资作业本 (Guru Tracker)")
@@ -570,30 +585,27 @@ def render_manual_page():
           也不预测后续走势。RPS 高只说明该股已经涨过一大段——
           这既可能是趋势延续的起点，也可能是行情的末段。
 
-        **2. 必须知道的两个统计事实（2026-09 补充）**
-        - **这是高 beta 组合**：按定义筛出的都是高波动小盘成长股，实测组合 beta 远大于 1，
-          大盘下跌时跌幅会被放大数倍。「战绩回看」页有 beta 校正后的数据，请对照阅读。
-        - **短期延续性未经证实**：站内归档区间尚短，折算成互不重叠的独立窗口后
-          只有个位数样本，统计上看不出「RPS 高 → 后续跑赢」的方向性。
-          任何把 RPS 排名直接当成买卖依据的做法，都缺少数据支持。
+        **2. 从榜单继续研究**
+        - 选择标的进入日K，核对近期涨幅、成交变化和距离前高/支撑的位置。
+        - 在技术页记录观察依据、参与条件和失效条件，加入自选后持续核对。
+        - 「战绩回看」展示历史超额表现与样本量；RPS 排名本身不限定市值，也不等同于高 beta。
 
         > ⚠️ 本站所有榜单均由程序按固定规则自动计算，**不构成投资建议**，
         > 不提供目标价、买卖点或仓位指引。历史动量不代表未来收益，据此操作风险自担。
         """)
 
-    with st.expander("🛡️ 可转债投机台：四类完全分类与十日模式", expanded=False):
+    with st.expander("🛡️ 可转债投机台：收盘分类候选与十日模式", expanded=False):
         st.markdown("""
-        **1. 先分类，再谈打法。** 分类只用当日两个数字：转债涨跌幅、正股涨跌幅。
-        - **C 股债联动**：正股与转债同向，且两边都动得足够大（|正股|≥1.5%，|转债|≥max(0.8%, |正股|×30%)）。这类按题材股的启动、分歧、加速高潮、退潮、回流节奏看。
-        - **A 债强于股**：转债涨幅 − 正股涨幅 ≥ 1.5 个百分点。正股没参与，涨幅由转债自身情绪或资金推动（次新债、妖债、抱团债）。
-        - **B 股强于债**：正股涨幅 − 转债涨幅 ≥ 2 个百分点且正股 ≥ 2%。正股强、转债还没激活。
-        - **N 中性**：以上都不满足，只作观察，不构成模式。
-        四类互斥且穷尽；完整阈值与节奏规则写在页面「判定规则」标签页。
+        **1. 收盘筛选缩小观察范围。** 当前只有日线，不能确认盘中股债是否联动。
+        - **C 股债同向候选**：正股与转债同向且达到幅度阈值，再对照股债分时走势确认联动。
+        - **A 债强于股候选**：转债涨幅比正股高至少 1.5 个百分点。
+        - **B 股强于债候选**：正股涨幅比转债高至少 2 个百分点且正股涨幅≥2%。
+        - **N 待进一步判断**：未满足现有阈值；完整规则在「判定规则」页签。
 
         **2. 「十日模式」统计的是什么？**
-        - 每个已归档交易日取成交额≥3000万、当日涨幅最强的第一与第二名，记录隔夜（昨收→次日开盘）、次日开盘低吸（次日开盘→次日收盘）、次日盘中回踩（次日开盘价下方 3% 挂单，最低价触及才成交，按收盘计）的实际结果。
-        - 「次日最低→次日收盘」恒为正（收盘必然高于最低价），只作振幅上限参考，不统计正收益占比。
-        - B 类单独统计「正股全天强、收盘位于日内上沿、转债明显落后」之后的隔夜表现。
+        - 每个已归档交易日取成交额≥3000万、当日涨幅最强的第一与第二名，记录隔夜（昨收→次日开盘）、次日开盘买入基准（次日开盘→次日收盘）、次日盘中回踩（次日开盘价下方 3% 挂单，最低价触及才成交，按收盘计）的价格变化。
+        - 「次日最低→次日收盘」非负，仅作事后空间参考，不统计正收益占比。
+        - B 类统计正股收盘涨幅较高、收盘位于日内上沿且转债落后的样本；全天强度仍须看分时。
         - C 类按六个节奏阶段分组统计次日结果；样本低于 3 个只作规则提示，不下结论。
         - 页面上的百分比是**正收益占比**（样本中结果大于 0 的比例），不是可复制的交易胜率；
           收益均为价格之间的理论涨幅，未扣交易费用与滑点。
@@ -602,11 +614,13 @@ def render_manual_page():
         `双低值 = 可转债价格 + 转股溢价率`。双低值越小，价格越便宜、转股溢价越低。
         """)
 
-    with st.expander("🧱 跨境/LOF 溢价套利机制", expanded=False):
+    with st.expander("🧱 场内基金价格与净值 怎么核对", expanded=False):
         st.markdown("""
         **1. 什么是溢价率？**
         溢价率 = `(场内交易价格 - 基金实际净值) / 基金实际净值`
-        - 懂申赎机制的资金会在场外（按净值）申购，转到场内（按高价）抛售，俗称“搬砖”。这会导致高溢价最终必然回落（被砸盘）。监控溢价率，主要是为了防范追高被埋。
+        - 先看价格日和净值日：只有同日数据才显示溢价率；净值滞后时只显示对照差额。
+        - 表格覆盖成交额达标的场内基金涨幅前20，不是全市场套利扫描。选中标的可进入技术页。
+        - 判断能否申赎套利，还需核对申赎开放、额度、转托管时间、成本和到账前价格变化。
         """)
 
     with st.expander("🌡️ 短线情绪派生指标 怎么读（2026-08 新增）", expanded=True):
@@ -627,10 +641,8 @@ def render_manual_page():
         只有"跑赢沪深300 多少"才能说明榜单本身有没有价值。
 
         - **方向正确率**：榜单是看多信号，只有跑赢基准才算方向正确。跟涨但没跑赢，记为错。
-        - **beta 校正（2026-09 新增，读数前必看）**：`个股涨幅 − 1.0×基准涨幅` 隐含了
-          "组合 beta = 1" 的假设。而 RPS 榜筛的就是高波动小盘成长股，实测 beta 远大于 1，
-          大盘跌 1% 它可能跌好几个点。这部分是**承担高波动的代价**，不是选股能力差。
-          页面会同时给出原始超额与 beta 校正后的超额，只有后者才勉强算"选股能力"。
+        - **beta 校正**：页面同时提供原始超额与按历史 beta 调整的结果。
+          beta 的估计受样本窗口影响，应与样本数、绝对涨跌和回撤一起阅读。
         - **有效样本量（2026-09 新增）**：T+5 口径下相邻交易日共享 4 天持有期，
           同一天上榜的几十只票又同涨同跌，所以**几千条记录折算后往往只剩个位数独立观测**。
           页面会给出折算后的样本数和二项检验 p 值，p > 0.05 就直接标"不显著"——
@@ -671,13 +683,10 @@ def render_manual_page():
         「行业信号」页每天在**申万二级行业**里找同时满足两个条件的行业，
         并把结果作为一段放进收盘摘要的推送里。两个条件是：
 
-        1. **市值占比处在自己的历史低位** —— 该行业流通市值占全体行业的比重，
-           在近 250 个交易日里排在很靠前（小）的位置，即"相对整个市场缩水了"；
-        2. **成交额占比处在自己的历史高位** —— 该行业成交额占全市场的比重，
-           在近 20 个交易日里排在很靠后（大）的位置，即资金关注度骤升。
+        1. **市值占比处在自己的历史低位** —— 占参与行业市值合计的比重，在近250个交易日中的位置偏低；
+        2. **成交额占比处在自己的历史高位** —— 占参与行业成交合计的比重，在近20个交易日中的位置偏高。
 
-        组合起来读是"跌够了 + 刚开始有人来"，也就是一个**低位启动候选**。
-        它是**描述性筛选，不含方向判断，不构成投资建议**。
+        接下来对照行业价格、成分股涨跌和历史命中结果。低占比不等于低估，高成交占比也不等于资金净流入。
 
         **必须知道的几点**
 
@@ -721,6 +730,7 @@ def render_login_lock(feature_name: str):
         st.switch_page("pages/auth.py")
 
 def main():
+    apply_handoff(st.session_state)
     with st.sidebar:
         st.title("Chilam.Club")
         
@@ -773,9 +783,10 @@ def main():
         # 非 widget 状态保存每组位置；Streamlit 会清理暂未渲染的 widget key。
         saved_pages = st.session_state.setdefault("nav_saved_pages", {})
         saved_page = saved_pages.get(group, menu_items[0])
-        page = st.radio("导航菜单", menu_items,
-                        index=menu_items.index(saved_page) if saved_page in menu_items else 0,
-                        key=f"nav_page_{group}")
+        nav_key = f"nav_page_{group}"
+        if st.session_state.get(nav_key) not in menu_items:
+            st.session_state[nav_key] = saved_page if saved_page in menu_items else menu_items[0]
+        page = st.radio("导航菜单", menu_items, key=nav_key)
         saved_pages[group] = page
         st.markdown("---")
         st.markdown("💡 **Tip**: 保持独立思考。")

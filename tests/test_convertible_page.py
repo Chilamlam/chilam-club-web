@@ -113,7 +113,7 @@ class ConvertiblePageTests(unittest.TestCase):
         self.assertEqual(list(app.exception), [])
         labels = [metric.label for metric in app.metric]
         self.assertIn("A 债强于股", labels)
-        self.assertIn("C 股债联动", labels)
+        self.assertIn("C 股债同向候选", labels)
         self.assertIn("隔夜（昨收 → 次日开盘）", " ".join(m.value for m in app.markdown))
         self.assertEqual(len(app.tabs), 4)
         visible = " ".join([str(m.value) for m in app.markdown]
@@ -124,8 +124,8 @@ class ConvertiblePageTests(unittest.TestCase):
     def test_class_radio_switches_the_table(self):
         app = self._run(PAYLOAD)
         radio = app.radio(key="cb_class_choice")
-        self.assertEqual(radio.options, ["🅰️ 债强于股", "🅱️ 股强于债", "🔗 股债联动", "➖ 中性"])
-        radio.set_value("➖ 中性").run()
+        self.assertEqual(radio.options, ["🅰️ 债强于股", "🅱️ 股强于债", "🔗 股债同向候选", "➖ 待进一步判断"])
+        radio.set_value("➖ 待进一步判断").run()
         self.assertEqual(list(app.exception), [])
         names = [frame.value.iloc[0]["name"] for frame in app.dataframe if "name" in frame.value.columns]
         self.assertIn("丁转债", names)

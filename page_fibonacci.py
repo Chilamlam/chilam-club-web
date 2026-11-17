@@ -18,9 +18,9 @@ import page_live_quote as lq
 
 
 def render_fibonacci_chart():
-    st.header("📏 主升浪黄金分割预测系统")
-    st.caption("与「实时行情 + 技术分析」页共用同一套标的解析与前复权日 K 通道，"
-               "支持 A股 / ETF / 指数 / 北交所 / 可转债；动态生成斐波那契扩展线，寻找主升浪目标位。")
+    st.header("📏 黄金分割参考位")
+    st.caption("选定标的与摆动区间，计算回撤和扩展参考位；改变基准点会改变结果，"
+               "请结合实时价格确认接近、突破或跌破。")
 
     if "fib_symbol" not in st.session_state:
         st.session_state.fib_symbol = "601869"
@@ -75,6 +75,9 @@ def render_fibonacci_chart():
                    f"`{raw}` 属于{lq.MARKET_LABEL.get(sym['market'], '其它市场')}，"
                    f"请到「⚡ 实时行情 + 技术分析」页查看。")
         return
+
+    from investor_journey import render_symbol_workspace
+    render_symbol_workspace(sym["tx_code"], quote.get("name", ""), key="fib")
 
     df = lq.get_daily_kline_range(sym["tx_code"], sym["market"],
                                   start_date.strftime("%Y-%m-%d"),

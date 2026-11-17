@@ -28,8 +28,7 @@ HISTORY_PATH = "data/sector_rotation/history.csv"
 
 _SOURCE_NOTE = (
     "口径：东财概念板块（约 500 个，属性型板块已剔除）。"
-    "「同花顺题材」无免费全量日频源，故用等价的东财概念口径。"
-    "判读依据榜单重合度（重合≥7 主升 / ≤3 轮动），是描述不是建议。"
+    "板块范围与其他平台可能不同；重合度只表示近10日涨幅榜的成员稳定程度。"
 )
 
 
@@ -156,12 +155,12 @@ def render_rank_matrix(matrix: dict | None) -> None:
 
 def render_sector_rotation_page() -> None:
     st.header("🔄 板块轮动")
-    st.caption("近 10 个交易日涨幅最高的题材概念板块 + 主升/轮动判读 | 每日收盘后更新")
+    st.caption("近10日强势题材的排名、当日表现和换位情况；先核对今天是否继续上涨。")
 
     data = load_analysis()
 
     if not data:
-        st.warning("📊 板块轮动数据初始化中，请等待今日收盘跑批完成（约 19:40 后）。")
+        st.warning("板块轮动数据尚未生成，等待收盘跑批完成。")
         st.caption(_SOURCE_NOTE)
         return
 
@@ -175,25 +174,11 @@ def render_sector_rotation_page() -> None:
     if note:
         st.info(f"ℹ️ {note}")
 
-    verdict = data.get("verdict") or {}
-    label = verdict.get("label", "—")
-    if label == "主线主升":
-        st.success(f"📌 周期判读：**{label}**")
-    elif label == "快速轮动":
-        st.warning(f"📌 周期判读：**{label}**")
-    elif label == "样本不连续":
-        # 归档有空档 → 重合度不可比。这个状态需要人去处理（补数据/查跑批），
-        # 所以用 warning 而不是 info：它不是「样本还在积累」那种等着就好的情形。
-        st.warning(f"📌 周期判读：**{label}**")
-    elif label == "样本不足":
-        st.info(f"📌 周期判读：**{label}**")
+    if data.get("overlap_count") is not None:
+        st.info(f"近10日涨幅榜与{data.get('prev_label') or '上次榜单'}重合 "
+                f"{data['overlap_count']}/{data.get('overlap_denominator') or 10} 个。")
     else:
-        st.info(f"📌 周期判读：**{label}**")
-
-    for reason in verdict.get("reasons") or []:
-        st.markdown(f"- {reason}")
-    if verdict.get("watch"):
-        st.caption(f"🔭 明日观察：{verdict['watch']}")
+        st.info("此前榜单不足或不连续，暂不比较换位情况。")
 
     # 归档缺日期时把「缺了多少」显式说出来：读者据此判断这份判读能不能用来
     # 对比上一交易日，而不是只看一个笼统的「数据日期」。
@@ -204,7 +189,7 @@ def render_sector_rotation_page() -> None:
         st.caption(
             f"📎 归档在此前缺了交易日（上一份数据 {data.get('prev_date')}，{_gap_txt}，"
             f"已超过相邻交易日判据 {sr.MAX_PREV_GAP_DAYS} 天），因此**不计算榜单重合度**、"
-            f"也不给「明日观察」条件：跨空档的重合度反映的是这段空档的累计变化，"
+            f"跨空档的重合度反映的是这段空档的累计变化，"
             f"不是日间轮动。"
         )
 
@@ -216,7 +201,7 @@ def render_sector_rotation_page() -> None:
     c2.metric(
         "Top10 榜单重合度",
         "—" if overlap is None else f"{overlap}/{denom}",
-        help=("与上一交易日 Top10 的重合数：≥7 主升，≤3 轮动"
+        help=("与上一交易日近10日涨幅 Top10 的重合数，不代表当日涨幅或资金流向"
               if data.get("prev_is_adjacent") is not False
               else "归档不连续，未计算重合度（跨空档的比较没有「日间轮动」含义）"),
     )
@@ -225,7 +210,7 @@ def render_sector_rotation_page() -> None:
         "—" if data.get("top_median_pct") is None else f"{data['top_median_pct']:+.1f}%",
     )
     c4.metric(
-        "全市场概念中位数",
+        "参与概念10日涨幅中位数",
         "—" if data.get("universe_median_pct") is None else f"{data['universe_median_pct']:+.1f}%",
         help=f"同日全部有效概念板块 10日涨幅中位数（共 {data.get('universe_count', '—')} 个）",
     )
@@ -245,7 +230,7 @@ def render_sector_rotation_page() -> None:
         "5日": df_top["pct_5d"].map(_fmt_pct),
         "20日": df_top["pct_20d"].map(_fmt_pct),
         "60日": df_top["pct_60d"].map(_fmt_pct),
-        "今日": df_top["pct_chg"].map(_fmt_pct),
+        "数据日涨幅": df_top["pct_chg"].map(_fmt_pct),
         "连续在榜": df_top["streak"].map(lambda x: f"{x} 天" if x else "—"),
     })
 
@@ -272,8 +257,8 @@ def render_sector_rotation_page() -> None:
         st.markdown(f"""
 - **榜单**：按 **10 日涨幅**（自然窗口涨幅，非累加日涨幅）对全部概念板块降序取前 {data.get('top_n', 10)}。
   同页附 5/20/60 日与当日涨幅，用于判断「刚启动（5日强、20日弱）」还是「趋势延续（各窗口同强）」。
-- **主升 vs 轮动**：看 Top10 与上一交易日的**重合度**——重合 ≥7 视为主线主升（资金持续聚焦同一批板块），
-  ≤3 视为快速轮动（领涨板块天天换脸），中间为过渡/混合。阈值是经验约定，页面上理由都带原始数字，可自行对账。
+- **榜单重合度**：Top10 与上一交易日有多少相同成员。10日窗口本身大量重叠，
+  成员稳定不等于当日继续领涨；应同时核对当日涨幅和题材内部的上涨家数。
 - **连续在榜**：该板块连续多少个交易日停留在 Top10，断一天就重新从 1 计。
 - **排名矩阵**：行=名次 1~10（第 1/2/3 名加粗），列=交易日（最新在最左）；
   格内是「该日按 10 日涨幅排到该名次」的板块及其**当日涨跌幅**。

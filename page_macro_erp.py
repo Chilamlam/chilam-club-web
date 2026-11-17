@@ -579,25 +579,25 @@ def render_macro_erp_page():
                 with st.container(border=True):
                     st.caption("市值占比历史分位")
                     if pct_rank <= 20:
-                        status_tag = "🟢 极度低估潜伏区"
+                        status_tag = "历史占比偏低（≤20分位）"
                     elif pct_rank >= 80:
-                        status_tag = "🔴 高位过热拥挤区"
+                        status_tag = "历史占比偏高（≥80分位）"
                     else:
-                        status_tag = "⚖️ 合理波动中枢"
+                        status_tag = "历史占比中间区间"
                     st.markdown(f"### `{pct_rank}%`")
                     st.caption(status_tag)
 
             with k3:
                 with st.container(border=True):
-                    st.caption("资金热度 (成交额分位)")
+                    st.caption("成交额历史分位")
                     if amt_rank <= 20:
-                        amt_tag = "🟢 地量冷清"
+                        amt_tag = "处于历史较低区间"
                     elif amt_rank >= 80:
-                        amt_tag = "🔴 天量亢奋"
+                        amt_tag = "处于历史较高区间"
                     else:
-                        amt_tag = "⚖️ 活跃适中"
+                        amt_tag = "处于历史中间区间"
                     st.markdown(f"### `{amt_rank}%`")
-                    st.caption(f"{amt_tag} · 情绪指标")
+                    st.caption(amt_tag)
 
             with k4:
                 with st.container(border=True):
