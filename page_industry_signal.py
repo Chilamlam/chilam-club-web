@@ -302,12 +302,22 @@ def render_trend(code: str, label: str, th: dict) -> None:
         st.caption(f"归档里没有 {label} 的历史序列，走势暂不可用。")
         return
 
+    # YYYYMMDD 字符串会被 Plotly 推断成数字（跨月会被错误拉开几十个单位）。
+    # 先验证日历日期，再用 ISO 日期配合显式 date 轴，避免自动类型推断。
+    dates = pd.to_datetime(ser["date"].astype(str), format="%Y%m%d", errors="coerce")
+    if dates.isna().any():
+        st.warning("历史序列含无效日期，走势暂不可用。")
+        return
+    dates = dates.dt.strftime("%Y-%m-%d")
+    date_axis = dict(type="date", tickformat="%Y-%m", hoverformat="%Y-%m-%d",
+                     gridcolor=GRID_COLOR)
+
     mv_w = int(ser["mv_window_len"].max()) if "mv_window_len" in ser.columns else None
     amt_w = int(ser["amt_window_len"].max()) if "amt_window_len" in ser.columns else None
     first_mv = int(ser["mv_window_len"].iloc[0]) if "mv_window_len" in ser.columns else None
 
     st.caption(
-        f"共 {len(ser)} 个交易日（{ser['date'].iloc[0]} ~ {ser['date'].iloc[-1]}）。"
+        f"共 {len(ser)} 个交易日（{dates.iloc[0]} ~ {dates.iloc[-1]}），横轴按真实日期间隔显示。"
         f"分位逐点只用「截至该交易日」的窗口计算，不含未来数据。"
         + (f" 最早那个点的市值窗口只有 {first_mv} 日（归档起点限制），"
            f"最新的点为 {mv_w} 日。" if first_mv is not None and mv_w is not None
@@ -315,23 +325,23 @@ def render_trend(code: str, label: str, th: dict) -> None:
     )
 
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=ser["date"], y=ser["mv_share"], mode="lines",
-                             name="市值占比(%)",
+    fig.add_trace(go.Scatter(x=dates, y=ser["mv_share"], mode="lines",
+                             name="流通市值占比(%)",
                              line=dict(color="#3498db", width=2)))
-    fig.add_trace(go.Scatter(x=ser["date"], y=ser["amt_share"], mode="lines",
+    fig.add_trace(go.Scatter(x=dates, y=ser["amt_share"], mode="lines",
                              name="成交额占比(%)",
                              line=dict(color=HIT_COLOR, width=2)))
     fig.update_layout(height=300, margin=dict(l=0, r=10, t=10, b=0),
                       plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
                       legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0))
-    fig.update_xaxes(gridcolor=GRID_COLOR)
-    fig.update_yaxes(title="占全市场比重(%)", gridcolor=GRID_COLOR)
+    fig.update_xaxes(**date_axis)
+    fig.update_yaxes(title="占参与行业合计(%)", gridcolor=GRID_COLOR)
     st.plotly_chart(fig, use_container_width=True)
 
     fig2 = go.Figure()
-    fig2.add_trace(go.Scatter(x=ser["date"], y=ser["mv_pct"], mode="lines",
+    fig2.add_trace(go.Scatter(x=dates, y=ser["mv_pct"], mode="lines",
                               name="市值占比分位", line=dict(color="#3498db", width=2)))
-    fig2.add_trace(go.Scatter(x=ser["date"], y=ser["amt_pct"], mode="lines",
+    fig2.add_trace(go.Scatter(x=dates, y=ser["amt_pct"], mode="lines",
                               name="热度分位", line=dict(color=HIT_COLOR, width=2)))
     mv_max = th.get("mv_pct_max")
     amt_min = th.get("amt_pct_min")
@@ -344,10 +354,10 @@ def render_trend(code: str, label: str, th: dict) -> None:
     fig2.update_layout(height=300, margin=dict(l=0, r=10, t=10, b=0),
                        plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
                        legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0))
-    fig2.update_xaxes(gridcolor=GRID_COLOR)
+    fig2.update_xaxes(**date_axis)
     fig2.update_yaxes(title="分位(0~100)", range=[-3, 103], gridcolor=GRID_COLOR)
     st.plotly_chart(fig2, use_container_width=True)
-    st.caption("两条曲线交叉并满足阈值（蓝线在阈值线下方、橙线在阈值线上方）时才构成命中。")
+    st.caption("命中条件：同一交易日，市值分位低于阈值，且热度分位高于阈值。恰好等于阈值不算命中。")
 
 
 def render_history_hits() -> None:
