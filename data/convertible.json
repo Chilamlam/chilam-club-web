@@ -1,6 +1,6 @@
 {
   "date": "20261116",
-  "generated_at": "2026-11-17T14:17:08.578134+08:00",
+  "generated_at": "2026-11-17T14:34:02.148638+08:00",
   "status": "ok",
   "source": "Tushare cb_daily / daily / cb_basic",
   "archive_days": 27,
@@ -13,7 +13,8 @@
     "avg_double_low": 207.07232956572568,
     "avg_premium": 70.00149991272892,
     "amount_yi": 83.99999999999996,
-    "liquid": 36
+    "liquid": 59,
+    "liquid_threshold_yi": 0.3
   },
   "classes": {
     "A": {
@@ -6113,31 +6114,38 @@
         "n": 10,
         "overnight": {
           "n": 10,
-          "mean": 0.41809105918313777,
-          "median": 1.4247915475288475,
-          "win": 60.0
+          "mean": 0.6566997270547392,
+          "median": 1.7408317141463736,
+          "win": 70.0
         },
         "open_to_close": {
           "n": 10,
-          "mean": -0.5539052348624744,
+          "mean": -1.8392273506504044,
           "median": -2.2191920503587816,
           "win": 40.0
         },
         "low_to_close": {
           "n": 10,
-          "mean": 5.109073549683296,
-          "median": 2.5904041806580125,
+          "mean": 3.4112299492050924,
+          "median": 1.6460577874275795,
           "win": 100.0
+        },
+        "dip": {
+          "n": 6,
+          "mean": -2.3102252940799004,
+          "median": -1.1236425292540597,
+          "win": 33.33333333333333,
+          "total": 10
         },
         "close_to_close": {
           "n": 10,
-          "mean": -0.23186045473310352,
+          "mean": -1.2677729696212257,
           "median": -2.411457056874272,
           "win": 40.0
         },
         "next_high": {
           "n": 10,
-          "mean": 6.46591862928242,
+          "mean": 5.238995922178745,
           "median": 3.764552609896643,
           "win": 90.0
         }
@@ -6146,31 +6154,38 @@
         "n": 10,
         "overnight": {
           "n": 10,
-          "mean": 0.04916446423687604,
+          "mean": 0.07292730642017076,
           "median": -0.1634198900540007,
           "win": 50.0
         },
         "open_to_close": {
           "n": 10,
-          "mean": -2.0716409798319733,
-          "median": -3.7712675452044877,
-          "win": 40.0
+          "mean": -0.21060810856083712,
+          "median": -1.250341650145259,
+          "win": 50.0
         },
         "low_to_close": {
           "n": 10,
-          "mean": 3.17419576726343,
-          "median": 1.8394727476000572,
+          "mean": 4.778031892402581,
+          "median": 2.523908483856341,
           "win": 100.0
+        },
+        "dip": {
+          "n": 6,
+          "mean": -0.2869117494111651,
+          "median": -1.5482493458485125,
+          "win": 16.666666666666664,
+          "total": 10
         },
         "close_to_close": {
           "n": 10,
-          "mean": -2.068819270982661,
-          "median": -3.4634845660500013,
-          "win": 40.0
+          "mean": -0.1974445773550248,
+          "median": -0.7249625217302214,
+          "win": 50.0
         },
         "next_high": {
           "n": 10,
-          "mean": 5.637634390563514,
+          "mean": 6.630157983612428,
           "median": 4.515521066709338,
           "win": 90.0
         }
@@ -6208,6 +6223,8 @@
         "overnight": 0.12231851988444564,
         "open_to_close": -3.922302917937992,
         "low_to_close": 1.6306359545162241,
+        "dip_to_close": -0.9508277504515328,
+        "dip_touch": true,
         "close_to_close": -3.804782100928139,
         "next_high": 3.1102096010818148,
         "next_pct": -3.8048
@@ -6222,6 +6239,8 @@
         "overnight": 4.152249134948094,
         "open_to_close": -1.661129568106312,
         "low_to_close": 12.05499780432775,
+        "dip_to_close": 1.3802787957666984,
+        "dip_touch": true,
         "close_to_close": 2.422145328719716,
         "next_high": 7.95847750865053,
         "next_pct": 2.4221
@@ -6230,29 +6249,33 @@
         "date": "20261112",
         "next_date": "20261113",
         "rank": 2,
-        "code": "123273.SZ",
-        "pct_chg": 13.0219,
-        "amount_yi": 3.87,
-        "overnight": -0.8976776418636923,
-        "open_to_close": -4.785988421258047,
-        "low_to_close": 1.9111938869645462,
-        "close_to_close": -5.64070331512192,
-        "next_high": 8.623829554062112,
-        "next_pct": -5.6407
-      },
-      {
-        "date": "20261112",
-        "next_date": "20261113",
-        "rank": 1,
         "code": "123270.SZ",
         "pct_chg": 20.0001,
         "amount_yi": 3.41,
         "overnight": -0.6600492200307451,
         "open_to_close": 13.824340291453318,
         "low_to_close": 17.949555138356054,
+        "dip_to_close": 17.34468071283848,
+        "dip_touch": true,
         "close_to_close": 13.073043621154445,
         "next_high": 18.549065484551242,
         "next_pct": 13.073
+      },
+      {
+        "date": "20261112",
+        "next_date": "20261113",
+        "rank": 1,
+        "code": "127119.SZ",
+        "pct_chg": 36.15,
+        "amount_yi": 0.33,
+        "overnight": 1.72603745868527,
+        "open_to_close": 0.9711191335740166,
+        "low_to_close": 0.9711191335740166,
+        "dip_to_close": null,
+        "dip_touch": false,
+        "close_to_close": 2.7139184722732246,
+        "next_high": 6.279838413514494,
+        "next_pct": 2.7139
       },
       {
         "date": "20261111",
@@ -6264,6 +6287,8 @@
         "overnight": -1.7868015035402696,
         "open_to_close": -5.081300813008127,
         "low_to_close": 1.7677516082355682,
+        "dip_to_close": -2.145670941245492,
+        "dip_touch": true,
         "close_to_close": -6.777309557222166,
         "next_high": 4.269479450085933,
         "next_pct": -6.7773
@@ -6278,6 +6303,8 @@
         "overnight": 2.8496701819251458,
         "open_to_close": 3.14858502609352,
         "low_to_close": 6.087979496659801,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 6.087979496659801,
         "next_high": 17.57699256333769,
         "next_pct": 6.088
@@ -6292,6 +6319,8 @@
         "overnight": 3.2145219502883515,
         "open_to_close": 1.9474193548387086,
         "low_to_close": 3.2800653594771134,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 5.224541527752513,
         "next_high": 9.318495598400078,
         "next_pct": 5.2245
@@ -6306,6 +6335,8 @@
         "overnight": 2.4074138440416615,
         "open_to_close": -9.637470567022344,
         "low_to_close": 0.3245407442298509,
+        "dip_to_close": -6.84275316187869,
+        "dip_touch": true,
         "close_to_close": -7.462070523626629,
         "next_high": 3.22682956500584,
         "next_pct": -7.4621
@@ -6320,6 +6351,8 @@
         "overnight": 3.8037426816565523,
         "open_to_close": -8.493079584775087,
         "low_to_close": 0.8728544183089548,
+        "dip_to_close": -5.662968644098032,
+        "dip_touch": true,
         "close_to_close": -5.012391796271675,
         "next_high": 4.761562683332743,
         "next_pct": -5.0124
@@ -6334,6 +6367,8 @@
         "overnight": 4.293688278231,
         "open_to_close": -9.189790037052282,
         "low_to_close": 0.3539581437670636,
+        "dip_to_close": -6.381226842321941,
+        "dip_touch": true,
         "close_to_close": -5.290682696436244,
         "next_high": 4.302275654787446,
         "next_pct": -5.2907
@@ -6348,6 +6383,8 @@
         "overnight": 0.5167527921320358,
         "open_to_close": -3.620232172470983,
         "low_to_close": 0.28817946505608205,
+        "dip_to_close": -0.6394146107948195,
+        "dip_touch": true,
         "close_to_close": -3.1221870311718636,
         "next_high": 1.4714119019836547,
         "next_pct": -3.1222
@@ -6362,6 +6399,8 @@
         "overnight": 1.7556259696074772,
         "open_to_close": -2.7772545326112508,
         "low_to_close": 2.8598119200348826,
+        "dip_to_close": 0.22963450246265005,
+        "dip_touch": true,
         "close_to_close": -1.0703867648203969,
         "next_high": 3.145271909385494,
         "next_pct": -1.0704
@@ -6376,6 +6415,8 @@
         "overnight": -1.9686179406202209,
         "open_to_close": 3.7139942861626585,
         "low_to_close": 6.433614570439783,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.6722619877114209,
         "next_high": 7.062169898680959,
         "next_pct": 1.6723
@@ -6390,6 +6431,8 @@
         "overnight": -4.82481751824817,
         "open_to_close": 0.7864518333112525,
         "low_to_close": 0.7864518333112525,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -4.076310550763107,
         "next_high": 1.857996018579966,
         "next_pct": -4.0763
@@ -6404,6 +6447,8 @@
         "overnight": -2.821011673151752,
         "open_to_close": 10.782782782782796,
         "low_to_close": 11.11646586345383,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 7.657587548638145,
         "next_high": 15.728793774319062,
         "next_pct": 7.6576
@@ -6418,6 +6463,8 @@
         "overnight": -3.0989484162145198,
         "open_to_close": 8.147081712062242,
         "low_to_close": 8.189178668742713,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 4.795659436164068,
         "next_high": 7.272480478397103,
         "next_pct": 4.7957
@@ -6432,6 +6479,8 @@
         "overnight": 0.7575757575757569,
         "open_to_close": 1.1195488721804647,
         "low_to_close": 3.4530769230769254,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.8856060606060598,
         "next_high": 2.0818181818181847,
         "next_pct": 1.8856
@@ -6446,6 +6495,8 @@
         "overnight": 1.0939571254502178,
         "open_to_close": -4.794039735099343,
         "low_to_close": 2.3209964412811424,
+        "dip_to_close": -1.8495255001024113,
+        "dip_touch": true,
         "close_to_close": -3.7525273489281474,
         "next_high": 1.830403170734951,
         "next_pct": -3.7525
@@ -6460,6 +6511,8 @@
         "overnight": -0.44915829999244705,
         "open_to_close": -12.377251184834126,
         "low_to_close": 0.9881196231052769,
+        "dip_to_close": -9.667269262715594,
+        "dip_touch": true,
         "close_to_close": -12.770816033818988,
         "next_high": -0.051426738129389804,
         "next_pct": -12.7708
@@ -6474,6 +6527,8 @@
         "overnight": -3.7878787878787845,
         "open_to_close": -3.385826771653544,
         "low_to_close": 0.16326530612245094,
+        "dip_to_close": -0.3977595584057081,
+        "dip_touch": true,
         "close_to_close": -7.045454545454543,
         "next_high": -1.0606060606060619,
         "next_pct": -7.0455
@@ -6481,7 +6536,7 @@
     ],
     "swap": {
       "n": 10,
-      "rate": 50.0
+      "rate": 60.0
     },
     "b_rows": [
       {
@@ -6493,6 +6548,8 @@
         "overnight": -0.09321243962375769,
         "open_to_close": -1.4885496183206226,
         "low_to_close": 0.4419115485065017,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.5803745445301276,
         "next_high": 0.12795525802897778,
         "next_pct": -1.5804
@@ -6506,6 +6563,8 @@
         "overnight": 0.0,
         "open_to_close": -1.7425434367016934,
         "low_to_close": 0.13620689655171603,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.7425434367016934,
         "next_high": 0.019455582060268206,
         "next_pct": -1.7425
@@ -6519,6 +6578,8 @@
         "overnight": 1.3073491582820562,
         "open_to_close": -3.1731619124146238,
         "low_to_close": 0.18373794479547012,
+        "dip_to_close": -0.17851743547898646,
+        "dip_touch": true,
         "close_to_close": -1.9072970596854422,
         "next_high": 1.7550714727622152,
         "next_pct": -1.9073
@@ -6532,6 +6593,8 @@
         "overnight": 0.18963681441239721,
         "open_to_close": -2.138684829068116,
         "low_to_close": 0.23438927688921307,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.9531037484358915,
         "next_high": 0.5650244429418638,
         "next_pct": -1.9531
@@ -6545,6 +6608,8 @@
         "overnight": 0.4276767985336827,
         "open_to_close": -3.0646387832699573,
         "low_to_close": 0.21226415094339757,
+        "dip_to_close": -0.06663792089686149,
+        "dip_touch": true,
         "close_to_close": -2.6500687337711937,
         "next_high": 2.5759890025966126,
         "next_pct": -2.6501
@@ -6558,6 +6623,8 @@
         "overnight": -0.08460300793909914,
         "open_to_close": -1.6541796765730865,
         "low_to_close": 0.4439880161843268,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.7373831987490873,
         "next_high": 1.1270329271885204,
         "next_pct": -1.7374
@@ -6571,6 +6638,8 @@
         "overnight": -0.09045680687471691,
         "open_to_close": -0.32322317790856037,
         "low_to_close": 0.052710501204167315,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.41338760741744807,
         "next_high": 0.27137042062415073,
         "next_pct": -0.4134
@@ -6584,6 +6653,8 @@
         "overnight": 0.0095858895705625,
         "open_to_close": -0.015684497616830217,
         "low_to_close": 0.033999965128250764,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.006100111544893316,
         "next_high": 0.032243446737312276,
         "next_pct": -0.0061
@@ -6597,6 +6668,8 @@
         "overnight": -0.0008476012883562589,
         "open_to_close": 0.009323693199636551,
         "low_to_close": 0.30007565646861245,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.008476012883540385,
         "next_high": 0.5255127987794372,
         "next_pct": 0.0085
@@ -6610,6 +6683,8 @@
         "overnight": -0.007506943923130116,
         "open_to_close": 0.016683350016699627,
         "low_to_close": 0.08180163937163698,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.009175153683838033,
         "next_high": 0.03503240497459981,
         "next_pct": 0.0092
@@ -6623,6 +6698,8 @@
         "overnight": 0.09975669099757667,
         "open_to_close": 1.9664082059259513,
         "low_to_close": 2.3137458944424427,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.0681265206812682,
         "next_high": 5.000000000000004,
         "next_pct": 2.0681
@@ -6636,6 +6713,8 @@
         "overnight": 0.16641065028162316,
         "open_to_close": -1.3338658146964888,
         "low_to_close": 0.16785190110524262,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.1696748591909945,
         "next_high": 0.5472350230414813,
         "next_pct": -1.1697
@@ -6649,6 +6728,8 @@
         "overnight": -0.38180009101497214,
         "open_to_close": -1.2039890363441996,
         "low_to_close": 0.33734371313989264,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.5811922961226021,
         "next_high": 1.060555808374919,
         "next_pct": -1.5812
@@ -6662,6 +6743,8 @@
         "overnight": 0.09998461775111434,
         "open_to_close": -1.2716096811371536,
         "low_to_close": 1.443954968184058,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.172896477465013,
         "next_high": 0.3437932625749873,
         "next_pct": -1.1729
@@ -6675,6 +6758,8 @@
         "overnight": -0.20139403604128026,
         "open_to_close": -1.5446361590397584,
         "low_to_close": 0.08006954612007622,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.7429193899781925,
         "next_high": 2.850212249848405,
         "next_pct": -1.7429
@@ -6688,6 +6773,8 @@
         "overnight": -0.10246662409599816,
         "open_to_close": -1.6366879738367812,
         "low_to_close": 0.43791410204840897,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.7374775390189945,
         "next_high": 0.9474450170035231,
         "next_pct": -1.7375
@@ -6701,6 +6788,8 @@
         "overnight": 0.06493889840013534,
         "open_to_close": -2.317846607669616,
         "low_to_close": 0.3462121212121083,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.25441289332311,
         "next_high": 0.3601157093098717,
         "next_pct": -2.2544
@@ -6714,6 +6803,8 @@
         "overnight": 0.17523449429215354,
         "open_to_close": -0.0805684795784245,
         "low_to_close": 1.2086813316080525,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.09452483094596342,
         "next_high": 1.7087180978695438,
         "next_pct": 0.0945
@@ -6727,6 +6818,8 @@
         "overnight": 0.0998822815966971,
         "open_to_close": -1.5601724813798512,
         "low_to_close": 0.30283444324215036,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.4618485356543864,
         "next_high": 1.6823030000356676,
         "next_pct": -1.4618
@@ -6740,6 +6833,8 @@
         "overnight": -0.39975608103530735,
         "open_to_close": -2.1428571428571463,
         "low_to_close": 0.5944055944056004,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.534047022155983,
         "next_high": 3.200081306321567,
         "next_pct": -2.534
@@ -6753,6 +6848,8 @@
         "overnight": 0.10225572056421495,
         "open_to_close": -1.816398322283863,
         "low_to_close": 0.09310344827586636,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.7159999729124076,
         "next_high": 4.557490062233782,
         "next_pct": -1.716
@@ -6766,6 +6863,8 @@
         "overnight": -0.28327853043402795,
         "open_to_close": -0.6487575554063207,
         "low_to_close": 0.12114649250447584,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.9301982949713072,
         "next_high": 2.387441988173289,
         "next_pct": -0.9302
@@ -6779,6 +6878,8 @@
         "overnight": 0.7424357996440367,
         "open_to_close": -4.763767603856451,
         "low_to_close": 0.6052122908751567,
+        "dip_to_close": -1.818317117377788,
+        "dip_touch": true,
         "close_to_close": -4.056699720315282,
         "next_high": 1.8497330282227331,
         "next_pct": -4.0567
@@ -6792,6 +6893,8 @@
         "overnight": 0.3365942726471838,
         "open_to_close": -2.8877906976744305,
         "low_to_close": 0.11567969311914172,
+        "dip_to_close": 0.11567969311914172,
+        "dip_touch": true,
         "close_to_close": -2.56091656312164,
         "next_high": 2.932511973305796,
         "next_pct": -2.5609
@@ -6805,6 +6908,8 @@
         "overnight": 1.256584480545353,
         "open_to_close": -9.58584473139198,
         "low_to_close": 2.931350897384055,
+        "dip_to_close": -6.789530650919562,
+        "dip_touch": true,
         "close_to_close": -8.44971448807048,
         "next_high": 8.394936036474698,
         "next_pct": -8.4497
@@ -6818,6 +6923,8 @@
         "overnight": -0.9383499546690821,
         "open_to_close": -0.24573285132476475,
         "low_to_close": 1.0021776398090987,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.1817769718948323,
         "next_high": 1.4007252946509618,
         "next_pct": -1.1818
@@ -6831,6 +6938,8 @@
         "overnight": -0.0853970964987183,
         "open_to_close": -5.623931623931622,
         "low_to_close": 0.018115942028984477,
+        "dip_to_close": -2.7050841483830967,
+        "dip_touch": true,
         "close_to_close": -5.704526046114433,
         "next_high": 1.8785653287788362,
         "next_pct": -5.7045
@@ -6844,6 +6953,8 @@
         "overnight": -4.420473974038897,
         "open_to_close": -16.300044140366367,
         "low_to_close": 0.0,
+        "dip_to_close": -13.711385711717893,
+        "dip_touch": true,
         "close_to_close": -19.99997890542352,
         "next_high": -0.8649831085178916,
         "next_pct": -20.0
@@ -6857,6 +6968,8 @@
         "overnight": 2.3087063807731623,
         "open_to_close": -0.7588105726872185,
         "low_to_close": 0.1945828144458206,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.5323770999763342,
         "next_high": 3.435454248402836,
         "next_pct": 1.5324
@@ -6870,6 +6983,8 @@
         "overnight": 0.000947472144319228,
         "open_to_close": 1.3302382869865959,
         "low_to_close": 1.3302382869865959,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.3311983627681379,
         "next_high": 1.541537178806962,
         "next_pct": 1.3312
@@ -6883,6 +6998,8 @@
         "overnight": -0.00619918879186665,
         "open_to_close": 0.01062783962590963,
         "low_to_close": 0.012399365860993328,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.004427991994182534,
         "next_high": 0.023025558369793586,
         "next_pct": 0.0044
@@ -6896,6 +7013,8 @@
         "overnight": -0.03553752676148658,
         "open_to_close": -0.10925171247724297,
         "low_to_close": 0.0981831767905339,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.14475041388217758,
         "next_high": 0.03813783359771783,
         "next_pct": -0.1448
@@ -6909,6 +7028,8 @@
         "overnight": 0.0,
         "open_to_close": 0.010010260517034908,
         "low_to_close": 0.08431562426953754,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.010010260517034908,
         "next_high": 0.1843556311886374,
         "next_pct": 0.01
@@ -6922,6 +7043,8 @@
         "overnight": -0.8071741639693597,
         "open_to_close": 0.8593120621048334,
         "low_to_close": 0.8593120621048334,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.045201753182277926,
         "next_high": 0.41246599778834714,
         "next_pct": 0.0452
@@ -6935,6 +7058,8 @@
         "overnight": 0.204122796401629,
         "open_to_close": 0.6393017600927697,
         "low_to_close": 0.760995743583126,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.8447295171245317,
         "next_high": 1.6128121344144652,
         "next_pct": 0.8447
@@ -6948,6 +7073,8 @@
         "overnight": 0.1558232931726966,
         "open_to_close": 0.044909939531967424,
         "low_to_close": 0.6048387096774244,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.20080321285140812,
         "next_high": 0.8008032128514087,
         "next_pct": 0.2008
@@ -6961,6 +7088,8 @@
         "overnight": 1.390790516682272,
         "open_to_close": -2.3572613124851927,
         "low_to_close": 0.3612012987012969,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.9992553625903788,
         "next_high": 1.4068042244161028,
         "next_pct": -0.9993
@@ -6974,6 +7103,8 @@
         "overnight": 0.10009930486594154,
         "open_to_close": -0.13888778660487988,
         "low_to_close": 0.3733307806442321,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.03892750744787232,
         "next_high": 0.5767626613704113,
         "next_pct": -0.0389
@@ -6987,6 +7118,8 @@
         "overnight": -0.04571969099794737,
         "open_to_close": 0.08832668254443732,
         "low_to_close": 0.746185720863024,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.04256660886017283,
         "next_high": 0.6101213936622996,
         "next_pct": 0.0426
@@ -7000,6 +7133,8 @@
         "overnight": -0.006298518273573084,
         "open_to_close": 0.56690235107002,
         "low_to_close": 0.6604249416808372,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.560568126348282,
         "next_high": 0.6881131213882119,
         "next_pct": 0.5606
@@ -7013,6 +7148,8 @@
         "overnight": 0.06957962958620278,
         "open_to_close": 1.321093750000002,
         "low_to_close": 1.321093750000002,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.3915925917239447,
         "next_high": 1.633166811298481,
         "next_pct": 1.3916
@@ -7026,6 +7163,8 @@
         "overnight": 0.49624891908104374,
         "open_to_close": 0.7906976744186167,
         "low_to_close": 1.578125000000008,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.2908704221621603,
         "next_high": 1.3446242297235234,
         "next_pct": 1.2909
@@ -7039,6 +7178,8 @@
         "overnight": -0.40925571479701883,
         "open_to_close": 1.2882812500000007,
         "low_to_close": 1.2882812500000007,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.8737531705647061,
         "next_high": 2.3139286992515107,
         "next_pct": 0.8738
@@ -7052,6 +7193,8 @@
         "overnight": -0.4105344694035673,
         "open_to_close": 0.8858987322081457,
         "low_to_close": 0.8858987322081457,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.47172734314484543,
         "next_high": 0.6196746707978429,
         "next_pct": 0.4717
@@ -7065,6 +7208,8 @@
         "overnight": -1.0054137664346596,
         "open_to_close": 2.499999999999991,
         "low_to_close": 2.499999999999991,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.4694508894044667,
         "next_high": 2.088167053364254,
         "next_pct": 1.4695
@@ -7078,6 +7223,8 @@
         "overnight": 0.13281401560938377,
         "open_to_close": 0.9687034277198192,
         "low_to_close": 1.2993226775915412,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.1028040172509135,
         "next_high": 1.3624628792288096,
         "next_pct": 1.1028
@@ -7091,6 +7238,8 @@
         "overnight": 0.10024334435041471,
         "open_to_close": -0.07764707589820175,
         "low_to_close": 0.7979151721007938,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.022518432426554824,
         "next_high": 0.5070279301202296,
         "next_pct": 0.0225
@@ -7104,6 +7253,8 @@
         "overnight": -0.14471780028942893,
         "open_to_close": 6.478985507246371,
         "low_to_close": 7.031984091720256,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 6.324891461649784,
         "next_high": 10.120115774240235,
         "next_pct": 6.3249
@@ -7117,6 +7268,8 @@
         "overnight": 0.28024189300237534,
         "open_to_close": -1.3524682019387058,
         "low_to_close": 0.7302036846321025,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.0760164914277004,
         "next_high": 0.5429247701524753,
         "next_pct": -1.076
@@ -7130,6 +7283,8 @@
         "overnight": 0.3479685498043006,
         "open_to_close": 0.5679360339366113,
         "low_to_close": 1.7363071710897682,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.9178808225220214,
         "next_high": 1.792353093559429,
         "next_pct": 0.9179
@@ -7143,6 +7298,8 @@
         "overnight": 0.0,
         "open_to_close": 0.3765008693747518,
         "low_to_close": 1.1248198288287714,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.3765008693747518,
         "next_high": 0.40867458003039925,
         "next_pct": 0.3765
@@ -7156,6 +7313,8 @@
         "overnight": 0.09970224060575905,
         "open_to_close": 0.11844673261995897,
         "low_to_close": 0.9486455675587591,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.2182670672720599,
         "next_high": 0.7363145201492838,
         "next_pct": 0.2183
@@ -7169,6 +7328,8 @@
         "overnight": 0.19478700464492515,
         "open_to_close": 1.9830949284785238,
         "low_to_close": 2.516339869281037,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.181744744333902,
         "next_high": 2.21431782203374,
         "next_pct": 2.1817
@@ -7182,6 +7343,8 @@
         "overnight": -0.038372985418266836,
         "open_to_close": 1.3985924504158476,
         "low_to_close": 2.5135834411384117,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.359682783320526,
         "next_high": 1.5413149143003402,
         "next_pct": 1.3597
@@ -7195,6 +7358,8 @@
         "overnight": -0.29393346879831306,
         "open_to_close": 0.8087773491072703,
         "low_to_close": 0.9861071877969252,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.5124666129918687,
         "next_high": 1.912484504594314,
         "next_pct": 0.5125
@@ -7208,6 +7373,8 @@
         "overnight": 0.0,
         "open_to_close": 0.5984251968503829,
         "low_to_close": 2.3339494762784962,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.5984251968503829,
         "next_high": 1.4536644457904258,
         "next_pct": 0.5984
@@ -7221,6 +7388,8 @@
         "overnight": 0.4268139593271325,
         "open_to_close": 2.037500000000003,
         "low_to_close": 3.2668674698795197,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.4730102937484233,
         "next_high": 3.5944430496275936,
         "next_pct": 2.473
@@ -7234,6 +7403,8 @@
         "overnight": 0.0,
         "open_to_close": 0.40022870211549044,
         "low_to_close": 2.600058428279284,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.40022870211549044,
         "next_high": 0.914808461978267,
         "next_pct": 0.4002
@@ -7247,6 +7418,8 @@
         "overnight": 0.3129193369673544,
         "open_to_close": 0.6322122989992351,
         "low_to_close": 2.358248222986292,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.9471099505008462,
         "next_high": 1.5222801908696626,
         "next_pct": 0.9471
@@ -7260,6 +7433,8 @@
         "overnight": 0.36150112844275384,
         "open_to_close": 9.88855721393036,
         "low_to_close": 11.547901621130263,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 10.285805588288156,
         "next_high": 10.597375621642136,
         "next_pct": 10.2858
@@ -7273,6 +7448,8 @@
         "overnight": 0.39878164724109766,
         "open_to_close": -2.5546037229611906,
         "low_to_close": 0.6662137681159308,
+        "dip_to_close": 0.4591714196276353,
+        "dip_touch": true,
         "close_to_close": -2.1660093665269997,
         "next_high": 2.3992922285996032,
         "next_pct": -2.166
@@ -7286,6 +7463,8 @@
         "overnight": -0.12848560613952786,
         "open_to_close": 0.8796940194714775,
         "low_to_close": 2.473267344217711,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.7500781331388762,
         "next_high": 3.5172934680695933,
         "next_pct": 0.7501
@@ -7299,6 +7478,8 @@
         "overnight": 0.7674661105318226,
         "open_to_close": 1.684672378823615,
         "low_to_close": 2.216366158113736,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.4650677789363806,
         "next_high": 2.480361487660776,
         "next_pct": 2.4651
@@ -7312,6 +7493,8 @@
         "overnight": 0.9825442540039253,
         "open_to_close": -1.310355021868237,
         "low_to_close": 0.23402658188722558,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.3406855858387181,
         "next_high": 1.0712278729980262,
         "next_pct": -0.3407
@@ -7325,6 +7508,8 @@
         "overnight": 1.1482817228371411,
         "open_to_close": -1.4918032786885194,
         "low_to_close": 0.39177686261080424,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.3606516602412513,
         "next_high": 1.4144177755668785,
         "next_pct": -0.3607
@@ -7338,6 +7523,8 @@
         "overnight": -0.0024173468812227483,
         "open_to_close": -0.40934730056405577,
         "low_to_close": 0.39967506092608573,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.4117547521010789,
         "next_high": 0.23689999435954068,
         "next_pct": -0.4118
@@ -7351,6 +7538,8 @@
         "overnight": 0.6041541107468795,
         "open_to_close": 0.5734950321449439,
         "low_to_close": 0.9037469215433358,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.1811139367034595,
         "next_high": 1.8683208631613102,
         "next_pct": 1.1811
@@ -7364,6 +7553,8 @@
         "overnight": 0.6934224126718957,
         "open_to_close": -0.6920462270564198,
         "low_to_close": 0.21266086765634462,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.003422618028980917,
         "next_high": 1.0692258722542203,
         "next_pct": -0.0034
@@ -7377,6 +7568,8 @@
         "overnight": -0.15540328359890943,
         "open_to_close": 0.5814516129032388,
         "low_to_close": 0.5814516129032388,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.42514473440533607,
         "next_high": 1.1876675819088023,
         "next_pct": 0.4251
@@ -7390,6 +7583,8 @@
         "overnight": 0.10337972166998277,
         "open_to_close": -1.1757229107085987,
         "low_to_close": 0.07964537694788998,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.073558648111328,
         "next_high": 0.5487077534791274,
         "next_pct": -1.0736
@@ -7403,6 +7598,8 @@
         "overnight": 0.2708019905103498,
         "open_to_close": -0.4855115953403155,
         "low_to_close": 0.24647914615905098,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.21602437989430845,
         "next_high": 0.759942907842448,
         "next_pct": -0.216
@@ -7416,6 +7613,8 @@
         "overnight": 0.028500342774395726,
         "open_to_close": -0.009240720776215738,
         "low_to_close": 0.035438591084901994,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.019256988361071592,
         "next_high": 0.058541244617660304,
         "next_pct": 0.0193
@@ -7429,6 +7628,8 @@
         "overnight": -0.1867011345684233,
         "open_to_close": 2.301438848920867,
         "low_to_close": 2.301438848920867,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.1104409019101045,
         "next_high": 4.4406146775815,
         "next_pct": 2.1104
@@ -7442,6 +7643,8 @@
         "overnight": 0.5852231163130828,
         "open_to_close": 1.3622377622377613,
         "low_to_close": 1.7178947368421182,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.9554330088346283,
         "next_high": 4.725395306960767,
         "next_pct": 1.9554
@@ -7455,6 +7658,8 @@
         "overnight": 0.4296419201014423,
         "open_to_close": -0.37004701141707397,
         "low_to_close": 0.2920556798745144,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.058005031599250856,
         "next_high": 1.5202714095897019,
         "next_pct": 0.058
@@ -7468,6 +7673,8 @@
         "overnight": 0.1323626737260275,
         "open_to_close": 1.5241242564441482,
         "low_to_close": 1.5241242564441482,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.6585043017868895,
         "next_high": 3.478491065519518,
         "next_pct": 1.6585
@@ -7481,6 +7688,8 @@
         "overnight": -0.012344155042587346,
         "open_to_close": -0.05887939221271843,
         "low_to_close": 0.711038805684483,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.0712162790918569,
         "next_high": 0.4586328373515247,
         "next_pct": -0.0712
@@ -7494,6 +7703,8 @@
         "overnight": 0.16182985263539784,
         "open_to_close": -0.3050844397909591,
         "low_to_close": 0.04257092134343221,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.14374830485489598,
         "next_high": 0.3516861043305175,
         "next_pct": -0.1437
@@ -7507,6 +7718,8 @@
         "overnight": -0.20916591752632163,
         "open_to_close": -0.14716900353206608,
         "low_to_close": 0.07330002055976337,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.35602709366183705,
         "next_high": 0.043613318973578785,
         "next_pct": -0.356
@@ -7520,6 +7733,8 @@
         "overnight": -0.5003777274141252,
         "open_to_close": 0.6288409318279342,
         "low_to_close": 0.6540152246166997,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.12531662445007807,
         "next_high": 0.7359018797493677,
         "next_pct": 0.1253
@@ -7533,6 +7748,8 @@
         "overnight": -0.5730531740038347,
         "open_to_close": -0.15458850862299922,
         "low_to_close": 0.11378908699937185,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.7267558082715175,
         "next_high": -0.04975345386700747,
         "next_pct": -0.7268
@@ -7546,6 +7763,8 @@
         "overnight": -0.33193105774180776,
         "open_to_close": 0.0008904719501323655,
         "low_to_close": 0.36822207723725686,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.33104354154464,
         "next_high": -0.06567619859063623,
         "next_pct": -0.331
@@ -7559,6 +7778,8 @@
         "overnight": -0.049542177201744586,
         "open_to_close": -0.04956673364076014,
         "low_to_close": 0.01948609844022453,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.09908435440350027,
         "next_high": 0.056619631087717615,
         "next_pct": -0.0991
@@ -7572,6 +7793,8 @@
         "overnight": -0.30260325255266896,
         "open_to_close": -0.07718123715452219,
         "low_to_close": 0.11643061951516209,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.3795509367732097,
         "next_high": -0.10288510586791144,
         "next_pct": -0.3796
@@ -7585,6 +7808,8 @@
         "overnight": -0.1556734813234928,
         "open_to_close": -0.17056026462682894,
         "low_to_close": 0.028483389005407034,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.32596822884862764,
         "next_high": 0.08772759720991896,
         "next_pct": -0.326
@@ -7598,6 +7823,8 @@
         "overnight": -0.26544567383685047,
         "open_to_close": 0.5142163153859958,
         "low_to_close": 0.9856607561636199,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.24740567658578794,
         "next_high": 1.10903030719538,
         "next_pct": 0.2474
@@ -7611,6 +7838,8 @@
         "overnight": -1.3987029742730916,
         "open_to_close": 0.856152512998265,
         "low_to_close": 0.8692637691207761,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.5545254919384512,
         "next_high": 0.9074053504447344,
         "next_pct": -0.5545
@@ -7624,6 +7853,8 @@
         "overnight": -0.5923779015076347,
         "open_to_close": 0.2728047740835571,
         "low_to_close": 0.8177189583940647,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.32118916262001695,
         "next_high": 0.29746014796736553,
         "next_pct": -0.3212
@@ -7637,6 +7868,8 @@
         "overnight": -0.2723284078874344,
         "open_to_close": 0.5478297513695773,
         "low_to_close": 0.8436036584335005,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.2740094474422916,
         "next_high": 0.8455628960949424,
         "next_pct": 0.274
@@ -7650,6 +7883,8 @@
         "overnight": -0.9243697478991564,
         "open_to_close": 0.593723494486853,
         "low_to_close": 1.1936758218786592,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.3361344537815225,
         "next_high": 0.35042016806723364,
         "next_pct": -0.3361
@@ -7663,6 +7898,8 @@
         "overnight": -1.2896143726222942,
         "open_to_close": 0.851450351870553,
         "low_to_close": 1.109806124359558,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.4491444468651906,
         "next_high": 0.5999765372303845,
         "next_pct": -0.4491
@@ -7676,6 +7913,8 @@
         "overnight": -0.02760974875128941,
         "open_to_close": 0.33391915641476366,
         "low_to_close": 0.6404982959219652,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.3062172134233654,
         "next_high": 0.6484107661286931,
         "next_pct": 0.3062
@@ -7689,6 +7928,8 @@
         "overnight": -0.20891018520055038,
         "open_to_close": -0.47684715968564495,
         "low_to_close": 0.2510460251045954,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.6847611626017658,
         "next_high": 0.25947971415780646,
         "next_pct": -0.6848
@@ -7702,6 +7943,8 @@
         "overnight": -0.494627041268636,
         "open_to_close": 0.08326394671107629,
         "low_to_close": 0.6666443335231698,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.41177494055362196,
         "next_high": 0.2427566550949889,
         "next_pct": -0.4118
@@ -7715,6 +7958,8 @@
         "overnight": -0.7701542758671409,
         "open_to_close": 2.216460905349793,
         "low_to_close": 2.4483398638894593,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.4292364610471786,
         "next_high": 2.864189867938549,
         "next_pct": 1.4292
@@ -7728,6 +7973,8 @@
         "overnight": -0.7557207819147704,
         "open_to_close": -0.06721311475409442,
         "low_to_close": 0.5924092409240966,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.8224259531924849,
         "next_high": 0.201742469230215,
         "next_pct": -0.8224
@@ -7741,6 +7988,8 @@
         "overnight": -0.6697329137416386,
         "open_to_close": 0.12185215272138006,
         "low_to_close": 0.2415557164119564,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.5486968449931462,
         "next_high": 0.17267812474783817,
         "next_pct": -0.5487
@@ -7754,6 +8003,8 @@
         "overnight": -2.050777310754881,
         "open_to_close": 2.151370139443709,
         "low_to_close": 2.151370139443709,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.05647301799875937,
         "next_high": 0.6817100029850032,
         "next_pct": 0.0565
@@ -7767,6 +8018,8 @@
         "overnight": -0.5004432266903169,
         "open_to_close": -0.2040998145283357,
         "low_to_close": 0.9975409836065596,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.7035216375211539,
         "next_high": 0.05238133612699425,
         "next_pct": -0.7035
@@ -7780,6 +8033,8 @@
         "overnight": -0.8500934699929075,
         "open_to_close": 0.45997935781678656,
         "low_to_close": 0.5858659831563529,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.39402436666022833,
         "next_high": 0.21030748404564648,
         "next_pct": -0.394
@@ -7793,6 +8048,8 @@
         "overnight": -0.7230716081915944,
         "open_to_close": -0.08740056162953591,
         "low_to_close": 0.6038135593220417,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.8098402011745831,
         "next_high": -0.061059380247285855,
         "next_pct": -0.8098
@@ -7806,6 +8063,8 @@
         "overnight": -0.47999999999999154,
         "open_to_close": 0.48633440514469495,
         "low_to_close": 0.7657893676191962,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.004000000000004,
         "next_high": 0.5112000000000005,
         "next_pct": 0.004
@@ -7819,6 +8078,8 @@
         "overnight": -0.7901983477670904,
         "open_to_close": -0.6540890623114359,
         "low_to_close": 0.2533084354956472,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.439118809115214,
         "next_high": -0.0071836213433429386,
         "next_pct": -1.4391
@@ -7832,6 +8093,8 @@
         "overnight": -0.23506912626001242,
         "open_to_close": 0.07987220447283061,
         "low_to_close": 0.5190408574201832,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.15538467668034794,
         "next_high": 0.36256424558747113,
         "next_pct": -0.1554
@@ -7845,6 +8108,8 @@
         "overnight": -0.6990784874483569,
         "open_to_close": 0.48079999999999234,
         "low_to_close": 0.5934646804421018,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.2216396568160084,
         "next_high": 0.6315538608198334,
         "next_pct": -0.2216
@@ -7858,6 +8123,8 @@
         "overnight": -2.4567803330689975,
         "open_to_close": 1.1365668850913169,
         "low_to_close": 1.1382113821138296,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.3481363996827866,
         "next_high": -0.07930214115781098,
         "next_pct": -1.3481
@@ -7871,6 +8138,8 @@
         "overnight": -1.1088390083063837,
         "open_to_close": -0.6964871081759139,
         "low_to_close": 0.0,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.797603195739017,
         "next_high": 0.03725191807748551,
         "next_pct": -1.7976
@@ -7884,6 +8153,8 @@
         "overnight": -0.38877913868035074,
         "open_to_close": -1.6666931095210225,
         "low_to_close": 0.7616647699560941,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.048992493085744,
         "next_high": -0.2101935993678361,
         "next_pct": -2.049
@@ -7897,6 +8168,8 @@
         "overnight": -1.447583469530711,
         "open_to_close": 0.3364131722340735,
         "low_to_close": 2.0530120481927705,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.1160401587672286,
         "next_high": 0.5050976729706669,
         "next_pct": -1.116
@@ -7910,6 +8183,8 @@
         "overnight": -1.3874555670221334,
         "open_to_close": 0.4899224806201641,
         "low_to_close": 1.195940671350515,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.9043305431334248,
         "next_high": -0.011466574934060336,
         "next_pct": -0.9043
@@ -7923,6 +8198,8 @@
         "overnight": -1.353937166947472,
         "open_to_close": 0.2225708478558408,
         "low_to_close": 0.42746625572083197,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.134379788523554,
         "next_high": -0.28435729913929286,
         "next_pct": -1.1344
@@ -7936,6 +8213,8 @@
         "overnight": -0.7190097688247077,
         "open_to_close": -0.5271199388846459,
         "low_to_close": 0.1615384615384574,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.2423396638553519,
         "next_high": 0.029579515806066325,
         "next_pct": -1.2423
@@ -7949,6 +8228,8 @@
         "overnight": -0.01653861767225706,
         "open_to_close": -1.3932330827067685,
         "low_to_close": 0.18563221903074023,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.409541278886195,
         "next_high": 0.3067161822856379,
         "next_pct": -1.4095
@@ -7962,6 +8243,8 @@
         "overnight": 0.0977234869516952,
         "open_to_close": -2.0435332490181812,
         "low_to_close": 0.5695020274272267,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.9478067740144378,
         "next_high": 0.6329816768462004,
         "next_pct": -1.9478
@@ -7975,6 +8258,8 @@
         "overnight": -0.14792899408283544,
         "open_to_close": -1.29851851851851,
         "low_to_close": 0.08788402313528731,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.4445266272189117,
         "next_high": 0.014792899408289095,
         "next_pct": -1.4445
@@ -7988,6 +8273,8 @@
         "overnight": -0.9403315560994052,
         "open_to_close": -0.41176167822295495,
         "low_to_close": 0.9563350676068616,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.348221309326103,
         "next_high": 0.26075809224135327,
         "next_pct": -1.3482
@@ -8001,6 +8288,8 @@
         "overnight": -0.7084924531732928,
         "open_to_close": -0.900359704324516,
         "low_to_close": 0.5739776951672715,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.602473176941266,
         "next_high": -0.49099836333877933,
         "next_pct": -1.6025
@@ -8014,6 +8303,8 @@
         "overnight": -1.436315718050718,
         "open_to_close": -1.1702898550724705,
         "low_to_close": 0.26097184444606736,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.58979651598803,
         "next_high": -0.3678282420666812,
         "next_pct": -2.5898
@@ -8027,6 +8318,8 @@
         "overnight": -2.0113096456734536,
         "open_to_close": 2.426512968299699,
         "low_to_close": 2.4272509167933443,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.36639863324132715,
         "next_high": 2.465954577865004,
         "next_pct": 0.3664
@@ -8040,6 +8333,8 @@
         "overnight": -0.7295484648646378,
         "open_to_close": 0.2117896223085003,
         "low_to_close": 1.5379113018597845,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.5193039504944319,
         "next_high": 1.6181819456027258,
         "next_pct": -0.5193
@@ -8053,6 +8348,8 @@
         "overnight": -0.7628245503534026,
         "open_to_close": -0.2249647390691223,
         "low_to_close": 0.2096540000708247,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.9860732031632624,
         "next_high": 3.489397438589137,
         "next_pct": -0.9861
@@ -8066,6 +8363,8 @@
         "overnight": -0.17568754645584939,
         "open_to_close": -1.2319772558045061,
         "low_to_close": 0.789544578529644,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.4055003716467396,
         "next_high": 0.35205081424418694,
         "next_pct": -1.4055
@@ -8079,6 +8378,8 @@
         "overnight": -1.3376467350815102,
         "open_to_close": -0.9571428571428675,
         "low_to_close": 0.7564013840830386,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.2819864020457326,
         "next_high": -0.33088802829662756,
         "next_pct": -2.282
@@ -8092,6 +8393,8 @@
         "overnight": -4.82481751824817,
         "open_to_close": 0.7864518333112525,
         "low_to_close": 0.7864518333112525,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -4.076310550763107,
         "next_high": 1.857996018579966,
         "next_pct": -4.0763
@@ -8105,6 +8408,8 @@
         "overnight": -2.6029830223631145,
         "open_to_close": 0.6941176470588228,
         "low_to_close": 1.2693007999684536,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.926933139812459,
         "next_high": 0.7059692276353058,
         "next_pct": -1.9269
@@ -8118,6 +8423,8 @@
         "overnight": -2.5959633481921762,
         "open_to_close": 0.7951591271682545,
         "low_to_close": 0.7951591271682545,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.821446260525017,
         "next_high": 0.6965081723625532,
         "next_pct": -1.8214
@@ -8131,6 +8438,8 @@
         "overnight": -1.7166666666666663,
         "open_to_close": -1.6449041885704618,
         "low_to_close": 0.8695652173912993,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -3.3333333333333326,
         "next_high": -0.756666666666661,
         "next_pct": -3.3333
@@ -8144,6 +8453,8 @@
         "overnight": 0.0,
         "open_to_close": -2.271611253196937,
         "low_to_close": 0.030890052356014053,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.271611253196937,
         "next_high": 3.202557544757023,
         "next_pct": -2.2716
@@ -8157,6 +8468,8 @@
         "overnight": -2.1583404190884337,
         "open_to_close": 4.2904761904762,
         "low_to_close": 4.2904761904762,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.0395326895973342,
         "next_high": 3.875228588401125,
         "next_pct": 2.0395
@@ -8170,6 +8483,8 @@
         "overnight": 0.0063525482793647114,
         "open_to_close": 0.37296164212017313,
         "low_to_close": 0.4203473539905689,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.3793378829679117,
         "next_high": 0.6797226658922684,
         "next_pct": 0.3793
@@ -8183,6 +8498,8 @@
         "overnight": 0.0,
         "open_to_close": 0.5651744864088926,
         "low_to_close": 0.5651744864088926,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.5651744864088926,
         "next_high": 1.8211177895397945,
         "next_pct": 0.5652
@@ -8196,6 +8513,8 @@
         "overnight": 0.10626897660297452,
         "open_to_close": 1.3461315444383892,
         "low_to_close": 1.4511131153835954,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.4538310412573585,
         "next_high": 1.6967315592069987,
         "next_pct": 1.4538
@@ -8209,6 +8528,8 @@
         "overnight": 0.013314751857418372,
         "open_to_close": 0.378976143141152,
         "low_to_close": 0.5324444444444465,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.392341354731629,
         "next_high": 1.4477573519621423,
         "next_pct": 0.3923
@@ -8222,6 +8543,8 @@
         "overnight": 0.01859773107681928,
         "open_to_close": 0.08588783226195496,
         "low_to_close": 0.11780127898530779,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.10450153652683536,
         "next_high": 0.25062656641603454,
         "next_pct": 0.1045
@@ -8235,6 +8558,8 @@
         "overnight": -0.17682926829268864,
         "open_to_close": 0.17714250809357512,
         "low_to_close": 0.869870837360498,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.0,
         "next_high": 0.9398954703832896,
         "next_pct": 0.0
@@ -8248,6 +8573,8 @@
         "overnight": 0.4429421680943957,
         "open_to_close": 2.1878184324773287,
         "low_to_close": 2.2561158476500642,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.640451370970509,
         "next_high": 4.8095778718133975,
         "next_pct": 2.6405
@@ -8261,6 +8588,8 @@
         "overnight": -1.12584417022219,
         "open_to_close": 2.746746367387032,
         "low_to_close": 2.746746367387032,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.5899781133168256,
         "next_high": 2.6195890072643335,
         "next_pct": 1.59
@@ -8274,6 +8603,8 @@
         "overnight": -0.5157516726518319,
         "open_to_close": 1.9195979899497395,
         "low_to_close": 2.0906040268456216,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.3939459585565528,
         "next_high": 2.2338129796115602,
         "next_pct": 1.3939
@@ -8287,6 +8618,8 @@
         "overnight": 0.0,
         "open_to_close": 1.0012734400359546,
         "low_to_close": 1.276070137955787,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.0012734400359546,
         "next_high": 1.5381158081350321,
         "next_pct": 1.0013
@@ -8300,6 +8633,8 @@
         "overnight": 0.04971084856417729,
         "open_to_close": 1.9617747892479276,
         "low_to_close": 2.0183775095077516,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.0124608527067656,
         "next_high": 2.155793799400163,
         "next_pct": 2.0125
@@ -8313,6 +8648,8 @@
         "overnight": 0.29020536345549797,
         "open_to_close": 1.892762580846119,
         "low_to_close": 1.892762580846119,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.18846084282871,
         "next_high": 4.99021687301664,
         "next_pct": 2.1885
@@ -8326,6 +8663,8 @@
         "overnight": -0.4490036706869427,
         "open_to_close": 2.1316872427983524,
         "low_to_close": 2.1316872427983524,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.6731122181436797,
         "next_high": 1.9762716308337591,
         "next_pct": 1.6731
@@ -8339,6 +8678,8 @@
         "overnight": -0.7866991078669949,
         "open_to_close": 3.081827842720508,
         "low_to_close": 3.106270594680338,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.27088402270883,
         "next_high": 2.9927007299270114,
         "next_pct": 2.2709
@@ -8352,6 +8693,8 @@
         "overnight": -0.0024243403773938077,
         "open_to_close": 0.6206461831876009,
         "low_to_close": 1.0305095748133875,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.6182067962341886,
         "next_high": 1.6372378681966948,
         "next_pct": 0.6182
@@ -8365,6 +8708,8 @@
         "overnight": 0.09963680776523542,
         "open_to_close": 1.082070382738265,
         "low_to_close": 1.5262313453894505,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.1827853308906233,
         "next_high": 1.7259666377398508,
         "next_pct": 1.1828
@@ -8378,6 +8723,8 @@
         "overnight": -0.4208024155985979,
         "open_to_close": 1.1201612903225744,
         "low_to_close": 1.1201612903225744,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.694645208955702,
         "next_high": 1.1772830940220302,
         "next_pct": 0.6946
@@ -8391,6 +8738,8 @@
         "overnight": 0.14960648719193337,
         "open_to_close": 2.2709394442634645,
         "low_to_close": 2.3400601116359,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.4239434041842145,
         "next_high": 4.523208899994446,
         "next_pct": 2.4239
@@ -8404,6 +8753,8 @@
         "overnight": 0.014253812894948759,
         "open_to_close": 2.13776722090262,
         "low_to_close": 2.17740849577428,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.1523257471373514,
         "next_high": 2.429483220094708,
         "next_pct": 2.1523
@@ -8417,6 +8768,8 @@
         "overnight": -0.2472685905690386,
         "open_to_close": 2.397244000950338,
         "low_to_close": 2.397244000950338,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.144047778927649,
         "next_high": 2.2775570179250026,
         "next_pct": 2.144
@@ -8430,6 +8783,8 @@
         "overnight": -0.7874015748031482,
         "open_to_close": 1.976190476190487,
         "low_to_close": 1.976190476190487,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.1732283464567006,
         "next_high": 1.8771653543306899,
         "next_pct": 1.1732
@@ -8443,6 +8798,8 @@
         "overnight": -0.018064293175623636,
         "open_to_close": 1.134328358208947,
         "low_to_close": 1.2934697088906377,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.1160591566331313,
         "next_high": 1.532323303723615,
         "next_pct": 1.1161
@@ -8456,6 +8813,8 @@
         "overnight": 0.31152647975078995,
         "open_to_close": 2.0186335403726607,
         "low_to_close": 2.0186335403726607,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.336448598130847,
         "next_high": 4.127725856697806,
         "next_pct": 2.3364
@@ -8469,6 +8828,8 @@
         "overnight": -0.4954807797016292,
         "open_to_close": 1.92065663474692,
         "low_to_close": 2.100234925606892,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.4156593705760612,
         "next_high": 3.1113392759913427,
         "next_pct": 1.4157
@@ -8482,6 +8843,8 @@
         "overnight": -0.2256903129725707,
         "open_to_close": 1.7511329276080234,
         "low_to_close": 1.8083140877598103,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.5214904772505644,
         "next_high": 1.8938027282427772,
         "next_pct": 1.5215
@@ -8495,6 +8858,8 @@
         "overnight": 0.10025976393384095,
         "open_to_close": 2.249791334699136,
         "low_to_close": 2.5532724505327176,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.3523067341141513,
         "next_high": 3.525801698339648,
         "next_pct": 2.3523
@@ -8508,6 +8873,8 @@
         "overnight": -1.9297213295312199,
         "open_to_close": 0.7384615384615545,
         "low_to_close": 1.3434037020986889,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.2055100408877473,
         "next_high": 0.6020006336848738,
         "next_pct": -1.2055
@@ -8521,6 +8888,8 @@
         "overnight": -0.8165852567209808,
         "open_to_close": 3.1488721804511233,
         "low_to_close": 3.1488721804511233,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.3065736977515794,
         "next_high": 3.1321078339982655,
         "next_pct": 2.3066
@@ -8534,6 +8903,8 @@
         "overnight": 0.5853142056130523,
         "open_to_close": -1.369152193089751,
         "low_to_close": 0.2660115598224655,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.7918518297593269,
         "next_high": 0.6583852784156852,
         "next_pct": -0.7919
@@ -8547,6 +8918,8 @@
         "overnight": 0.03349335715083779,
         "open_to_close": 1.7626488095238146,
         "low_to_close": 2.3482575150975515,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.7967325369357523,
         "next_high": 3.8703434929850067,
         "next_pct": 1.7967
@@ -8560,6 +8933,8 @@
         "overnight": 0.0,
         "open_to_close": 0.6708065295801813,
         "low_to_close": 1.0193953776464149,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.6708065295801813,
         "next_high": 1.7104822816346177,
         "next_pct": 0.6708
@@ -8573,6 +8948,8 @@
         "overnight": -0.0037076860331386463,
         "open_to_close": 1.348164627363757,
         "low_to_close": 1.8997912317327836,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.3444069556190152,
         "next_high": 1.8427199584739373,
         "next_pct": 1.3444
@@ -8586,6 +8963,8 @@
         "overnight": -0.0021879763406729147,
         "open_to_close": 1.4783750273502871,
         "low_to_close": 1.6704298835960252,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.476154704513788,
         "next_high": 2.5934812891556636,
         "next_pct": 1.4762
@@ -8599,6 +8978,8 @@
         "overnight": -1.08618297618448,
         "open_to_close": 0.6606104651162736,
         "low_to_close": 0.8482350885367973,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.43274794947919526,
         "next_high": 1.2500808706716215,
         "next_pct": -0.4327
@@ -8612,6 +8993,8 @@
         "overnight": -0.35699436551061003,
         "open_to_close": 0.46546762589927404,
         "low_to_close": 1.5614545454545325,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.1068115671909231,
         "next_high": 1.1484035613413823,
         "next_pct": 0.1068
@@ -8625,6 +9008,8 @@
         "overnight": 0.0,
         "open_to_close": 4.399906880277693,
         "low_to_close": 4.957446808510646,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 4.399906880277693,
         "next_high": 6.184701558344452,
         "next_pct": 4.3999
@@ -8638,6 +9023,8 @@
         "overnight": -0.48336650554450244,
         "open_to_close": 1.355782312925169,
         "low_to_close": 2.4006872852233574,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.8658624097918954,
         "next_high": 1.3688614484747452,
         "next_pct": 0.8659
@@ -8651,6 +9038,8 @@
         "overnight": -2.4637913526802335,
         "open_to_close": 4.656164383561645,
         "low_to_close": 4.656164383561645,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.0776548554326535,
         "next_high": 6.500187055742623,
         "next_pct": 2.0777
@@ -8664,6 +9053,8 @@
         "overnight": -1.7655823520879688,
         "open_to_close": 4.563758389261752,
         "low_to_close": 5.41271989174561,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.7175991244610342,
         "next_high": 4.525376125740066,
         "next_pct": 2.7176
@@ -8677,6 +9068,8 @@
         "overnight": 1.0472047688094177,
         "open_to_close": 1.4942602040816322,
         "low_to_close": 2.938551099611897,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.5571129370066004,
         "next_high": 7.632672788786854,
         "next_pct": 2.5571
@@ -8690,6 +9083,8 @@
         "overnight": 0.12690355329949554,
         "open_to_close": 4.840937896070963,
         "low_to_close": 6.391639871382626,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 4.973984771573603,
         "next_high": 7.687817258883256,
         "next_pct": 4.974
@@ -8703,6 +9098,8 @@
         "overnight": -1.6612111292962473,
         "open_to_close": 4.092919645886273,
         "low_to_close": 4.092919645886273,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.36371647991942,
         "next_high": 4.4819337781694335,
         "next_pct": 2.3637
@@ -8716,6 +9113,8 @@
         "overnight": -0.7406709385601173,
         "open_to_close": -0.10063227447927314,
         "low_to_close": 0.5042979942693426,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.8405578590275131,
         "next_high": 1.628345269506215,
         "next_pct": -0.8406
@@ -8729,6 +9128,8 @@
         "overnight": -0.7391304347826089,
         "open_to_close": 3.185032225768092,
         "low_to_close": 3.834771110131596,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.4223602484472195,
         "next_high": 3.0863354037267143,
         "next_pct": 2.4224
@@ -8742,6 +9143,8 @@
         "overnight": -2.9226229071099175,
         "open_to_close": 7.487515605493145,
         "low_to_close": 7.621875,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 4.346060852123634,
         "next_high": 5.742835847124339,
         "next_pct": 4.3461
@@ -8755,6 +9158,8 @@
         "overnight": -0.6036071854556013,
         "open_to_close": 1.3357575757575901,
         "low_to_close": 1.9536585365853787,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.7240876615944414,
         "next_high": 3.191527812917916,
         "next_pct": 0.7241
@@ -8768,6 +9173,8 @@
         "overnight": -0.30267391810492317,
         "open_to_close": 3.3724550898203587,
         "low_to_close": 3.4343918514080363,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 3.0595736297587495,
         "next_high": 10.38344666193054,
         "next_pct": 3.0596
@@ -8781,6 +9188,8 @@
         "overnight": -1.1190609278926789,
         "open_to_close": 0.45732569051091243,
         "low_to_close": 3.691796008869175,
+        "dip_to_close": 3.564253289186503,
+        "dip_touch": true,
         "close_to_close": -0.6668529904974907,
         "next_high": 4.387367244270535,
         "next_pct": -0.6669
@@ -8794,6 +9203,8 @@
         "overnight": -1.6557609660987516,
         "open_to_close": 4.2843500555330705,
         "low_to_close": 4.2843500555330705,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.5576504935637567,
         "next_high": 6.455630301854809,
         "next_pct": 2.5577
@@ -8807,6 +9218,8 @@
         "overnight": -1.4563659682778618,
         "open_to_close": 11.160804020100512,
         "low_to_close": 11.722222222222234,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 9.541895900287711,
         "next_high": 13.448977671696195,
         "next_pct": 9.5419
@@ -8820,6 +9233,8 @@
         "overnight": -2.835538752362954,
         "open_to_close": 10.12991381504782,
         "low_to_close": 10.8002798853019,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 7.007137430878219,
         "next_high": 7.238132254474139,
         "next_pct": 7.0071
@@ -8833,6 +9248,8 @@
         "overnight": -2.8985011292861573,
         "open_to_close": 0.34140969162996804,
         "low_to_close": 1.1834161813505384,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.5669872014235873,
         "next_high": 2.0746355485593115,
         "next_pct": -2.567
@@ -8846,6 +9263,8 @@
         "overnight": 0.28059623740572803,
         "open_to_close": 1.3612750885477976,
         "low_to_close": 4.317132442284333,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.645691012632744,
         "next_high": 1.9487823070456933,
         "next_pct": 1.6457
@@ -8859,6 +9278,8 @@
         "overnight": 0.02660842378350292,
         "open_to_close": -0.277097349840949,
         "low_to_close": 0.38605299860530184,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.25056265729458405,
         "next_high": 0.4467997826978598,
         "next_pct": -0.2506
@@ -8872,6 +9293,8 @@
         "overnight": 0.08936550491509543,
         "open_to_close": -0.23590225563909772,
         "low_to_close": 0.41338731648250526,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.1467475659658546,
         "next_high": 0.6537792201683823,
         "next_pct": -0.1467
@@ -8885,6 +9308,8 @@
         "overnight": -0.0009049773755709367,
         "open_to_close": -0.18914198318535913,
         "low_to_close": 0.16711169236918177,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.19004524886877538,
         "next_high": 0.4524886877828038,
         "next_pct": -0.19
@@ -8898,6 +9323,8 @@
         "overnight": 0.21172638436481872,
         "open_to_close": 0.6103617025118746,
         "low_to_close": 0.9201731664462809,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.8233803836409814,
         "next_high": 0.9048136083966707,
         "next_pct": 0.8234
@@ -8911,6 +9338,8 @@
         "overnight": 0.06470281636981046,
         "open_to_close": -0.15716210148181142,
         "low_to_close": 0.10354763191067207,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.09256097341793224,
         "next_high": 0.13120293319435206,
         "next_pct": -0.0926
@@ -8924,6 +9353,8 @@
         "overnight": 0.020570978820821928,
         "open_to_close": 1.0381736727741009,
         "low_to_close": 1.1920007880996897,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.0589582140812848,
         "next_high": 1.1555523755008457,
         "next_pct": 1.059
@@ -8937,6 +9368,8 @@
         "overnight": 0.43820817571254,
         "open_to_close": 0.8690309770365667,
         "low_to_close": 3.096020312514214,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.3110473175399484,
         "next_high": 1.4738103542331737,
         "next_pct": 1.311
@@ -8950,6 +9383,8 @@
         "overnight": -0.19625334522747062,
         "open_to_close": 0.28602073650341175,
         "low_to_close": 0.5268250725728452,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.0892060660125038,
         "next_high": 0.7020517395182946,
         "next_pct": 0.0892
@@ -8963,6 +9398,8 @@
         "overnight": 0.2272727272727204,
         "open_to_close": -0.05320076748647207,
         "low_to_close": 1.1902764655499665,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.17395104895103763,
         "next_high": 0.3391608391608347,
         "next_pct": 0.174
@@ -8976,6 +9413,8 @@
         "overnight": 0.5780547502907574,
         "open_to_close": 0.5350362443907519,
         "low_to_close": 1.260321599304648,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.1161837971079835,
         "next_high": 1.532799833353593,
         "next_pct": 1.1162
@@ -8989,6 +9428,8 @@
         "overnight": 0.09997931462455423,
         "open_to_close": 0.08351988978818614,
         "low_to_close": 0.6380952380952376,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.18358270702611978,
         "next_high": 0.6679652485692689,
         "next_pct": 0.1836
@@ -9002,6 +9443,8 @@
         "overnight": -0.317869415807559,
         "open_to_close": 1.0307679048521923,
         "low_to_close": 1.056025379091552,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.7096219931271408,
         "next_high": 0.7723367697594519,
         "next_pct": 0.7096
@@ -9015,6 +9458,8 @@
         "overnight": 1.6335779754456103,
         "open_to_close": -0.16638935108153063,
         "low_to_close": 1.197503794906396,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.464470524571304,
         "next_high": 1.801839889065504,
         "next_pct": 1.4645
@@ -9028,6 +9473,8 @@
         "overnight": -0.14977533699451762,
         "open_to_close": 1.3875000000000082,
         "low_to_close": 2.3117158330250076,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.2356465302046926,
         "next_high": 1.5851223165252115,
         "next_pct": 1.2356
@@ -9041,6 +9488,8 @@
         "overnight": -0.24077046548955927,
         "open_to_close": 1.0836685438455396,
         "low_to_close": 1.8588777015743352,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.8402889245586076,
         "next_high": 1.0272873194221432,
         "next_pct": 0.8403
@@ -9054,6 +9503,8 @@
         "overnight": 0.24218974976184526,
         "open_to_close": 1.6868126606707667,
         "low_to_close": 2.031781226903173,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.9330876977944556,
         "next_high": 2.1331895947013457,
         "next_pct": 1.9331
@@ -9067,6 +9518,8 @@
         "overnight": 0.5632912301878346,
         "open_to_close": -0.9888115685237953,
         "low_to_close": 0.7041485906128075,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.4310902271845496,
         "next_high": 0.5632912301878346,
         "next_pct": -0.4311
@@ -9080,6 +9533,8 @@
         "overnight": 0.7978001383670996,
         "open_to_close": 1.5534317984361445,
         "low_to_close": 5.8288818469895975,
+        "dip_to_close": 4.694259586016658,
+        "dip_touch": true,
         "close_to_close": 2.3636252178406147,
         "next_high": 6.840413700093717,
         "next_pct": 2.3636
@@ -9093,6 +9548,8 @@
         "overnight": -0.00659556024573682,
         "open_to_close": -0.02355712603062665,
         "low_to_close": 0.07734535644889906,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.030151132551925475,
         "next_high": 0.06407115667281804,
         "next_pct": -0.0302
@@ -9106,6 +9563,8 @@
         "overnight": 0.045195612259307794,
         "open_to_close": 0.04893979464108966,
         "low_to_close": 0.2224966766915859,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.09415752554022827,
         "next_high": 0.6355632973965353,
         "next_pct": 0.0942
@@ -9119,6 +9578,8 @@
         "overnight": -0.051771587389537466,
         "open_to_close": -0.17447883535377517,
         "low_to_close": 0.16138885596272967,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.22616009228059175,
         "next_high": 0.10263490131607877,
         "next_pct": -0.2262
@@ -9132,6 +9593,8 @@
         "overnight": 0.0,
         "open_to_close": 0.07341749485183513,
         "low_to_close": 0.08865168841170057,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.07341749485183513,
         "next_high": 0.09580087742859789,
         "next_pct": 0.0734
@@ -9145,6 +9608,8 @@
         "overnight": 0.13735773662990614,
         "open_to_close": -0.40171016299990203,
         "low_to_close": 0.08682264907540205,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.26490420635769674,
         "next_high": 1.2683292304398908,
         "next_pct": -0.2649
@@ -9158,6 +9623,8 @@
         "overnight": -0.18783772956708633,
         "open_to_close": 0.2684623617552617,
         "low_to_close": 0.35080515585388383,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.0801203585831134,
         "next_high": 1.1296970560219277,
         "next_pct": 0.0801
@@ -9171,6 +9638,8 @@
         "overnight": 0.008856611460461572,
         "open_to_close": -0.0008855827134279792,
         "low_to_close": 0.06114311032343611,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.007970950314417635,
         "next_high": 0.19750243556815317,
         "next_pct": 0.008
@@ -9184,6 +9653,8 @@
         "overnight": -0.19161512732995822,
         "open_to_close": -0.23740754390325636,
         "low_to_close": 0.06189395502371742,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.4285677624656703,
         "next_high": 0.9392562937870608,
         "next_pct": -0.4286
@@ -9197,6 +9668,8 @@
         "overnight": 0.0008488676106033211,
         "open_to_close": 1.0237256483171198,
         "low_to_close": 1.3808671948206896,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.0245832060031823,
         "next_high": 1.638314488472381,
         "next_pct": 1.0246
@@ -9210,6 +9683,8 @@
         "overnight": 0.11478730587439756,
         "open_to_close": -0.5513590072165564,
         "low_to_close": 0.041556062520675674,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.4372045914922351,
         "next_high": 0.7452734638757619,
         "next_pct": -0.4372
@@ -9223,6 +9698,8 @@
         "overnight": 0.08264462809917106,
         "open_to_close": 0.004213080773185496,
         "low_to_close": 0.23902027027027373,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.08686119075729248,
         "next_high": 0.6054983977061834,
         "next_pct": 0.0869
@@ -9236,6 +9713,8 @@
         "overnight": 0.0033426370063427413,
         "open_to_close": -0.5598729840394445,
         "low_to_close": 0.0,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.5565490615546564,
         "next_high": 0.8306452960740618,
         "next_pct": -0.5565
@@ -9249,6 +9728,8 @@
         "overnight": -0.042552836438580766,
         "open_to_close": -1.559265442404001,
         "low_to_close": 0.06278742215208855,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.6011547671692328,
         "next_high": 0.6165989436884178,
         "next_pct": -1.6012
@@ -9262,6 +9743,8 @@
         "overnight": -0.40017161999372775,
         "open_to_close": 1.5905494851424562,
         "low_to_close": 1.7633684070767153,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.1840129375072284,
         "next_high": 3.1040116173534305,
         "next_pct": 1.184
@@ -9275,6 +9758,8 @@
         "overnight": 0.0,
         "open_to_close": 0.04422604422604781,
         "low_to_close": 0.3713989909779558,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.04422604422604781,
         "next_high": 0.7690417690417783,
         "next_pct": 0.0442
@@ -9288,6 +9773,8 @@
         "overnight": -0.13384040347985682,
         "open_to_close": 0.06374111301787888,
         "low_to_close": 0.34253871998688457,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.07018460182480757,
         "next_high": 0.5386260140042731,
         "next_pct": -0.0702
@@ -9301,6 +9788,8 @@
         "overnight": -0.19692058346840735,
         "open_to_close": -0.12829153032308804,
         "low_to_close": 0.4073469387755102,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.32495948136143094,
         "next_high": 0.40275526742301615,
         "next_pct": -0.325
@@ -9314,6 +9803,8 @@
         "overnight": 0.10036260036259126,
         "open_to_close": -1.3551537889323728,
         "low_to_close": 0.4073906423603946,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.256151256151261,
         "next_high": 0.19910644910643427,
         "next_pct": -1.2562
@@ -9327,6 +9818,8 @@
         "overnight": 0.0,
         "open_to_close": -0.9773455488109262,
         "low_to_close": 0.24368179558438285,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.9773455488109262,
         "next_high": 0.5522726906789899,
         "next_pct": -0.9773
@@ -9340,6 +9833,8 @@
         "overnight": 0.0024065651096139007,
         "open_to_close": -1.3251832956313825,
         "low_to_close": 0.0,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.3228086219206014,
         "next_high": 0.7364089235434301,
         "next_pct": -1.3228
@@ -9353,6 +9848,8 @@
         "overnight": -0.03237498124620819,
         "open_to_close": 0.14375987361769926,
         "low_to_close": 0.6206349206349104,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.11133835013936721,
         "next_high": 1.2736791402468306,
         "next_pct": 0.1113
@@ -9366,6 +9863,8 @@
         "overnight": 0.054405677114144346,
         "open_to_close": -1.2805964032972406,
         "low_to_close": 0.0,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.226887443327418,
         "next_high": 0.8712793219002535,
         "next_pct": -1.2269
@@ -9379,6 +9878,8 @@
         "overnight": 0.04233766641053016,
         "open_to_close": -1.2484326018808667,
         "low_to_close": 0.005555555555569747,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.2066234927006758,
         "next_high": 0.6930832797579001,
         "next_pct": -1.2066
@@ -9392,6 +9893,8 @@
         "overnight": -0.016442088615031825,
         "open_to_close": -0.7126076742364873,
         "low_to_close": 0.03155818540434563,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.7289325952662407,
         "next_high": 0.9074467002293973,
         "next_pct": -0.7289
@@ -9405,6 +9908,8 @@
         "overnight": -0.17569203139030654,
         "open_to_close": -0.65628911138923,
         "low_to_close": 0.19170387667839517,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.8308280951079494,
         "next_high": 1.495334400499737,
         "next_pct": -0.8308
@@ -9418,6 +9923,8 @@
         "overnight": -0.8174720308330108,
         "open_to_close": -1.3107170393215073,
         "low_to_close": 0.22472262025010625,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.1174743249546935,
         "next_high": -0.23323570571007757,
         "next_pct": -2.1175
@@ -9431,6 +9938,8 @@
         "overnight": -3.7878787878787845,
         "open_to_close": -3.385826771653544,
         "low_to_close": 0.16326530612245094,
+        "dip_to_close": -0.3977595584057081,
+        "dip_touch": true,
         "close_to_close": -7.045454545454543,
         "next_high": -1.0606060606060619,
         "next_pct": -7.0455
@@ -9444,6 +9953,8 @@
         "overnight": 0.20079260237781948,
         "open_to_close": -0.8475150857685243,
         "low_to_close": 0.33619210977702263,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.6484242309869659,
         "next_high": 0.39630118890356947,
         "next_pct": -0.6484
@@ -9457,6 +9968,8 @@
         "overnight": -0.26919817935048274,
         "open_to_close": -0.327819548872188,
         "low_to_close": 0.0,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.5961352439655454,
         "next_high": 0.864583567663213,
         "next_pct": -0.5961
@@ -9470,6 +9983,8 @@
         "overnight": -0.13483247065521065,
         "open_to_close": -1.5961715884457495,
         "low_to_close": 0.1458015267175483,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.7288519015123627,
         "next_high": -0.0891392444887229,
         "next_pct": -1.7289
@@ -9483,6 +9998,8 @@
         "overnight": -0.49825684916133817,
         "open_to_close": -0.47819548872179984,
         "low_to_close": 0.6409622797880266,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.974069696108204,
         "next_high": 0.48104978079690497,
         "next_pct": -0.9741
@@ -9496,6 +10013,8 @@
         "overnight": 0.1000552543942268,
         "open_to_close": -2.2236312099060074,
         "low_to_close": 0.06030534351144645,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.1258008153756447,
         "next_high": 0.2001105087884314,
         "next_pct": -2.1258
@@ -9509,6 +10028,8 @@
         "overnight": 0.050005597641500366,
         "open_to_close": -1.5307492614806129,
         "low_to_close": 0.0,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.4815091241557,
         "next_high": 0.050005597641500366,
         "next_pct": -1.4815
@@ -9522,6 +10043,8 @@
         "overnight": -0.7352941176470562,
         "open_to_close": -0.5814814814814828,
         "low_to_close": 0.0,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.3124999999999942,
         "next_high": 1.4213235294117554,
         "next_pct": -1.3125
@@ -9535,6 +10058,8 @@
         "overnight": -0.7516053706946857,
         "open_to_close": 0.22424821704287723,
         "low_to_close": 0.22424821704287723,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.5290426152948058,
         "next_high": 1.6199649737302924,
         "next_pct": -0.529
@@ -9548,6 +10073,8 @@
         "overnight": 0.6938027030149119,
         "open_to_close": -0.20864253296338786,
         "low_to_close": 1.213703431675528,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.4837126025181826,
         "next_high": 1.5796465288205885,
         "next_pct": 0.4837
@@ -9561,6 +10088,8 @@
         "overnight": 0.1017396763090872,
         "open_to_close": -1.4221869819072919,
         "low_to_close": 0.20956833319900614,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.3218942340301187,
         "next_high": 0.44015037268470003,
         "next_pct": -1.3219
@@ -9574,6 +10103,8 @@
         "overnight": 12.7578454794675,
         "open_to_close": -6.646249999999987,
         "low_to_close": 1.1067413068347243,
+        "dip_to_close": -3.7590206185566855,
+        "dip_touch": true,
         "close_to_close": 5.263677174288417,
         "next_high": 19.18081425259168,
         "next_pct": 5.2637
@@ -9587,6 +10118,8 @@
         "overnight": 0.009012881487535651,
         "open_to_close": -2.8166182556793484,
         "low_to_close": 0.08710179486812741,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.8078592326571394,
         "next_high": 0.18164422690276627,
         "next_pct": -2.8079
@@ -9600,6 +10133,8 @@
         "overnight": 0.0,
         "open_to_close": -1.0259740259740302,
         "low_to_close": 0.38406877188117416,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.0259740259740302,
         "next_high": 1.3465481886534514,
         "next_pct": -1.026
@@ -9613,6 +10148,8 @@
         "overnight": 0.0,
         "open_to_close": -4.021214914565874,
         "low_to_close": 0.5043192389745821,
+        "dip_to_close": -1.0527988809957312,
+        "dip_touch": true,
         "close_to_close": -4.021214914565874,
         "next_high": 2.225695696899277,
         "next_pct": -4.0212
@@ -9626,6 +10163,8 @@
         "overnight": -0.5646824077153223,
         "open_to_close": -2.50499996655541,
         "low_to_close": 0.382228772529114,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -3.05553708014632,
         "next_high": -0.09976720984370413,
         "next_pct": -3.0555
@@ -9639,6 +10178,8 @@
         "overnight": -0.8693599779709849,
         "open_to_close": -2.1157407407407347,
         "low_to_close": 0.0,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.966707315474082,
         "next_high": 0.9860613928117212,
         "next_pct": -2.9667
@@ -9652,6 +10193,8 @@
         "overnight": 0.0,
         "open_to_close": -2.7254901960784284,
         "low_to_close": 0.10829426443978996,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.7254901960784284,
         "next_high": 2.2287581699346415,
         "next_pct": -2.7255
@@ -9665,6 +10208,8 @@
         "overnight": -1.1375683744284437,
         "open_to_close": -7.8947368421052655,
         "low_to_close": 0.16455605637832882,
+        "dip_to_close": -5.046120455778624,
+        "dip_touch": true,
         "close_to_close": -8.942497186973576,
         "next_high": 0.29333524120480625,
         "next_pct": -8.9425
@@ -9678,6 +10223,8 @@
         "overnight": -0.02128853709044698,
         "open_to_close": -2.0060652987482164,
         "low_to_close": 0.2793037874385895,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.026926773883475,
         "next_high": 2.2488436453716787,
         "next_pct": -2.0269
@@ -9691,6 +10238,8 @@
         "overnight": -1.9514877960894461,
         "open_to_close": -1.3539651837524147,
         "low_to_close": 0.4827110629494813,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -3.2790305145176335,
         "next_high": 1.7201160651633574,
         "next_pct": -3.279
@@ -9704,6 +10253,8 @@
         "overnight": -0.26551709604976104,
         "open_to_close": -1.9601569574403954,
         "low_to_close": 0.017244033872199083,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.2204695016587395,
         "next_high": 0.4720303929773406,
         "next_pct": -2.2205
@@ -9717,6 +10268,8 @@
         "overnight": -0.19999999999998908,
         "open_to_close": -4.077495966144317,
         "low_to_close": 0.6010165490328401,
+        "dip_to_close": -1.1108205836539264,
+        "dip_touch": true,
         "close_to_close": -4.2693409742120325,
         "next_high": -0.19999999999998908,
         "next_pct": -4.2693
@@ -9730,6 +10283,8 @@
         "overnight": -0.6998111881970748,
         "open_to_close": -2.4425565314481257,
         "low_to_close": 0.8877075652347965,
+        "dip_to_close": 0.5746839881978216,
+        "dip_touch": true,
         "close_to_close": -3.1252744357600837,
         "next_high": 0.44239044524456705,
         "next_pct": -3.1253
@@ -9743,6 +10298,8 @@
         "overnight": -0.44915829999244705,
         "open_to_close": -12.377251184834126,
         "low_to_close": 0.9881196231052769,
+        "dip_to_close": -9.667269262715594,
+        "dip_touch": true,
         "close_to_close": -12.770816033818988,
         "next_high": -0.051426738129389804,
         "next_pct": -12.7708
@@ -9756,6 +10313,8 @@
         "overnight": -1.184898935090839,
         "open_to_close": 1.9544642857142858,
         "low_to_close": 5.35935892526791,
+        "dip_to_close": 5.107695139911628,
+        "dip_touch": true,
         "close_to_close": 0.7464069241152949,
         "next_high": 6.133594487528993,
         "next_pct": 0.7464
@@ -9769,6 +10328,8 @@
         "overnight": -2.950375662440463,
         "open_to_close": -4.494653850307806,
         "low_to_close": 1.0610285714285794,
+        "dip_to_close": -1.540880258049282,
+        "dip_touch": true,
         "close_to_close": -7.312420339437853,
         "next_high": 0.5987120144898439,
         "next_pct": -7.3124
@@ -9782,6 +10343,8 @@
         "overnight": -0.8728838780833637,
         "open_to_close": -4.745824973861945,
         "low_to_close": 1.7645283018867808,
+        "dip_to_close": -1.7998195606824252,
+        "dip_touch": true,
         "close_to_close": -5.577283310866421,
         "next_high": 0.385497452775696,
         "next_pct": -5.5773
@@ -9795,6 +10358,8 @@
         "overnight": -0.6896551724137945,
         "open_to_close": -2.777777777777779,
         "low_to_close": 0.7962906965023553,
+        "dip_to_close": 0.22909507445589838,
+        "dip_touch": true,
         "close_to_close": -3.4482758620689613,
         "next_high": 2.7537931034482765,
         "next_pct": -3.4483
@@ -9974,6 +10539,8 @@
         "overnight": -1.9144540179356517,
         "open_to_close": 7.132212885154066,
         "low_to_close": 12.728205188665331,
+        "dip_to_close": 10.445580293973267,
+        "dip_touch": true,
         "close_to_close": 5.081215931070848,
         "next_high": 7.152277123263584,
         "next_pct": 5.0812
@@ -9987,6 +10554,8 @@
         "overnight": 2.481682009940389,
         "open_to_close": -1.3366221125962419,
         "low_to_close": 3.1272646189865583,
+        "dip_to_close": 1.7148225643337733,
+        "dip_touch": true,
         "close_to_close": 1.1118891868349579,
         "next_high": 9.42595091291054,
         "next_pct": 1.1119
@@ -10000,6 +10569,8 @@
         "overnight": -1.6359736636744726,
         "open_to_close": -7.584323040380047,
         "low_to_close": 0.3976476599170553,
+        "dip_to_close": -4.726106227195926,
+        "dip_touch": true,
         "close_to_close": -9.096219176545905,
         "next_high": 0.32172746856322654,
         "next_pct": -9.0962
@@ -10013,6 +10584,8 @@
         "overnight": 2.001718945800701,
         "open_to_close": -3.221843442464778,
         "low_to_close": 1.331456587915203,
+        "dip_to_close": -0.22870457986059467,
+        "dip_touch": true,
         "close_to_close": -1.2846167472559178,
         "next_high": 4.939016789245421,
         "next_pct": -1.2846
@@ -10026,6 +10599,8 @@
         "overnight": 3.4653465346534684,
         "open_to_close": -12.926315789473675,
         "low_to_close": 9.465377027092071,
+        "dip_to_close": -10.233315246880082,
+        "dip_touch": true,
         "close_to_close": -9.908910891089107,
         "next_high": 8.415841584158423,
         "next_pct": -9.9089
@@ -10039,6 +10614,8 @@
         "overnight": 2.7837259100642386,
         "open_to_close": -10.83291666666667,
         "low_to_close": 0.46995305164319046,
+        "dip_to_close": -8.075171821305837,
+        "dip_touch": true,
         "close_to_close": -8.350749464668095,
         "next_high": 3.468950749464672,
         "next_pct": -8.3507
@@ -10052,6 +10629,8 @@
         "overnight": 0.8315638382424329,
         "open_to_close": -8.188235294117641,
         "low_to_close": 0.6967741935483884,
+        "dip_to_close": -5.348696179502721,
+        "dip_touch": true,
         "close_to_close": -7.424761859571283,
         "next_high": 1.8197131638572062,
         "next_pct": -7.4248
@@ -10065,6 +10644,8 @@
         "overnight": 0.46166049969700307,
         "open_to_close": -6.576753310446293,
         "low_to_close": 0.8817688335760687,
+        "dip_to_close": -3.6873745468518404,
+        "dip_touch": true,
         "close_to_close": -6.14545508294615,
         "next_high": 4.403265619842056,
         "next_pct": -6.1455
@@ -10078,6 +10659,8 @@
         "overnight": 3.000175272125083,
         "open_to_close": -7.27199112785396,
         "low_to_close": 1.8950409119924627,
+        "dip_to_close": -4.404114564797901,
+        "dip_touch": true,
         "close_to_close": -4.48998833533788,
         "next_high": 10.045510313857985,
         "next_pct": -4.49
@@ -10091,6 +10674,8 @@
         "overnight": 1.3857814681557556,
         "open_to_close": -7.508452535760735,
         "low_to_close": 10.320759399429203,
+        "dip_to_close": -4.647889212124456,
+        "dip_touch": true,
         "close_to_close": -6.226721811390812,
         "next_high": 3.8907617645081105,
         "next_pct": -6.2267
@@ -10104,6 +10689,8 @@
         "overnight": 2.8496701819251458,
         "open_to_close": 3.14858502609352,
         "low_to_close": 6.087979496659801,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 6.087979496659801,
         "next_high": 17.57699256333769,
         "next_pct": 6.088
@@ -10117,6 +10704,8 @@
         "overnight": -1.1627906976744207,
         "open_to_close": -3.529411764705881,
         "low_to_close": 0.7364819626415109,
+        "dip_to_close": -0.545785324439052,
+        "dip_touch": true,
         "close_to_close": -4.651162790697672,
         "next_high": 2.6162790697674465,
         "next_pct": -4.6512
@@ -10130,6 +10719,8 @@
         "overnight": 0.5709774671466716,
         "open_to_close": -4.018811747191764,
         "low_to_close": 0.37505926644068044,
+        "dip_to_close": -1.0503213888574892,
+        "dip_touch": true,
         "close_to_close": -3.470780789568595,
         "next_high": 0.6764619813394379,
         "next_pct": -3.4708
@@ -10143,6 +10734,8 @@
         "overnight": 0.02938557435441247,
         "open_to_close": -5.177760171395174,
         "low_to_close": 0.01877993051426774,
+        "dip_to_close": -2.2451135787578957,
+        "dip_touch": true,
         "close_to_close": -5.149896111605812,
         "next_high": 4.4820421490056495,
         "next_pct": -5.1499
@@ -10156,6 +10749,8 @@
         "overnight": -1.7868015035402696,
         "open_to_close": -5.081300813008127,
         "low_to_close": 1.7677516082355682,
+        "dip_to_close": -2.145670941245492,
+        "dip_touch": true,
         "close_to_close": -6.777309557222166,
         "next_high": 4.269479450085933,
         "next_pct": -6.7773
@@ -10169,6 +10764,8 @@
         "overnight": -0.20752345599625022,
         "open_to_close": -1.2371858707749928,
         "low_to_close": 1.2770916430390633,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.4421418758951199,
         "next_high": 8.59965510186187,
         "next_pct": -1.4421
@@ -10182,6 +10779,8 @@
         "overnight": 0.09972561045907824,
         "open_to_close": -3.1868884934551867,
         "low_to_close": 0.3264346414589836,
+        "dip_to_close": -0.19266854995378946,
+        "dip_touch": true,
         "close_to_close": -3.0903410270008425,
         "next_high": 1.2526228411999352,
         "next_pct": -3.0903
@@ -10195,6 +10794,8 @@
         "overnight": 0.17154084037203088,
         "open_to_close": -4.907502873869718,
         "low_to_close": 0.2686660418619091,
+        "dip_to_close": -1.9664978081131101,
+        "dip_touch": true,
         "close_to_close": -4.744380405168791,
         "next_high": 4.531289880277534,
         "next_pct": -4.7444
@@ -10208,6 +10809,8 @@
         "overnight": 0.7424357996440367,
         "open_to_close": -4.763767603856451,
         "low_to_close": 0.6052122908751567,
+        "dip_to_close": -1.818317117377788,
+        "dip_touch": true,
         "close_to_close": -4.056699720315282,
         "next_high": 1.8497330282227331,
         "next_pct": -4.0567
@@ -10221,6 +10824,8 @@
         "overnight": -0.21550553251598048,
         "open_to_close": -7.911524500907441,
         "low_to_close": 0.4767326732673327,
+        "dip_to_close": -5.0634273205231395,
+        "dip_touch": true,
         "close_to_close": -8.109980260417615,
         "next_high": 0.5088828120755506,
         "next_pct": -8.11
@@ -10234,6 +10839,8 @@
         "overnight": -4.420473974038897,
         "open_to_close": -16.300044140366367,
         "low_to_close": 0.0,
+        "dip_to_close": -13.711385711717893,
+        "dip_touch": true,
         "close_to_close": -19.99997890542352,
         "next_high": -0.8649831085178916,
         "next_pct": -20.0
@@ -10247,6 +10854,8 @@
         "overnight": 1.491853943301913,
         "open_to_close": -0.9711779448621449,
         "low_to_close": 1.3751876130488894,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.5061874419728829,
         "next_high": 2.1125058822033083,
         "next_pct": 0.5062
@@ -10260,6 +10869,8 @@
         "overnight": -0.14146543683283275,
         "open_to_close": -2.1265444431183056,
         "low_to_close": 1.94419821416989,
+        "dip_to_close": 0.900469646269797,
+        "dip_touch": true,
         "close_to_close": -2.265001554565227,
         "next_high": 1.117214219090057,
         "next_pct": -2.265
@@ -10273,6 +10884,8 @@
         "overnight": -0.10149253731343011,
         "open_to_close": -1.6912687503735202,
         "low_to_close": 0.6110054372756135,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.7910447761193993,
         "next_high": 0.8358208955223878,
         "next_pct": -1.791
@@ -10286,6 +10899,8 @@
         "overnight": 2.4074138440416615,
         "open_to_close": -9.637470567022344,
         "low_to_close": 0.3245407442298509,
+        "dip_to_close": -6.84275316187869,
+        "dip_touch": true,
         "close_to_close": -7.462070523626629,
         "next_high": 3.22682956500584,
         "next_pct": -7.4621
@@ -10299,6 +10914,8 @@
         "overnight": -2.030174511576155,
         "open_to_close": 3.10772188566526,
         "low_to_close": 5.839735099337751,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.0144551964756499,
         "next_high": 1.129489991340793,
         "next_pct": 1.0145
@@ -10312,6 +10929,8 @@
         "overnight": -0.6645201068712692,
         "open_to_close": 3.8666666666666627,
         "low_to_close": 9.047027164009801,
+        "dip_to_close": 7.079037800687282,
+        "dip_touch": true,
         "close_to_close": 3.1764517823297256,
         "next_high": 11.152405745472826,
         "next_pct": 3.1765
@@ -10325,6 +10944,8 @@
         "overnight": 3.2145219502883515,
         "open_to_close": 1.9474193548387086,
         "low_to_close": 3.2800653594771134,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 5.224541527752513,
         "next_high": 9.318495598400078,
         "next_pct": 5.2245
@@ -10338,6 +10959,8 @@
         "overnight": 3.8037426816565523,
         "open_to_close": -8.493079584775087,
         "low_to_close": 0.8728544183089548,
+        "dip_to_close": -5.662968644098032,
+        "dip_touch": true,
         "close_to_close": -5.012391796271675,
         "next_high": 4.761562683332743,
         "next_pct": -5.0124
@@ -10351,6 +10974,8 @@
         "overnight": 4.293688278231,
         "open_to_close": -9.189790037052282,
         "low_to_close": 0.3539581437670636,
+        "dip_to_close": -6.381226842321941,
+        "dip_touch": true,
         "close_to_close": -5.290682696436244,
         "next_high": 4.302275654787446,
         "next_pct": -5.2907
@@ -10364,6 +10989,8 @@
         "overnight": 1.0039407018202384,
         "open_to_close": 2.704598235020894,
         "low_to_close": 2.704598235020894,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 3.7356914993432078,
         "next_high": 5.715894164008262,
         "next_pct": 3.7357
@@ -10377,6 +11004,8 @@
         "overnight": 2.80709534368071,
         "open_to_close": 4.05253849803735,
         "low_to_close": 4.274058464364838,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 6.973392461197325,
         "next_high": 10.310421286031035,
         "next_pct": 6.9734
@@ -10390,6 +11019,8 @@
         "overnight": 2.4020227560050733,
         "open_to_close": 3.3950617283950546,
         "low_to_close": 5.346574506757906,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 5.8786346396966005,
         "next_high": 12.197850821744648,
         "next_pct": 5.8786
@@ -10403,6 +11034,8 @@
         "overnight": 1.8554997165342257,
         "open_to_close": -5.188679245283023,
         "low_to_close": 0.22538245208130192,
+        "dip_to_close": -2.2563703559618675,
+        "dip_touch": true,
         "close_to_close": -3.429455457436892,
         "next_high": 2.63863398322266,
         "next_pct": -3.4295
@@ -10416,6 +11049,8 @@
         "overnight": 1.8690313089285926,
         "open_to_close": -0.6074441687344834,
         "low_to_close": 0.4237054419824471,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.2502338184961825,
         "next_high": 5.407905845715177,
         "next_pct": 1.2502
@@ -10429,6 +11064,8 @@
         "overnight": 3.215899571559655,
         "open_to_close": 16.261209532780207,
         "low_to_close": 16.261209532780207,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 20.000053272034958,
         "next_high": 20.000053272034958,
         "next_pct": 20.0001
@@ -10442,6 +11079,8 @@
         "overnight": 1.9600767754318627,
         "open_to_close": -0.9811525342047989,
         "low_to_close": 1.5444015444015413,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.9596928982725572,
         "next_high": 4.261036468330137,
         "next_pct": 0.9597
@@ -10455,6 +11094,8 @@
         "overnight": 4.2539238821901915,
         "open_to_close": 0.40587695133149637,
         "low_to_close": 1.242592592592584,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 4.677066530086682,
         "next_high": 11.290345742007425,
         "next_pct": 4.6771
@@ -10468,6 +11109,8 @@
         "overnight": 1.732024577867386,
         "open_to_close": 0.040217391304353534,
         "low_to_close": 1.6608983799705435,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.7729385442736945,
         "next_high": 4.607060055067991,
         "next_pct": 1.7729
@@ -10481,6 +11124,8 @@
         "overnight": -0.38877913868035074,
         "open_to_close": -1.6666931095210225,
         "low_to_close": 0.7616647699560941,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -2.048992493085744,
         "next_high": -0.2101935993678361,
         "next_pct": -2.049
@@ -10494,6 +11139,8 @@
         "overnight": -4.82481751824817,
         "open_to_close": 0.7864518333112525,
         "low_to_close": 0.7864518333112525,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -4.076310550763107,
         "next_high": 1.857996018579966,
         "next_pct": -4.0763
@@ -10507,6 +11154,8 @@
         "overnight": 0.0,
         "open_to_close": -1.6095468351191133,
         "low_to_close": 0.43377237605521923,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.6095468351191133,
         "next_high": 3.4420058051437996,
         "next_pct": -1.6095
@@ -10520,6 +11169,8 @@
         "overnight": -4.9617021276595725,
         "open_to_close": -3.0986637214809543,
         "low_to_close": 4.328974185237455,
+        "dip_to_close": -0.10171517678447817,
+        "dip_touch": true,
         "close_to_close": -7.9066193853427835,
         "next_high": -3.549172576832149,
         "next_pct": -7.9066
@@ -10533,6 +11184,8 @@
         "overnight": -1.721581166875208,
         "open_to_close": 1.7010491571378017,
         "low_to_close": 4.062481153127062,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.04981695166598188,
         "next_high": 3.6609666805690777,
         "next_pct": -0.0498
@@ -10546,6 +11199,8 @@
         "overnight": -1.9686179406202209,
         "open_to_close": 3.7139942861626585,
         "low_to_close": 6.433614570439783,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.6722619877114209,
         "next_high": 7.062169898680959,
         "next_pct": 1.6723
@@ -10559,6 +11214,8 @@
         "overnight": -2.2292993630573243,
         "open_to_close": 1.9543973941368087,
         "low_to_close": 2.791461412151075,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.31847133757961776,
         "next_high": 1.1566878980891815,
         "next_pct": -0.3185
@@ -10572,6 +11229,8 @@
         "overnight": -1.7655823520879688,
         "open_to_close": 4.563758389261752,
         "low_to_close": 5.41271989174561,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.7175991244610342,
         "next_high": 4.525376125740066,
         "next_pct": 2.7176
@@ -10585,6 +11244,8 @@
         "overnight": 2.0025249530930767,
         "open_to_close": 1.5378829321663012,
         "low_to_close": 1.7047945205479476,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 3.5712043747253563,
         "next_high": 11.603624214439655,
         "next_pct": 3.5712
@@ -10598,6 +11259,8 @@
         "overnight": -1.1999200319872116,
         "open_to_close": 5.1392356909578885,
         "low_to_close": 7.635197560581508,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 3.877648940423839,
         "next_high": 5.357856857257093,
         "next_pct": 3.8776
@@ -10611,6 +11274,8 @@
         "overnight": -0.21052631578947212,
         "open_to_close": 2.1940928270042237,
         "low_to_close": 3.9484978540772486,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.978947368421058,
         "next_high": 3.76715789473685,
         "next_pct": 1.9789
@@ -10624,6 +11289,8 @@
         "overnight": -2.0781818181818124,
         "open_to_close": 12.201889129679389,
         "low_to_close": 14.293743025514804,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 9.870129870129873,
         "next_high": 9.870129870129873,
         "next_pct": 9.8701
@@ -10637,6 +11304,8 @@
         "overnight": 2.7667984189723382,
         "open_to_close": -3.076923076923077,
         "low_to_close": 3.0253475061324586,
+        "dip_to_close": -0.07930214115781098,
+        "dip_touch": true,
         "close_to_close": -0.39525691699604515,
         "next_high": 5.138339920948609,
         "next_pct": -0.3953
@@ -10650,6 +11319,8 @@
         "overnight": -2.821011673151752,
         "open_to_close": 10.782782782782796,
         "low_to_close": 11.11646586345383,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 7.657587548638145,
         "next_high": 15.728793774319062,
         "next_pct": 7.6576
@@ -10663,6 +11334,8 @@
         "overnight": -0.20014200551820016,
         "open_to_close": 4.855537145885758,
         "low_to_close": 5.678028498419163,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 4.645677170945106,
         "next_high": 5.590156825557169,
         "next_pct": 4.6457
@@ -10676,6 +11349,8 @@
         "overnight": -0.38610038610038533,
         "open_to_close": 11.43410852713178,
         "low_to_close": 12.304468155335634,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 11.003861003860994,
         "next_high": 11.389768339768347,
         "next_pct": 11.0039
@@ -10689,6 +11364,8 @@
         "overnight": -0.30267391810492317,
         "open_to_close": 3.3724550898203587,
         "low_to_close": 3.4343918514080363,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 3.0595736297587495,
         "next_high": 10.38344666193054,
         "next_pct": 3.0596
@@ -10702,6 +11379,8 @@
         "overnight": -2.835538752362954,
         "open_to_close": 10.12991381504782,
         "low_to_close": 10.8002798853019,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 7.007137430878219,
         "next_high": 7.238132254474139,
         "next_pct": 7.0071
@@ -10715,6 +11394,8 @@
         "overnight": 0.03349335715083779,
         "open_to_close": 1.7626488095238146,
         "low_to_close": 2.3482575150975515,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.7967325369357523,
         "next_high": 3.8703434929850067,
         "next_pct": 1.7967
@@ -10728,6 +11409,8 @@
         "overnight": -1.1190609278926789,
         "open_to_close": 0.45732569051091243,
         "low_to_close": 3.691796008869175,
+        "dip_to_close": 3.564253289186503,
+        "dip_touch": true,
         "close_to_close": -0.6668529904974907,
         "next_high": 4.387367244270535,
         "next_pct": -0.6669
@@ -10741,6 +11424,8 @@
         "overnight": -2.2797623082310925,
         "open_to_close": 1.3971098265896043,
         "low_to_close": 3.797041420118341,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -0.9145032648726792,
         "next_high": 4.2465939131024255,
         "next_pct": -0.9145
@@ -10754,6 +11439,8 @@
         "overnight": -3.0989484162145198,
         "open_to_close": 8.147081712062242,
         "low_to_close": 8.189178668742713,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 4.795659436164068,
         "next_high": 7.272480478397103,
         "next_pct": 4.7957
@@ -10767,6 +11454,8 @@
         "overnight": -1.6557609660987516,
         "open_to_close": 4.2843500555330705,
         "low_to_close": 4.2843500555330705,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 2.5576504935637567,
         "next_high": 6.455630301854809,
         "next_pct": 2.5577
@@ -10780,6 +11469,8 @@
         "overnight": 0.09994986228407665,
         "open_to_close": 3.7604769385385595,
         "low_to_close": 5.77299899539474,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 3.8641853923439218,
         "next_high": 4.9678662820604735,
         "next_pct": 3.8642
@@ -10793,6 +11484,8 @@
         "overnight": -2.3796273437467264,
         "open_to_close": 3.6609515645092072,
         "low_to_close": 3.6609515645092072,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 1.1942072162921091,
         "next_high": 3.3060375668969577,
         "next_pct": 1.1942
@@ -10806,6 +11499,8 @@
         "overnight": -0.48336650554450244,
         "open_to_close": 1.355782312925169,
         "low_to_close": 2.4006872852233574,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": 0.8658624097918954,
         "next_high": 1.3688614484747452,
         "next_pct": 0.8659
@@ -10819,6 +11514,8 @@
         "overnight": -2.3525487579955318,
         "open_to_close": 1.2424565140220167,
         "low_to_close": 1.590160629074533,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -1.1393216392627692,
         "next_high": 1.8182056011196934,
         "next_pct": -1.1393
@@ -10832,6 +11529,8 @@
         "overnight": 2.6505338868139106,
         "open_to_close": -4.724662162162163,
         "low_to_close": 5.467566708427607,
+        "dip_to_close": -1.7780022290331599,
+        "dip_touch": true,
         "close_to_close": -2.199357046993844,
         "next_high": 3.1705490069601217,
         "next_pct": -2.1994
@@ -10845,6 +11544,8 @@
         "overnight": 1.0939571254502178,
         "open_to_close": -4.794039735099343,
         "low_to_close": 2.3209964412811424,
+        "dip_to_close": -1.8495255001024113,
+        "dip_touch": true,
         "close_to_close": -3.7525273489281474,
         "next_high": 1.830403170734951,
         "next_pct": -3.7525
@@ -10858,6 +11559,8 @@
         "overnight": -1.1229235880398702,
         "open_to_close": -2.2619447617767685,
         "low_to_close": 0.27163047225093884,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -3.3594684385382156,
         "next_high": 0.008637873754158143,
         "next_pct": -3.3595
@@ -10871,6 +11574,8 @@
         "overnight": -0.44915829999244705,
         "open_to_close": -12.377251184834126,
         "low_to_close": 0.9881196231052769,
+        "dip_to_close": -9.667269262715594,
+        "dip_touch": true,
         "close_to_close": -12.770816033818988,
         "next_high": -0.051426738129389804,
         "next_pct": -12.7708
@@ -10884,6 +11589,8 @@
         "overnight": -1.6694902989077165,
         "open_to_close": -1.5350649350649337,
         "low_to_close": 0.5432644491104144,
+        "dip_to_close": null,
+        "dip_touch": false,
         "close_to_close": -3.1789274737998086,
         "next_high": 1.0499229531504062,
         "next_pct": -3.1789
@@ -10897,6 +11604,8 @@
         "overnight": 0.0,
         "open_to_close": -4.021214914565874,
         "low_to_close": 0.5043192389745821,
+        "dip_to_close": -1.0527988809957312,
+        "dip_touch": true,
         "close_to_close": -4.021214914565874,
         "next_high": 2.225695696899277,
         "next_pct": -4.0212
@@ -10905,7 +11614,8 @@
     "definitions": {
       "overnight": "昨收 → 今日开盘",
       "open_to_close": "今日开盘 → 今日收盘（开盘低吸）",
-      "low_to_close": "今日最低 → 今日收盘（盘中低吸的理论上限）",
+      "low_to_close": "今日最低 → 今日收盘：理论天花板。收盘必然高于最低价，所以恒为正，只表示当天振幅上限，不作收益统计",
+      "dip": "盘中回踩：以今日开盘价为参照，下方 3% 挂单；当日最低价触及该价才算成交，成交后按今日收盘计；未触及的日子不计入样本",
       "close_to_close": "昨收 → 今日收盘",
       "next_high": "昨收 → 今日最高（隔夜最高浮盈）",
       "swap": "昨日第二名今日涨幅超过昨日第一名，记为一次互换",
@@ -10925,7 +11635,7 @@
         "回流",
         "启动"
       ],
-      "liquid": "日成交额≥5000万元"
+      "liquid": "日成交额≥3000万元（0.3亿）"
     }
   },
   "watch": {
@@ -10975,18 +11685,20 @@
         "name": "盛德转债",
         "prev_pct": 13.073,
         "today_pct": 2.4221,
-        "overnight": null,
-        "open_to_close": null,
-        "low_to_close": null
+        "overnight": 4.152249134948094,
+        "open_to_close": -1.661129568106312,
+        "dip_to_close": 1.3802787957666984,
+        "dip_touch": true
       },
       {
         "code": "127115.SZ",
         "name": "炬申转债",
         "prev_pct": 4.2885,
         "today_pct": -3.8048,
-        "overnight": null,
-        "open_to_close": null,
-        "low_to_close": null
+        "overnight": 0.12231851988444564,
+        "open_to_close": -3.922302917937992,
+        "dip_to_close": -0.9508277504515328,
+        "dip_touch": true
       }
     ],
     "b_candidates": [
@@ -11010,6 +11722,25 @@
         "amount_ratio": 19.450217834140492
       },
       {
+        "code": "110100.SH",
+        "name": "龙建转债",
+        "stock_code": "600853.SH",
+        "stock_name": "龙建股份",
+        "stock_pct": 6.2201,
+        "close": 118.462,
+        "pct_chg": -1.6921,
+        "amount_yi": 0.33,
+        "premium": 22.464094594594574,
+        "double_low": 140.9260945945946,
+        "remain_size": 999960003.97,
+        "list_date": "20260212",
+        "corr20": 0.6004094212211653,
+        "class": "B",
+        "stage": "",
+        "sub_tag": "",
+        "amount_ratio": 1.5040620421570665
+      },
+      {
         "code": "123275.SZ",
         "name": "肇民转债",
         "stock_code": "301000.SZ",
@@ -11027,6 +11758,25 @@
         "stage": "",
         "sub_tag": "",
         "amount_ratio": 4.0574527159359235
+      },
+      {
+        "code": "113042.SH",
+        "name": "上银转债",
+        "stock_code": "601229.SH",
+        "stock_name": "上海银行",
+        "stock_pct": 2.6284,
+        "close": 113.55,
+        "pct_chg": -0.828,
+        "amount_yi": 0.32,
+        "premium": 6.4118160651921,
+        "double_low": 119.9618160651921,
+        "remain_size": 17710505060.9,
+        "list_date": "20210210",
+        "corr20": 0.7307650008954827,
+        "class": "B",
+        "stage": "",
+        "sub_tag": "",
+        "amount_ratio": 0.7906159175397386
       },
       {
         "code": "127110.SZ",
@@ -11047,11 +11797,12 @@
         "sub_tag": "",
         "amount_ratio": 3.274074428537788
       }
-    ]
+    ],
+    "b_total": 5
   },
   "notes": [
     "分类只使用当日涨跌幅，阈值全部写在页面上；不预测涨跌。",
     "溢价率按最新转股价与当日正股收盘计算；转股价下修后如未同步，会短暂失真。",
-    "收益统计为收盘价/开盘价/最低价之间的理论涨幅，未扣交易费用与滑点。"
+    "收益统计只用「昨收→今开」「今开→今收」「回踩挂单→今收」三种可执行口径；「最低价→收盘」只是理论天花板，不作胜率统计。均未扣费用与滑点。"
   ]
 }
