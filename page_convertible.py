@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
+from convertible import balance_yi
 from investor_journey import candidate_actions
 
 CLASS_TABS = [("A", "🅰️ 债强于股"), ("B", "🅱️ 股强于债"), ("C", "🔗 股债同向候选"), ("N", "➖ 待进一步判断")]
@@ -56,11 +57,14 @@ def _table(rows: list[dict], *, empty: str = "今日该类没有标的") -> None
         st.caption(empty)
         return
     frame = pd.DataFrame(rows)
+    # Keep archived remain_size in its source unit (yuan).  Derive the displayed
+    # column here so snapshots published before this fix are corrected too.
+    frame["remain_size_yi"] = frame.get("remain_size", pd.Series(index=frame.index, dtype=object)).map(balance_yi)
     frame["xueqiu"] = frame["code"].map(_xq)
     frame["tag"] = frame.apply(
         lambda row: row.get("stage") or row.get("sub_tag") or "", axis=1)
     columns = ["code", "name", "stock_name", "close", "pct_chg", "stock_pct",
-               "premium", "double_low", "amount_yi", "remain_size", "tag", "corr20", "xueqiu"]
+               "premium", "double_low", "amount_yi", "remain_size_yi", "tag", "corr20", "xueqiu"]
     for column in columns:
         if column not in frame.columns:
             frame[column] = None
@@ -76,7 +80,7 @@ def _table(rows: list[dict], *, empty: str = "今日该类没有标的") -> None
             "premium": st.column_config.NumberColumn("溢价率%", format="%.2f"),
             "double_low": st.column_config.NumberColumn("双低", format="%.2f"),
             "amount_yi": st.column_config.NumberColumn("成交额(亿)", format="%.2f"),
-            "remain_size": st.column_config.NumberColumn("规模(亿元)", format="%.2f"),
+            "remain_size_yi": st.column_config.NumberColumn("余额(亿元)", format="%.2f"),
             "tag": st.column_config.TextColumn("节奏/标签"),
             "corr20": st.column_config.NumberColumn("20日相关", format="%.2f"),
             "xueqiu": st.column_config.LinkColumn("雪球", display_text="❄️"),

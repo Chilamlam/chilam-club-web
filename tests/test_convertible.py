@@ -76,6 +76,15 @@ class ClassifyTests(unittest.TestCase):
 
 
 class SnapshotTests(unittest.TestCase):
+    def test_balance_has_a_fixed_yuan_to_yi_conversion(self):
+        self.assertEqual(convertible.balance_yi(600_000_000), 6.0)
+        self.assertAlmostEqual(convertible.balance_yi("9_000_000"), 0.09)
+        self.assertAlmostEqual(convertible.balance_yi(2_118_474_000.44), 21.1847400044)
+        self.assertEqual(convertible.balance_yi(0), 0)
+        for value in (None, True, False, float("nan"), float("inf"), -1, "missing"):
+            with self.subTest(value=value):
+                self.assertIsNone(convertible.balance_yi(value))
+
     def test_partition_is_complete_and_stock_pct_attached(self):
         dates = _dates(6)
         bond, stock = [], []

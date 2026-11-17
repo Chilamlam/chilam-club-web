@@ -19,7 +19,7 @@ PAYLOAD = {
         "A": {"label": "A 债强于股（不联动）", "count": 1, "rows": [{
             "code": "111001.SH", "name": "甲转债", "stock_code": "600001.SH",
             "stock_name": "甲公司", "stock_pct": 0.2, "close": 130.0, "pct_chg": 8.0,
-            "amount_yi": 5.0, "premium": 35.0, "double_low": 165.0, "remain_size": 9000.0,
+            "amount_yi": 5.0, "premium": 35.0, "double_low": 165.0, "remain_size": 600_000_000.0,
             "list_date": "20261001", "corr20": 0.1, "class": "A", "stage": "",
             "sub_tag": "次新+高溢价", "amount_ratio": 2.0}]},
         "B": {"label": "B 股强于债（不联动）", "count": 1, "rows": [{
@@ -129,6 +129,14 @@ class ConvertiblePageTests(unittest.TestCase):
         self.assertEqual(list(app.exception), [])
         names = [frame.value.iloc[0]["name"] for frame in app.dataframe if "name" in frame.value.columns]
         self.assertIn("丁转债", names)
+
+    def test_existing_snapshot_balance_is_displayed_in_yi_without_changing_the_source(self):
+        app = self._run(PAYLOAD)
+        self.assertEqual(list(app.exception), [])
+        table = next(frame.value for frame in app.dataframe if "name" in frame.value.columns)
+        self.assertEqual(table.iloc[0]["remain_size_yi"], 6.0)
+        self.assertNotIn("remain_size", table.columns)
+        self.assertEqual(PAYLOAD["classes"]["A"]["rows"][0]["remain_size"], 600_000_000.0)
 
     def test_missing_payload_warns_instead_of_crashing(self):
         app = self._run(None)

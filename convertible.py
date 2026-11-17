@@ -54,6 +54,7 @@ STAGE_ORDER = ["退潮", "分歧", "高潮", "加速", "回流", "启动"]
 
 LIQUID_AMOUNT = 30_000.0     # 千元 -> 3000 万元
 AMOUNT_YI = 100_000.0        # 千元 -> 亿元
+BALANCE_YUAN_PER_YI = 100_000_000.0  # cb_basic.remain_size 的源单位是元
 LIQUID_YI = LIQUID_AMOUNT / AMOUNT_YI   # 亿元口径的同一阈值
 DIP_PCT = 3.0                # 盘中回踩幅度：当日开盘价下方 3% 挂单
 
@@ -75,6 +76,12 @@ def pct(a, b):
     if a is None or b is None or b <= 0:
         return None
     return (a / b - 1.0) * 100.0
+
+
+def balance_yi(value) -> float | None:
+    """Convert the documented cb_basic balance unit (yuan) to 亿元."""
+    value = num(value)
+    return value / BALANCE_YUAN_PER_YI if value is not None and value >= 0 else None
 
 
 def classify(bond_pct, stock_pct) -> str:
