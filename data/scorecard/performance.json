@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-17 19:21:38",
+  "generated_at": "2026-11-18 03:30:39",
   "benchmark": "000300.SH",
   "horizons": [
     1,
@@ -248,7 +248,7 @@
         "n_days": 41,
         "beta": 1.770387159010296,
         "r_squared": 0.4827584584241076,
-        "intercept": -0.018031559632050238,
+        "intercept": -0.01803155963205024,
         "raw_alpha_median": -0.02652494155352214,
         "adj_alpha_median": -0.017016535331240364,
         "adj_direction_accuracy": 0.41775898520084565,
