@@ -41,6 +41,7 @@ from page_review import render_review_page
 from page_sector_rotation import render_sector_rotation_page
 from page_industry_signal import render_industry_signal_page
 from page_evening_plan import render_evening_plan_page
+from page_convertible import render_convertible_block
 from ui_compat import image_stretch, html_embed
 import data_freshness as freshness
 from publication_status import publication_status
@@ -474,11 +475,9 @@ def render_etf_content(df):
 
 def render_arbitrage_page():
     st.header("⚡ 投机与套利")
-    st.caption("捕捉 A股可转债双低、跨境ETF溢价及市场错误定价机会")
-    data = load_json("data/speculation_data.json")
-    if not data:
-        st.warning("📊 数据初始化中，请等待收盘更新...")
-        return
+    st.caption("可转债按当日股债强弱完全分类，跨境ETF/LOF 监控溢价与错误定价")
+    data = load_json("data/speculation_data.json") or {}
+
     def make_xq_link(code):
         try:
             market = code.split('.')[-1].upper()
@@ -486,48 +485,8 @@ def render_arbitrage_page():
             return f"https://xueqiu.com/S/{market}{num}"
         except: return ""
 
-    st.subheader("🛡️ 可转债雷达")
-    if data.get('cb_list'):
-        cb_df = pd.DataFrame(data['cb_list'])
-        cb_df['xueqiu_url'] = cb_df['ts_code'].apply(make_xq_link)
-        if 'close' in cb_df.columns and 'premium_rate' in cb_df.columns:
-            if 'double_low' not in cb_df.columns: cb_df['double_low'] = cb_df['close'] + cb_df['premium_rate']
-            st.info(f"⚖️ **全市场可转债温度计**：当前平均双低值 **{cb_df['double_low'].mean():.2f}** | 平均溢价率 **{cb_df['premium_rate'].mean():.2f}%**")
-
-        t1, t2 = st.tabs(["🛡️ 极致小盘 (潜伏)", "🔥 活跃妖债 (进攻)"])
-        base_cols = ["ts_code", "bond_short_name", "close"]
-        extra_cols = []
-        if 'pct_chg' in cb_df.columns: extra_cols.append("pct_chg")       
-        if 'double_low' in cb_df.columns: extra_cols.append("double_low") 
-        if 'premium_rate' in cb_df.columns: extra_cols.append("premium_rate") 
-        
-        cb_col_config = {
-            "ts_code": st.column_config.TextColumn("代码"),
-            "bond_short_name": st.column_config.TextColumn("名称"),
-            "close": st.column_config.NumberColumn("价格", format="%.3f"),
-            "pct_chg": st.column_config.NumberColumn("涨幅%", format="%.2f %%"),
-            "double_low": st.column_config.NumberColumn("双低值", format="%.2f"),
-            "premium_rate": st.column_config.NumberColumn("溢价率%", format="%.2f %%"),
-            "desc": st.column_config.TextColumn("规模/标签"),
-            "xueqiu_url": st.column_config.LinkColumn("雪球", display_text="❄️")
-        }
-
-        with t1:
-            mask_low = cb_df['tag'].str.contains('小盘') | cb_df['tag'].str.contains('双低')
-            low_df = cb_df[mask_low].copy()
-            if not low_df.empty:
-                show_cols_t1 = [c for c in base_cols + extra_cols + ["desc", "xueqiu_url"] if c in low_df.columns]
-                st.dataframe(low_df[show_cols_t1], column_config=cb_col_config, use_container_width=True, hide_index=True)
-            else: st.caption("今日无符合【潜伏】策略的标的")
-            
-        with t2:
-            mask_high = cb_df['tag'].str.contains('妖债') | cb_df['tag'].str.contains('龙头')
-            high_df = cb_df[mask_high].copy()
-            if not high_df.empty:
-                show_cols_t2 = [c for c in base_cols + extra_cols + ["xueqiu_url"] if c in high_df.columns]
-                st.dataframe(high_df[show_cols_t2], column_config=cb_col_config, use_container_width=True, hide_index=True)
-            else: st.caption("今日无符合【进攻】策略的标的")
-    else: st.info("今日无可转债数据。")
+    st.subheader("🛡️ 可转债投机台")
+    render_convertible_block(load_json("data/convertible.json"))
 
     st.markdown("---")
     st.subheader("🧱 跨境/LOF 溢价监控")

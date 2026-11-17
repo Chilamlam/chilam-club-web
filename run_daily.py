@@ -77,6 +77,10 @@ STEPS: list[dict] = [
      "backfill": BACKFILL_NONE, "timeout": 90},
     {"key": "speculation", "script": "daily_speculation.py", "label": "投机与套利",
      "backfill": BACKFILL_NONE, "timeout": 1200},
+    # 可转债分类与十日模式统计：读自己归档的转债/正股日线，首次跑批回补 35 个交易日。
+    # 与 speculation 无依赖，放在其后只为日志顺序，失败不会影响 ETF 部分。
+    {"key": "convertible", "script": "daily_convertible.py", "label": "可转债分类与统计",
+     "backfill": BACKFILL_NONE, "timeout": 900},
     {"key": "guru", "script": "daily_guru_loader.py", "label": "核心龙头",
      "backfill": BACKFILL_NONE, "timeout": 900},
     {"key": "radar", "script": "daily_radar.py", "label": "异动雷达",
@@ -120,6 +124,12 @@ FRESHNESS: list[tuple[str, str]] = [
                "print('行数', len(d), '| 更新日期', d.iloc[-1]['update_date'])"),
     ("连板天梯", "import json;d=json.load(open('data/limit_ladder.json',encoding='utf-8'));"
                  "print(d['date'],'涨停',d['total_count'],'家 最高',d['max_height'],'板')"),
+    ("可转债快照", "import json;d=json.load(open('data/convertible.json',encoding='utf-8'));"
+                   "c=d.get('classes') or {};p=d.get('patterns') or {};"
+                   "print(d.get('date','—'),'| A',(c.get('A') or {}).get('count',0),"
+                   "'B',(c.get('B') or {}).get('count',0),'C',(c.get('C') or {}).get('count',0),"
+                   "'N',(c.get('N') or {}).get('count',0),'| 模式窗口',"
+                   "(p.get('window') or {}).get('days',0),'天')"),
     ("情绪派生", "import json;d=json.load(open('data/sentiment/derived.json',encoding='utf-8'));"
                  "p=d.get('phase') or {};print(d['status'],d['date'],'归档',d['archive_days'],"
                  "'天 | 周期',p.get('phase','—'),'| 基准',(p.get('thresholds') or {}).get('method','—'),'| 验证条件',len(d.get('verification_plan') or []),'条')"),
@@ -246,6 +256,7 @@ DATE_PROBES: list[tuple[str, str, str]] = [
     ("ETF 榜单", "data/strong_etfs.csv", "csv:更新日期"),
     ("连板天梯", "data/limit_ladder.json", "json:date"),
     ("连板题材归因", "data/limit_themes.json", "json:date"),
+    ("可转债快照", "data/convertible.json", "json:date"),
     ("收盘摘要", "data/digest/latest.json", "json:date"),
     # 板块轮动必须入列：2026-09-03 它在 Actions 上连续三班取数失败，页面停在
     # 09-02 无人报警——因为之前它不在一致性判据里，掉队了没机器点名。

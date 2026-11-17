@@ -815,6 +815,7 @@ def _write_probe_fixture(root: str, rps_date: str) -> None:
         "data/strong_etfs.csv": "ts_code,更新日期\n510050.SH,2026-09-01\n",
         "data/limit_ladder.json": '{"date": "2026-09-01"}',
         "data/limit_themes.json": '{"date": "2026-09-01"}',
+        "data/convertible.json": '{"date": "2026-09-01"}',
         "data/digest/latest.json": '{"date": "20260901"}',
     }
     for rel, body in files.items():

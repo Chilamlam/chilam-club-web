@@ -13,7 +13,7 @@ REVIEW_MODULES = (
     "data_freshness", "ladder_themes", "sector_rotation", "review_template", "sentiment",
     "industry_signal", "evening_plan", "narrative", "review_evidence", "digest",
     "page_sentiment", "page_digest", "page_review", "page_industry_signal",
-    "page_evening_plan",
+    "page_evening_plan", "convertible", "page_convertible",
 )
 _ROOT = Path(__file__).resolve().parent
 # Keep the lock stable when app.py refreshes this helper itself.
