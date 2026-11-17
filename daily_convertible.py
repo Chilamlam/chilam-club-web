@@ -142,6 +142,11 @@ def _basic_map(frame: pd.DataFrame, trade_date: str) -> dict:
     return result
 
 
+def _ensure_dirs() -> None:
+    """A fresh checkout has no data/convertible/ yet; the first write must not fail."""
+    ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+
+
 def _load_basic(pro, trade_date: str, errors: list[str]) -> tuple[dict, pd.DataFrame]:
     for fields in (BASIC_FIELDS, BASIC_FIELDS_MIN):
         try:
@@ -153,10 +158,14 @@ def _load_basic(pro, trade_date: str, errors: list[str]) -> tuple[dict, pd.DataF
         if basic:
             payload = {"generated_at": beijing_now().isoformat(),
                        "rows": [{"ts_code": code, **info} for code, info in basic.items()]}
-            temporary = BASIC_JSON.with_suffix(".tmp")
-            temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
-                                 encoding="utf-8")
-            temporary.replace(BASIC_JSON)
+            try:
+                BASIC_JSON.parent.mkdir(parents=True, exist_ok=True)
+                temporary = BASIC_JSON.with_suffix(".tmp")
+                temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+                                     encoding="utf-8")
+                temporary.replace(BASIC_JSON)
+            except OSError:
+                errors.append("basic_write_failed")
             return basic, frame
     try:
         payload = json.loads(BASIC_JSON.read_text(encoding="utf-8"))
@@ -181,9 +190,10 @@ def _write_status(status: str, message: str) -> None:
     temporary.replace(OUTPUT)
 
 
-def main() -> int:
+def _run() -> int:
     import tushare as ts
 
+    _ensure_dirs()
     token = (os.environ.get("TUSHARE_TOKEN") or "").strip()
     if not token:
         print("TUSHARE_TOKEN 未配置：保留上一份可转债快照")
@@ -280,6 +290,20 @@ def main() -> int:
           f"C{payload['classes']['C']['count']} N{payload['classes']['N']['count']}，"
           f"归档 {payload['archive_days']} 天")
     return 0
+
+
+def main() -> int:
+    """Wrapper: an unexpected exception must still leave a readable status, not a blank page."""
+    try:
+        return _run()
+    except Exception as exc:  # noqa: BLE001 - never echo the message (it can carry the token)
+        name = type(exc).__name__
+        print(f"可转债跑批异常：{name}")
+        try:
+            _write_status("error", f"跑批异常（{name}）")
+        except OSError:
+            pass
+        return 1
 
 
 if __name__ == "__main__":

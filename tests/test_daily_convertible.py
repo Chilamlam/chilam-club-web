@@ -47,6 +47,13 @@ class ProducerTests(unittest.TestCase):
         dc.BASIC_JSON, dc.BOND_CSV, dc.STOCK_CSV, dc.CALENDAR, dc.OUTPUT = self._saved
         self.tmp.cleanup()
 
+    def test_basic_write_creates_a_missing_archive_directory(self):
+        dc.BASIC_JSON = self.root / "data" / "convertible" / "basic.json"
+        self.assertFalse(dc.BASIC_JSON.parent.exists())
+        basic, _ = dc._load_basic(FakePro(), "20261116", [])
+        self.assertEqual(basic["111001.SH"]["bond_short_name"], "甲转债")
+        self.assertTrue(dc.BASIC_JSON.exists())
+
     def test_basic_falls_back_to_the_minimal_field_list(self):
         pro = FakePro()
         basic, _ = dc._load_basic(pro, "20261116", [])
