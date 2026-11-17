@@ -133,10 +133,10 @@ def _render_patterns(payload: dict) -> None:
               show_win: bool = True) -> None:
         stat = spec.get(metric) or {}
         if metric == "dip":
-            note = f"触及 {spec.get('n', 0)}/{spec.get('total', 0)} 个样本"
+            note = f"触及 {stat.get('n', 0)}/{stat.get('total', 0)} 个样本"
         else:
-            note = f"样本 {spec.get('n', 0)} 个"
-        cols = [(name, f"{_num(stat.get('mean'))}%", note),
+            note = f"样本 {stat.get('n', 0)} 个"
+        cols = [(f"{name}（{note}）", f"{_num(stat.get('mean'))}%", None),
                 ("中位", _pct(stat.get("median")), None)]
         if show_win:
             cols.append(("正收益占比", f"{_num(stat.get('win'), 0)}%",
@@ -263,6 +263,7 @@ def _render_watch(payload: dict) -> None:
             spec = aggregate.get(f"rank{rank}") or {}
             overnight = (spec.get("overnight") or {})
             open_close = (spec.get("open_to_close") or {})
+            dip = (spec.get("dip") or {})
             st.markdown(
                 f"{rank}. **{row.get('name')}** `{row.get('code')}`　"
                 f"今日 {_pct(row.get('pct_chg'))}｜正股 {row.get('stock_name')} "
@@ -270,7 +271,8 @@ def _render_watch(payload: dict) -> None:
                 f"成交 {_num(row.get('amount_yi'))} 亿｜{row.get('sub_tag') or row.get('stage') or '—'}"
                 f"　\n　　↳ 历史同类样本 {spec.get('n', 0)} 个：隔夜均值 "
                 f"{_pct(overnight.get('mean'))}（正收益占比 {_num(overnight.get('win'), 0)}%），"
-                f"开盘→收盘 {_pct(open_close.get('mean'))}"
+                f"开盘→收盘 {_pct(open_close.get('mean'))}，"
+                f"回踩挂单 {_pct(dip.get('mean'))}（触及 {dip.get('n', 0)}/{dip.get('total', 0)}）"
             )
     else:
         st.caption("今日没有成交额达标的强势标的。")
