@@ -485,7 +485,7 @@ def render_arbitrage_page():
             return f"https://xueqiu.com/S/{market}{num}"
         except: return ""
 
-    st.subheader("🛡️ 可转债投机台")
+    st.markdown("---")
     render_convertible_block(load_json("data/convertible.json"))
 
     st.markdown("---")
