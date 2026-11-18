@@ -2,7 +2,7 @@
   "status": "complete",
   "date": "20261117",
   "date_display": "2026-11-17",
-  "generated_at": "2026-11-18 06:39:31",
+  "generated_at": "2026-11-18 19:17:56",
   "total_candidates": 118,
   "cycle_and_laws": {
     "trade_date": "20261117",
@@ -59,22 +59,22 @@
         "base": 10,
         "promoted": 2,
         "promo_rate": 0.2,
-        "median_pct": -0.44984999999999997,
-        "win_rate": 0.5,
-        "sample_pct": 10
+        "median_pct": -2.1287429700562344,
+        "win_rate": 0.3333333333333333,
+        "sample_pct": 6
       },
       "post_10am": {
         "label": "10:00后首板（盘中/午后板）",
         "base": 11,
         "promoted": 3,
         "promo_rate": 0.2727272727272727,
-        "median_pct": 4.2411,
-        "win_rate": 0.7272727272727273,
-        "sample_pct": 11
+        "median_pct": 2.426450058269402,
+        "win_rate": 0.625,
+        "sample_pct": 8
       },
       "promo_rate_spread": -0.0727272727272727,
-      "median_pct_spread": -4.69095,
-      "verdict": "昨日首板分时溢价对比：10:00前首板 1进2 晋级率 20.0% (2/10) vs 10:00后首板 27.3% (3/11)；次日中位涨幅 -0.45% vs +4.24%",
+      "median_pct_spread": -4.555193028325636,
+      "verdict": "昨日首板分时溢价对比：10:00前首板 1进2 晋级率 20.0% (2/10) vs 10:00后首板 27.3% (3/11)；次日中位涨幅 -2.13% vs +2.43%",
       "rule_ref": "#125 十点前涨停"
     },
     "mid_tier_diffusion_065": {
@@ -90,28 +90,28 @@
       "promoted_count": 0,
       "big_loss_count": 2,
       "big_loss_rate": 0.6666666666666666,
-      "median_pct": -7.3143,
+      "median_pct": -7.314285714285729,
       "warning": true,
       "stocks": [
         {
           "code": "002148",
           "name": "北纬科技",
           "prev_boards": 4,
-          "pct_chg": -7.3143,
+          "pct_chg": -7.314285714285729,
           "promoted": false
         },
         {
           "code": "002205",
           "name": "国统股份",
           "prev_boards": 3,
-          "pct_chg": -9.9859,
+          "pct_chg": -9.98593530239099,
           "promoted": false
         },
         {
           "code": "002187",
           "name": "广百股份",
           "prev_boards": 3,
-          "pct_chg": 5.6063,
+          "pct_chg": 5.606258148631035,
           "promoted": false
         }
       ],

@@ -1,207 +1,6 @@
 {
-  "date": "2026-11-18 06:30:31",
-  "cb_list": [
-    {
-      "ts_code": "127033.SZ",
-      "bond_short_name": "中装转2",
-      "tag": "🛡️ 袖珍小盘",
-      "desc": "规模:0.09亿",
-      "close": 89.726,
-      "pct_chg": 0.0,
-      "premium_rate": 37.68,
-      "double_low": 127.41
-    },
-    {
-      "ts_code": "123076.SZ",
-      "bond_short_name": "强力转债",
-      "tag": "🛡️ 袖珍小盘",
-      "desc": "规模:1.11亿",
-      "close": 112.931,
-      "pct_chg": 0.0,
-      "premium_rate": 34.96,
-      "double_low": 147.89
-    },
-    {
-      "ts_code": "113646.SH",
-      "bond_short_name": "永吉转债",
-      "tag": "🛡️ 袖珍小盘",
-      "desc": "规模:1.37亿",
-      "close": 148.207,
-      "pct_chg": -2.0566,
-      "premium_rate": 64.11,
-      "double_low": 212.32
-    },
-    {
-      "ts_code": "123080.SZ",
-      "bond_short_name": "海波转债",
-      "tag": "🛡️ 袖珍小盘",
-      "desc": "规模:1.48亿",
-      "close": 119.764,
-      "pct_chg": 0.0067,
-      "premium_rate": 51.79,
-      "double_low": 171.55
-    },
-    {
-      "ts_code": "123209.SZ",
-      "bond_short_name": "聚隆转债",
-      "tag": "🛡️ 袖珍小盘",
-      "desc": "规模:1.67亿",
-      "close": 141.3,
-      "pct_chg": -1.1847,
-      "premium_rate": 44.86,
-      "double_low": 186.16
-    },
-    {
-      "ts_code": "118016.SH",
-      "bond_short_name": "京源转债",
-      "tag": "🛡️ 袖珍小盘",
-      "desc": "规模:1.67亿",
-      "close": 131.122,
-      "pct_chg": -0.2768,
-      "premium_rate": 56.49,
-      "double_low": 187.61
-    },
-    {
-      "ts_code": "123229.SZ",
-      "bond_short_name": "艾录转债",
-      "tag": "🛡️ 袖珍小盘",
-      "desc": "规模:1.78亿",
-      "close": 123.38,
-      "pct_chg": -0.1626,
-      "premium_rate": 110.21,
-      "double_low": 233.59
-    },
-    {
-      "ts_code": "111003.SH",
-      "bond_short_name": "聚合转债",
-      "tag": "🛡️ 袖珍小盘",
-      "desc": "规模:2.04亿",
-      "close": 127.327,
-      "pct_chg": 1.5003,
-      "premium_rate": 45.78,
-      "double_low": 173.11
-    },
-    {
-      "ts_code": "123223.SZ",
-      "bond_short_name": "九典转02",
-      "tag": "🛡️ 袖珍小盘",
-      "desc": "规模:2.05亿",
-      "close": 125.67,
-      "pct_chg": 0.0159,
-      "premium_rate": 82.3,
-      "double_low": 207.97
-    },
-    {
-      "ts_code": "127055.SZ",
-      "bond_short_name": "精装转债",
-      "tag": "🛡️ 袖珍小盘",
-      "desc": "规模:2.08亿",
-      "close": 142.42,
-      "pct_chg": 1.1254,
-      "premium_rate": 51.16,
-      "double_low": 193.58
-    },
-    {
-      "ts_code": "118061.SH",
-      "bond_short_name": "茂莱转债",
-      "tag": "🔥 活跃妖债",
-      "desc": "规模:5.62亿",
-      "close": 185.11,
-      "pct_chg": 10.3823,
-      "premium_rate": 52.85,
-      "double_low": 237.96
-    },
-    {
-      "ts_code": "118078.SH",
-      "bond_short_name": "航亚转债",
-      "tag": "🔥 活跃妖债",
-      "desc": "规模:6.0亿",
-      "close": 142.926,
-      "pct_chg": 9.3292,
-      "premium_rate": 88.65,
-      "double_low": 231.58
-    },
-    {
-      "ts_code": "123255.SZ",
-      "bond_short_name": "鼎龙转债",
-      "tag": "🔥 活跃妖债",
-      "desc": "规模:9.1亿",
-      "close": 217.0,
-      "pct_chg": 1.8779,
-      "premium_rate": 6.57,
-      "double_low": 223.57
-    },
-    {
-      "ts_code": "127096.SZ",
-      "bond_short_name": "泰坦转债",
-      "tag": "🔥 活跃妖债",
-      "desc": "规模:2.87亿",
-      "close": 255.0,
-      "pct_chg": 1.5936,
-      "premium_rate": 25.78,
-      "double_low": 280.78
-    },
-    {
-      "ts_code": "123281.SZ",
-      "bond_short_name": "中仑转债",
-      "tag": "🔥 活跃妖债",
-      "desc": "规模:10.68亿",
-      "close": 134.8,
-      "pct_chg": 3.6923,
-      "premium_rate": 84.09,
-      "double_low": 218.89
-    },
-    {
-      "ts_code": "127053.SZ",
-      "bond_short_name": "豪美转债",
-      "tag": "🔥 活跃妖债",
-      "desc": "规模:2.57亿",
-      "close": 203.398,
-      "pct_chg": 6.2452,
-      "premium_rate": 27.25,
-      "double_low": 230.65
-    },
-    {
-      "ts_code": "127069.SZ",
-      "bond_short_name": "小熊转债",
-      "tag": "🔥 活跃妖债",
-      "desc": "规模:5.04亿",
-      "close": 126.893,
-      "pct_chg": 3.2481,
-      "premium_rate": 39.01,
-      "double_low": 165.9
-    },
-    {
-      "ts_code": "118056.SH",
-      "bond_short_name": "路维转债",
-      "tag": "🔥 活跃妖债",
-      "desc": "规模:6.14亿",
-      "close": 175.379,
-      "pct_chg": 2.2827,
-      "premium_rate": 30.63,
-      "double_low": 206.01
-    },
-    {
-      "ts_code": "113711.SH",
-      "bond_short_name": "常青转债",
-      "tag": "🔥 活跃妖债",
-      "desc": "规模:8.0亿",
-      "close": 140.719,
-      "pct_chg": 3.0697,
-      "premium_rate": 99.68,
-      "double_low": 240.4
-    },
-    {
-      "ts_code": "110092.SH",
-      "bond_short_name": "三房转债",
-      "tag": "🔥 活跃妖债",
-      "desc": "规模:21.18亿",
-      "close": 83.701,
-      "pct_chg": 2.7473,
-      "premium_rate": 85.87,
-      "double_low": 169.57
-    }
-  ],
+  "date": "2026-11-18 19:06:16",
+  "cb_list": [],
   "fund_list": [
     {
       "code": "159327.SZ",
@@ -210,11 +9,11 @@
       "change": 4.79,
       "vol_yi": 2.85,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.825,
-      "premium_rate": 0.727,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "159558.SZ",
@@ -223,11 +22,11 @@
       "change": 4.66,
       "vol_yi": 17.28,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.806,
-      "premium_rate": 0.372,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "159516.SZ",
@@ -236,11 +35,11 @@
       "change": 4.46,
       "vol_yi": 40.63,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.5137,
-      "premium_rate": 0.253,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "589020.SH",
@@ -249,11 +48,11 @@
       "change": 4.35,
       "vol_yi": 11.48,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.8339,
-      "premium_rate": 0.732,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "560780.SH",
@@ -262,11 +61,11 @@
       "change": 4.26,
       "vol_yi": 7.42,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.756,
-      "premium_rate": 0.265,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "562590.SH",
@@ -275,11 +74,11 @@
       "change": 4.16,
       "vol_yi": 5.15,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.7249,
-      "premium_rate": 0.29,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "588710.SH",
@@ -288,11 +87,11 @@
       "change": 4.1,
       "vol_yi": 23.47,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.7085,
-      "premium_rate": 0.353,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "561980.SH",
@@ -301,11 +100,11 @@
       "change": 3.64,
       "vol_yi": 4.47,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.5116,
-      "premium_rate": 0.274,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "159582.SZ",
@@ -314,11 +113,11 @@
       "change": 3.64,
       "vol_yi": 1.78,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.568,
-      "premium_rate": 0.176,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "588170.SH",
@@ -327,11 +126,11 @@
       "change": 3.63,
       "vol_yi": 108.48,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.6845,
-      "premium_rate": 0.219,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "508605.SH",
@@ -344,7 +143,7 @@
       "nav": null,
       "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "净值缺失"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "159730.SZ",
@@ -353,11 +152,11 @@
       "change": 1.85,
       "vol_yi": 0.1,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 1.0404,
-      "premium_rate": 0.346,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "159813.SZ",
@@ -366,11 +165,11 @@
       "change": 1.72,
       "vol_yi": 2.95,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.5268,
-      "premium_rate": 0.797,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "159735.SZ",
@@ -379,11 +178,11 @@
       "change": 1.63,
       "vol_yi": 0.54,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.6925,
-      "premium_rate": -0.65,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "513070.SH",
@@ -392,11 +191,11 @@
       "change": 1.61,
       "vol_yi": 2.49,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 1.1389,
-      "premium_rate": -0.167,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "180502.SZ",
@@ -409,7 +208,7 @@
       "nav": null,
       "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "净值缺失"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "159560.SZ",
@@ -418,11 +217,11 @@
       "change": 1.56,
       "vol_yi": 0.23,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.8431,
-      "premium_rate": 0.463,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "513590.SH",
@@ -431,11 +230,11 @@
       "change": 1.53,
       "vol_yi": 0.05,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.7987,
-      "premium_rate": -0.463,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "159245.SZ",
@@ -444,11 +243,11 @@
       "change": 1.4,
       "vol_yi": 0.25,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 0.8051,
-      "premium_rate": -0.758,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     },
     {
       "code": "588370.SH",
@@ -457,11 +256,11 @@
       "change": 1.39,
       "vol_yi": 0.14,
       "quote_date": "20261117",
-      "nav_date": "20261117",
-      "nav": 1.3071,
-      "premium_rate": 0.834,
+      "nav_date": "",
+      "nav": null,
+      "premium_rate": null,
       "reference_gap": null,
-      "nav_status": "同日净值"
+      "nav_status": "净值接口暂不可用"
     }
   ],
   "ai_analysis": ""
