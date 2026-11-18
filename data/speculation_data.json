@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-19 03:02:22",
+  "date": "2026-11-19 06:08:02",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -399,19 +399,6 @@
       "nav_status": "同日净值"
     },
     {
-      "code": "159582.SZ",
-      "name": "半导体ETF博时",
-      "price": 0.586,
-      "change": 2.99,
-      "vol_yi": 1.58,
-      "quote_date": "20261118",
-      "nav_date": "20261118",
-      "nav": 0.5812,
-      "premium_rate": 0.826,
-      "reference_gap": null,
-      "nav_status": "同日净值"
-    },
-    {
       "code": "589100.SH",
       "name": "科创芯片ETF国泰",
       "price": 0.655,
@@ -421,6 +408,19 @@
       "nav_date": "20261118",
       "nav": 0.6521,
       "premium_rate": 0.445,
+      "reference_gap": null,
+      "nav_status": "同日净值"
+    },
+    {
+      "code": "159582.SZ",
+      "name": "半导体ETF博时",
+      "price": 0.586,
+      "change": 2.99,
+      "vol_yi": 1.58,
+      "quote_date": "20261118",
+      "nav_date": "20261118",
+      "nav": 0.5812,
+      "premium_rate": 0.826,
       "reference_gap": null,
       "nav_status": "同日净值"
     },
@@ -451,15 +451,15 @@
       "nav_status": "同日净值"
     },
     {
-      "code": "515260.SH",
-      "name": "电子ETF华宝",
-      "price": 0.604,
+      "code": "588990.SH",
+      "name": "科创芯片ETF博时",
+      "price": 2.646,
       "change": 2.72,
-      "vol_yi": 0.48,
+      "vol_yi": 0.72,
       "quote_date": "20261118",
       "nav_date": "20261118",
-      "nav": 0.6033,
-      "premium_rate": 0.116,
+      "nav": 2.6404,
+      "premium_rate": 0.212,
       "reference_gap": null,
       "nav_status": "同日净值"
     }
