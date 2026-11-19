@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-19T06:08:05.815182+08:00",
+  "generated_at": "2026-11-19T19:07:06.727117+08:00",
   "rows": [
     {
       "ts_code": "128044.SZ",
@@ -32,22 +32,12 @@
       "delist_date": ""
     },
     {
-      "ts_code": "123076.SZ",
-      "bond_short_name": "强力转债",
-      "stk_code": "300429.SZ",
-      "stk_short_name": "强力新材",
-      "conv_price": 10.6,
-      "remain_size": 110868900.0,
-      "list_date": "20201204",
-      "delist_date": "20261119"
-    },
-    {
       "ts_code": "110077.SH",
       "bond_short_name": "洪城转债",
       "stk_code": "600461.SH",
       "stk_short_name": "洪城环境",
       "conv_price": 4.41,
-      "remain_size": 1865983.38,
+      "remain_size": 1725044.19,
       "list_date": "20201217",
       "delist_date": "20261120"
     },
@@ -57,7 +47,7 @@
       "stk_code": "603669.SH",
       "stk_short_name": "灵康药业",
       "conv_price": 5.5,
-      "remain_size": 243604120.5,
+      "remain_size": 243598125.5,
       "list_date": "20201222",
       "delist_date": "20261201"
     },
@@ -77,7 +67,7 @@
       "stk_code": "601108.SH",
       "stk_short_name": "财通证券",
       "conv_price": 7.98,
-      "remain_size": 3798823103.1,
+      "remain_size": 3798798117.72,
       "list_date": "20201228",
       "delist_date": "20261210"
     },
@@ -87,7 +77,7 @@
       "stk_code": "000552.SZ",
       "stk_short_name": "甘肃能化",
       "conv_price": 2.93,
-      "remain_size": 1946203500.0,
+      "remain_size": 1946202500.0,
       "list_date": "20210122",
       "delist_date": ""
     },
@@ -97,7 +87,7 @@
       "stk_code": "300707.SZ",
       "stk_short_name": "威唐工业",
       "conv_price": 14.97,
-      "remain_size": 300358500.0,
+      "remain_size": 300356500.0,
       "list_date": "20210106",
       "delist_date": ""
     },
@@ -107,7 +97,7 @@
       "stk_code": "002946.SZ",
       "stk_short_name": "新乳业",
       "conv_price": 17.5,
-      "remain_size": 717574000.0,
+      "remain_size": 717573000.0,
       "list_date": "20210119",
       "delist_date": ""
     },
@@ -117,7 +107,7 @@
       "stk_code": "300298.SZ",
       "stk_short_name": "三诺生物",
       "conv_price": 34.52,
-      "remain_size": 498376300.0,
+      "remain_size": 498375200.0,
       "list_date": "20210112",
       "delist_date": ""
     },
@@ -127,7 +117,7 @@
       "stk_code": "603979.SH",
       "stk_short_name": "金诚信",
       "conv_price": 11.12,
-      "remain_size": 403392096.24,
+      "remain_size": 374384708.88,
       "list_date": "20210114",
       "delist_date": "20261223"
     },
@@ -137,7 +127,7 @@
       "stk_code": "300196.SZ",
       "stk_short_name": "长海股份",
       "conv_price": 14.79,
-      "remain_size": 545613900.0,
+      "remain_size": 545547900.0,
       "list_date": "20210115",
       "delist_date": ""
     },
@@ -157,7 +147,7 @@
       "stk_code": "603501.SH",
       "stk_short_name": "豪威集团",
       "conv_price": 159.02,
-      "remain_size": 2432022929.26,
+      "remain_size": 2431990171.14,
       "list_date": "20210122",
       "delist_date": "20261228"
     },
@@ -177,7 +167,7 @@
       "stk_code": "601229.SH",
       "stk_short_name": "上海银行",
       "conv_price": 8.05,
-      "remain_size": 17710503064.5,
+      "remain_size": 17706076071.65,
       "list_date": "20210210",
       "delist_date": ""
     },
@@ -297,7 +287,7 @@
       "stk_code": "002126.SZ",
       "stk_short_name": "银轮股份",
       "conv_price": 10.27,
-      "remain_size": 505510700.0,
+      "remain_size": 505495700.0,
       "list_date": "20210709",
       "delist_date": ""
     },
@@ -307,7 +297,7 @@
       "stk_code": "601633.SH",
       "stk_short_name": "长城汽车",
       "conv_price": 38.74,
-      "remain_size": 3495017031.5,
+      "remain_size": 3495016063.0,
       "list_date": "20210708",
       "delist_date": ""
     },
@@ -367,7 +357,7 @@
       "stk_code": "300779.SZ",
       "stk_short_name": "惠城环保",
       "conv_price": 10.33,
-      "remain_size": 65349600.0,
+      "remain_size": 65334600.0,
       "list_date": "20210726",
       "delist_date": ""
     },
@@ -567,7 +557,7 @@
       "stk_code": "601166.SH",
       "stk_short_name": "兴业银行",
       "conv_price": 20.13,
-      "remain_size": 41351780066.06,
+      "remain_size": 41351779079.69,
       "list_date": "20220114",
       "delist_date": ""
     },
@@ -647,7 +637,7 @@
       "stk_code": "600438.SH",
       "stk_short_name": "通威股份",
       "conv_price": 34.6,
-      "remain_size": 11983080000.0,
+      "remain_size": 11983065122.0,
       "list_date": "20220318",
       "delist_date": ""
     },
@@ -717,7 +707,7 @@
       "stk_code": "601963.SH",
       "stk_short_name": "重庆银行",
       "conv_price": 9.22,
-      "remain_size": 11395239940.26,
+      "remain_size": 11392725987.4,
       "list_date": "20220414",
       "delist_date": ""
     },
@@ -747,7 +737,7 @@
       "stk_code": "605068.SH",
       "stk_short_name": "明新旭腾",
       "conv_price": 20.15,
-      "remain_size": 671501000.0,
+      "remain_size": 671499005.15,
       "list_date": "20220425",
       "delist_date": ""
     },
@@ -837,7 +827,7 @@
       "stk_code": "603477.SH",
       "stk_short_name": "巨星农牧",
       "conv_price": 24.84,
-      "remain_size": 899725000.0,
+      "remain_size": 899724006.4,
       "list_date": "20220517",
       "delist_date": ""
     },
@@ -857,7 +847,7 @@
       "stk_code": "601865.SH",
       "stk_short_name": "福莱特",
       "conv_price": 41.56,
-      "remain_size": 3999758000.0,
+      "remain_size": 3999757002.56,
       "list_date": "20220613",
       "delist_date": ""
     },
@@ -1037,7 +1027,7 @@
       "stk_code": "001203.SZ",
       "stk_short_name": "大中矿业",
       "conv_price": 10.56,
-      "remain_size": 934140800.0,
+      "remain_size": 934140400.0,
       "list_date": "20221011",
       "delist_date": ""
     },
@@ -1067,7 +1057,7 @@
       "stk_code": "601128.SH",
       "stk_short_name": "常熟银行",
       "conv_price": 5.12,
-      "remain_size": 5922036379.02,
+      "remain_size": 5907968533.9,
       "list_date": "20221017",
       "delist_date": ""
     },
@@ -1097,7 +1087,7 @@
       "stk_code": "688148.SH",
       "stk_short_name": "芳源股份",
       "conv_price": 6.9,
-      "remain_size": 641662000.0,
+      "remain_size": 641661006.4,
       "list_date": "20221107",
       "delist_date": ""
     },
@@ -1127,7 +1117,7 @@
       "stk_code": "688779.SH",
       "stk_short_name": "五矿新能",
       "conv_price": 15.49,
-      "remain_size": 3249781000.0,
+      "remain_size": 3249780008.64,
       "list_date": "20221107",
       "delist_date": ""
     },
@@ -1257,7 +1247,7 @@
       "stk_code": "688002.SH",
       "stk_short_name": "睿创微纳",
       "conv_price": 38.16,
-      "remain_size": 1262250000.0,
+      "remain_size": 1262248015.68,
       "list_date": "20230210",
       "delist_date": ""
     },
@@ -1307,7 +1297,7 @@
       "stk_code": "688599.SH",
       "stk_short_name": "天合光能",
       "conv_price": 16.0,
-      "remain_size": 5851156000.0,
+      "remain_size": 5851154000.0,
       "list_date": "20230315",
       "delist_date": ""
     },
@@ -1317,7 +1307,7 @@
       "stk_code": "300614.SZ",
       "stk_short_name": "百川畅银",
       "conv_price": 13.0,
-      "remain_size": 419869300.0,
+      "remain_size": 419868300.0,
       "list_date": "20230317",
       "delist_date": ""
     },
@@ -1637,7 +1627,7 @@
       "stk_code": "603730.SH",
       "stk_short_name": "岱美股份",
       "conv_price": 7.12,
-      "remain_size": 907737013.12,
+      "remain_size": 907736016.32,
       "list_date": "20230810",
       "delist_date": ""
     },
@@ -1647,7 +1637,7 @@
       "stk_code": "002459.SZ",
       "stk_short_name": "晶澳科技",
       "conv_price": 8.9,
-      "remain_size": 8958499500.0,
+      "remain_size": 8958496500.0,
       "list_date": "20230804",
       "delist_date": ""
     },
@@ -1757,7 +1747,7 @@
       "stk_code": "600481.SH",
       "stk_short_name": "双良节能",
       "conv_price": 4.02,
-      "remain_size": 1400612000.0,
+      "remain_size": 1400382003.74,
       "list_date": "20230908",
       "delist_date": ""
     },
@@ -1937,7 +1927,7 @@
       "stk_code": "001269.SZ",
       "stk_short_name": "欧晶科技",
       "conv_price": 42.0,
-      "remain_size": 469262200.0,
+      "remain_size": 469261200.0,
       "list_date": "20231215",
       "delist_date": ""
     },
@@ -2057,7 +2047,7 @@
       "stk_code": "300870.SZ",
       "stk_short_name": "欧陆通",
       "conv_price": 30.8,
-      "remain_size": 260348500.0,
+      "remain_size": 260337500.0,
       "list_date": "20240726",
       "delist_date": ""
     },
@@ -2267,7 +2257,7 @@
       "stk_code": "300054.SZ",
       "stk_short_name": "鼎龙股份",
       "conv_price": 28.38,
-      "remain_size": 909513300.0,
+      "remain_size": 909498300.0,
       "list_date": "20250423",
       "delist_date": ""
     },
@@ -2297,7 +2287,7 @@
       "stk_code": "688401.SH",
       "stk_short_name": "路维光电",
       "conv_price": 35.29,
-      "remain_size": 614431000.0,
+      "remain_size": 614430011.88,
       "list_date": "20250710",
       "delist_date": ""
     },
@@ -2317,7 +2307,7 @@
       "stk_code": "300866.SZ",
       "stk_short_name": "安克创新",
       "conv_price": 105.96,
-      "remain_size": 1104622700.0,
+      "remain_size": 1104622500.0,
       "list_date": "20250704",
       "delist_date": ""
     },
@@ -2347,7 +2337,7 @@
       "stk_code": "603596.SH",
       "stk_short_name": "伯特利",
       "conv_price": 24.76,
-      "remain_size": 2801794000.0,
+      "remain_size": 2801784021.72,
       "list_date": "20250728",
       "delist_date": ""
     },
@@ -2357,7 +2347,7 @@
       "stk_code": "003816.SZ",
       "stk_short_name": "中国广核",
       "conv_price": 3.58,
-      "remain_size": 3885211200.0,
+      "remain_size": 3725199000.0,
       "list_date": "20250725",
       "delist_date": ""
     },
@@ -2496,7 +2486,7 @@
       "bond_short_name": "澳弘转债",
       "stk_code": "605058.SH",
       "stk_short_name": "澳弘电子",
-      "conv_price": 33.54,
+      "conv_price": 33.35,
       "remain_size": 579788148.28,
       "list_date": "20260116",
       "delist_date": ""
@@ -2527,7 +2517,7 @@
       "stk_code": "300378.SZ",
       "stk_short_name": "鼎捷数智",
       "conv_price": 43.42,
-      "remain_size": 827488800.0,
+      "remain_size": 827487800.0,
       "list_date": "20251231",
       "delist_date": ""
     },
@@ -2567,7 +2557,7 @@
       "stk_code": "688300.SH",
       "stk_short_name": "联瑞新材",
       "conv_price": 48.5,
-      "remain_size": 694501067.0,
+      "remain_size": 694455089.0,
       "list_date": "20260128",
       "delist_date": ""
     },
@@ -2756,7 +2746,7 @@
       "bond_short_name": "春风转债",
       "stk_code": "603129.SH",
       "stk_short_name": "春风动力",
-      "conv_price": 241.7,
+      "conv_price": 241.4,
       "remain_size": 2178763000.0,
       "list_date": "20260707",
       "delist_date": ""
@@ -3206,7 +3196,7 @@
       "bond_short_name": "申菱转债",
       "stk_code": "301018.SZ",
       "stk_short_name": "申菱环境",
-      "conv_price": 95.49,
+      "conv_price": 95.45,
       "remain_size": 1000000000.0,
       "list_date": "20261106",
       "delist_date": ""
@@ -3272,12 +3262,22 @@
       "delist_date": ""
     },
     {
+      "ts_code": "113712.SH",
+      "bond_short_name": "圣晖转债",
+      "stk_code": "603163.SH",
+      "stk_short_name": "圣晖集成",
+      "conv_price": null,
+      "remain_size": 550000000.0,
+      "list_date": "",
+      "delist_date": ""
+    },
+    {
       "ts_code": "132026.SH",
       "bond_short_name": "G三峡EB2",
       "stk_code": "600900.SH",
       "stk_short_name": "长江电力",
       "conv_price": 21.2,
-      "remain_size": 6679325890.0,
+      "remain_size": 6549645490.0,
       "list_date": "20220608",
       "delist_date": ""
     },
