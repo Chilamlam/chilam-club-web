@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-20 19:08:25",
+  "date": "2026-11-21 02:48:46",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -275,11 +275,11 @@
       "change": 3.46,
       "vol_yi": 0.16,
       "quote_date": "20261120",
-      "nav_date": "20261119",
-      "nav": 1.6872,
-      "premium_rate": null,
-      "reference_gap": 2.833,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261120",
+      "nav": 1.7027,
+      "premium_rate": 1.897,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "508010.SH",
@@ -360,11 +360,11 @@
       "nav_status": "净值缺失"
     },
     {
-      "code": "508090.SH",
-      "name": "中银中外运仓储物流REIT",
-      "price": 3.27,
+      "code": "508002.SH",
+      "name": "华安百联消费REIT",
+      "price": 2.32,
       "change": 1.84,
-      "vol_yi": 0.05,
+      "vol_yi": 0.08,
       "quote_date": "20261120",
       "nav_date": "",
       "nav": null,
@@ -373,11 +373,11 @@
       "nav_status": "净值缺失"
     },
     {
-      "code": "508002.SH",
-      "name": "华安百联消费REIT",
-      "price": 2.32,
+      "code": "508090.SH",
+      "name": "中银中外运仓储物流REIT",
+      "price": 3.27,
       "change": 1.84,
-      "vol_yi": 0.08,
+      "vol_yi": 0.05,
       "quote_date": "20261120",
       "nav_date": "",
       "nav": null,
@@ -418,11 +418,11 @@
       "change": 1.56,
       "vol_yi": 0.07,
       "quote_date": "20261120",
-      "nav_date": "20261119",
-      "nav": 1.0911,
-      "premium_rate": null,
-      "reference_gap": 1.182,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261120",
+      "nav": 1.105,
+      "premium_rate": -0.09,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "560670.SH",
@@ -431,11 +431,11 @@
       "change": 1.53,
       "vol_yi": 0.17,
       "quote_date": "20261120",
-      "nav_date": "20261119",
-      "nav": 1.1776,
-      "premium_rate": null,
-      "reference_gap": 1.393,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261120",
+      "nav": 1.1928,
+      "premium_rate": 0.101,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "512820.SH",
@@ -444,11 +444,11 @@
       "change": 1.5,
       "vol_yi": 1.05,
       "quote_date": "20261120",
-      "nav_date": "20261119",
-      "nav": 1.6037,
-      "premium_rate": null,
-      "reference_gap": 1.328,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261120",
+      "nav": 1.6244,
+      "premium_rate": 0.037,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "517090.SH",
@@ -457,11 +457,11 @@
       "change": 1.37,
       "vol_yi": 0.07,
       "quote_date": "20261120",
-      "nav_date": "20261119",
-      "nav": 1.6805,
-      "premium_rate": null,
-      "reference_gap": 0.982,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261120",
+      "nav": 1.6966,
+      "premium_rate": 0.024,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     }
   ],
   "ai_analysis": ""
