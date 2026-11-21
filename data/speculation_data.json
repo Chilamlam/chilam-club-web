@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-21 05:54:07",
+  "date": "2026-11-22 01:47:03",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -185,7 +185,7 @@
       "ts_code": "132026.SH",
       "bond_short_name": "G三峡EB2",
       "tag": "🔥 活跃妖债",
-      "desc": "规模:64.3亿",
+      "desc": "规模:62.43亿",
       "close": 147.506,
       "pct_chg": 2.0654,
       "premium_rate": -1.1,
@@ -360,11 +360,11 @@
       "nav_status": "净值缺失"
     },
     {
-      "code": "508002.SH",
-      "name": "华安百联消费REIT",
-      "price": 2.32,
+      "code": "508090.SH",
+      "name": "中银中外运仓储物流REIT",
+      "price": 3.27,
       "change": 1.84,
-      "vol_yi": 0.08,
+      "vol_yi": 0.05,
       "quote_date": "20261120",
       "nav_date": "",
       "nav": null,
@@ -373,11 +373,11 @@
       "nav_status": "净值缺失"
     },
     {
-      "code": "508090.SH",
-      "name": "中银中外运仓储物流REIT",
-      "price": 3.27,
+      "code": "508002.SH",
+      "name": "华安百联消费REIT",
+      "price": 2.32,
       "change": 1.84,
-      "vol_yi": 0.05,
+      "vol_yi": 0.08,
       "quote_date": "20261120",
       "nav_date": "",
       "nav": null,

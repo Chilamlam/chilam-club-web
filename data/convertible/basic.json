@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T05:54:09.712278+08:00",
+  "generated_at": "2026-11-22T01:47:05.908188+08:00",
   "rows": [
     {
       "ts_code": "128044.SZ",
@@ -37,7 +37,7 @@
       "stk_code": "603669.SH",
       "stk_short_name": "灵康药业",
       "conv_price": 5.5,
-      "remain_size": 243595139.0,
+      "remain_size": 243580151.5,
       "list_date": "20201222",
       "delist_date": "20261201"
     },
@@ -57,7 +57,7 @@
       "stk_code": "601108.SH",
       "stk_short_name": "财通证券",
       "conv_price": 7.98,
-      "remain_size": 3798762119.94,
+      "remain_size": 3798637129.2,
       "list_date": "20201228",
       "delist_date": "20261210"
     },
@@ -107,7 +107,7 @@
       "stk_code": "603979.SH",
       "stk_short_name": "金诚信",
       "conv_price": 11.12,
-      "remain_size": 328269001.36,
+      "remain_size": 326074246.96,
       "list_date": "20210114",
       "delist_date": "20261223"
     },
@@ -697,7 +697,7 @@
       "stk_code": "601963.SH",
       "stk_short_name": "重庆银行",
       "conv_price": 9.22,
-      "remain_size": 11352979535.5,
+      "remain_size": 11352525551.92,
       "list_date": "20220414",
       "delist_date": ""
     },
@@ -1047,7 +1047,7 @@
       "stk_code": "601128.SH",
       "stk_short_name": "常熟银行",
       "conv_price": 5.12,
-      "remain_size": 5883847645.58,
+      "remain_size": 5861721847.18,
       "list_date": "20221017",
       "delist_date": ""
     },
@@ -1737,7 +1737,7 @@
       "stk_code": "600481.SH",
       "stk_short_name": "双良节能",
       "conv_price": 4.02,
-      "remain_size": 1400362004.24,
+      "remain_size": 1400359005.32,
       "list_date": "20230908",
       "delist_date": ""
     },
@@ -3267,7 +3267,7 @@
       "stk_code": "600900.SH",
       "stk_short_name": "长江电力",
       "conv_price": 21.2,
-      "remain_size": 6430240730.0,
+      "remain_size": 6243121050.0,
       "list_date": "20220608",
       "delist_date": ""
     },
