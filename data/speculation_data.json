@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-23 02:03:05",
+  "date": "2026-11-23 04:47:12",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -360,11 +360,11 @@
       "nav_status": "净值缺失"
     },
     {
-      "code": "508090.SH",
-      "name": "中银中外运仓储物流REIT",
-      "price": 3.27,
+      "code": "508002.SH",
+      "name": "华安百联消费REIT",
+      "price": 2.32,
       "change": 1.84,
-      "vol_yi": 0.05,
+      "vol_yi": 0.08,
       "quote_date": "20261120",
       "nav_date": "",
       "nav": null,
@@ -373,11 +373,11 @@
       "nav_status": "净值缺失"
     },
     {
-      "code": "508002.SH",
-      "name": "华安百联消费REIT",
-      "price": 2.32,
+      "code": "508090.SH",
+      "name": "中银中外运仓储物流REIT",
+      "price": 3.27,
       "change": 1.84,
-      "vol_yi": 0.08,
+      "vol_yi": 0.05,
       "quote_date": "20261120",
       "nav_date": "",
       "nav": null,
