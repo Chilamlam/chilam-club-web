@@ -1,6 +1,10 @@
 """投资驾驶舱导航分组；页面名称与 app.py 路由保持一致。"""
 
 NAV_GROUPS = {
+    "我的": (
+        "我的复盘",
+        ["🗂 我的复盘", "📒 研究档案"],
+    ),
     "看市场": (
         "市场",
         ["🛸 全市场看板", "🔄 板块轮动", "🧩 题材跟踪", "🏭 行业信号", "🌐 宏观与股债性价比", "📰 资讯雷达"],
@@ -11,7 +15,7 @@ NAV_GROUPS = {
     ),
     "做复盘": (
         "跟踪与记录",
-        ["👁 观察记录", "⭐ 我的池子 (每日复盘)", "📊 名单表现", "📮 收盘摘要", "📋 晚间复盘与次日计划", "📝 复盘答卷", "🎯 战绩回看"],
+        ["⭐ 我的池子 (每日复盘)", "📊 名单表现", "📮 收盘摘要", "📋 晚间复盘与次日计划", "📝 复盘答卷", "🎯 战绩回看"],
     ),
     "工具与帮助": (
         "工具与帮助",
@@ -25,9 +29,10 @@ NAV_PAGES = tuple(
     for page in items
 )
 
-DEFAULT_PAGE = "🛸 全市场看板"
+DEFAULT_PAGE = "🗂 我的复盘"
 SECTION_PAGE = "📋 晚间复盘与次日计划"
 PAGE_ALIASES = {
+    "👁 观察记录": "📒 研究档案",
     "🧭 复盘工作台": "🧭 多策略选股",
     "🚨 核心龙头雷达": "📐 强势股区间偏离",
     "📏 黄金分割预测": "📏 黄金分割参考位",
@@ -72,4 +77,9 @@ def render_navigation():
     for group, (label, items) in NAV_GROUPS.items():
         with st.expander(label, expanded=page in items):
             buttons(items)
+    with st.expander("页面快捷方式"):
+        from urllib.parse import quote
+        st.caption("任何页面都可直接访问。收藏下面的链接，下次从你选择的页面开始。")
+        target = st.selectbox("下次从哪里开始", NAV_PAGES, index=NAV_PAGES.index(page), key="navigation_start_page")
+        st.link_button("打开并收藏此页", "?view=" + quote(target), width="stretch")
     return page

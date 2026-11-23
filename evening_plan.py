@@ -738,7 +738,7 @@ def build_pool_10am_first(
         ),
         "next_day_anchor": "次日记录开盘涨幅、09:30~09:45 的换手与分时走势，以及10:00前同题材的相对表现。",
         "count": len(items),
-        "items": items[:25],
+        "items": items,
     }
 
 
@@ -843,7 +843,7 @@ def build_pool_2b_and_pk(
         "count": len(all_items),
         "two_board_count": len(two_boards),
         "pk_groups": pk_groups,
-        "items": all_items[:25],
+        "items": all_items,
     }
 
 
@@ -963,7 +963,7 @@ def build_pool_ice_rebound(
         ),
         "next_day_anchor": "次日记录集合竞价相对前收的变化、开盘后换手与涨跌结果；明显低开、平开和高开分组核对。",
         "count": len(items),
-        "items": items[:20],
+        "items": items,
     }
 
 
@@ -1111,7 +1111,7 @@ def build_pool_ma6_pullback(
         ),
         "next_day_anchor": "次日记录价格在 MA6 / MA12 附近的停留时间、成交变化和收盘位置；若放量跌破 MA12 后不能重新站回，记为该观察假设未成立。",
         "count": len(items),
-        "items": items[:20],
+        "items": items,
     }
 
 
@@ -1294,7 +1294,7 @@ def build_pool_rubbing_and_breakout(
         ),
         "next_day_anchor": "次日记录长影线组合能否站回前日上影线区间，以及突破回踩标的在 MA6/MA12 附近的成交与收盘位置。",
         "count": len(items),
-        "items": items[:20],
+        "items": items,
     }
 
 
@@ -1420,7 +1420,7 @@ def build_pool_trend_catchup(
         "next_day_anchor": "次日观察同板块趋势大票是否维持红盘强势（板块不倒），并逐只核对前一日首板是否晋级。",
         "count": len(items),
         "strong_sector_count": len(strong_sectors),
-        "items": items[:20],
+        "items": items,
     }
 
 

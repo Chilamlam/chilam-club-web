@@ -13,7 +13,7 @@ QUOTE_PAGE = "⚡ 实时行情 + 技术分析"
 WATCH_PAGE = "⭐ 我的池子 (每日复盘)"
 REVIEW_PAGE = "📝 复盘答卷"
 FIB_PAGE = "📏 黄金分割参考位"
-WORKBENCH_PAGE = "👁 观察记录"
+WORKBENCH_PAGE = "📒 研究档案"
 
 
 def explicit_symbol(raw) -> str:
@@ -102,9 +102,9 @@ def candidate_actions(frame: pd.DataFrame, *, key: str, code_col="ts_code", name
                                   format_func=choices.get, key=f"{key}_pick")
         if middle.button("查看技术图 →", key=f"{key}_chart", use_container_width=True):
             go(QUOTE_PAGE, selected)
-        if right.button("打开观察记录 →", key=f"{key}_track", use_container_width=True):
+        if right.button("打开研究档案 →", key=f"{key}_track", use_container_width=True):
             go(WORKBENCH_PAGE, selected)
-        st.caption("技术页可核对分时与日线；观察记录会保留入选来源、风险和后续价格变化。")
+        st.caption("技术页可核对分时与日线；研究档案会保留入选来源、风险和后续价格变化。")
 
 
 def _plans_key() -> str:
@@ -138,73 +138,52 @@ def take_review_plan(state, owner: str, existing_text: str = "") -> tuple[str, b
 
 
 def render_plan_book(*, key: str) -> None:
-    plans = list(st.session_state.get(_plans_key(), {}).values())
-    if not plans:
-        return
-    with st.expander(f"本次会话的观察计划（{len(plans)}只）", expanded=False):
-        text = plan_text(plans)
-        st.text(text)
-        st.caption("草稿保存在本次会话；下载可留档。带入复盘后，点击答卷中的“保存草稿”才会保存到账号。")
-        st.download_button("下载观察计划", text, file_name="observation-plans.txt",
-                           mime="text/plain", key=f"{key}_download")
-        if st.button("带入复盘答卷 →", key=f"{key}_review"):
-            st.session_state["observation_review_text"] = {"owner": _plans_key(), "text": text}
-            go(REVIEW_PAGE)
+    """Legacy entry now points to the same durable stock dossier."""
+    import research_store
+    research_store.adopt_legacy_drafts()
+    records = research_store.load()
+    if records:
+        st.caption(f"已记录 {len(records)} 条研究，可在研究档案继续核对条件与结果。")
 
 
 def render_symbol_workspace(symbol: str, name: str = "", *, key: str = "symbol") -> None:
-    import auth
-    import database
+    import decision_workbench as engine
+    import research_store
+    import research_ui
+    import research_workspace
+    from site_data import load_json
 
-    symbol = explicit_symbol(symbol)
-    with st.expander("记录观察条件 / 加入自选", expanded=False):
-        st.caption("把看图后的判断写成可检查的条件；价格、题材或时间条件不成立时，记录为什么放弃。")
-        plans = st.session_state.setdefault(_plans_key(), {})
-        saved = plans.get(symbol, {})
-        ident = f"{key}_{_plans_key()}_{symbol}"
-        with st.form(f"{ident}_plan"):
-            basis = st.text_input("观察依据", value=saved.get("basis", ""),
-                                  placeholder="例如：同题材领涨、回到前高附近；写清数据日期", key=f"{ident}_basis")
-            trigger = st.text_input("参与条件", value=saved.get("trigger", ""),
-                                    placeholder="例如：回踩某价位后重新站回；填你认可的条件", key=f"{ident}_trigger")
-            invalid = st.text_input("失效条件", value=saved.get("invalid", ""),
-                                    placeholder="例如：跌破参考低点、题材走弱或超过观察期限", key=f"{ident}_invalid")
-            horizon = st.text_input("观察周期", value=saved.get("horizon", ""),
-                                    placeholder="例如：明日盘中 / 未来三个交易日", key=f"{ident}_horizon")
-            result = st.text_area("实际结果 / 复盘", value=saved.get("result", ""),
-                                  placeholder="之后回来记录：触发了吗、是否执行、原判断哪里有偏差", key=f"{ident}_result")
-            if st.form_submit_button("保存到本次会话"):
-                if not basis.strip() or not trigger.strip() or not invalid.strip():
-                    st.warning("请写明观察依据、参与条件和失效条件。")
-                else:
-                    plans[symbol] = dict(symbol=symbol, name=name, basis=basis.strip(),
-                                         trigger=trigger.strip(), invalid=invalid.strip(),
-                                         horizon=horizon.strip(), result=result.strip(),
-                                         updated_at=beijing_now().strftime("%Y-%m-%d %H:%M"))
-                    st.success("已保存本次会话的草稿，可在下方下载或带入复盘。")
-        if re.fullmatch(r"(?:sh|sz|bj)\d{6}", symbol):
-            c1, c2 = st.columns(2)
-            if c1.button("加入我的池子", key=f"{ident}_watch"):
-                if not auth.is_logged_in():
-                    st.info("登录后可保存到账号；本次会话的观察计划仍可下载。")
-                else:
-                    uid = auth.get_user_id()
-                    current = database.get_user_watchlist(uid)
-                    equivalents = {explicit_symbol(v).lower() for v in current}
-                    if symbol.lower() in equivalents:
-                        st.info("该标的已在自选池中。")
-                    else:
-                        stored_code = f"{symbol[2:]}.{symbol[:2].upper()}"
-                        updated = current + [stored_code]
-                        if database.update_user_watchlist(uid, updated):
-                            st.session_state["user_watchlist"] = updated
-                            st.session_state["user_watchlist_owner"] = uid
-                            st.success("已保存到账号的自选池。")
-                        else:
-                            st.error("云端保存失败，请重试；尚未加入自选。")
-            if c2.button("黄金分割参考位 →", key=f"{ident}_fib"):
-                go(FIB_PAGE, symbol)
-        page_link("查看我的池子 →", WATCH_PAGE, key=f"{ident}_pool")
-        if st.button("打开观察记录 →", key=f"{ident}_workbench"):
-            go(WORKBENCH_PAGE, symbol)
-    render_plan_book(key=f"{key}_plans")
+    code = engine.symbol_id(symbol)
+    if not code:
+        return
+    research_store.adopt_legacy_drafts()
+    records = research_store.load()
+    matches = research_workspace.active_by_symbol(list(records.values())).get(code, [])
+    with st.expander("研究条件与跟踪", expanded=False):
+        st.caption("与研究档案共用同一份记录；登录后保存修改会自动同步。")
+        research_ui.storage_status(records)
+        if matches:
+            active = [r for r in matches if r["outcome"]["status"] not in ("已结束", "已放弃")]
+            options = {r["id"]: r for r in active or matches}
+            selected = st.selectbox("继续哪条研究", list(options), key=f"{research_store.key()}_{key}_entry",
+                format_func=lambda i:f"{_playbook_label(options[i])} · {options[i]['plan']['asof']}")
+            research_ui.editor(options[selected], prefix=key)
+            if st.button("打开完整研究档案 →", key=f"{research_store.key()}_{key}_full"):
+                st.session_state[research_store.key()+"_selected_record"] = selected
+                go(WORKBENCH_PAGE, code)
+        else:
+            from strategy_playbooks import PLAYBOOKS
+            style = st.selectbox("研究方式", list(PLAYBOOKS), format_func=lambda s:PLAYBOOKS[s]["name"], key=f"{research_store.key()}_{key}_style")
+            if st.button("加入关注并记录条件", type="primary", key=f"{research_store.key()}_{key}_follow"):
+                date = engine.norm_date(load_json("data/evening_plan/latest.json").get("date")) or beijing_now().strftime("%Y%m%d")
+                candidate = dict(symbol=code, name=name or code, industry="", date=date,
+                    reasons=["从技术图加入关注，个人依据待补充"], sources=["技术图"], risks=[])
+                saved, _, err = research_store.follow(candidate, style)
+                st.session_state[research_store.key()+"_selected_record"] = saved["id"]
+                st.session_state[research_store.key()+"_flash"] = (bool(err), research_store.save_message(saved,err))
+                go(WORKBENCH_PAGE,code)
+
+
+def _playbook_label(record):
+    from strategy_playbooks import PLAYBOOKS
+    return PLAYBOOKS[record["plan"]["style"]]["name"] + " · " + record["plan"]["mode"]

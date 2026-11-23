@@ -191,11 +191,9 @@ class WorkbenchRenderingTests(unittest.TestCase):
                 next(w for w in getattr(app, kind) if w.label == label).input(value)
             fill("证券代码（含交易所）", "600519.SH")
             fill("名称", "测试")
-            for label in ("观察依据", "触发条件", "失效条件"):
-                fill(label, "可验证条件", "text_area")
-            fill("退出与期限", "3日后复核")
-            fill("成本与风险预算", "核查跳空与手续费")
-            next(b for b in app.button if b.label == "保存观察计划").click().run(timeout=30)
+            next(w for w in app.date_input if w.label == "这条依据的日期").set_value("2026-11-17")
+            fill("这次为什么关注", "可验证条件")
+            next(b for b in app.button if b.label == "建立研究档案").click().run(timeout=30)
             self.assertFalse(app.exception, str(app.exception))
             records = app.session_state["decision_journal_guest"]
             self.assertEqual(len(records), 1)

@@ -66,6 +66,20 @@ def save_record(record):
         body.update(user_id=uid, revision=1)
         result, err = database._supabase_request("POST", "decision_journal", json_data=body, return_error=True)
     if err:
+        # A response may be lost after a successful write. Retry safely without
+        # overwriting a different imported entry or another account's record.
+        existing, read_error = database._supabase_request(
+            "GET", "decision_journal", params={"id": f"eq.{ident}", "user_id": f"eq.{uid}",
+                "select": "id,schema,version,created_at,plan,outcome,revision"},
+            return_error=True, retries=1, timeout=5)
+        if not read_error and isinstance(existing, list) and len(existing) == 1:
+            remote = existing[0]
+            version_matches = not record.get("_synced") or remote.get("revision", 0) >= revision + 1
+            if version_matches and remote.get("plan") == record.get("plan") and remote.get("outcome") == record.get("outcome"):
+                saved = {k: v for k, v in remote.items() if k != "user_id"}
+                saved.update(_synced=True, _dirty=False)
+                return saved, None
+            return None, _error("相同 ID 已存在且内容不同，请保留本地备份后解决冲突。", "CONFLICT")
         return None, err
     if not isinstance(result, list) or len(result) != 1:
         return None, _error("记录已在其他会话更新或不可访问。本地内容仍保留，请先导出，再重新读取云端。", "CONFLICT")

@@ -263,9 +263,40 @@ def fund_adj_snapshot(date_str: str, codes: set[str]) -> pd.DataFrame:
         return empty
 
 
+def full_candidate_codes(date_str: str):
+    """Keep prices after a candidate leaves the screen, including ETF non-survivors."""
+    from candidate_compare import dated_rows
+    codes, funds = set(), set()
+    for kind, filename in (("stock", "strong_stocks.csv"), ("stock", "breakout_stocks.csv"), ("etf", "strong_etfs.csv")):
+        try:
+            frame = pd.read_csv(Path("data") / filename, dtype={"ts_code": str})
+            members = set(dated_rows(frame, date_str))
+            codes.update(members)
+            if kind == "etf":
+                funds.update(members)
+        except (OSError, ValueError):
+            continue
+    for path in sorted(Path("data/candidates/history").glob("*.json"))[-30:]:
+        try:
+            document = json.loads(path.read_text(encoding="utf-8"))
+            date = norm_date(document.get("date"))
+            if not date or date > date_str:
+                continue
+            for kind, block in document.get("styles", {}).items():
+                members = {symbol_id(r.get("symbol")) for r in block.get("rows", [])} - {""}
+                codes.update(members)
+                if kind == "etf":
+                    funds.update(members)
+        except (OSError, ValueError, TypeError):
+            continue
+    return codes, funds
+
+
 def archive_prices(date_str: str) -> int:
     """归档当日「曾上榜标的 + 基准」的复权价。只存必要标的，避免归档爆炸。"""
     codes = set(sc.tracked_codes())
+    full_codes, full_funds = full_candidate_codes(date_str)
+    codes.update(full_codes)
     codes.discard(sc.BENCHMARK)
     # Yesterday's evening pools and the current ladder must also be tracked;
     # restricting prices to RPS survivors hides losing/non-RPS candidates.
@@ -297,6 +328,7 @@ def archive_prices(date_str: str) -> int:
             rows.append({"date": date_str, "ts_code": r.ts_code, "adj_close": float(r.adj_close)})
         picks = sc.load_picks()
         fund_codes = set(picks.loc[picks["strategy"] == "etf", "ts_code"])
+        fund_codes.update(full_funds)
         funds = fund_adj_snapshot(date_str, fund_codes)
         for r in funds.itertuples(index=False):
             rows.append({"date": date_str, "ts_code": r.ts_code, "adj_close": float(r.adj_close)})

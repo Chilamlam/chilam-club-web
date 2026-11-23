@@ -287,7 +287,7 @@ class EveningPlanHandoffTests(unittest.TestCase):
         self.assertIn("加入观察记录并打开", source)
         self.assertIn("带入复盘答卷", source)
         self.assertIn("下载 Markdown", source)
-        self.assertIn("quick_follow", source)
+        self.assertIn("research_store.follow", source)
         library = inspect.getsource(page_evening_plan._render_methodology_library)
         self.assertIn("站内整理摘要（作者立场，未经本站验证）", library)
         self.assertIn("作者原文归档（保留原意，不作为站内结论）", library)

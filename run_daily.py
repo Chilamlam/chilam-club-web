@@ -105,6 +105,8 @@ STEPS: list[dict] = [
      "backfill": BACKFILL_EXTRA_PASS, "timeout": 2400},
     {"key": "evening_plan", "script": "daily_evening_plan.py", "label": "晚间战法池与次日计划",
      "backfill": BACKFILL_NONE, "timeout": 900},
+    {"key": "candidate_archive", "script": "daily_candidate_archive.py", "label": "完整候选名单归档",
+     "backfill": BACKFILL_NONE, "timeout": 120},
     {"key": "digest", "script": "daily_digest.py", "label": "收盘摘要与推送",
      "backfill": BACKFILL_NONE, "timeout": 900},
     {"key": "review_ai", "script": "daily_review_ai.py", "label": "复盘 AI 答卷",

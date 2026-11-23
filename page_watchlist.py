@@ -644,6 +644,15 @@ def render_watchlist_page() -> None:
                     ("err", f"⚠️ 已在本次会话移出 {del_code}，但云端保存失败，刷新后会恢复。"))
                 st.rerun()
 
+    # Both entrances use the same research records. Legacy watchlist codes remain
+    # available, while new research follows appear here without a second save.
+    import research_store
+    research_records = research_store.load()
+    research_symbols = [r["plan"]["symbol"] for r in research_records.values()
+                        if r["outcome"]["status"] not in ("已结束", "已放弃")]
+    cur = list(dict.fromkeys(cur + research_symbols))
+    if research_symbols:
+        st.caption("行情包含自选清单和研究档案中的活跃关注；结束研究后，该条关注会从这里移除。")
     if not cur:
         st.info("💡 自选清单为空。添加几只你实际在跟的标的，这一页才有意义。")
         return
@@ -682,7 +691,7 @@ def render_watchlist_page() -> None:
             for note in src["未采用来源"]:
                 st.caption(note)
     render_plan_book(key="watch_plans")
-    page_link("打开观察记录 · 跟踪计划与执行结果 →", WORKBENCH_PAGE, key="watch_workbench")
+    page_link("打开研究档案 · 跟踪条件与执行结果 →", WORKBENCH_PAGE, key="watch_workbench")
 
     st.markdown("---")
     _render_overview(rows, market_pct)

@@ -146,7 +146,11 @@ def candidate_rows(style, frames, evening, *, asof):
                 if not isinstance(pool, dict):
                     excluded.append(f"{pool_key}：产物缺少此池，无法判断是否有候选。")
                     continue
-                for row in pool.get("items") or []:
+                items = pool.get("items") or []
+                declared = number(pool.get("count"))
+                if declared is not None and declared > len(items):
+                    excluded.append(f"{pool.get('title') or pool_key}：旧归档仅保留 {len(items)}/{int(declared)} 条，无法据此确认新增或退出。")
+                for row in items:
                     add(row.get("code"), row.get("name"), f"data/evening_plan/latest.json:{pool_key}",
                         pool.get("title") or pool_key, risks=row.get("risks") or (),
                         industry=row.get("industry"), equity=True)
@@ -223,10 +227,19 @@ def new_plan(fields, *, now):
 
 
 def with_outcome(record, outcome):
+    from research_workspace import validate_extensions
+
     if outcome.get("status") not in STATUSES:
         raise ValueError("无效的跟踪状态。")
     updated = copy.deepcopy(record)
     result = copy.deepcopy(outcome)
+    # Updating execution results must not erase later research or position entries.
+    for key in ("research", "research_history"):
+        if key not in result and key in record.get("outcome", {}):
+            result[key] = copy.deepcopy(record["outcome"][key])
+    validate_extensions(result)
+    if number((result.get("research") or {}).get("shares")) and record["plan"]["mode"] != "实盘记录":
+        raise ValueError("模拟观察不能包含实际持仓。")
     if result.get("discipline", "待复核") not in ("待复核", "按计划", "偏离计划"):
         raise ValueError("无效的执行质量。")
     if not isinstance(result.get("notes", ""), str) or len(result.get("notes", "")) > 10000:
@@ -305,4 +318,11 @@ def plan_markdown(record):
     lines.extend([f"跟踪状态：{o['status']}", f"结果与偏差：{o.get('notes') or '待记录'}"])
     if o.get("net_pnl") is not None:
         lines.append(f"扣费后盈亏：{o['net_pnl']:.2f} 元（用户记录）")
+    if o.get("research"):
+        lines.append("### 后续研究修订（原始判断保留在上方）")
+        for revision in o.get("research_history", []):
+            lines.append(f"修订于 {revision['at']}：{revision.get('reason') or '更新研究条件'}")
+            for key, value in revision["values"].items():
+                if value is not None and value != "":
+                    lines.append(f"{key}：{value}")
     return "\n\n".join(lines)

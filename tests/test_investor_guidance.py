@@ -137,11 +137,14 @@ class JourneyTests(unittest.TestCase):
         state = {"observation_review_text": {"owner": "account1", "text": "别人的计划"}}
         self.assertEqual(journey.take_review_plan(state, "account2", "自己的草稿"), ("自己的草稿", False))
 
-    def test_real_widgets_jump_save_plan_and_report_failed_cloud_write(self):
-        with patch.object(auth, "is_logged_in", return_value=True), \
-             patch.object(auth, "get_user_id", return_value=11), \
-             patch.object(database, "get_user_watchlist", return_value=["600519.SH"]), \
-             patch.object(database, "update_user_watchlist", return_value=False) as write:
+    def test_real_widgets_share_journal_and_preserve_failed_cloud_write(self):
+        import journal_store
+        from tests.test_decision_workbench import plan
+        record = plan(symbol="000905.SZ")
+        record.update(_synced=True, revision=1)
+        with patch.object(auth, "get_current_user", return_value={"user_id": 11}), \
+             patch.object(journal_store, "load_records", return_value=([record], None)), \
+             patch.object(journal_store, "save_record", return_value=(None, {"code":"offline"})) as write:
             app = AppTest.from_function(journey_app).run(timeout=30)
             app.selectbox(key="test_pick_pick").select("sz000905")
             app.button(key="test_pick_chart").click().run(timeout=30)
@@ -149,15 +152,14 @@ class JourneyTests(unittest.TestCase):
             self.assertEqual(app.selectbox(key="nav_group").value, "找标的")
             self.assertEqual(app.session_state["active_symbol"], "sz000905")
             write.assert_not_called()
-            ident = "test_observation_plans_11_sz000905"
-            for suffix, value in (("basis", "11/16 同题材强"), ("trigger", "重新站回前高"), ("invalid", "跌破参考低点")):
-                app.text_input(key=f"{ident}_{suffix}").input(value)
-            next(b for b in app.button if b.label == "保存到本次会话").click().run(timeout=30)
-            self.assertEqual(app.session_state["observation_plans_11"]["sz000905"]["trigger"], "重新站回前高")
-            app.button(key=f"{ident}_watch").click().run(timeout=30)
-            write.assert_called_once_with(11, ["600519.SH", "000905.SZ"])
-            self.assertTrue(any("云端保存失败" in e.value for e in app.error))
-            self.assertNotIn("user_watchlist", app.session_state)
+            next(w for w in app.text_area if w.label == "下一步要等什么").input("重新站回前高")
+            next(b for b in app.button if b.label == "保存研究与条件").click().run(timeout=30)
+            write.assert_called_once()
+            saved = app.session_state["decision_journal_11"][record["id"]]
+            self.assertEqual(saved["outcome"]["research"]["trigger"], "重新站回前高")
+            self.assertTrue(saved["_dirty"])
+            self.assertEqual(saved["plan"], record["plan"])
+            self.assertTrue(any("账号暂时无法" in e.value for e in app.error))
             self.assertFalse(app.exception)
 
     def test_review_plan_survives_failed_save_without_overwriting_draft(self):

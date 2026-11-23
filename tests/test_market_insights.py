@@ -195,12 +195,15 @@ class RenderingTests(unittest.TestCase):
              patch.object(page.engine, "candidate_rows", return_value=([candidate], [])), \
              patch.object(auth, "is_logged_in", return_value=False):
             app.run(timeout=30)
+            selection = next(w for w in app.selectbox if w.label == "选择要继续研究的标的")
+            self.assertIsNone(selection.value)
+            selection.select("000001.SZ").run(timeout=30)
             next(b for b in app.button if b.label == "加入观察 · 自动保留依据").click().run(timeout=30)
             self.assertFalse(app.exception, str(app.exception))
             records = app.session_state["decision_journal_guest"]
             self.assertEqual(len(records), 1)
             self.assertTrue(next(iter(records.values()))["plan"]["quick_follow"])
-            self.assertTrue(any("已加入本次会话的观察记录" in item.value for item in app.success))
+            self.assertTrue(any("已加入观察" in item.value for item in app.success))
 
     def test_result_panels_render_with_missing_data_without_fabricating_metrics(self):
         with patch.object(ui, "load_csv", return_value=pd.DataFrame()), patch.object(ui, "load_json", return_value={}):

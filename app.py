@@ -820,13 +820,15 @@ def main():
     #   建立信任之前先把人赶走。
     #   真正的付费墙放在「个性化视角」与「主动推送」上：这两样依赖用户自己的
     #   数据与时间积累，别处抄不走，也是唯一让人愿意按月付费的东西。
-    if page == "🧭 多策略选股":
+    if page == "🗂 我的复盘":
+        render_decision_workbench_page("home")
+    elif page == "🧭 多策略选股":
         render_decision_workbench_page("candidates")
     elif page == "🧩 题材跟踪":
         render_decision_workbench_page("themes")
     elif page == "📊 名单表现":
         render_decision_workbench_page("outcomes")
-    elif page == "👁 观察记录":
+    elif page == "📒 研究档案":
         render_decision_workbench_page("tracking")
     elif page == "🛸 全市场看板":
         render_market_dashboard()

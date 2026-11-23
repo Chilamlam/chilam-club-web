@@ -526,7 +526,7 @@ def _render_plan_builder(plan: dict) -> None:
                 ],
             }
             try:
-                import workbench_insights_ui as insights
+                import research_store
                 pool_style = {
                     "pool_10am_first": "relay",
                     "pool_2b_pk": "relay",
@@ -535,13 +535,7 @@ def _render_plan_builder(plan: dict) -> None:
                     "pool_rubbing_breakout": "trend",
                     "pool_trend_catchup": "trend",
                 }.get(pool_key, "trend")
-                owner_key = (
-                    f"decision_journal_{auth.get_user_id()}"
-                    if auth.is_logged_in()
-                    else "decision_journal_guest"
-                )
-                records = st.session_state.setdefault(owner_key, {})
-                _, added = insights.quick_follow(
+                saved, added, save_error = research_store.follow(
                     {
                         "symbol": action_code,
                         "name": item.get("name") or "",
@@ -549,17 +543,14 @@ def _render_plan_builder(plan: dict) -> None:
                         "date": plan.get("date") or "",
                         "reasons": reasons,
                         "risks": list(item.get("risks") or []),
-                        "sources": context["sources"],
+                        "sources": [f"data/evening_plan/latest.json:{pool_key}"],
                     },
                     pool_style,
                     {},
                     False,
-                    records,
                 )
-                st.session_state[f"{owner_key}_message"] = (
-                    "已保存本次会话的观察记录，并冻结当时的候选池、风险标签和观察条件。"
-                    if added else "这只标的已有同日同风格观察记录，已为你打开原记录。"
-                )
+                st.session_state[research_store.key()+"_selected_record"] = saved["id"]
+                st.session_state[research_store.key()+"_flash"] = (bool(save_error), research_store.save_message(saved, save_error))
             except ValueError as exc:
                 st.error(f"暂时无法加入观察记录：{exc}")
                 return

@@ -16,16 +16,18 @@ class NavigationTests(unittest.TestCase):
                     and isinstance(node.comparators[0], ast.Constant)):
                 routes.append(node.comparators[0].value)
         pages = [page for description, entries in NAV_GROUPS.values() for page in entries]
-        self.assertEqual(len(pages), 21)
+        self.assertEqual(len(pages), 22)
         self.assertEqual(len(pages), len(set(pages)))
         self.assertEqual(set(pages), set(routes))
-        self.assertEqual(next(iter(NAV_GROUPS.values()))[1][0], '🛸 全市场看板')
+        self.assertEqual(next(iter(NAV_GROUPS.values()))[1][0], DEFAULT_PAGE)
         self.assertIn('🧩 题材跟踪', pages)
         self.assertIn('📊 名单表现', pages)
-        self.assertIn('👁 观察记录', pages)
+        self.assertIn('📒 研究档案', pages)
+        self.assertIn('🗂 我的复盘', pages)
         self.assertNotIn('📈 命运K线 (人生运势)', pages)
 
     def test_legacy_and_unknown_routes_resolve_to_current_pages(self):
+        self.assertEqual(canonical_page('👁 观察记录'), '📒 研究档案')
         self.assertEqual(canonical_page('🚨 核心龙头雷达'), '📐 强势股区间偏离')
         self.assertEqual(canonical_page('📏 黄金分割预测'), '📏 黄金分割参考位')
         self.assertEqual(canonical_page('📈 命运K线 (人生运势)'), DEFAULT_PAGE)
