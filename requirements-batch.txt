@@ -14,6 +14,8 @@ numpy>=1.26
 tushare
 akshare
 requests
+urllib3
+mini-racer>=0.14,<1
 plotly
 lxml
 beautifulsoup4

@@ -124,6 +124,8 @@
 
 ## 本地体验
 
+2026-11-23 新增市场观察模块：侧栏「资金与基差」「海外预期与链上市场」，涵盖涨跌与融资、股指期货贴水、宽基ETF成交、Polymarket、Hyperliquid。数据来源、边界、定时更新和验证见 [MARKET_OBSERVATORY.md](MARKET_OBSERVATORY.md)。
+
 ```powershell
 cd D:\chilam_club\chilam-club-web
 python -m streamlit run app.py --server.port 8511 --server.address 127.0.0.1

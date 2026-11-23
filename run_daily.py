@@ -67,6 +67,8 @@ STEPS: list[dict] = [
      "backfill": BACKFILL_NONE, "timeout": 60},
     {"key": "funding", "script": "daily_funding.py", "label": "融资余额与资金证据",
      "backfill": BACKFILL_NONE, "timeout": 90},
+    {"key": "market_observatory", "script": "daily_market_observatory.py", "label": "期货贴水、ETF成交与海外市场归档",
+     "backfill": BACKFILL_NONE, "timeout": 600},
     {"key": "expire_orders", "script": "daily_expire_orders.py", "label": "订单过期清理",
      "backfill": BACKFILL_NONE, "timeout": 300},
     {"key": "rps", "script": "daily_rps_pro.py", "label": "RPS 强势股",

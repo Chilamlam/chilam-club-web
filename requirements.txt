@@ -14,5 +14,7 @@ plotly
 google-generativeai
 tushare
 requests
+urllib3
+mini-racer>=0.14,<1
 bcrypt>=4.0.0
 PyJWT>=2.8.0

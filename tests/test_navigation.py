@@ -16,11 +16,13 @@ class NavigationTests(unittest.TestCase):
                     and isinstance(node.comparators[0], ast.Constant)):
                 routes.append(node.comparators[0].value)
         pages = [page for description, entries in NAV_GROUPS.values() for page in entries]
-        self.assertEqual(len(pages), 22)
+        self.assertEqual(len(pages), 24)
         self.assertEqual(len(pages), len(set(pages)))
         self.assertEqual(set(pages), set(routes))
         self.assertEqual(next(iter(NAV_GROUPS.values()))[1][0], DEFAULT_PAGE)
         self.assertIn('🧩 题材跟踪', pages)
+        self.assertIn('📈 资金与基差', pages)
+        self.assertIn('🌍 海外预期与链上市场', pages)
         self.assertIn('📊 名单表现', pages)
         self.assertIn('📒 研究档案', pages)
         self.assertIn('🗂 我的复盘', pages)

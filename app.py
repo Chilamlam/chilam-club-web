@@ -32,6 +32,7 @@ from page_fibonacci import render_fibonacci_chart
 from config_gurus import GURUS
 from page_core_driver import render_core_driver_page
 from page_macro_erp import render_macro_erp_page
+from page_market_observatory import render_market_observatory
 from page_watchlist import render_watchlist_page
 from page_live_quote import render_live_quote_page
 from page_scorecard import render_scorecard_page
@@ -867,6 +868,10 @@ def main():
         with t3: render_etf_content(df_etf)
     elif page == "🌐 宏观与股债性价比":
         render_macro_erp_page()
+    elif page == "📈 资金与基差":
+        render_market_observatory()
+    elif page == "🌍 海外预期与链上市场":
+        render_market_observatory(global_page=True)
     elif page == "⚡ 投机与套利":
         render_arbitrage_page()
     elif page == "📐 强势股区间偏离":

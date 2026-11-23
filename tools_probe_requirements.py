@@ -66,6 +66,7 @@ DIST_TO_IMPORT = {
     "beautifulsoup4": "bs4",
     "google-generativeai": "google",
     "python-dateutil": "dateutil",
+    "mini-racer": "py_mini_racer",
 }
 
 
