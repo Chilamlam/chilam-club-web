@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-11-23 04:53:45",
+  "generated_at": "2026-11-23 10:24:06",
   "benchmark": "000300.SH",
   "horizons": [
     1,
     5,
     10
   ],
-  "min_sample": 20,
+  "min_sample": 1,
   "strategies": {
     "breakout": {
       "label": "阶段新高突破池",
@@ -75,7 +75,7 @@
             "alpha_median": -0.022972737166269908
           }
         ],
-        "verdict": "排序未通过单调性检验：靠前档位并未更优。注意这里的每档样本同样存在窗口重叠与同日相关，不单调只能说明「暂未观察到区分度」，不足以断定排序无信息量"
+        "verdict": "本段归档中，各档位超额中位数未按名次依次降低"
       },
       "daily_alpha": [
         {
@@ -269,7 +269,7 @@
         "n_independent": 9
       },
       "effective_sample": {
-        "status": "insufficient",
+        "status": "ok",
         "raw_n": 2536,
         "n_days": 44,
         "n_independent": 9,
@@ -280,7 +280,42 @@
         "significant": false,
         "same_day_std": 0.12964099842489307,
         "across_day_std": 0.047175601699308005,
-        "reason": "记录条数 2536 条看起来很多，但 T+5 窗口互相重叠、同日上榜标的又高度相关，折算后只有 9 个独立观测（阈值 20）。这个量级判不出策略方向，负数不等于策略失效，正数也不等于策略有效。"
+        "reason": "每隔 5 个有效入选日取一组，共 9 组；仍可能共享市场因素。"
+      }
+    },
+    "etf": {
+      "label": "强势 ETF 榜",
+      "total_picks": 60,
+      "days": 1,
+      "horizons": {
+        "1": {
+          "n": 0,
+          "status": "failed",
+          "reason": "无可用样本"
+        },
+        "5": {
+          "n": 0,
+          "status": "failed",
+          "reason": "无可用样本"
+        },
+        "10": {
+          "n": 0,
+          "status": "failed",
+          "reason": "无可用样本"
+        }
+      },
+      "discrimination": {
+        "status": "failed",
+        "reason": "分档样本全为空"
+      },
+      "daily_alpha": [],
+      "beta": {
+        "status": "failed",
+        "reason": "收益列全为空"
+      },
+      "effective_sample": {
+        "status": "failed",
+        "reason": "超额收益列全为空"
       }
     },
     "rps": {
@@ -350,7 +385,7 @@
             "alpha_median": -0.03578138914613349
           }
         ],
-        "verdict": "排序未通过单调性检验：靠前档位并未更优。注意这里的每档样本同样存在窗口重叠与同日相关，不单调只能说明「暂未观察到区分度」，不足以断定排序无信息量"
+        "verdict": "本段归档中，各档位超额中位数未按名次依次降低"
       },
       "daily_alpha": [
         {
@@ -720,7 +755,7 @@
         "n_independent": 18
       },
       "effective_sample": {
-        "status": "insufficient",
+        "status": "ok",
         "raw_n": 5250,
         "n_days": 88,
         "n_independent": 18,
@@ -731,13 +766,13 @@
         "significant": false,
         "same_day_std": 0.1162072867562748,
         "across_day_std": 0.07944389131649744,
-        "reason": "记录条数 5250 条看起来很多，但 T+5 窗口互相重叠、同日上榜标的又高度相关，折算后只有 18 个独立观测（阈值 20）。这个量级判不出策略方向，负数不等于策略失效，正数也不等于策略有效。"
+        "reason": "每隔 5 个有效入选日取一组，共 18 组；仍可能共享市场因素。"
       }
     }
   },
   "archive": {
     "pick_rows": 11227,
-    "price_rows": 66247,
+    "price_rows": 66570,
     "date_from": "20260706",
     "date_to": "20261120",
     "trade_days": 94

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23T04:47:16.043884+08:00",
+  "generated_at": "2026-11-23T10:18:04.480075+08:00",
   "rows": [
     {
       "ts_code": "128044.SZ",
@@ -67,7 +67,7 @@
       "stk_code": "000552.SZ",
       "stk_short_name": "甘肃能化",
       "conv_price": 2.93,
-      "remain_size": 1946202500.0,
+      "remain_size": 1946200500.0,
       "list_date": "20210122",
       "delist_date": ""
     },
@@ -117,7 +117,7 @@
       "stk_code": "300196.SZ",
       "stk_short_name": "长海股份",
       "conv_price": 14.79,
-      "remain_size": 545436900.0,
+      "remain_size": 545389900.0,
       "list_date": "20210115",
       "delist_date": ""
     },
@@ -127,7 +127,7 @@
       "stk_code": "300332.SZ",
       "stk_short_name": "天壕能源",
       "conv_price": 4.97,
-      "remain_size": 341527400.0,
+      "remain_size": 341499900.0,
       "list_date": "20210115",
       "delist_date": ""
     },
@@ -337,7 +337,7 @@
       "stk_code": "002091.SZ",
       "stk_short_name": "江苏国泰",
       "conv_price": 7.15,
-      "remain_size": 3986226900.0,
+      "remain_size": 3986223900.0,
       "list_date": "20210810",
       "delist_date": ""
     },
@@ -396,7 +396,7 @@
       "bond_short_name": "晶瑞转2",
       "stk_code": "300655.SZ",
       "stk_short_name": "晶瑞电材",
-      "conv_price": 12.79,
+      "conv_price": 12.0,
       "remain_size": 522419400.0,
       "list_date": "20210907",
       "delist_date": ""
@@ -1657,7 +1657,7 @@
       "stk_code": "300948.SZ",
       "stk_short_name": "冠中生态",
       "conv_price": 10.44,
-      "remain_size": 145472400.0,
+      "remain_size": 145471400.0,
       "list_date": "20230809",
       "delist_date": ""
     },
@@ -2215,7 +2215,7 @@
       "ts_code": "123253.SZ",
       "bond_short_name": "永贵转债",
       "stk_code": "300351.SZ",
-      "stk_short_name": "永贵电器",
+      "stk_short_name": "永贵智能",
       "conv_price": 18.19,
       "remain_size": 979743400.0,
       "list_date": "20250328",
@@ -2337,7 +2337,7 @@
       "stk_code": "003816.SZ",
       "stk_short_name": "中国广核",
       "conv_price": 3.58,
-      "remain_size": 3592832400.0,
+      "remain_size": 3246290700.0,
       "list_date": "20250725",
       "delist_date": ""
     },
@@ -2427,7 +2427,7 @@
       "stk_code": "301398.SZ",
       "stk_short_name": "星源卓镁",
       "conv_price": 45.0,
-      "remain_size": 449915500.0,
+      "remain_size": 449915400.0,
       "list_date": "20251124",
       "delist_date": ""
     },
@@ -3256,7 +3256,7 @@
       "bond_short_name": "圣晖转债",
       "stk_code": "603163.SH",
       "stk_short_name": "圣晖集成",
-      "conv_price": null,
+      "conv_price": 66.46,
       "remain_size": 550000000.0,
       "list_date": "",
       "delist_date": ""

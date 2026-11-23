@@ -2,7 +2,7 @@
   "status": "complete",
   "date": "20261120",
   "prev_date": "20261119",
-  "generated_at": "2026-11-23 04:53:39",
+  "generated_at": "2026-11-23 10:23:57",
   "archive_days": 66,
   "promotion": {
     "status": "ok",
@@ -13,19 +13,186 @@
         "base": 18,
         "promoted": 1,
         "rate": 0.05555555555555555,
-        "reliable": true
+        "not_promoted": 17,
+        "members": [
+          {
+            "code": "600520",
+            "name": "三佳科技",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002579",
+            "name": "中京电子",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "002242",
+            "name": "九阳股份",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "603928",
+            "name": "兴业股份",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "001358",
+            "name": "兴欣新材",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "603813",
+            "name": "原尚股份",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002077",
+            "name": "大港股份",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "601616",
+            "name": "广电电气",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002418",
+            "name": "康盛股份",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "605178",
+            "name": "时空科技",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "603931",
+            "name": "格林达",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002420",
+            "name": "毅昌科技",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "603078",
+            "name": "江化微",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "600619",
+            "name": "海立股份",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002165",
+            "name": "红 宝 丽",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "301348",
+            "name": "蓝箭电子",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "000678",
+            "name": "襄阳轴承",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "000656",
+            "name": "金科股份",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          }
+        ]
       },
       "2进3": {
         "base": 2,
         "promoted": 0,
         "rate": 0.0,
-        "reliable": false
+        "not_promoted": 2,
+        "members": [
+          {
+            "code": "000711",
+            "name": "京蓝科技",
+            "previous_height": 2,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "600156",
+            "name": "华升股份",
+            "previous_height": 2,
+            "current_height": null,
+            "promoted": false
+          }
+        ]
       },
       "3进4": {
         "base": 3,
         "promoted": 2,
         "rate": 0.6666666666666666,
-        "reliable": false
+        "not_promoted": 1,
+        "members": [
+          {
+            "code": "603030",
+            "name": "全筑股份",
+            "previous_height": 3,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "603324",
+            "name": "盛剑科技",
+            "previous_height": 3,
+            "current_height": 4,
+            "promoted": true
+          },
+          {
+            "code": "002771",
+            "name": "真视通",
+            "previous_height": 3,
+            "current_height": 4,
+            "promoted": true
+          }
+        ]
       }
     }
   },
