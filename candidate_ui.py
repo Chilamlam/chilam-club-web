@@ -14,6 +14,7 @@ import research_workspace as workspace
 import workbench_insights_ui as insights
 from market_insights import price_lookup, sessions
 from site_data import load_csv, load_json
+from stock_search import stock_label
 
 COLUMNS = {"行业": "industry", "最近收盘": "close", "RPS50": "rps", "RPS50变化": "rps_delta",
            "1日涨跌幅(%)": "return1", "5日涨跌幅(%)": "return5", "20日涨跌幅(%)": "return20",
@@ -78,7 +79,7 @@ def render(rows, excluded, book, asof, scope, style, analysis, evidence, current
     st.caption("按可见字段筛选与排序；多来源重合仅表示同时命中规则。")
     query_key, industries_key = scope+"_query", scope+"_industries"
     a, b, c = st.columns([2,2,1])
-    query = a.text_input("查找代码、名称或行业", key=query_key)
+    query = a.text_input("查找股票或行业", key=query_key, placeholder="名称、代码、拼音首字母或行业")
     industries = b.multiselect("限定研究行业（留空查看全部）", sorted({r["industry"] for r in rows if r["industry"]}), key=industries_key, placeholder="全部行业")
     sorting = c.selectbox("排序依据", ("代码", "RPS50", "5日涨跌幅", "20日涨跌幅", "换手率", "连续在强势榜天数"), key=scope+"_sort")
     with st.expander("更多筛选与显示列"):
@@ -115,11 +116,11 @@ def render(rows, excluded, book, asof, scope, style, analysis, evidence, current
     st.session_state[selection_key] = list(selected_rows)
     if st.session_state.get(scope+"_candidate") not in options:
         st.session_state.pop(scope+"_candidate", None)
-    picked = st.multiselect("并列比较（最多四只）", list(options), format_func=lambda code:f"{options[code]['name']} · {code}",
-                            max_selections=4, key=scope+"_compare_"+identity, placeholder="选几只比较依据、风险和历史走势")
+    picked = st.multiselect("并列比较（最多四只）", list(options), format_func=lambda code:stock_label(options[code]['name'], code),
+                            max_selections=4, key=scope+"_compare_"+identity, placeholder="输入名称、代码或拼音首字母，选择要比较的股票")
     comparison(picked, filtered, analysis, asof)
     selected = st.selectbox("选择要继续研究的标的", list(options), index=None,
-                             format_func=lambda code:f"{options[code]['name']} · {code}", key=scope+"_candidate", placeholder="选择一只查看依据与后续操作")
+                             format_func=lambda code:stock_label(options[code]['name'], code), key=scope+"_candidate", placeholder="输入名称、代码或拼音首字母")
     if selected is None:
         return
     candidate = options[selected]

@@ -52,6 +52,7 @@ from page_news import render_news_page
 from ladder_themes import attribution_for, source_status_text
 from investor_journey import apply_handoff, candidate_actions, page_link, WATCH_PAGE, REVIEW_PAGE
 from fund_review import display_funds
+from stock_search import stock_mask
 
 # ================= 1. 基础配置 (必须放在最前面) =================
 st.set_page_config(
@@ -330,6 +331,7 @@ def render_market_dashboard():
 
             df_zt_all = pd.DataFrame(ladder_raw["stocks"])
             df_zt_all['limit_times'] = pd.to_numeric(df_zt_all['limit_times'], errors='coerce').fillna(1).astype(int)
+            candidate_actions(df_zt_all, key="ladder_next", code_col="code", equities=True)
 
             # 梯队折叠展示
             for lb in sorted(df_zt_all['limit_times'].unique(), reverse=True):
@@ -352,7 +354,6 @@ def render_market_dashboard():
                             st.caption(f"主营行业：{r.get('industry', '-')}")
                             if r.get('reason'):
                                 st.caption(f"盘口：{r['reason']}")
-            candidate_actions(df_zt_all, key="ladder_next", code_col="code", equities=True)
         else:
             st.info("今日暂无涨停连板梯队数据。")
 
@@ -388,12 +389,12 @@ def render_stock_content(df):
         opts = ["全部"]
         if '细分行业' in df.columns: opts += sorted([x for x in df['细分行业'].dropna().unique() if str(x) != 'nan'])
         ind = sc4.selectbox("主营行业", opts)
-        kw = st.text_input("搜索代码/名称", placeholder="输入代码或名称...")
+        kw = st.text_input("搜索股票", placeholder="名称、代码或拼音首字母，如 payh")
 
     mask = (df['连续天数'] >= min_d) & (df['RPS_50'] >= min_rps)
     if 'pe_ttm' in df.columns: mask &= (df['pe_ttm'] <= max_pe) & (df['pe_ttm'] > 0)
     if ind != "全部": mask &= (df['细分行业'] == ind)
-    if kw.strip(): mask &= (df['ts_code'].astype('string').str.contains(kw.strip(), case=False, regex=False, na=False) | df['name'].astype('string').str.contains(kw.strip(), case=False, regex=False, na=False))
+    if kw.strip(): mask &= stock_mask(df, kw)
     
     show_df = df[mask].sort_values('RPS_50', ascending=False).copy()
     show_df = format_rps_show(show_df, 'RPS_50', 'rps_50_chg')
@@ -449,13 +450,13 @@ def render_breakout_content(df):
         sel_level = b1.selectbox("突破周期级别", level_opts)
         
         min_vol_ratio = b2.slider("放量倍数 (相比5日均量)", 1.0, 5.0, 1.2, step=0.1)
-        kw_b = b3.text_input("搜代码/名称", placeholder="搜索...", key="kw_breakout")
+        kw_b = b3.text_input("搜索股票", placeholder="名称、代码或拼音首字母", key="kw_breakout")
 
     mask = df['vol_ratio'] >= min_vol_ratio
     if sel_level != "全部":
         mask &= (df['level'] == sel_level)
     if kw_b.strip():
-        mask &= (df['ts_code'].astype('string').str.contains(kw_b.strip(), case=False, regex=False, na=False) | df['name'].astype('string').str.contains(kw_b.strip(), case=False, regex=False, na=False))
+        mask &= stock_mask(df, kw_b)
 
     show_df = df[mask].sort_values(by=['pct_chg', 'vol_ratio'], ascending=[False, False]).copy()
     
@@ -494,9 +495,9 @@ def render_etf_content(df):
     render_freshness_banner(df, "ETF 榜单")
     st.caption("用相对强度筛选方向，再看技术图中的位置；折溢价需到“投机与套利”核对价格与净值日期。")
     st.success(f"📈 捕捉到 {len(df)} 只强势 ETF")
-    kw = st.text_input("🔍 搜 ETF")
+    kw = st.text_input("🔍 搜 ETF", placeholder="名称、代码或拼音首字母")
     show_df = df.copy()
-    if kw.strip(): show_df = show_df[show_df['name'].astype('string').str.contains(kw.strip(), case=False, regex=False, na=False) | show_df['ts_code'].astype('string').str.contains(kw.strip(), case=False, regex=False, na=False)]
+    if kw.strip(): show_df = show_df[stock_mask(show_df, kw)]
     show_df = format_rps_show(show_df, 'RPS_50', 'rps_50_chg')
     target_cols = ['ts_code', 'name', 'price_now', 'RPS_50_Show', 'RPS_120', 'RPS_250', 'xueqiu_url']
     final_cols = [c for c in target_cols if c in show_df.columns]

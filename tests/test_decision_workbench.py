@@ -171,7 +171,7 @@ class WorkbenchRenderingTests(unittest.TestCase):
                  "plans": {}, "calendar": [], "prices": pd.DataFrame(),
              }):
             app = AppTest.from_function(workbench_app, args=("candidates",)).run(timeout=30)
-            query = next(w for w in app.text_input if w.label == "查找代码、名称或行业")
+            query = next(w for w in app.text_input if w.label == "查找股票或行业")
             query.input("不存在的标的").run(timeout=30)
             clear = next(b for b in app.button if b.label == "清除筛选并恢复全部候选")
             clear.click().run(timeout=30)

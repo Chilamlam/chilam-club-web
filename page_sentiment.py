@@ -9,9 +9,11 @@
 """
 from __future__ import annotations
 
+import pandas as pd
 import streamlit as st
 
 import sentiment as sm
+from stock_search import matches_stock
 
 def _pct(v, digits: int = 1, sign: bool = False) -> str:
     """None/NaN 一律显示 —，禁止用 0 冒充缺失值。"""
@@ -96,9 +98,11 @@ def _render_promotion_table(promo: dict) -> None:
     rates = (promo or {}).get("rates") or {}
     if not rates:
         return
-    with st.expander("🪜 各高度晋级明细", expanded=True):
+    paths = sorted(rates, key=lambda path: int(path.split("进")[0]), reverse=True)
+    with st.expander("🪜 各高度晋级概况", expanded=True):
         rows = []
-        for k, v in rates.items():
+        for k in paths:
+            v = rates[k]
             rows.append({
                 "晋级路径": k,
                 "昨日基数": v["base"],
@@ -107,13 +111,41 @@ def _render_promotion_table(promo: dict) -> None:
                 "晋级率": f"{v['rate'] * 100:.1f}%",
             })
         st.dataframe(rows, hide_index=True, use_container_width=True)
-        members = [{"昨日高度": r["previous_height"], "名称": r["name"], "代码": r["code"],
+        st.caption("按昨日各高度的股票逐只核对今日涨停归档；未晋级不等于跌停，今日连板数为「—」表示未在当日涨停归档中找到。")
+    members = [dict(r, path=path) for path in paths for r in rates[path].get("members", [])]
+    if not members:
+        return
+    scope = f"promotion_{promo.get('prev_date', '')}_{promo.get('date', '')}"
+    with st.expander(f"按昨日板数查看个股（共 {len(members)} 只）", expanded=False):
+        a, b = st.columns(2)
+        path = a.selectbox("昨日板数", paths + ["全部高度"], key=scope+"_height",
+            format_func=lambda p: (f"昨日{p.split('进')[0]}板 · {p}（{rates[p]['base']}只）" if p in rates else p))
+        result = b.radio("今日结果", ["全部", "晋级", "未晋级"], horizontal=True, key=scope+"_result")
+        query = st.text_input("在晋级明细中查找股票", placeholder="名称、代码或拼音首字母，如 sjkj", key=scope+"_query")
+        filtered = [r for r in members if (path == "全部高度" or r["path"] == path)
+                    and (result == "全部" or r["promoted"] == (result == "晋级"))
+                    and matches_stock(query, r["name"], r["code"])]
+        filtered.sort(key=lambda r: (-r["previous_height"], not r["promoted"], r["code"]))
+        if not filtered:
+            st.info("当前条件下没有股票，可切换板数、晋级结果或清空搜索。")
+            return
+        frame = pd.DataFrame([{"昨日板数": f"{r['previous_height']}板", "名称": r["name"], "代码": r["code"],
                     "今日结果": "晋级" if r["promoted"] else "未晋级",
-                    "今日连板数": r["current_height"]}
-                   for v in reversed(list(rates.values())) for r in v.get("members", [])]
-        if members:
-            st.dataframe(members, hide_index=True, width="stretch")
-        st.caption("按昨日各高度的股票逐只核对今日涨停归档；未晋级不等于跌停，今日连板数留空表示未在当日涨停归档中找到。")
+                    "今日连板数": str(r["current_height"]) if r["current_height"] is not None else "—"}
+                    for r in filtered])
+        page_size = 20
+        pages = (len(frame) + page_size - 1) // page_size
+        signature = (path, result, query, len(frame))
+        if st.session_state.get(scope+"_filter") != signature:
+            st.session_state[scope+"_page"] = 1
+            st.session_state[scope+"_filter"] = signature
+        page = st.selectbox("明细页", range(1, pages+1), key=scope+"_page",
+                            format_func=lambda n: f"第 {n} / {pages} 页", disabled=pages == 1)
+        start = (page-1)*page_size
+        st.caption(f"匹配 {len(frame)} 只 · 显示第 {start+1}—{min(start+page_size, len(frame))} 只 · 每页最多 {page_size} 只")
+        st.dataframe(frame.iloc[start:start+page_size], hide_index=True, width="stretch")
+        st.download_button("下载当前筛选的全部明细", frame.to_csv(index=False).encode("utf-8-sig"),
+            file_name=f"晋级明细_{promo.get('date', '')}.csv", mime="text/csv", key=scope+"_download")
 
 
 def _render_caliber(derived: dict) -> None:

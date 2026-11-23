@@ -6,6 +6,7 @@ import unittest
 import pandas as pd
 
 import data_freshness as freshness
+from stock_search import stock_mask
 
 
 class FreshnessTests(unittest.TestCase):
@@ -52,21 +53,22 @@ class SearchTests(unittest.TestCase):
                     '.': [True, True, False, True],
                     ' sh ': [True, True, False, True],
                     'etf': [False, True, False, False],
+                    'slgs': [True, False, False, False],
+                    'PTGS': [False, False, False, True],
                     '不存在': [False] * 4}
         checked = set()
         for function in tree.body:
             if not isinstance(function, ast.FunctionDef) or function.name not in functions:
                 continue
             expressions = [node for node in ast.walk(function)
-                           if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr)
-                           and any(isinstance(call, ast.Attribute) and call.attr == 'contains'
-                                   for call in ast.walk(node))]
+                           if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                           and node.func.id == 'stock_mask']
             self.assertEqual(len(expressions), 1)
             expression = compile(ast.Expression(expressions[0]), str(source), 'eval')
             for query, wanted in expected.items():
                 with self.subTest(page=function.name, query=query):
                     result = eval(expression, {}, {'df': frame, 'show_df': frame,
-                                                  'kw': query, 'kw_b': query})
+                                                  'kw': query, 'kw_b': query, 'stock_mask': stock_mask})
                     self.assertEqual(result.tolist(), wanted)
             checked.add(function.name)
         self.assertEqual(checked, functions)

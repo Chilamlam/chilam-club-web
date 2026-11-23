@@ -88,9 +88,9 @@ def select(rows, *, query="", industries=(), membership_filter="全部", only_cl
            intersection=False, max_return5=None, sort="代码", ascending=False):
     fields = {"代码": "symbol", "RPS50": "rps", "5日涨跌幅": "return5", "20日涨跌幅": "return20",
               "换手率": "turnover", "连续在强势榜天数": "streak"}
-    query = query.strip().lower()
+    from stock_search import matches_stock
     chosen = [r for r in rows
-              if (not query or query in (r["symbol"]+r["name"]+r.get("industry", "")).lower())
+              if matches_stock(query, r["name"], r["symbol"], r.get("industry", ""))
               and (not industries or r.get("industry") in industries)
               and (membership_filter == "全部" or r.get("membership") == membership_filter)
               and (not only_clean or not r["risks"])

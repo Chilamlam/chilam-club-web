@@ -14,6 +14,7 @@ import research_ui
 import research_workspace as workspace
 from site_data import load_csv
 from strategy_playbooks import PLAYBOOKS
+from stock_search import stock_label
 from update_schedule import beijing_now
 
 
@@ -66,7 +67,8 @@ def _watchlist(quotes, records):
     if not symbols:
         return
     with st.expander(f"已有自选中，还有 {len(symbols)} 只未建立研究档案"):
-        selected = st.selectbox("选择已有自选", symbols, format_func=lambda c:f"{quotes.get(c,{}).get('name',c)} · {c}")
+        selected = st.selectbox("选择已有自选", symbols, format_func=lambda c:stock_label(quotes.get(c,{}).get('name',c), c),
+                                help="可输入名称、代码或拼音首字母搜索。")
         if st.button("从这只自选开始研究", key=cache_key+"_adopt"):
             quote = quotes.get(selected) or {}
             candidate = dict(symbol=selected, name=quote.get("name") or selected, industry=quote.get("industry") or "",
@@ -167,7 +169,7 @@ def render_home(frames, evening, asof, publication, evidence, analysis):
                 hide_index=True, width="stretch")
             options={r["id"]:r for r in shown}
             selected=st.selectbox("打开一条继续研究", list(options), index=None,
-                format_func=lambda i:f"{options[i]['name']} · {options[i]['style']} · {options[i]['mode']}", key=store.key()+"_home_pick", placeholder="选择要复核的股票")
+                format_func=lambda i:stock_label(options[i]['name'], options[i]['code'], f"{options[i]['style']} · {options[i]['mode']}"), key=store.key()+"_home_pick", placeholder="输入名称、代码或拼音首字母")
             if selected and st.button("查看变化、更新条件 →", key=store.key()+"_open", type="primary"):
                 st.session_state[store.key()+"_selected_record"] = selected
                 journey.go(journey.WORKBENCH_PAGE, options[selected]["code"])
@@ -216,7 +218,8 @@ def render_tracking(frames, evening, asof, analysis):
         st.session_state[scope+"_version"]=preferred
     if transferred in groups:
         st.session_state[scope+"_stock"]=transferred
-    selected=st.selectbox("研究的股票",list(groups),format_func=lambda code:f"{groups[code][0]['plan'].get('name') or code} · {code}",key=scope+"_stock")
+    selected=st.selectbox("研究的股票",list(groups),format_func=lambda code:stock_label(groups[code][0]['plan'].get('name'), code),key=scope+"_stock",
+                          help="可输入名称、代码或拼音首字母搜索。")
     versions={r["id"]:r for r in groups[selected]}
     if st.session_state.get(scope+"_version") not in versions:
         st.session_state.pop(scope+"_version",None)

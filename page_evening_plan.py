@@ -458,11 +458,14 @@ def _render_plan_builder(plan: dict) -> None:
                 all_opts.append(label)
                 opt_meta[label] = (it, p_obj.get("next_day_anchor", ""), p_short, p_key)
 
+    from stock_search import stock_label
     selected = st.multiselect(
         "选择观察标的",
         options=all_opts,
+        format_func=lambda label: stock_label(opt_meta[label][0]['name'], opt_meta[label][0]['code'], opt_meta[label][2]),
         default=[],
         key="ep_plan_picks",
+        placeholder="输入名称、代码或拼音首字母",
     )
 
     if selected:
@@ -484,7 +487,7 @@ def _render_plan_builder(plan: dict) -> None:
             item, _, _, _ = opt_meta[label]
             code = journey.equity_symbol(item.get("code"))
             if code:
-                action_options[code] = f"{item['name']} · {code}"
+                action_options[code] = stock_label(item['name'], code)
         if not action_options:
             st.warning("所选记录缺少可识别的证券代码，无法带入其他页面；仍可复制或下载本段记录。")
             action_code = ""

@@ -370,9 +370,12 @@ def _render_key_levels(rows: list[dict]) -> None:
     # 报价阶段已经探过沪深北并按活跃度定了市场，这里直接复用那个真值。
     # 若再按号段猜一遍，000905 的日K会拉成深市厦门港务的，缠论结论跟着一起错。
     tx_of = {opt: r.get("_tx_code") or "" for opt, r in zip(options, rows)}
+    from stock_search import stock_label
+    labels = {opt: stock_label(r['名称'], r['代码']) for opt, r in zip(options, rows)}
     picked = st.multiselect(
         "选择要扫描的自选标的（建议一次不超过 8 只）",
         options, default=options[:min(3, len(options))],
+        format_func=labels.get, placeholder="输入名称、代码或拼音首字母",
         key="wl_level_pick",
     )
     if not picked:

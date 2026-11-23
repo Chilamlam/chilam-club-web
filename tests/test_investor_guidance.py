@@ -146,7 +146,7 @@ class JourneyTests(unittest.TestCase):
              patch.object(journal_store, "load_records", return_value=([record], None)), \
              patch.object(journal_store, "save_record", return_value=(None, {"code":"offline"})) as write:
             app = AppTest.from_function(journey_app).run(timeout=30)
-            app.selectbox(key="test_pick_pick").select("sz000905")
+            app.selectbox(key="test_pick_pick").select("sz000905").run(timeout=30)
             app.button(key="test_pick_chart").click().run(timeout=30)
             self.assertFalse(app.exception)
             self.assertEqual(app.selectbox(key="nav_group").value, "找标的")

@@ -1,6 +1,7 @@
 # 前端运行依赖（Streamlit Cloud 装这份）。跑批依赖另见 requirements-batch.txt。
 streamlit>=1.49,<2.0
 pandas
+pypinyin>=0.55,<1
 # numpy 必须显式声明：tech_analysis / page_macro_erp / scorecard / sentiment 四个模块
 # 顶层就是 `import numpy as np`，缺它是**模块加载即 ImportError**（整页白屏，
 # 2026-09-02 那次白屏的代价是全天不可用）。此前一直没崩，只是 pandas 与 streamlit

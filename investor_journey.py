@@ -7,6 +7,7 @@ import pandas as pd
 import streamlit as st
 
 from navigation import NAV_GROUPS
+from stock_search import stock_label
 from update_schedule import beijing_now
 
 QUOTE_PAGE = "⚡ 实时行情 + 技术分析"
@@ -93,16 +94,18 @@ def candidate_actions(frame: pd.DataFrame, *, key: str, code_col="ts_code", name
         code = equity_symbol(raw) if equities else explicit_symbol(raw)
         name = row.get(name_col)
         name = "" if pd.isna(name) else str(name)
-        choices[code] = f"{name} · {code}"
+        choices[code] = stock_label(name, code)
     if not choices:
         return
     with st.container(border=True):
         left, middle, right = st.columns([3, 1, 1])
         selected = left.selectbox("选一只继续研究", list(choices),
-                                  format_func=choices.get, key=f"{key}_pick")
-        if middle.button("查看技术图 →", key=f"{key}_chart", use_container_width=True):
+                                  format_func=choices.get, key=f"{key}_pick", index=None,
+                                  placeholder="输入名称、代码或拼音首字母，如 sjkj",
+                                  help="搜索当前名单，拼音首字母不区分大小写。")
+        if middle.button("查看技术图 →", key=f"{key}_chart", use_container_width=True, disabled=selected is None):
             go(QUOTE_PAGE, selected)
-        if right.button("打开研究档案 →", key=f"{key}_track", use_container_width=True):
+        if right.button("打开研究档案 →", key=f"{key}_track", use_container_width=True, disabled=selected is None):
             go(WORKBENCH_PAGE, selected)
         st.caption("技术页可核对分时与日线；研究档案会保留入选来源、风险和后续价格变化。")
 
