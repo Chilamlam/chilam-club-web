@@ -45,7 +45,7 @@ on:
         required: false
         default: '0'
       only:
-        description: '只跑指定步骤，逗号分隔（留空=全跑）。可选：calendar,expire_orders,rps,etf,market_monitor,ladder_themes,speculation,convertible,guru,radar,snapshot,breakout,sector_rotation,industry_signal,sentiment,scorecard,evening_plan,digest,review_ai,review_score'
+        description: '只跑指定步骤，逗号分隔（留空=全跑）。可选：calendar,expire_orders,rps,etf,market_monitor,ladder_themes,speculation,convertible,funding,guru,radar,snapshot,breakout,sector_rotation,industry_signal,sentiment,scorecard,evening_plan,digest,review_ai,review_score'
         required: false
         default: ''
 

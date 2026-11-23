@@ -15,6 +15,7 @@
 """
 import sys
 import types
+from pathlib import Path
 
 _st = types.ModuleType("streamlit")
 
@@ -48,6 +49,7 @@ import tech_overlay as tov                            # noqa: E402
 
 SYMBOLS = ["600519", "sh000001", "513100", "00700", "HSI", "NVDA", "IXIC", "GC", "CL"]
 MODE_SETS = ([], [tov._MODE_CHAN], [tov._MODE_DINAPOLI], [tov._MODE_CHAN, tov._MODE_DINAPOLI])
+SEMANTIC_BANNED = ("趋势健康", "趋势转弱", "支撑", "阻力", "变盘")
 
 fails = []
 
@@ -90,6 +92,16 @@ def probe(raw: str, period: str):
     for lv in res["levels"]:
         check(np.isfinite(lv["price"]) and lv["price"] > 0,
               f"{head}: 关键价位异常 {lv['label']}={lv['price']}")
+        check(lv["side"] in {"上方", "下方", "当前价"},
+              f"{head}: 关键价位应只标注相对位置，实际 side={lv['side']}")
+
+    semantics = " ".join([res["state"]["chan"], res["state"]["dinapoli"],
+                          res["state"]["target"], *res["state"]["warn"]])
+    for phrase in SEMANTIC_BANNED:
+        check(phrase not in semantics,
+              f"{head}: 结构说明重新出现方向性措辞「{phrase}」")
+    check("不能单独证明后续方向" in semantics,
+          f"{head}: 结构说明缺少“不能单独证明后续方向”边界")
 
     for modes in MODE_SETS:
         try:
@@ -111,6 +123,12 @@ def probe(raw: str, period: str):
 
 
 def main():
+    for filename in ("tech_analysis.py", "tech_overlay.py"):
+        source = (Path(__file__).resolve().parent / filename).read_text(encoding="utf-8")
+        for phrase in SEMANTIC_BANNED:
+            check(phrase not in source,
+                  f"{filename}: 源码残留方向性措辞「{phrase}」")
+
     for raw in SYMBOLS:
         sym = q.resolve_symbol(raw)
         if not sym:

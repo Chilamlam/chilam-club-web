@@ -95,10 +95,10 @@ print("=" * 60)
 print("二、展示层读取的每个子键都存在")
 print("=" * 60)
 r12 = payload["promotion"]["rates"]["1进2"]
-for k in ("rate", "promoted", "base", "reliable"):
+for k in ("rate", "promoted", "base", "not_promoted", "members"):
     ck(k in r12, f"promotion.rates['1进2'].{k} 存在")
 ck(abs(r12["rate"] - 0.4) < 1e-9, f"1进2 = 8/20 = 40.0%（实际 {r12['rate'] * 100:.1f}%）")
-ck(r12["reliable"] is True, "1进2 样本 20 ≥ 10 → reliable=True")
+ck(len(r12["members"]) == 20, "1进2 保留 20 只成员的逐股结果")
 
 prem = payload["premium"]
 for k in ("status", "median_pct", "win_rate", "n", "missing"):
@@ -160,8 +160,8 @@ ck("from page_sentiment import render_sentiment_block" in app_src,
    "app.py 已 import render_sentiment_block")
 ck("render_sentiment_block()" in app_src, "app.py 已调用 render_sentiment_block()")
 i_block = app_src.find("render_sentiment_block()")
-i_ladder = app_src.find("🪜 连板情绪天梯")
-ck(0 < i_block < i_ladder, "短线接力统计排在连板天梯名单之前")
+i_ladder = app_src.find('st.subheader("连板梯队")')
+ck(0 < i_block < i_ladder, "短线接力统计排在连板梯队名单之前")
 
 print("-" * 60)
 print(f"通过 {len(PASS)} 项，失败 {len(FAIL)} 项")

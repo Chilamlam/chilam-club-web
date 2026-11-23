@@ -217,10 +217,13 @@ def check_six_strategy_pools() -> None:
     p2_map = {r["code"]: r for r in p2["items"]}
     ck(p2_map["002003"]["is_turnover_board"] is True and p2_map["002004"]["is_turnover_board"] is False,
        "Pool 2 准确区分 #033 换手二板与 #004 一字二板")
-    ck(any("#145 周五二板空间龙候选" in t for t in p2_map["002003"]["tags"]),
-       "Pool 2 周五自动为换手二板挂载 #145 周五二板空间龙候选标签")
-    ck(len(p2["pk_groups"]) == 1 and p2["pk_groups"][0]["count"] == 3 and "中庸选股法" in p2["pk_groups"][0]["rule_hint"],
-       "Pool 2 对 ≥3 只同身位高标自动生成 #049《中庸》去最高去最低观察提示")
+    ck(any("#145 周五二板观察候选" in t for t in p2_map["002003"]["tags"]),
+       "Pool 2 周五自动为换手二板挂载 #145 周五二板观察候选标签")
+    _p2_hint = p2["pk_groups"][0]["rule_hint"] if len(p2["pk_groups"]) == 1 else ""
+    ck(len(p2["pk_groups"]) == 1 and p2["pk_groups"][0]["count"] == 3
+       and "#049 同身位分组" in _p2_hint
+       and all(word in _p2_hint for word in ("高位", "中位", "低位")),
+       "Pool 2 对 ≥3 只同身位高标生成高位、中位和低位分组记录条件")
 
     # Pool 3: 冰点狗啃板与 #035 炸板反包
     # 002009 昨日曾涨停，今日盘中触及涨停(prev_c=10.0, high=11.0)但收盘回落至 10.5(+5.0%)
@@ -231,8 +234,13 @@ def check_six_strategy_pools() -> None:
     hist_for_p3 = pd.DataFrame([{"date": "20261015", "code": "002009", "name": "冲板炸板股", "limit_times": 1}])
     p3 = ep.build_pool_ice_rebound(ladder, snap_map, turnover_map, kline_map={"002009": k_broken}, ladder_hist=hist_for_p3)
     p3_map = {r["code"]: r for r in p3["items"]}
-    ck("002008" in p3_map and "狗啃板(板块独苗)" in p3_map["002008"]["pattern_type"],
-       "Pool 3 准确捕获 zbc>=2 且板块唯一涨停的正宗狗啃板(002008)")
+    _p3_dog = p3_map.get("002008") or {}
+    ck("002008" in p3_map
+       and _p3_dog.get("zbc", 0) >= 2
+       and _p3_dog.get("sector_zt_count") == 1
+       and "多次炸板回封" in _p3_dog.get("pattern_type", "")
+       and "板块仅1只涨停" in _p3_dog.get("pattern_type", ""),
+       "Pool 3 准确捕获多次炸板回封且板块仅 1 只涨停的 002008")
     ck("002009" in p3_map and "#035 触板炸板" in p3_map["002009"]["pattern_type"],
        "Pool 3 准确捕获 #035 盘中触板炸板收红盘的反包候选股(002009)")
 
@@ -240,7 +248,7 @@ def check_six_strategy_pools() -> None:
     hist_ladder = pd.DataFrame([
         {"date": "20261015", "code": "002010", "name": "人气断板龙", "limit_times": 3, "industry": "低空经济"},
     ])
-    # 构造 12 根日 K，最后 6 根均价约 10.01，今日收盘 10.06（距 MA6 +0.5%，处于回踩支撑带）
+    # 构造 12 根日 K，最后 6 根均价约 10.01，今日收盘 10.06（距 MA6 +0.5%，处于站内阈值带）
     k_ma6 = pd.DataFrame([
         {"date": f"202610{i:02d}", "open": 9.5, "high": 9.8, "low": 9.4, "close": 9.5} for i in range(1, 7)
     ] + [
@@ -251,9 +259,9 @@ def check_six_strategy_pools() -> None:
     p4 = ep.build_pool_ma6_pullback("20261016", ladder, hist_ladder, snap_map, turnover_map, kline_map={"002010": k_ma6})
     ck(p4["count"] == 1 and p4["items"][0]["code"] == "002010",
        "Pool 4 准确捕获近期>=2板且今日断板回踩 MA6 的人气龙头(002010)")
-    ck("贴近MA6" in p4["items"][0]["support_anchor"], f"Pool 4 支撑位标签含贴近MA6（实际={p4['items'][0]['support_anchor']}）")
+    ck("贴近MA6" in p4["items"][0]["support_anchor"], f"Pool 4 位置标签含贴近MA6（实际={p4['items'][0]['support_anchor']}）")
 
-    # Pool 5: #169 揉搓线洗盘识别
+    # Pool 5: #169 长上影、长下影组合识别
     # T-1 长上影：open=10.0, close=10.1, high=10.6 (上影0.5/0.62=80.6%>=45%), low=9.98 (下影0.02/0.62=3.2%<=35%)
     # T 长下影：open=10.1, close=10.2, high=10.25 (上影0.05/0.50=10%<=35%), low=9.75 (下影0.35/0.50=70%>=45%)
     k_rub = pd.DataFrame([
@@ -264,15 +272,19 @@ def check_six_strategy_pools() -> None:
     ])
     rub = ep.detect_rubbing_line(k_rub)
     ck(rub is not None and rub["prev_upper_ratio"] >= 45.0 and rub["curr_lower_ratio"] >= 45.0,
-       "#169 揉搓线识别器准确捕获「前日长上影试盘+今日长下影探底回升」组合")
+       "#169 识别器准确捕获前日长上影与今日长下影组合")
 
     strong_df = pd.DataFrame([
         {"ts_code": "002011.SZ", "name": "趋势揉搓股", "细分行业": "固态电池", "RPS_50": 95.0},
         {"ts_code": "002012.SZ", "name": "固态趋势锚B", "细分行业": "固态电池", "RPS_50": 92.0},
     ])
     p5 = ep.build_pool_rubbing_and_breakout("20261016", strong_df, pd.DataFrame(), snap_map, turnover_map, kline_map={"002011": k_rub})
-    ck(p5["count"] == 1 and p5["items"][0]["code"] == "002011" and "#169 揉搓线" in p5["items"][0]["pattern"],
-       "Pool 5 准确收录触发 #169 揉搓线的趋势股 002011")
+    _p5_rub = p5["items"][0] if p5["count"] == 1 and p5["items"] else {}
+    ck(_p5_rub.get("code") == "002011"
+       and _p5_rub.get("pattern") == "#169 长影线组合"
+       and any("#169 长影线组合" in tag and "长上影" in tag and "长下影" in tag
+               for tag in (_p5_rub.get("tags") or [])),
+       "Pool 5 准确收录触发前日长上影与今日长下影组合的 002011")
 
     # Pool 6: 强趋势板块低位首板补涨（固态电池板块有 002011, 002012 两只高 RPS 趋势锚点，且今日有首板 002001, 002002；920096 虽同属固态电池但属北交所必须被剔除）
     p6 = ep.build_pool_trend_catchup(ladder, strong_df, pd.DataFrame(), snap_map, turnover_map)
@@ -371,6 +383,22 @@ def check_artifacts_and_ui() -> None:
         ck(w not in kb_str, f"181 知识库不含违规词「{w}」")
         ck(w not in plan_str, f"latest.json 产物不含违规词「{w}」")
         ck(w not in ui_src, f"page_evening_plan.py 不含违规词「{w}」")
+    for retired_label in (
+        "已量化入池",
+        "晚间复盘应用",
+        "仅看已接入自动选股池",
+        "已关联结构化条件",
+        "原文资料",
+    ):
+        ck(retired_label not in ui_src, f"资料库不再使用暗示有效性的旧标签「{retired_label}」")
+    for boundary in (
+        "不表示规则有效",
+        "站内不会把生成式摘要改写为已证实结论",
+        "规则是否具有预测力仍需由持续归档结果核对",
+        "站内整理摘要（作者立场，未经本站验证）",
+        "作者原文归档（保留原意，不作为站内结论）",
+    ):
+        ck(boundary in ui_src, f"资料库写明来源与有效性边界「{boundary}」")
 
     # 检查前端页面新鲜度横幅与 VIP 门禁（锁个人视角与历史验证矩阵，不锁六大客观选股池）
     ck("_render_freshness_and_disclaimer" in ui_src and "freshness." in ui_src,

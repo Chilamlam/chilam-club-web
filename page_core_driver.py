@@ -5,7 +5,7 @@ from site_data import load_json
 import symbol_resolve as sr
 
 def render_core_driver_page():
-    st.header("🚨 强势股区间偏离雷达")
+    st.header("📐 强势股区间偏离")
     st.caption("先看追踪区间、相对基准的涨幅和回撤，再进入技术图核对位置。")
 
     col_t1, col_t2 = st.columns([1, 2])

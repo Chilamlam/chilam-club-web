@@ -17,13 +17,17 @@ from __future__ import annotations
 import argparse
 import datetime
 import os
+import json
 import sys
 import time
+from pathlib import Path
 
 import pandas as pd
 import tushare as ts
 
 import scorecard as sc
+from data_freshness import norm_date
+from decision_workbench import symbol_id
 
 MY_TOKEN = os.getenv("TUSHARE_TOKEN", "")
 pro = None
@@ -223,10 +227,60 @@ def archive_today_picks(date_str: str, names: pd.DataFrame) -> int:
     return len(rows)
 
 
+def fund_adj_snapshot(date_str: str, codes: set[str]) -> pd.DataFrame:
+    """Funds aren't in pro.daily. Page date-specific fund quotes and factors."""
+    empty = pd.DataFrame(columns=["ts_code", "adj_close"])
+    if not codes:
+        return empty
+    try:
+        def fetch(api, fields):
+            chunks = []
+            for offset in range(0, 20000, 1000):
+                part = api(trade_date=date_str, fields=fields, offset=offset, limit=1000)
+                if part is None or part.empty:
+                    break
+                chunks.append(part)
+                if len(part) < 1000:
+                    break
+            else:
+                raise ValueError("fund pagination incomplete")
+            return pd.concat(chunks, ignore_index=True) if chunks else pd.DataFrame()
+        prices = fetch(pro.fund_daily, "ts_code,trade_date,close")
+        factors = fetch(pro.fund_adj, "ts_code,trade_date,adj_factor")
+        if prices.empty or factors.empty:
+            return empty
+        def clean(frame, field):
+            frame = frame[frame["trade_date"].map(norm_date).eq(date_str) & frame["ts_code"].isin(codes)].copy().drop_duplicates()
+            frame = frame[~frame.duplicated("ts_code", keep=False)]
+            frame[field] = pd.to_numeric(frame[field], errors="coerce")
+            return frame[frame[field].between(0, 1e12, inclusive="neither")]
+        prices, factors = clean(prices, "close"), clean(factors, "adj_factor")
+        joined = prices.merge(factors, on="ts_code", validate="one_to_one")
+        joined["adj_close"] = joined["close"] * joined["adj_factor"]
+        return joined[["ts_code", "adj_close"]]
+    except Exception as exc:
+        print(f"   ⚠️ 基金复权价未取齐：{type(exc).__name__}；缺失不补零")
+        return empty
+
+
 def archive_prices(date_str: str) -> int:
     """归档当日「曾上榜标的 + 基准」的复权价。只存必要标的，避免归档爆炸。"""
     codes = set(sc.tracked_codes())
     codes.discard(sc.BENCHMARK)
+    # Yesterday's evening pools and the current ladder must also be tracked;
+    # restricting prices to RPS survivors hides losing/non-RPS candidates.
+    try:
+        ladder = json.loads(Path("data/limit_ladder.json").read_text(encoding="utf-8"))
+        if norm_date(ladder.get("date")) == date_str:
+            codes.update(symbol_id(r.get("code"), equity=True) for r in ladder.get("stocks", []))
+        for path in sorted(Path("data/evening_plan/history").glob("*.json"))[-8:]:
+            plan = json.loads(path.read_text(encoding="utf-8"))
+            if norm_date(plan.get("date")) and norm_date(plan["date"]) <= date_str:
+                for pool in plan.get("pools", {}).values():
+                    codes.update(symbol_id(r.get("code"), equity=True) for r in pool.get("items", []))
+    except (OSError, ValueError, TypeError):
+        print("   ⚠️ 部分观察池未读取，仍归档已有榜单价格")
+    codes.discard("")
 
     rows = []
     b = benchmark_close(date_str)
@@ -240,6 +294,11 @@ def archive_prices(date_str: str) -> int:
             fail(f"{date_str} 全市场行情缺失")
         snap = snap[snap["ts_code"].isin(codes)]
         for r in snap.itertuples(index=False):
+            rows.append({"date": date_str, "ts_code": r.ts_code, "adj_close": float(r.adj_close)})
+        picks = sc.load_picks()
+        fund_codes = set(picks.loc[picks["strategy"] == "etf", "ts_code"])
+        funds = fund_adj_snapshot(date_str, fund_codes)
+        for r in funds.itertuples(index=False):
             rows.append({"date": date_str, "ts_code": r.ts_code, "adj_close": float(r.adj_close)})
 
     total = sc.append_prices(pd.DataFrame(rows))

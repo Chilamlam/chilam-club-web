@@ -65,6 +65,8 @@ BACKFILL_EXTRA_PASS = "extra_pass"
 STEPS: list[dict] = [
     {"key": "calendar", "script": "daily_trading_calendar.py", "label": "交易日历",
      "backfill": BACKFILL_NONE, "timeout": 60},
+    {"key": "funding", "script": "daily_funding.py", "label": "融资余额与资金证据",
+     "backfill": BACKFILL_NONE, "timeout": 90},
     {"key": "expire_orders", "script": "daily_expire_orders.py", "label": "订单过期清理",
      "backfill": BACKFILL_NONE, "timeout": 300},
     {"key": "rps", "script": "daily_rps_pro.py", "label": "RPS 强势股",
@@ -81,7 +83,7 @@ STEPS: list[dict] = [
     # 与 speculation 无依赖，放在其后只为日志顺序，失败不会影响 ETF 部分。
     {"key": "convertible", "script": "daily_convertible.py", "label": "可转债分类与统计",
      "backfill": BACKFILL_NONE, "timeout": 900},
-    {"key": "guru", "script": "daily_guru_loader.py", "label": "核心龙头",
+    {"key": "guru", "script": "daily_guru_loader.py", "label": "强势股区间偏离",
      "backfill": BACKFILL_NONE, "timeout": 900},
     {"key": "radar", "script": "daily_radar.py", "label": "异动雷达",
      "backfill": BACKFILL_NONE, "timeout": 1200},

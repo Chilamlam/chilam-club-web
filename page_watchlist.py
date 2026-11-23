@@ -28,9 +28,10 @@ import streamlit as st
 import auth
 import database
 import push_binding as pb
+import review_language
 import symbol_resolve as sr
 from data_freshness import norm_date, pick_date, verdict
-from investor_journey import explicit_symbol, candidate_actions, render_plan_book
+from investor_journey import explicit_symbol, candidate_actions, render_plan_book, page_link, WORKBENCH_PAGE
 from site_data import load_csv as _load_csv, load_json as _load_json
 from update_schedule import beijing_now
 
@@ -45,6 +46,15 @@ BENCH_BARE = "000300"
 
 # 北交所号段（2026-08-29 实测：腾讯必须用 bj 前缀，用 sh/sz 一律返回空）
 _BJ_PREFIX = ("92", "43", "83", "87")
+
+POOL_SIGNAL_LABELS = {
+    "pool_10am_first": "⚡ #125 10:00前换手首板",
+    "pool_2b_pk": "🐉 #033/#049 换手二板与同身位组",
+    "pool_ice_rebound": "🦴 #080/#118 多次炸板回封",
+    "pool_ma6_pullback": "📐 #128 高位股回踩MA6/MA12",
+    "pool_rubbing_breakout": "🌀 #169/#172 长影线与突破回踩",
+    "pool_trend_catchup": "🚀 #103 强行业中的首板",
+}
 
 
 # ================= 实时报价 =================
@@ -425,7 +435,7 @@ def _render_key_levels(rows: list[dict]) -> None:
         df_out, hide_index=True, use_container_width=True,
         column_config={"距离": st.column_config.NumberColumn("距关键位", format="%.2f%%")},
     )
-    st.caption("「距关键位」是现价与最近关键价位的百分比距离，越小代表越接近变盘参考位。仅为结构测算，不构成买卖建议。")
+    st.caption("「距关键位」是现价与最近列示参考价的百分比距离；接近只表示几何距离较小，不表示价格方向或后续走势。")
 
 
 # ================= 微信推送绑定 =================
@@ -467,7 +477,9 @@ def _build_rows(watchlist: list[str]) -> tuple[list[dict], float | None, dict]:
     df_etf = _load_csv("data/strong_etfs.csv")
     ladder = _load_json("data/limit_ladder.json")
     radar = _load_json("data/radar_data.json")
-    ep_plan = _load_json("data/evening_plan/latest.json")
+    ep_plan = review_language.current_wording(
+        _load_json("data/evening_plan/latest.json")
+    )
     source_dates = {"RPS": pick_date(df_rps), "突破": pick_date(df_break), "ETF": pick_date(df_etf),
                     "天梯": norm_date(ladder.get("date")), "战法池": norm_date(ep_plan.get("date"))}
     for win in ("10d", "30d"):
@@ -494,8 +506,11 @@ def _build_rows(watchlist: list[str]) -> tuple[list[dict], float | None, dict]:
         return market + bare
 
     i_ep_pools: dict[str, list[str]] = {}
-    for _p in ((ep_plan or {}).get("pools") or {}).values():
-        _ptitle = str(_p.get("title") or "").split("（")[0]
+    for _pkey, _p in ((ep_plan or {}).get("pools") or {}).items():
+        _ptitle = POOL_SIGNAL_LABELS.get(
+            _pkey,
+            str(_p.get("title") or _pkey).split("（")[0],
+        )
         for _it in (_p.get("items") or []):
             _bc = equity_key(_it.get("code"))
             if _bc:
@@ -667,6 +682,7 @@ def render_watchlist_page() -> None:
             for note in src["未采用来源"]:
                 st.caption(note)
     render_plan_book(key="watch_plans")
+    page_link("打开观察记录 · 跟踪计划与执行结果 →", WORKBENCH_PAGE, key="watch_workbench")
 
     st.markdown("---")
     _render_overview(rows, market_pct)

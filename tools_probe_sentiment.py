@@ -3,12 +3,12 @@
 
 校验口径：
 1. 晋级率必须按「昨日 N 板 → 今日 ≥N+1」计算，手工构造算例对账
-2. 样本 <10 的高位板必须标 reliable=False（防止 1/1=100% 被当成信号）
+2. 每个高度必须保留成员名单与逐股晋级结果，不用固定数量门槛评价参考价值
 3. 缺前一交易日时必须返回 failed，不得用单日数据硬算
 4. 梯队断层必须能识别中间高度为 0 的情况
 5. 连板溢价主口径为中位数，且必须统计缺失数量
 6. 赚钱效应背离方向判断正确（均值>中位 → 涨幅集中）
-7. 周期定位在 1进2 样本不足时必须返回 insufficient，不得猜测
+7. 周期定位只要求当日 1进2 有记录；数量本身作为市场状态展示
 8. 明日验证条件每条都必须带「今日基准值」——不带基准的判断无法对账
 9. 计算层不得 import streamlit / tushare / akshare
 """
@@ -75,21 +75,23 @@ def test_promotion() -> None:
           and rates["1进2"]["base"] == 20
           and abs(rates["1进2"]["rate"] - 0.4) < 1e-9,
           str(rates.get("1进2")))
-    check("1进2 样本 20 ≥10 标 reliable=True",
-          rates.get("1进2", {}).get("reliable") is True)
+    check("1进2 保留 20 只成员及 8 只晋级结果",
+          rates.get("1进2", {}).get("not_promoted") == 12
+          and len(rates.get("1进2", {}).get("members", [])) == 20)
 
     check("2进3 = 2/5 = 40%",
           rates.get("2进3", {}).get("promoted") == 2
           and abs(rates["2进3"]["rate"] - 0.4) < 1e-9,
           str(rates.get("2进3")))
-    check("2进3 样本 5 <10 标 reliable=False",
-          rates.get("2进3", {}).get("reliable") is False)
+    check("2进3 保留 5 只成员及 2 只晋级结果",
+          rates.get("2进3", {}).get("not_promoted") == 3
+          and len(rates.get("2进3", {}).get("members", [])) == 5)
 
     check("3进4 = 0/1 = 0%（C0 未晋级）",
           rates.get("3进4", {}).get("promoted") == 0
           and rates["3进4"]["base"] == 1)
-    check("3进4 单只样本标 reliable=False（防 100% 被当信号）",
-          rates.get("3进4", {}).get("reliable") is False)
+    check("3进4 单只成员仍保留断板结果",
+          rates.get("3进4", {}).get("members", [{}])[0].get("promoted") is False)
 
 
 def test_promotion_missing_prev() -> None:
@@ -170,12 +172,14 @@ def test_cycle_and_plan() -> None:
     check("晋级率高但连板溢价为负 → 不判发酵期",
           ph_neg.get("phase") == "分歧期", str(ph_neg.get("phase")))
 
-    # 1进2 样本不足时必须拒绝定位
-    thin = {"status": "ok", "rates": {"1进2": {"base": 3, "promoted": 3,
-                                              "rate": 1.0, "reliable": False}}}
+    # 没有首板记录时才拒绝定位；三只首板同样保留实际结果。
+    thin = {"status": "ok", "rates": {"1进2": {"base": 3, "promoted": 3, "rate": 1.0}}}
     ph2 = sm.cycle_phase(thin, gap, premium)
-    check("1进2 样本不足 → insufficient（不猜测）",
-          ph2.get("status") == "insufficient", str(ph2.get("reason", "")))
+    check("1进2 只有 3 只仍按记录计算统计档位",
+          ph2.get("status") == "ok", str(ph2.get("reason", "")))
+    empty = {"status": "ok", "rates": {"1进2": {"base": 0, "promoted": 0, "rate": 0.0}}}
+    check("1进2 无记录时不猜测",
+          sm.cycle_phase(empty, gap, premium).get("status") == "insufficient")
 
     plan = sm.verification_plan(promo, gap, premium, breadth)
     check("明日验证条件至少 4 条", len(plan) >= 4, f"{len(plan)} 条")
@@ -309,7 +313,7 @@ def test_phase_adaptive() -> None:
     check("回退时说明里写明样本数与经验阈值",
           "10" in th_short["note"] and "%" in th_short["note"], th_short["note"])
 
-    # 首板太少的噪声日不进分布
+    # 首板数量是市场状态；即使只有 5 只，也保留该日实际晋级率。
     thin = pd.DataFrame(
         [{"date": "20260126", "code": f"T{i:02d}", "name": "t", "industry": "t",
           "limit_times": 1, "first_time": "09:31:00"} for i in range(5)]
@@ -318,8 +322,8 @@ def test_phase_adaptive() -> None:
     )
     h_mix = pd.concat([h_high, thin], ignore_index=True)
     idx = set(sm.promotion_rate_series(h_mix).index)
-    check("前一日首板仅 5 只（<10）→ 该日不进分布",
-          "20260127" not in idx, str(sorted(idx)[-3:]))
+    check("前一日首板仅 5 只仍进入分布",
+          "20260127" in idx, str(sorted(idx)[-3:]))
 
     # 空归档 / 单日归档不得崩，也不得编造阈值
     empty = pd.DataFrame(columns=sm.LADDER_COLS)

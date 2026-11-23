@@ -56,7 +56,7 @@ LIQUID_AMOUNT = 30_000.0     # 千元 -> 3000 万元
 AMOUNT_YI = 100_000.0        # 千元 -> 亿元
 BALANCE_YUAN_PER_YI = 100_000_000.0  # cb_basic.remain_size 的源单位是元
 LIQUID_YI = LIQUID_AMOUNT / AMOUNT_YI   # 亿元口径的同一阈值
-DIP_PCT = 3.0                # 盘中回踩幅度：当日开盘价下方 3% 挂单
+DIP_PCT = 3.0                # 开盘价下方的触价阈值，仅用于事后分组
 
 
 def num(value, default=None):
@@ -184,9 +184,9 @@ def _outcomes(today: pd.Series | None, nxt: pd.Series | None) -> dict:
     close = num(today.get("close"))
     open_ = num(nxt.get("open"))
     low, close_next = num(nxt.get("low")), num(nxt.get("close"))
-    # 盘中回踩：以“当日开盘价”为已知参照下调 DIP_PCT%，只有最低价真的触及时才算
-    # 成交样本，成交价就是挂单价，收盘卖出。 这样不会把“事后才知道的最低价”
-    # 当成入场价，样本才有意义。
+    # 触价情形：以当日开盘价为已知参照下调 DIP_PCT%；只有最低价实际触及阈值时，
+    # 才计算“阈值价 → 收盘价”的事后价格差。这里不假设订单能够成交，也不把事后
+    # 才知道的最低价当作可取得的价格。
     trigger = open_ * (1.0 - DIP_PCT / 100.0) if open_ is not None else None
     touched = (trigger is not None and low is not None and low <= trigger)
     return {
@@ -300,8 +300,9 @@ def build_snapshot(bond: pd.DataFrame, stock: pd.DataFrame, basic: dict,
         "notes": [
             "分类只使用当日涨跌幅，阈值全部写在页面上；不预测涨跌。",
             "溢价率按最新转股价与当日正股收盘计算；转股价下修后如未同步，会短暂失真。",
-            "收益统计只用「昨收→今开」「今开→今收」「回踩挂单→今收」三种可执行口径；"
-            "「最低价→收盘」只是理论天花板，不作胜率统计。均未扣费用与滑点。",
+            "价格差统计分别记录「昨收→今开」「今开→今收」「开盘下方阈值触价→今收」；"
+            "触价只表示最低价穿越过该价位，不代表订单成交。"
+            "「最低价→收盘」是事后区间上限，不作正收益占比统计；所有口径均未扣费用与滑点。",
         ],
     }
 
@@ -451,12 +452,13 @@ def _patterns(bond: pd.DataFrame, stock: pd.DataFrame, *, stock_map: dict,
         "stage_rows": sorted(stage_rows, key=lambda r: (r["date"], r["code"]), reverse=True),
         "definitions": {
             "overnight": "昨收 → 今日开盘",
-            "open_to_close": "今日开盘 → 今日收盘（开盘低吸）",
-            "low_to_close": "今日最低 → 今日收盘：理论天花板。收盘必然高于最低价，所以恒为正，只表示当天振幅上限，不作收益统计",
-            "dip": (f"盘中回踩：以今日开盘价为参照，下方 {DIP_PCT:g}% 挂单；当日最低价触及该价才算成交，"
-                    f"成交后按今日收盘计；未触及的日子不计入样本"),
+            "open_to_close": "今日开盘 → 今日收盘（事后价格差）",
+            "low_to_close": ("今日最低 → 今日收盘：事后区间上限。按这组日线口径，最低价不高于收盘价，"
+                             "所以结果不为负；它只表示当天振幅空间，不作正收益占比统计"),
+            "dip": (f"开盘下方 {DIP_PCT:g}% 触价情形：当日最低价触及该阈值才计算阈值价到收盘价的价格差；"
+                    "触价不证明订单能够成交，未触及的日子不计入该组"),
             "close_to_close": "昨收 → 今日收盘",
-            "next_high": "昨收 → 今日最高（隔夜最高浮盈）",
+            "next_high": "昨收 → 今日最高（时段最高相对前收的变化）",
             "swap": "昨日第二名今日涨幅超过昨日第一名，记为一次互换",
             "stage_rules": STAGE_RULES,
             "stage_order": STAGE_ORDER,

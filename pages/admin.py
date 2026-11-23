@@ -32,10 +32,16 @@ while _ROOT in sys.path:
 sys.path.insert(0, _ROOT)
 
 import auth
+import account_shell
 import database
 import site_settings
 
-st.set_page_config(page_title="后台管理 - Chilam Club", page_icon="⚙️", layout="wide")
+account_shell.configure_page(
+    current="admin",
+    page_title="后台管理 - Chilam Club",
+    page_icon="⚙️",
+    layout="wide",
+)
 
 # ================= 权限检查 =================
 if not auth.is_logged_in():
@@ -54,6 +60,10 @@ st.title("⚙️ Chilam Club 后台管理")
 st.caption(f"当前管理员: {auth.get_user_email()}")
 
 admin_id = auth.get_user_id()
+
+st.markdown("---")
+if st.button("💬 打开反馈收件箱", type="secondary"):
+    st.switch_page("pages/feedback_admin.py")
 
 # ================= Tabs =================
 tab_users, tab_orders, tab_grant, tab_reset, tab_site = st.tabs([

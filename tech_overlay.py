@@ -78,7 +78,7 @@ def draw_chan(fig: go.Figure, df: pd.DataFrame, res: dict, show_stroke: bool = T
 # ==================== 帝纳波利图层 ====================
 
 def draw_dinapoli(fig: go.Figure, df: pd.DataFrame, res: dict):
-    """画 DMA（含右移悬空段）、F3/F5 回撤位、COP/OP/XOP 目标位、汇聚区。"""
+    """画 DMA（含右移悬空段）、F3/F5 回撤位、COP/OP/XOP 延伸测算和汇聚区。"""
     x_all = list(df["datetime"])
 
     # DMA：右移意味着尾部若干点落在 K 线之外，用 "T+1"… 这类虚拟标签接上
@@ -163,12 +163,13 @@ def draw_macd(df: pd.DataFrame, res: dict) -> go.Figure:
 
 _DISCLAIMER = ("以上全部由程序按固定规则自动推导，**不构成任何投资建议**。"
                "缠论的笔/线段/中枢与帝纳波利的摆动点选取都依赖参数口径，"
-               "不同软件画法会有差异；技术分析只描述已发生的价格结构，不预测未来。")
+               "不同软件画法会有差异；均线交叉、结构区间与关键价位只描述几何位置，"
+               "不能单独证明后续方向，也不预测未来。")
 
 
 def render_conclusion(res: dict, period: str, modes: list):
     """图下方的文字结论。modes 控制显示哪几套体系的解读。"""
-    st.markdown("#### 🧭 自动技术分析结论")
+    st.markdown("#### 🧭 自动技术结构记录")
 
     stt = res.get("state", {})
     cols = st.columns(len(modes)) if len(modes) > 1 else [st.container()]
@@ -204,7 +205,7 @@ def render_conclusion(res: dict, period: str, modes: list):
         tbl = pd.DataFrame([{
             "价位": ta._n(x["price"]),
             "类型": x["label"],
-            "方向": x["side"],
+            "相对现价": x["side"],
             "距现价": f"{x['gap_pct']:+.2f}%",
         } for x in levels])
         st.dataframe(tbl, use_container_width=True, hide_index=True)

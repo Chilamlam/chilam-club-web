@@ -124,6 +124,27 @@ else:
     print(" FAIL 铜金比所需报价缺失")
 
 print()
+print("-" * 72)
+print("ERP / 铜金比文案边界")
+for phrase in (
+    "黄金坑", "抄底", "极便宜", "赔率巨大", "股票越占优",
+    "风向标", "定价锚", "情绪指引", "外资流出压力",
+    "全球经济与能源需求温度计", "资金热度", "全球宏观资产联动",
+    "中枢",
+):
+    if phrase in src_txt:
+        fails.append(f"page_macro_erp.py 残留确定性措辞「{phrase}」")
+        print(f" FAIL 残留「{phrase}」")
+for phrase in ("并非严格的无风险利率", "不能单独证明股债相对方向",
+               "不能单独归因于工业需求、避险情绪、复苏或衰退"):
+    if phrase not in src_txt:
+        fails.append(f"page_macro_erp.py 缺少边界说明「{phrase}」")
+        print(f" FAIL 缺少「{phrase}」")
+if not any("page_macro_erp.py 残留确定性措辞" in f
+           or "page_macro_erp.py 缺少边界说明" in f for f in fails):
+    print(" OK   确定性标签已移除，风险利率与铜金比限制已写明")
+
+print()
 print("=" * 72)
 print(f"失败项: {len(fails)}")
 for f in fails:

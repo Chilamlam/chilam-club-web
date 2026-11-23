@@ -41,12 +41,13 @@ from page_review import render_review_page
 from page_sector_rotation import render_sector_rotation_page
 from page_industry_signal import render_industry_signal_page
 from page_evening_plan import render_evening_plan_page
+from page_decision_workbench import render_decision_workbench_page
 from page_convertible import render_convertible_block
 from ui_compat import image_stretch, html_embed
 import data_freshness as freshness
 from publication_status import publication_status
 import auth
-from navigation import NAV_GROUPS
+from navigation import NAV_GROUPS, SECTION_PAGE, render_navigation
 from page_news import render_news_page
 from ladder_themes import attribution_for, source_status_text
 from investor_journey import apply_handoff, candidate_actions, page_link, WATCH_PAGE, REVIEW_PAGE
@@ -65,6 +66,7 @@ st.set_page_config(
 # 这样关店或换商品时点一下即可，不用改代码、不用等重新部署。
 # 这里的 site_settings 已经是「读 DB（失败则回落默认值）后的最终结论」。
 import site_settings
+import feedback_ui
 
 def inject_ga_safe():
     GA_ID = "G-1HFTXNLL20"
@@ -228,17 +230,7 @@ def get_market_snapshot_local():
 
 # ================= 3. 页面渲染模块 =================
 def render_market_dashboard():
-    st.header("🛸 全市场情绪看板")
-    st.caption("数据驱动 + AI 逻辑分析 | 收盘后更新，实际数据日期见下方")
-    st.caption("先核对市场日期与涨跌分布，再选标的看技术图；把参与条件和失效条件写入观察计划。")
-    links = st.columns(3)
-    with links[0]:
-        page_link("筛选强势股 / ETF →", "🔥 强势股", key="home_candidates")
-    with links[1]:
-        page_link("核对我的池子 →", WATCH_PAGE, key="home_watch")
-    with links[2]:
-        page_link("记录盘面与计划 →", REVIEW_PAGE, key="home_review")
-    
+    st.header("全市场看板")
     df_index = load_data("data/index_history.csv")
     df_sent = load_data("data/market_sentiment.csv")
     df_sector = load_data("data/sector_hot.csv")
@@ -252,93 +244,131 @@ def render_market_dashboard():
     # === B. 核心 KPI ===
     if df_sent is not None and not df_sent.empty:
         last = df_sent.iloc[-1]
-        c1, c2, c3 = st.columns(3)
-        net_up = int(last['up_count'] - last['down_count'])
-        c1.metric("上涨家数", f"{int(last['up_count'])}", delta=f"{net_up} (净值)")
-        c2.metric("下跌家数", f"{int(last['down_count'])}", delta_color="inverse")
-        c3.metric("全市场成交", f"{last['total_amount_yi']} 亿", help="结合近期成交额比较放量或缩量；不同市场规模下不套用固定金额阈值。")
+        up_count = int(last["up_count"])
+        down_count = int(last["down_count"])
+        amount = float(last["total_amount_yi"])
+        net_up = up_count - down_count
+        st.markdown(
+            f"""
+            <style>
+              @media (max-width: 640px) {{
+                .market-kpi-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }}
+                .market-kpi-grid .market-kpi-wide {{ grid-column: 1 / -1; }}
+              }}
+            </style>
+            <div class="market-kpi-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+                        gap:0.55rem;margin:0.85rem 0 1rem;">
+              <div style="border:1px solid rgba(128,128,128,.18);border-radius:10px;
+                          padding:0.7rem 0.75rem;background:rgba(128,128,128,.035);min-width:0">
+                <div style="font-size:.76rem;color:#6b7280">上涨家数</div>
+                <div style="font-size:1.35rem;font-weight:700;color:#d94f43;line-height:1.35">{up_count:,}</div>
+                <div style="font-size:.72rem;color:#6b7280">涨跌净值 {net_up:+,}</div>
+              </div>
+              <div style="border:1px solid rgba(128,128,128,.18);border-radius:10px;
+                          padding:0.7rem 0.75rem;background:rgba(128,128,128,.035);min-width:0">
+                <div style="font-size:.76rem;color:#6b7280">下跌家数</div>
+                <div style="font-size:1.35rem;font-weight:700;color:#178f70;line-height:1.35">{down_count:,}</div>
+                <div style="font-size:.72rem;color:#6b7280">与上涨家数同日</div>
+              </div>
+              <div class="market-kpi-wide" style="border:1px solid rgba(128,128,128,.18);border-radius:10px;
+                          padding:0.7rem 0.75rem;background:rgba(128,128,128,.035);min-width:0"
+                   title="结合近期成交额比较放量或缩量；不同市场规模下不套用固定金额阈值">
+                <div style="font-size:.76rem;color:#6b7280">全市场成交</div>
+                <div style="font-size:1.35rem;font-weight:700;line-height:1.35;white-space:nowrap">{amount:,.2f}<span style="font-size:.72rem;font-weight:500;margin-left:.2rem">亿元</span></div>
+                <div style="font-size:.72rem;color:#6b7280">绝对值，不代表净流入</div>
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
     
-    # === C. 赚钱效应趋势 ===
-    st.subheader("📊 市场情绪 (进攻热度监控)")
-    if df_sent is not None and not df_sent.empty:
-        df_sent = df_sent.sort_values('date').copy()
-        df_sent['up_ma5'] = df_sent['up_count'].rolling(window=5, min_periods=1).mean()
-        df_show = df_sent.tail(60).copy()
-        df_show['date_str'] = df_show['date'].astype(str)
-        
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df_show['date_str'], y=df_show['up_count'], name='上涨家数', line=dict(color='#ff4d4d', width=1.5), opacity=0.8, mode='lines'))
-        fig.add_trace(go.Scatter(x=df_show['date_str'], y=df_show['up_ma5'], name='5日情绪线', line=dict(color='#FF9900', width=3), mode='lines'))
-        fig.update_layout(title="上涨家数与5日均值", xaxis=dict(type='category', tickangle=-45, tickmode='auto', nticks=15, gridcolor='rgba(128,128,128,0.2)'), yaxis=dict(title="上涨家数", gridcolor='rgba(128,128,128,0.2)'), legend=dict(orientation="h", y=1.05, x=0, xanchor="left"), margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified", plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("暂无历史情绪数据，请等待数据积累。")
-    
-    # === D. 大军团作战 ===
-    st.subheader("🔥 大军团作战 (领涨板块)")
-    if df_sector is not None and not df_sector.empty:
-        fig_sec = px.bar(df_sector, x='industry', y='pct_chg', color='pct_chg', text='amount', labels={'pct_chg': '涨幅(%)', 'industry': '板块'}, color_continuous_scale='Reds', height=350)
-        fig_sec.update_traces(texttemplate='%{text}亿', textposition='outside')
-        st.plotly_chart(fig_sec, use_container_width=True)
+    overview, relay, liquidity = st.tabs(["涨跌与板块", "连板与晋级", "成交与风格"])
+    with overview:
+        # === C. 赚钱效应趋势 ===
+        st.subheader("涨跌分布")
+        if df_sent is not None and not df_sent.empty:
+            df_sent = df_sent.sort_values('date').copy()
+            df_sent['up_ma5'] = df_sent['up_count'].rolling(window=5, min_periods=1).mean()
+            df_show = df_sent.tail(60).copy()
+            df_show['date_str'] = df_show['date'].astype(str)
 
-    # === D2. 短线接力统计（晋级比例 / 样本涨跌幅 / 梯队高度） ===
-    # 放在连板天梯之前：先给"这堆涨停意味着什么"的结论，再给明细名单。
-    render_sentiment_block()
-
-    # === D3. 连板情绪天梯 (涨停高度与梯队) ===
-    st.subheader("🪜 连板情绪天梯 (打板与连板接力)")
-    ladder_raw = load_json("data/limit_ladder.json")
-    
-    if ladder_raw and "stocks" in ladder_raw and len(ladder_raw["stocks"]) > 0:
-        total_zt = ladder_raw.get("total_count", len(ladder_raw["stocks"]))
-        max_h = ladder_raw.get("max_height", 1)
-        st.caption(f"👑 统计日涨停共 **{total_zt}** 家 | 市场最高板：**{max_h} 连板** (统计日期: `{ladder_raw.get('date', '未知')}`)")
-        theme_data = load_json("data/limit_themes.json")
-        theme_count = sum(attribution_for(r.get("code"), ladder_raw.get("date"), theme_data) is not None
-                          for r in ladder_raw["stocks"])
-        if theme_data and freshness.norm_date(theme_data.get("date")) == freshness.norm_date(ladder_raw.get("date")):
-            st.caption(f"当日涨停归因覆盖 {theme_count}/{len(ladder_raw['stocks'])} 只 · 来源状态：{source_status_text(theme_data)}")
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=df_show['date_str'], y=df_show['up_count'], name='上涨家数', line=dict(color='#ff4d4d', width=1.5), opacity=0.8, mode='lines'))
+            fig.add_trace(go.Scatter(x=df_show['date_str'], y=df_show['up_ma5'], name='上涨家数5日均值', line=dict(color='#FF9900', width=3), mode='lines'))
+            fig.update_layout(title="上涨家数与5日均值", xaxis=dict(type='category', tickangle=-45, tickmode='auto', nticks=15, gridcolor='rgba(128,128,128,0.2)'), yaxis=dict(title="上涨家数", gridcolor='rgba(128,128,128,0.2)'), legend=dict(orientation="h", y=1.05, x=0, xanchor="left"), margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified", plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+            st.plotly_chart(fig, use_container_width=True)
         else:
-            st.caption("当日题材归因尚未生成；主营行业仅作公司分类，不代表当天炒作题材。")
+            st.info("暂无历史情绪数据，请等待数据积累。")
         
-        df_zt_all = pd.DataFrame(ladder_raw["stocks"])
-        df_zt_all['limit_times'] = pd.to_numeric(df_zt_all['limit_times'], errors='coerce').fillna(1).astype(int)
-        
-        # 梯队折叠展示
-        for lb in sorted(df_zt_all['limit_times'].unique(), reverse=True):
-            sub = df_zt_all[df_zt_all['limit_times'] == lb]
-            badge = f"🔥 {lb} 连板" if lb > 1 else "🌱 首板"
-            with st.expander(f"{badge} ({len(sub)} 家)", expanded=(lb >= 2)):
-                cols = st.columns(min(len(sub), 4))
-                for idx, (_, r) in enumerate(sub.iterrows()):
-                    with cols[idx % 4]:
-                        st.markdown(f"**{r['name']}** `{r.get('code', '')}`")
-                        attribution = attribution_for(r.get('code'), ladder_raw.get('date'), theme_data)
-                        if attribution:
-                            if attribution['theme']:
-                                st.markdown(f"**题材：{attribution['theme']}**")
-                            if attribution['reason']:
-                                st.caption(f"涨停原因：{attribution['reason']}")
-                            st.caption(f"{attribution['source']} · {ladder_raw['date']}")
-                        else:
-                            st.caption("当日题材归因暂缺")
-                        st.caption(f"主营行业：{r.get('industry', '-')}")
-                        if r.get('reason'):
-                            st.caption(f"盘口：{r['reason']}")
-        candidate_actions(df_zt_all, key="ladder_next", code_col="code", equities=True)
-    else:
-        st.info("今日暂无涨停连板梯队数据。")
+        # === D. 大军团作战 ===
+        st.subheader("领涨行业")
+        if df_sector is not None and not df_sector.empty:
+            fig_sec = px.bar(df_sector, x='industry', y='pct_chg', color='pct_chg', text='amount', labels={'pct_chg': '涨幅(%)', 'industry': '板块'}, color_continuous_scale='Reds', height=350)
+            fig_sec.update_traces(texttemplate='%{text}亿', textposition='outside')
+            st.plotly_chart(fig_sec, use_container_width=True)
 
-    # === E. 风格监控 ===
-    st.subheader("⚖️ 风格监控 (500 vs 1000)")
-    if df_index is not None:
-        df_show = df_index.head(250).sort_values('date') 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df_show['date'], y=df_show['zz500'], name='中证500', line=dict(color='#ff9f43')))
-        fig.add_trace(go.Scatter(x=df_show['date'], y=df_show['zz1000'], name='中证1000', line=dict(color='#00d2d3')))
-        fig.add_trace(go.Scatter(x=df_show['date'], y=df_show['spread'], name='价差', line=dict(color='gray', dash='dot'), yaxis='y2'))
-        fig.update_layout(yaxis2=dict(overlaying='y', side='right', showgrid=False), height=350, legend=dict(orientation="h", y=1.1))
-        st.plotly_chart(fig, use_container_width=True)
+    with relay:
+        # === D2. 短线接力统计（晋级比例 / 样本涨跌幅 / 梯队高度） ===
+        # 放在连板天梯之前：先给"这堆涨停意味着什么"的结论，再给明细名单。
+        render_sentiment_block()
+
+        # === D3. 连板情绪天梯 (涨停高度与梯队) ===
+        st.subheader("连板梯队")
+        ladder_raw = load_json("data/limit_ladder.json")
+        
+        if ladder_raw and "stocks" in ladder_raw and len(ladder_raw["stocks"]) > 0:
+            total_zt = ladder_raw.get("total_count", len(ladder_raw["stocks"]))
+            max_h = ladder_raw.get("max_height", 1)
+            st.caption(f"👑 统计日涨停共 **{total_zt}** 家 | 市场最高板：**{max_h} 连板** (统计日期: `{ladder_raw.get('date', '未知')}`)")
+            theme_data = load_json("data/limit_themes.json")
+            theme_count = sum(attribution_for(r.get("code"), ladder_raw.get("date"), theme_data) is not None
+                              for r in ladder_raw["stocks"])
+            if theme_data and freshness.norm_date(theme_data.get("date")) == freshness.norm_date(ladder_raw.get("date")):
+                st.caption(f"当日涨停归因覆盖 {theme_count}/{len(ladder_raw['stocks'])} 只 · 来源状态：{source_status_text(theme_data)}")
+            else:
+                st.caption("当日题材归因尚未生成；主营行业仅作公司分类，不代表当天炒作题材。")
+
+            df_zt_all = pd.DataFrame(ladder_raw["stocks"])
+            df_zt_all['limit_times'] = pd.to_numeric(df_zt_all['limit_times'], errors='coerce').fillna(1).astype(int)
+
+            # 梯队折叠展示
+            for lb in sorted(df_zt_all['limit_times'].unique(), reverse=True):
+                sub = df_zt_all[df_zt_all['limit_times'] == lb]
+                badge = f"🔥 {lb} 连板" if lb > 1 else "🌱 首板"
+                with st.expander(f"{badge} ({len(sub)} 家)", expanded=(lb >= 2)):
+                    cols = st.columns(min(len(sub), 4))
+                    for idx, (_, r) in enumerate(sub.iterrows()):
+                        with cols[idx % 4]:
+                            st.markdown(f"**{r['name']}** `{r.get('code', '')}`")
+                            attribution = attribution_for(r.get('code'), ladder_raw.get('date'), theme_data)
+                            if attribution:
+                                if attribution['theme']:
+                                    st.markdown(f"**题材：{attribution['theme']}**")
+                                if attribution['reason']:
+                                    st.caption(f"涨停原因：{attribution['reason']}")
+                                st.caption(f"{attribution['source']} · {ladder_raw['date']}")
+                            else:
+                                st.caption("当日题材归因暂缺")
+                            st.caption(f"主营行业：{r.get('industry', '-')}")
+                            if r.get('reason'):
+                                st.caption(f"盘口：{r['reason']}")
+            candidate_actions(df_zt_all, key="ladder_next", code_col="code", equities=True)
+        else:
+            st.info("今日暂无涨停连板梯队数据。")
+
+    with liquidity:
+        from workbench_insights_ui import load_insights, render_funding
+        render_funding(load_insights(freshness.pick_date(df_sent)))
+        # === E. 风格监控 ===
+        st.subheader("⚖️ 风格监控 (500 vs 1000)")
+        if df_index is not None:
+            df_show = df_index.head(250).sort_values('date')
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=df_show['date'], y=df_show['zz500'], name='中证500', line=dict(color='#ff9f43')))
+            fig.add_trace(go.Scatter(x=df_show['date'], y=df_show['zz1000'], name='中证1000', line=dict(color='#00d2d3')))
+            fig.add_trace(go.Scatter(x=df_show['date'], y=df_show['spread'], name='价差', line=dict(color='gray', dash='dot'), yaxis='y2'))
+            fig.update_layout(yaxis2=dict(overlaying='y', side='right', showgrid=False), height=350, legend=dict(orientation="h", y=1.1))
+            st.plotly_chart(fig, use_container_width=True)
 
 def render_stock_content(df):
     if df is None or df.empty: 
@@ -347,8 +377,8 @@ def render_stock_content(df):
     # 新鲜度横幅排在免责声明之前：「这份数据是哪天的」比「这份数据不构成建议」更基础。
     # 2026-09-01 本表停在 08-31 而页面毫无提示，用户只能靠肉眼比对才发现。
     render_freshness_banner(df, "强势股榜单")
-    st.caption("RPS 是过去涨幅的相对排名。筛出候选后，查看它距前高、支撑与均线的位置，"
-               "再记录参与条件；筛选规则的历史表现可到“战绩回看”核对。")
+    st.caption("RPS 是过去涨幅的相对排名。筛出候选后，查看它相对前高与各条均线的位置，"
+               "再记录自己的观察条件；筛选规则的历史表现可到“战绩回看”核对。")
     with st.expander("🔍 深度筛选 (点击展开/收起)", expanded=True):
         sc1, sc2, sc3, sc4 = st.columns([1, 1, 1, 1.5])
         min_d = sc1.slider("连榜天数", 1, 30, 1)
@@ -393,7 +423,7 @@ def render_stock_content(df):
     )
 
     candidate_actions(show_df, key="rps_next")
-    page_link("查看榜单历史表现与样本量 →", "🎯 战绩回看", key="rps_score")
+    page_link("查看榜单后续表现 →", "🎯 战绩回看", key="rps_score")
 
     # 快捷下载 CSV
     csv_bytes = show_df[final_cols].to_csv(index=False).encode('utf-8-sig')
@@ -526,13 +556,16 @@ def render_arbitrage_page():
         st.info("基金行情尚未生成，等待下一次收盘更新。")
 
 def render_guru_tracker():
-    st.header("📚 投资作业本 (Guru Tracker)")
-    st.caption("跟随全球顶尖大脑的资金流向，寻找下一个 Alpha。")
-    st.info("💡 提示：机构持仓数据来源于 13F 报告，通常滞后季度结束 45 天；议员交易为实时披露。")
+    st.header("📚 机构公开持仓")
+    st.caption("查看公开申报中的持仓快照，比较披露变化，并回到原始数据源核对。")
+    st.info(
+        "13F 只反映申报人填写的季度末持仓，通常要到季度结束后约 45 天才公开；"
+        "披露后仓位可能已经变化，不能据此推断当前资金意图或后续方向。"
+    )
 
     if "selected_guru" not in st.session_state: st.session_state.selected_guru = None
     if st.session_state.selected_guru is None:
-        st.subheader("🏛️ 基金经理名人堂 & 国会山股神")
+        st.subheader("📄 基金经理公开披露")
         cols = st.columns(3)
         for index, (gid, info) in enumerate(GURUS.items()):
             col = cols[index % 3]
@@ -543,7 +576,7 @@ def render_guru_tracker():
                     st.subheader(info['name'])
                     st.caption(info['company'])
                     st.markdown(f"**风格**: {info['style']}")
-                    if st.button(f"查看持仓 🔍", key=f"btn_{gid}"):
+                    if st.button("查看披露记录 🔍", key=f"btn_{gid}"):
                         st.session_state.selected_guru = gid
                         st.rerun()
     else:
@@ -561,11 +594,15 @@ def render_guru_tracker():
             st.markdown(f"**{info['company']}** | *{info['style']}*")
             st.markdown(f"[🔗 查看原始数据源]({info.get('source_url', '')})")
             
-        st.subheader("📝 最新持仓/交易明细")
+        st.subheader("📝 公开持仓快照")
         csv_path = f"data/gurus/{gid}_latest.csv"
         df = load_data(csv_path)
         if df is not None:
             st.dataframe(df, use_container_width=True, height=500)
+            st.caption(
+                "表格字段沿用原始数据源；申报日期、报告期与币种请在“原始数据源”中再次核对。"
+                "持仓占比和近期活动是历史披露，不是当前建议。"
+            )
         else:
             st.warning(f"🚧 暂未获取到 {info['name']} 的数据。请等待后台自动抓取脚本运行。")
 
@@ -586,9 +623,9 @@ def render_manual_page():
           这既可能是趋势延续的起点，也可能是行情的末段。
 
         **2. 从榜单继续研究**
-        - 选择标的进入日K，核对近期涨幅、成交变化和距离前高/支撑的位置。
-        - 在技术页记录观察依据、参与条件和失效条件，加入自选后持续核对。
-        - 「战绩回看」展示历史超额表现与样本量；RPS 排名本身不限定市值，也不等同于高 beta。
+        - 选择标的进入日K，核对近期涨幅、成交变化，以及价格相对前高和均线的位置。
+        - 在技术页记录观察依据、待核对条件和失效条件，加入自选后持续核对。
+        - 「战绩回看」展示已核对记录、观察期限与基准差值；同一股票可能重复上榜。
 
         > ⚠️ 本站所有榜单均由程序按固定规则自动计算，**不构成投资建议**，
         > 不提供目标价、买卖点或仓位指引。历史动量不代表未来收益，据此操作风险自担。
@@ -603,12 +640,12 @@ def render_manual_page():
         - **N 待进一步判断**：未满足现有阈值；完整规则在「判定规则」页签。
 
         **2. 「十日模式」统计的是什么？**
-        - 每个已归档交易日取成交额≥3000万、当日涨幅最强的第一与第二名，记录隔夜（昨收→次日开盘）、次日开盘买入基准（次日开盘→次日收盘）、次日盘中回踩（次日开盘价下方 3% 挂单，最低价触及才成交，按收盘计）的价格变化。
+        - 每个已归档交易日取成交额≥3000万、当日涨幅最强的第一与第二名，记录跨日（昨收→次日开盘）、开盘至收盘（次日开盘→次日收盘）和开盘下方 3% 触价组（最低价穿越阈值后，按阈值到收盘计算）的价格差。
         - 「次日最低→次日收盘」非负，仅作事后空间参考，不统计正收益占比。
         - B 类统计正股收盘涨幅较高、收盘位于日内上沿且转债落后的样本；全天强度仍须看分时。
-        - C 类按六个节奏阶段分组统计次日结果；样本低于 3 个只作规则提示，不下结论。
-        - 页面上的百分比是**正收益占比**（样本中结果大于 0 的比例），不是可复制的交易胜率；
-          收益均为价格之间的理论涨幅，未扣交易费用与滑点。
+        - C 类按六个节奏阶段分组统计次日结果；各阶段同时列出记录数和结果分布。
+        - 页面上的百分比是**正收益占比**（样本中结果大于 0 的比例），只描述已归档样本；
+          所有结果均为价格之间的比较，未扣交易费用与滑点，也不代表订单能够成交。
 
         **3. 双低值（保留为估值参考列）**
         `双低值 = 可转债价格 + 转股溢价率`。双低值越小，价格越便宜、转股溢价越低。
@@ -637,28 +674,12 @@ def render_manual_page():
 
     with st.expander("🎯 战绩回看 怎么读（2026-08 新增）", expanded=False):
         st.markdown("""
-        **只统计超额收益（alpha），不看绝对收益。** 牛市里人人都赚钱，绝对收益没有信息量；
-        只有"跑赢沪深300 多少"才能说明榜单本身有没有价值。
-
-        - **方向正确率**：榜单是看多信号，只有跑赢基准才算方向正确。跟涨但没跑赢，记为错。
-        - **beta 校正**：页面同时提供原始超额与按历史 beta 调整的结果。
-          beta 的估计受样本窗口影响，应与样本数、绝对涨跌和回撤一起阅读。
-        - **有效样本量（2026-09 新增）**：T+5 口径下相邻交易日共享 4 天持有期，
-          同一天上榜的几十只票又同涨同跌，所以**几千条记录折算后往往只剩个位数独立观测**。
-          页面会给出折算后的样本数和二项检验 p 值，p > 0.05 就直接标"不显著"——
-          此时数字是正是负都判不出方向，别拿它当结论。
-        - **分档区分度**：把榜单按名次分成 1-10 / 11-30 / 31-50 / 51+ 四档，
-          各档平均 alpha 若能**单调递减**，说明排序有信息量。不单调只能说明
-          "在当前样本里暂未观察到区分度"，同样受上面那条样本量限制。
-        - **T+N 口径的诚实声明**：以上榜当日收盘价为基准点，但你当晚才看到榜单、次日才能买。
-          所以这个口径衡量的是"排序有无信息量"，**不是**"照着买能赚多少"。
-          滑点、手续费、涨跌停无法成交等全部未计入。
-        - **样本门槛**：低于 20 条会标注"insufficient"并写明"基本是噪音，不构成参考"。
-        - **历史回溯只重建 RPS 榜**。突破池与 ETF 榜依赖当日盘中派生字段，无法忠实重建，
-          强行重建会得到"另一个策略"的战绩，那属于变相造假。
-
-        > ⚠️ 战绩页是**历史数据的事后统计**，不是收益承诺，不构成投资建议。
-        > 历史表现不代表未来收益。
+        - 展示归档名单在 T+1、T+5、T+10 的表现，以及同期沪深300的差值。
+        - 跑赢基准的占比不等于交易胜率。中位数和四分位数描述现有记录。
+        - 同一股票重复上榜、相邻观察窗口重叠，记录之间可能相关。
+        - 回归 beta 为这段历史内的拟合系数；回归剩余部分不等于选股能力。
+        - 起点为上榜日收盘，未模拟次日实际成交、手续费、滑点和涨跌停限制。
+        - 历史回溯只重建 RPS 榜；其他榜单使用当日留存的快照。
         """)
 
     with st.expander("📮 收盘摘要 与推送 说明（2026-08 新增）", expanded=False):
@@ -690,7 +711,7 @@ def render_manual_page():
 
         **必须知道的几点**
 
-        - **两个窗口不一样长是刻意的**：占比是慢变量，短期会被噪声主导，所以用 250 日；
+        - **两个窗口不一样长是刻意的**：占比是慢变量，短期内受单日行情和解禁事件影响较大，所以用 250 日；
           成交额是快变量，只有 20 日才能体现"最近正在挤进来"而不是"一直很热"。
         - **分位是含当日的中位秩分位**（0 = 窗口内最小，100 = 最大）。
           用中位秩是为了让并列值各分一半——否则一串相同的值会被整体判成高分位。
@@ -701,13 +722,13 @@ def render_manual_page():
           极端分位。这是指标性质，不是筛选偏好——看图时请注意纵轴的体量含义。
         - **每天只推热度分位最高的 3 个**，但页面上的明细表是**完整**的（全部参与行业），
           且推送里会写明"另有 N 个满足条件"。不会让你以为只有那几个。
-        - **命中 0 个是有效结论**。推送里会如实写"今日无同时满足两条件的行业"，
+        - **命中 0 个是一项筛选结果**。推送里会如实写"今日无同时满足两条件的行业"，
           它与"这一段的数据没取到"是**两句不同的话**，页面也分开显示。
         - **截面残缺日整日剔除**：某天归档的行业数明显少于常态时，那一天不参与计算。
           因为占比的分母是当日全体行业之和，少一半行业会让每个行业的占比凭空翻倍，
           而结果看起来仍是一组正常的百分数——这类错误没有任何可见迹象。
-        - **样本不足不出结论**：归档不足 20 个完整截面交易日时不给结论。
-          分位窗口不足时页面上如实标注实际长度，不假装窗口是满的。
+        - **分位所需历史**：滚动分位至少需要 20 个完整截面交易日；
+          不足时只标注可用长度，尚未进入分位计算。
         - **页面底部有「历史命中回顾」**：把同一套规则在过去每个交易日回放一遍，
           给出命中之后 T+1/T+3/T+5/T+10 的涨跌，并与同期"全行业等权平均"对比。
           两点必须知道：只有**分位窗口满额**的交易日才纳入回算（归档开头那段被跳过，
@@ -730,85 +751,84 @@ def render_login_lock(feature_name: str):
         st.switch_page("pages/auth.py")
 
 def main():
+    pending = bool(st.session_state.get("journey_target"))
     apply_handoff(st.session_state)
+    if pending and st.session_state.get("active_page"):
+        st.query_params["view"] = st.session_state["active_page"]
+        if (
+            st.session_state["active_page"] != SECTION_PAGE
+            and "section" in st.query_params
+        ):
+            del st.query_params["section"]
+    st.markdown("""<style>
+      [data-testid="stSidebarNav"] {display:none;}
+      .block-container {padding-top:2rem; padding-bottom:2rem;}
+      [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {gap:0.25rem;}
+      [data-testid="stSidebar"] button {text-align:left; min-height:2rem;}
+      [data-testid="stSidebar"] button > div {justify-content:flex-start !important;}
+      [data-testid="stSidebar"] button p {font-size:0.88rem;}
+      [data-testid="stMetric"] {padding:0.5rem 0;}
+      [data-testid="stAppDeployButton"],
+      [data-testid="stMainMenu"] {display:none !important;}
+    </style>""", unsafe_allow_html=True)
     with st.sidebar:
-        st.title("Chilam.Club")
-        
-        # 登录状态展示
-        if auth.is_logged_in():
-            u_email = auth.get_user_email()
-            if auth.is_admin():
-                st.caption(f"👤 `{u_email}` (🛡️管理员)")
-            elif auth.is_vip():
-                st.caption(f"👤 `{u_email}` (👑VIP)")
+        st.markdown("### Chilam.Club")
+        page = render_navigation()
+        with st.expander("账号与站点"):
+            # 登录状态展示
+            if auth.is_logged_in():
+                u_email = auth.get_user_email()
+                if auth.is_admin():
+                    st.caption(f"👤 `{u_email}` (🛡️管理员)")
+                elif auth.is_vip():
+                    st.caption(f"👤 `{u_email}` (👑VIP)")
+                else:
+                    st.caption(f"👤 `{u_email}` (普通用户)")
+
+                c_m1, c_m2 = st.columns(2)
+                with c_m1:
+                    if st.button("会员中心", key="sb_dash", use_container_width=True):
+                        st.switch_page("pages/dashboard.py")
+                with c_m2:
+                    if st.button("退出", key="sb_logout", use_container_width=True):
+                        feedback_ui.request_feedback_session_clear()
+                        auth.logout()
+                        st.rerun()
+                if auth.is_admin():
+                    if st.button("⚙️ 后台管理", key="sb_admin", use_container_width=True):
+                        # 必须是 pages/ 下的路径：switch_page 只认入口脚本与 pages/ 目录，
+                        # 传 "admin.py" 会抛 StreamlitAPIException（Cloud 上错误还被脱敏）。
+                        st.switch_page("pages/admin.py")
             else:
-                st.caption(f"👤 `{u_email}` (普通用户)")
-            
-            c_m1, c_m2 = st.columns(2)
-            with c_m1:
-                if st.button("会员中心", key="sb_dash", use_container_width=True):
-                    st.switch_page("pages/dashboard.py")
-            with c_m2:
-                if st.button("退出", key="sb_logout", use_container_width=True):
-                    auth.logout()
-                    st.rerun()
-            if auth.is_admin():
-                if st.button("⚙️ 后台管理", key="sb_admin", use_container_width=True):
-                    # 必须是 pages/ 下的路径：switch_page 只认入口脚本与 pages/ 目录，
-                    # 传 "admin.py" 会抛 StreamlitAPIException（Cloud 上错误还被脱敏）。
-                    st.switch_page("pages/admin.py")
-        else:
-            st.caption("👤 游客未登录")
-            if st.button("🔐 登录 / 注册", key="sb_login", use_container_width=True):
-                st.switch_page("pages/auth.py")
+                st.caption("👤 游客未登录")
+                if st.button("🔐 登录 / 注册", key="sb_login", use_container_width=True):
+                    st.switch_page("pages/auth.py")
 
-        # 🛒 店铺入口（2026-10-06 上线；2026-10-20 关店后由后台开关隐藏）
-        # 开关/文案/链接都来自 site_settings（后台「站点设置」页可改），
-        # 读不到配置时按「不显示」处理——宁可少一个入口，也不要把已关的店露出来。
-        # link_button 生成 target=_blank 的锚点，在 www.chilam.club 的 iframe 壳里
-        # 点击是开新标签页，不会把 iframe 带走。
-        _shop = site_settings.shop_entry_config()
-        if _shop.get("enabled"):
-            st.link_button(_shop["label"], _shop["url"],
-                           use_container_width=True)
+            _shop = site_settings.shop_entry_config()
+            if _shop.get("enabled"):
+                st.link_button(_shop["label"], _shop["url"], width="stretch")
+            st.caption("数据来自第三方，可能延迟或缺失。历史统计供研究使用，不构成收益承诺。")
+            if os.path.exists("donate.jpg"):
+                st.image("donate.jpg", caption="请喝咖啡 ☕")
 
-        # 📈 命运K线 (人生流年量化推演) 专属外链入口
-        st.link_button("📈 命运K线 (人生运势推演)", "https://metaphysics.chilam.club",
-                       use_container_width=True)
-
-        st.markdown("---")
-        group = st.selectbox("功能分组", list(NAV_GROUPS), key="nav_group")
-        description, menu_items = NAV_GROUPS[group]
-        st.caption(description)
-        # 非 widget 状态保存每组位置；Streamlit 会清理暂未渲染的 widget key。
-        saved_pages = st.session_state.setdefault("nav_saved_pages", {})
-        saved_page = saved_pages.get(group, menu_items[0])
-        nav_key = f"nav_page_{group}"
-        if st.session_state.get(nav_key) not in menu_items:
-            st.session_state[nav_key] = saved_page if saved_page in menu_items else menu_items[0]
-        page = st.radio("导航菜单", menu_items, key=nav_key)
-        saved_pages[group] = page
-        st.markdown("---")
-        st.markdown("💡 **Tip**: 保持独立思考。")
-        # 全站免责声明：放在侧边栏意味着无论用户停在哪一页都能看到，
-        # 不依赖某一页的页脚是否被滑到底。
-        st.caption(
-            "⚠️ **免责声明**：本站所有数据与榜单均由程序按固定量化规则自动生成，"
-            "仅供研究参考，**不构成投资建议**，不提供个股推荐、目标价、买卖点或仓位指引。"
-            "行情数据来自第三方接口，可能存在延迟、缺失或错误。"
-            "历史统计不代表未来收益，投资有风险，据此操作的一切后果由投资者自行承担。"
-        )
-        if os.path.exists("donate.jpg"):
-            st.image("donate.jpg", caption="请喝咖啡 ☕")
+        feedback_ui.render_sidebar_feedback(page)
 
     # ================= 路由 =================
     # 门禁原则（2026-08-29 调整）：
-    #   全市场客观数据（强势股/投机套利/投资作业本/战绩回看）一律开放——
+    #   全市场客观数据（强势股/投机套利/机构持仓披露/战绩回看）一律开放——
     #   这些内容在同花顺、东财上免费就能看到近似替代品，锁它们只会在用户
     #   建立信任之前先把人赶走。
     #   真正的付费墙放在「个性化视角」与「主动推送」上：这两样依赖用户自己的
     #   数据与时间积累，别处抄不走，也是唯一让人愿意按月付费的东西。
-    if page == "🛸 全市场看板":
+    if page == "🧭 多策略选股":
+        render_decision_workbench_page("candidates")
+    elif page == "🧩 题材跟踪":
+        render_decision_workbench_page("themes")
+    elif page == "📊 名单表现":
+        render_decision_workbench_page("outcomes")
+    elif page == "👁 观察记录":
+        render_decision_workbench_page("tracking")
+    elif page == "🛸 全市场看板":
         render_market_dashboard()
     elif page == "🔄 板块轮动":
         render_sector_rotation_page()
@@ -846,19 +866,12 @@ def main():
         render_macro_erp_page()
     elif page == "⚡ 投机与套利":
         render_arbitrage_page()
-    elif page == "🚨 核心龙头雷达":
+    elif page == "📐 强势股区间偏离":
         render_core_driver_page()
-    elif page == "📚 投资作业本":
+    elif page == "📚 机构持仓披露":
         render_guru_tracker()
-    elif page == "📏 黄金分割预测":
+    elif page == "📏 黄金分割参考位":
         render_fibonacci_chart()
-    elif page == "📈 命运K线 (人生运势)":
-        st.title("📈 命运K线 · 人生流年量化推演")
-        st.caption("融合传统生辰八字大运与现代金融K线交易图表，测算人生流年起伏趋势、五维走势与天体逆行雷达。")
-        col1, _ = st.columns([1, 4])
-        with col1:
-            st.link_button("🚀 全屏独立窗口打开", "https://metaphysics.chilam.club", use_container_width=True)
-        html_embed('<iframe src="https://metaphysics.chilam.club" width="100%" height="860" frameborder="0" style="border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.06);"></iframe>', height=880)
     elif page == "📖 使用说明文档":
         render_manual_page()
     elif page == "📰 资讯雷达":

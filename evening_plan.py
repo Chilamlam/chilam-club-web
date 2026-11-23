@@ -5,14 +5,14 @@
 设计目标
 --------
 将《181篇A股短线投机方法论》中可量化、可验证的规则沉淀为每日收盘后自动运行的客观计算引擎：
-  1. 情绪周期与日历特殊法则识别（097双冰强反 / 081退潮D3陷阱 / 052阳极阴生 / 065中位股亏钱扩散 / 121&145周五定律 / 027节后定律）
+  1. 情绪周期与日历观察条件识别（097连续冰点 / 081退潮后观察 / 052高潮分层 / 065中位股亏钱扩散 / 121&145周五观察 / 027节后观察）
   2. 125「10:00前硬核首板 vs 10:00后首板」次日晋级率与溢价对比
   3. 六大晚间客观选股池构建：
      - pool_10am_first      : #125 10:00前硬核首板池（叠 #030 低价小市值排序）
-     - pool_2b_pk           : #033/#071 换手二板池 & #049 多龙同台《中庸》观察组
-     - pool_ice_rebound     : #080/#118 冰点「狗啃板」（烂而不弱）与 #035 炸板反包池
-     - pool_ma6_pullback    : #128 人气龙头首阴回踩 MA6 / MA12 观察池
-     - pool_rubbing_breakout: #169 揉搓线洗盘 & #139/#172 突破回踩池
+     - pool_2b_pk           : #033/#071 换手二板池 & #049 同身位分组
+     - pool_ice_rebound     : #080/#118 多次炸板回封与 #035 触板回落池
+     - pool_ma6_pullback    : #128 高位股回踩 MA6 / MA12 观察池
+     - pool_rubbing_breakout: #169 长影线组合 & #139/#172 突破回踩池
      - pool_trend_catchup   : #077/#103 强趋势板块低位首板补涨池
   4. 四道防雷质检门（#096 次新/活跃股死亡换手率、#176 高位双针滞涨、#004 一字筹码断层、#032 午后烂板/弱股性）
   5. 自选股战法共振与排雷诊断（供 VIP 收盘推送与「我的池子」联动）
@@ -182,7 +182,7 @@ def first_board_time_split(
         }
 
     mask_pre = prev_1b["first_time"].map(is_pre_10am)
-    pre_bucket = _calc_bucket(prev_1b[mask_pre], "10:00前首板（#125硬核首板）")
+    pre_bucket = _calc_bucket(prev_1b[mask_pre], "10:00前首板（#125）")
     post_bucket = _calc_bucket(prev_1b[~mask_pre], "10:00后首板（盘中/午后板）")
 
     diff_promo = None
@@ -227,7 +227,7 @@ def mid_tier_loss_diffusion(
     prev_date: str | None,
     pct_map: dict | None = None,
 ) -> dict:
-    """监控昨日中位连板股（3~4板）在今日的大面率与中位表现（#063 高中低位划分 / #065 亏钱效应扩散）。"""
+    """监控昨日中位连板股（3~4板）在今日的大跌占比与中位表现（#063 / #065）。"""
     dk = _norm_date(date_key)
     pk = _norm_date(prev_date or "")
     if ladder_hist is None or ladder_hist.empty or not pk:
@@ -314,12 +314,12 @@ def mid_tier_loss_diffusion(
 
     verdict = (
         f"昨日中位股（{mid_low}~{mid_high}板）{len(valid_pcts)} 只："
-        f"今日中位涨幅 {med_pct:+.2f}%，大面（≤-5%）{big_loss} 只（占比 {loss_rate*100:.0f}%）"
+        f"今日中位涨幅 {med_pct:+.2f}%，跌幅≥5% 的股票 {big_loss} 只（占比 {loss_rate*100:.0f}%）"
     )
     if warning:
-        verdict += " —— ⚠️ 触发 #065 中位股亏钱效应扩散警戒，谨慎接力中位跟风"
+        verdict += " —— 触发 #065 的亏钱效应扩散观察条件；次日继续核对中位股涨跌幅与再晋级数量"
     else:
-        verdict += " —— 中位股承接尚属温和"
+        verdict += " —— 当前未触发 #065 的亏钱效应扩散观察条件"
 
     return {
         "status": "ok",
@@ -369,7 +369,7 @@ def detect_cycle_and_calendar_laws(
         except ValueError:
             pass
 
-    # 2. 重建近 5 日情绪周期序列（用于判定 #097 双冰强反 与 #081 退潮 D3 陷阱）
+    # 2. 重建近 5 日情绪周期序列（用于核对 #097、#081 对应的档位变化）
     recent_phases: list[dict] = []
     if ladder_hist is not None and not ladder_hist.empty:
         import sentiment as sm
@@ -388,7 +388,7 @@ def detect_cycle_and_calendar_laws(
 
     active_laws: list[dict] = []
 
-    # 法则 A：#097 双冰强反 vs 单冰弱修
+    # 法则 A：#097 连续冰点与首次冰点的观察条件
     if len(recent_phases) >= 2:
         p_today = recent_phases[-1]["phase"]
         p_yest = recent_phases[-2]["phase"]
@@ -396,23 +396,23 @@ def detect_cycle_and_calendar_laws(
         if p_today == "冰点期" and p_yest == "冰点期":
             active_laws.append({
                 "id": "097",
-                "title": "双冰强反黄金节点（#097/#158）",
+                "title": "连续冰点观察（#097/#158）",
                 "level": "opportunity",
-                "summary": "连续两日处于冰点期（双冰共振），恐慌盘充分宣泄，次日极高概率迎来全市场强修复，重点观察今日逆势封板的「狗啃板」与新题材10:00前首板。",
+                "summary": "连续两日处于本规则的冰点档位。#097 提供了双冰后观察修复的经验，本站尚未验证该条件下的修复概率。",
             })
         elif p_today == "冰点期" and p_prev2 == "冰点期" and p_yest in ("退潮期", "分歧期"):
             active_laws.append({
                 "id": "097",
                 "title": "冰点二次回踩共振（#097 双冰变体）",
                 "level": "opportunity",
-                "summary": "经历「冰点→弱修→再冰点」双底结构，次日情绪具备强反弹动能，关注分歧转一致的前排卡位龙头。",
+                "summary": "近期档位出现「冰点→退潮或分歧→冰点」序列。可继续记录次日广度与连板股表现。",
             })
         elif p_today == "冰点期":
             active_laws.append({
                 "id": "158",
                 "title": "首冰试错节点（#097/#158 单冰防弱修）",
                 "level": "info",
-                "summary": "今日首次进入冰点期：单冰次日往往表现为局部弱修复（冲高易回落），观察重点在于淘汰赛中幸存的「烂而不弱」独苗板（#080）。",
+                "summary": "今日进入冰点档位。#158 将首次冰点作为观察节点，次日实际表现尚待记录。",
             })
 
         # 法则 B：#081 退潮期第三天（D3）陷阱
@@ -420,9 +420,9 @@ def detect_cycle_and_calendar_laws(
         if p_prev2 == "冰点期" and p_yest in ("冰点期", "退潮期") and p_today in ("退潮期", "分歧期"):
             active_laws.append({
                 "id": "081",
-                "title": "退潮期 D3 节点预警（#081 周期的秘密）",
+                "title": "退潮档位连续观察（#081）",
                 "level": "warning",
-                "summary": "前日冰点（D1）→ 今日修复过渡（D2），明日将进入退潮周期第 3 天（D3）。按 #081 铁律：D3 极易出现修复乏力后的二次大面杀跌，次日严禁追高缩量高标。",
+                "summary": "近期档位从冰点转为退潮或分歧。#081 提醒观察修复后的再度下跌；档位序列不能确定次日方向。",
             })
 
     # 法则 C：#052/#056/#069 高潮阳极阴生（做两头弃中间）
@@ -431,12 +431,11 @@ def detect_cycle_and_calendar_laws(
     if cur_phase == "发酵期" or zt_total >= 80:
         active_laws.append({
             "id": "052",
-            "title": "阳极阴生·做两头弃中间（#052/#056/#069）",
+            "title": "高潮档位下的分层表现（#052/#056/#069）",
             "level": "warning",
             "summary": (
                 f"当前处于情绪高涨期（涨停 {zt_total} 家，周期「{cur_phase}」）。"
-                "高潮次日必迎分化：观察方向宜「做两头、弃中间」——仅盯绝对最高标/10:00前最强1进2，"
-                "或新分支低位首板，回避 3~4 板中位跟风与缩量抢跑一字。"
+                "可分别核对最高板、中位板和新增首板的次日表现；#052 的经验不代表次日必然分化。"
             ),
         })
 
@@ -444,29 +443,29 @@ def detect_cycle_and_calendar_laws(
     if weekday_idx == 4:  # 周五
         active_laws.append({
             "id": "145",
-            "title": "周五换手二板空间龙定律（#145/#086）",
+            "title": "周五二板观察（#145/#086）",
             "level": "opportunity",
-            "summary": "今日为周五：历史统计表明，新周期空间龙最高概率诞生于「周五的换手二板」，其次是「周五的10:00前首板」；同时注意周末消息面发酵方向。",
+            "summary": "今日为周五。#145 提出观察周五换手二板与早盘首板；本站尚未验证其产生后续最高板的概率。",
         })
         active_laws.append({
             "id": "121",
-            "title": "周五高位空间板分歧效应（#121）",
+            "title": "周五高位股表现记录（#121）",
             "level": "warning",
-            "summary": "周五资金天然规避周末监管与不确定性，4板及以上高位股极易出现筹码松动或断板，对高标保持防守视角。",
+            "summary": "#121 提醒记录周末前的高位股表现。逐只核对换手与封板结果，不从星期几推断资金意图。",
         })
     elif weekday_idx == 3:  # 周四
         active_laws.append({
             "id": "121",
-            "title": "周四冲高防周五高标断板（#121）",
+            "title": "周四高位股次日表现记录（#121）",
             "level": "info",
-            "summary": "今日为周四，明日周五通常是高标分歧兑现节点，晚间复盘对高位连板需提高换手承接要求。",
+            "summary": "今日为周四。可对照记录高位股在下一交易日的开盘、换手与收盘表现。",
         })
     elif weekday_idx == 0 or gap_days >= 4:  # 周一或节后
         active_laws.append({
             "id": "027",
-            "title": "周末/节后首日开盘反向定律（#027）",
+            "title": "周末/节后开盘观察（#027）",
             "level": "info",
-            "summary": "经过假期舆情发酵后：若发酵题材大幅高开一致抢跑，盘中极易高开低走兑现；若核心标的分歧低开且9:35后承接有力，反而易低开高走。",
+            "summary": "周末或节后首日，可记录题材的开盘缺口与随后走势。高开和低开本身不确定收盘方向。",
         })
 
     # 法则 E：#065 中位股亏钱扩散 & #125 首板分时溢价
@@ -474,9 +473,9 @@ def detect_cycle_and_calendar_laws(
     if mid_loss.get("warning"):
         active_laws.append({
             "id": "065",
-            "title": "中位股（3~4板）亏钱效应扩散预警（#065）",
+            "title": "中位股（3~4板）亏钱效应观察（#065）",
             "level": "warning",
-            "summary": mid_loss.get("verdict", "昨日中位连板股今日出现明显亏钱效应，警惕向全市场传导。"),
+            "summary": mid_loss.get("verdict", "昨日中位连板股今日涨跌幅与跌幅≥5%的占比已达到 #065 的观察条件。"),
         })
 
     split_125 = first_board_time_split(ladder_hist, dk, prev_date, pct_map)
@@ -492,16 +491,16 @@ def detect_cycle_and_calendar_laws(
             if cur_ld >= 25:
                 active_laws.append({
                     "id": "089",
-                    "title": "跌停家数升温·流动性警戒（#089/#090）",
+                    "title": "跌停家数升温（#089/#090）",
                     "level": "warning",
-                    "summary": f"今日全市场跌停达 {cur_ld} 家（前日 {prev_ld} 家），亏钱效应未完全收敛，需等待跌停明显消退、撬板资金出现后再扩大观察范围。",
+                    "summary": f"今日全市场跌停达 {cur_ld} 家（前日 {prev_ld} 家），同时记录后续跌停数量与这些股票的次日表现。",
                 })
             elif prev_ld >= 25 and cur_ld <= 10:
                 active_laws.append({
                     "id": "158",
-                    "title": "跌停潮迅速消退·恐慌衰竭信号（#090/#158）",
+                    "title": "跌停家数减少（#090/#158）",
                     "level": "opportunity",
-                    "summary": f"全市场跌停由前日 {prev_ld} 家骤降至今日 {cur_ld} 家，流动性恐慌显著缓解，短线进入超跌修复窗口。",
+                    "summary": f"全市场跌停由前日 {prev_ld} 家骤降至今日 {cur_ld} 家，跌停数量减少；是否延续修复需结合后续价格与成交记录。",
                 })
 
     return {
@@ -532,29 +531,29 @@ def check_stock_risk_gates(
     bare = _bare(code)
     risks: list[dict] = []
 
-    # 1. #096 次新与活跃股死亡换手率三道坎（60% / 66.67% / 70%）
+    # 1. #096 换手率三个观察阈值（60% / 66.67% / 70%）
     if turnover_rate is not None and not pd.isna(turnover_rate):
         tr = float(turnover_rate)
         if tr >= 70.0:
             risks.append({
                 "rule_id": "096",
-                "tag": f"🚨 换手极值 {tr:.1f}%（#096 ≥70%高危区）",
+                "tag": f"🚨 换手率 {tr:.1f}%（#096 ≥70%阈值上沿）",
                 "level": "high",
-                "detail": "单日换手率突破70%极值，筹码高度派发，历史统计次日承接极度脆弱。",
+                "detail": "单日换手率达到 #096 的 70% 阈值；记录次日竞价、开板次数和收盘结果，不能仅凭换手率判断筹码去向。",
             })
         elif tr >= 66.67:
             risks.append({
                 "rule_id": "096",
-                "tag": f"⚠️ 换手过高 {tr:.1f}%（#096 ≥66.7%警戒）",
+                "tag": f"⚠️ 换手率 {tr:.1f}%（#096 ≥66.7%阈值）",
                 "level": "medium",
-                "detail": "单日换手率跨过66.67%二道坎，短线博弈筹码过热。",
+                "detail": "单日换手率达到 #096 的 66.67% 阈值；次日波动与承接需要另行记录。",
             })
         elif tr >= 60.0:
             risks.append({
                 "rule_id": "096",
-                "tag": f"⚠️ 高换手 {tr:.1f}%（#096 ≥60%一道坎）",
+                "tag": f"⚠️ 换手率 {tr:.1f}%（#096 ≥60%阈值）",
                 "level": "low",
-                "detail": "单日换手率达60%以上，次日需严格观察竞价承接力度。",
+                "detail": "单日换手率达到 #096 的 60% 阈值；记录次日竞价与成交变化，不据此推断方向。",
             })
 
     # 2. #004 一字板筹码断层检测
@@ -563,9 +562,9 @@ def check_stock_risk_gates(
         if ft.startswith("09:25") and (zbc is None or int(zbc) == 0):
             risks.append({
                 "rule_id": "004",
-                "tag": "⚠️ 一字筹码断层（#004 缺换手承接）",
+                "tag": "⚠️ 一字板缺换手（#004）",
                 "level": "medium",
-                "detail": "缩量一字晋级导致下方缺乏换手成本垫，一旦开板分歧抛压集中。",
+                "detail": "该连板以一字方式晋级，当日没有充分换手；后续开板时的成交和价格变化另行核对。",
             })
 
     # 3. #032 午后偷袭烂板 & 历史连板基因检测
@@ -573,9 +572,9 @@ def check_stock_risk_gates(
     if limit_times == 1 and mins is not None and mins >= 14 * 60 and (zbc or 0) >= 2:
         risks.append({
             "rule_id": "032",
-            "tag": "⚠️ 午后频炸尾板（#032 偷袭回封）",
+            "tag": "⚠️ 14:00 后多次炸板（#032）",
             "level": "medium",
-            "detail": "14:00后封板且盘中反复炸板≥2次，属于非早盘主攻的被动尾板。",
+            "detail": "首次封板在 14:00 后且当日炸板不少于 2 次；这是时间和封板过程记录。",
         })
 
     if ladder_hist is not None and not ladder_hist.empty and bare:
@@ -585,9 +584,9 @@ def check_stock_risk_gates(
             if max_ever == 1 and (limit_times or 1) == 1:
                 risks.append({
                     "rule_id": "032",
-                    "tag": f"ℹ️ 历史 {len(sub_h)} 次首板均未连板（#032 股性基因）",
+                    "tag": f"ℹ️ 档案内 {len(sub_h)} 次涨停均止步首板（#032）",
                     "level": "low",
-                    "detail": "近期归档中多次涨停皆止步于首板，连板接力溢价偏弱。",
+                    "detail": "现有涨停归档中，该股尚无二板记录；本次是否晋级继续由次日结果核对。",
                 })
 
     # 4. #176 高位双针见顶（丄字形/双长上影滞涨）
@@ -611,9 +610,9 @@ def check_stock_risk_gates(
                 if upper_shadows >= 2 and cur_close < max_10 * 0.985:
                     risks.append({
                         "rule_id": "176",
-                        "tag": f"⚠️ 高位双上影滞涨（#176 近5日{upper_shadows}次冲高回落）",
+                        "tag": f"⚠️ 近5日 {upper_shadows} 次长上影（#176）",
                         "level": "medium",
-                        "detail": "阶段高位连续出现长上影线且未能突破前高（丄字形双针结构），警惕派发压力。",
+                        "detail": "近 10 日区间上方出现至少两根长上影线，且当前收盘未越过区间高点；记录后续是否收复上影。",
                     })
 
     return risks
@@ -731,13 +730,13 @@ def build_pool_10am_first(
 
     return {
         "pool_key": "pool_10am_first",
-        "title": "⚡ 10:00前硬核首板池（#125 十点前涨停 × #030 小盘低价）",
+        "title": "⚡ 10:00前换手首板池（#125 × #030）",
         "rule_ids": ["125", "030", "020"],
         "methodology_note": (
-            "依据 #125 与 #030：全天最值得跟踪的首板集中在 09:30~10:00 之间换手封死的标的"
-            "（代表主力早盘做多意愿坚决、全天经受市场抛压检验），叠加流通市值越小、股价越低弹性越佳。"
+            "依据 #125：收盘筛选 09:30~10:00 之间首次封板的换手首板，并保留封板时间、炸板次数与换手。"
+            "依据 #030，池内另标注小流通市值、低股价标的；这些标签用于分层核对，不代表次日方向。"
         ),
-        "next_day_anchor": "次日 09:25 观察是否高开（+2%~+6%佳），09:30~09:45 分歧换手不破分时均线且 10:00 前领涨同题材者为 1进2 重点观察锚点。",
+        "next_day_anchor": "次日记录开盘涨幅、09:30~09:45 的换手与分时走势，以及10:00前同题材的相对表现。",
         "count": len(items),
         "items": items[:25],
     }
@@ -750,7 +749,7 @@ def build_pool_2b_and_pk(
     weekday_idx: int | None = None,
     ladder_hist: pd.DataFrame | None = None,
 ) -> dict:
-    """战法池 2：#033/#071 换手二板定龙池 & #049 多龙同台《中庸》观察组。"""
+    """战法池 2：#033/#071 换手二板池与 #049 同身位分组。"""
     stocks = [s for s in ((ladder or {}).get("stocks") or []) if not is_bj_stock(s.get("code"))]
     two_boards = []
     high_groups: dict[int, list[dict]] = {}
@@ -772,7 +771,7 @@ def build_pool_2b_and_pk(
         if lt == 2:
             tags.append("#004 一字二板(防断层)" if is_one_word else "#033/#071 换手二板")
             if weekday_idx == 4 and not is_one_word:
-                tags.append("🔥 #145 周五二板空间龙候选")
+                tags.append("🔥 #145 周五二板观察候选")
         else:
             tags.append(f"{lt}连板身位")
             if is_one_word:
@@ -815,16 +814,15 @@ def build_pool_2b_and_pk(
         grp.sort(key=lambda x: x["first_time"])
         if len(grp) >= 3:
             rule_hint = (
-                f"【#049 中庸选股法】当前 {h_val} 板共有 {len(grp)} 只同身位竞争（多龙同台）："
-                "次日 9:25 竞价去掉开盘最高分（防大热一致被砸）、去掉开盘最低分（防不及预期被核），"
-                "重点观察开盘居中（+3%~+7%）分歧换手晋级者。"
+                f"【#049 同身位分组】当前 {h_val} 板共有 {len(grp)} 只股票："
+                "次日分别记录高位、中位和低位开盘样本，再核对各自换手、炸板与是否晋级。"
             )
         elif len(grp) == 2:
             rule_hint = (
-                f"【双龙卡位观察】当前 {h_val} 板有 2 只同身位标的，次日 9:25~9:35 对比竞价强弱与封单卡位。"
+                f"当前 {h_val} 板有 2 只同身位股票；次日 09:25~09:35 分别记录两组竞价、封单与成交变化。"
             )
         else:
-            rule_hint = f"【独苗空间标】当前 {h_val} 板唯一身位，代表市场情绪高度锚点（#063）。"
+            rule_hint = f"当前 {h_val} 板只有 1 只归档股票；它是今日该高度的唯一样本，不代表全市场方向。"
         pk_groups.append({
             "height": h_val,
             "count": len(grp),
@@ -835,13 +833,13 @@ def build_pool_2b_and_pk(
     all_items = [s for g in pk_groups for s in g["stocks"]] + two_boards
     return {
         "pool_key": "pool_2b_pk",
-        "title": "🐉 换手二板定龙 & 多龙同台《中庸》池（#033 / #049 / #071 / #145）",
+        "title": "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）",
         "rule_ids": ["033", "049", "071", "145", "004"],
         "methodology_note": (
-            "依据 #033/#071：二板是经过首板初筛后的换手定龙节点；若恰逢周五，#145 统计显示新周期空间龙最高概率出自周五换手二板。"
-            "对于 ≥3 板同身位竞争组，应用 #049《中庸》法则：次日竞价去最高、去最低，观察中间温和高开分歧换手股。"
+            "依据 #033/#071 提取首板之后的二板观察条件；若恰逢周五，可另外记录 #145 提出的周五换手二板样本。"
+            "对于 ≥3 板同身位组，按 #049 的观察法记录高位、中位和低位开盘表现，以及各自的换手与晋级结果。"
         ),
-        "next_day_anchor": "次日 09:25 按同身位横向比对开盘涨幅，剔除一字顶死无换手及低开核按钮，锁定分歧换手放量晋级。",
+        "next_day_anchor": "次日按同身位横向记录开盘涨幅、换手、炸板与是否晋级；一字无换手和明显低开分组记录，不混写成一个结果。",
         "count": len(all_items),
         "two_board_count": len(two_boards),
         "pk_groups": pk_groups,
@@ -856,7 +854,7 @@ def build_pool_ice_rebound(
     kline_map: dict[str, pd.DataFrame] | None = None,
     ladder_hist: pd.DataFrame | None = None,
 ) -> dict:
-    """战法池 3：#080/#118 冰点「狗啃板」（烂而不弱）与 #035 尾盘炸板反包池。"""
+    """战法池 3：#080/#118 多次炸板回封与 #035 触板回落池。"""
     stocks = [s for s in ((ladder or {}).get("stocks") or []) if not is_bj_stock(s.get("code"))]
     # 统计今日各行业涨停家数（用于识别 #080 板块独苗）
     ind_counts: dict[str, int] = {}
@@ -881,10 +879,10 @@ def build_pool_ice_rebound(
 
         tags = []
         if sec_cnt == 1:
-            tags.append(f"🔥 #080 正宗狗啃板(炸{zbc}次·板块独苗)")
+            tags.append(f"#080 多次炸板回封（炸{zbc}次·板块仅1只涨停）")
             priority = 0
         else:
-            tags.append(f"#118 烂而不弱分歧板(炸{zbc}次回封)")
+            tags.append(f"#118 盘中多次炸板后回封(炸{zbc}次)")
             priority = 1
 
         risks = check_stock_risk_gates(
@@ -903,13 +901,13 @@ def build_pool_ice_rebound(
             "circ_mv_yi": mv_yi,
             "seal_yi": seal_yi,
             "turnover_rate": tr,
-            "pattern_type": "狗啃板(板块独苗)" if sec_cnt == 1 else "分歧回封烂板",
+            "pattern_type": "多次炸板回封(板块仅1只涨停)" if sec_cnt == 1 else "盘中多次炸板后回封",
             "tags": tags,
             "risks": [r["tag"] for r in risks],
             "_sort_key": (priority, -lt, -zbc),
         })
 
-    # 补充 #035 炸板未封但具反包潜力的活跃股（若 kline_map 提供当日上影炸板股）
+    # 补充 #035 触板未封但仍收红的活跃股
     zt_codes = {_bare(s.get("code")) for s in stocks}
     if kline_map:
         recent_zt_codes = set()
@@ -946,7 +944,7 @@ def build_pool_ice_rebound(
                     "seal_yi": None,
                     "turnover_rate": turnover_map.get(b),
                     "pattern_type": f"#035 触板炸板(收{pct_today:+.1f}%)",
-                    "tags": [f"#035 冲板回落({pct_today:+.1f}%)", "观察次日竞价反包"],
+                    "tags": [f"#035 冲板回落({pct_today:+.1f}%)", "次日竞价与涨跌待记录"],
                     "risks": [],
                     "_sort_key": (2, 0, -pct_today),
                 })
@@ -957,14 +955,13 @@ def build_pool_ice_rebound(
 
     return {
         "pool_key": "pool_ice_rebound",
-        "title": "🦴 冰点「狗啃板」（烂而不弱）与炸板反包池（#080 / #118 / #035）",
+        "title": "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）",
         "rule_ids": ["080", "118", "035"],
         "methodology_note": (
-            "依据 #080 与 #118：在分歧或冰点期，盘中反复炸板（≥2次）检验抛压但尾盘仍顽强回封、"
-            "尤其是所属板块内唯一涨停的「狗啃板」，代表主力承接了全部恐慌筹码，次日极易弱转强领涨。"
-            "叠加 #035：近期人气股盘中触板被动炸板但收红盘者，次日若竞价不核按钮则具备反包潜质。"
+            "依据 #080/#118：提取当日炸板不少于 2 次、收盘仍封回涨停的标的，并同时显示板块内涨停家数。"
+            "依据 #035：另列近期强势股盘中触板后回落但仍收红的样本；形态只用于分组，不能推断资金属性。"
         ),
-        "next_day_anchor": "次日 09:25 集合竞价若出现平开或高开（未闷杀低开<-3%），属于标准「弱转强」信号；若大幅低开核按钮则直接放弃。",
+        "next_day_anchor": "次日记录集合竞价相对前收的变化、开盘后换手与涨跌结果；明显低开、平开和高开分组核对。",
         "count": len(items),
         "items": items[:20],
     }
@@ -1005,11 +1002,11 @@ def build_pool_ma6_pullback(
     kline_map: dict[str, pd.DataFrame] | None = None,
     prices_df: pd.DataFrame | None = None,
 ) -> dict:
-    """战法池 4：#128 人气龙头首阴/分歧回踩 MA6 / MA12 观察池。"""
+    """战法池 4：#128 高位股回踩 MA6 / MA12 观察池。"""
     dk = _norm_date(trade_date)
     zt_today = {_bare(s.get("code")) for s in ((ladder or {}).get("stocks") or [])}
 
-    # 1. 从近 12 个交易日涨停归档中找出曾达 ≥2 连板（优先 ≥3 板）的断板人气龙头
+    # 1. 从近 12 个交易日涨停归档中找出曾达 ≥2 连板（优先 ≥3 板）的断板样本
     leader_meta: dict[str, dict] = {}
     if ladder_hist is not None and not ladder_hist.empty:
         h = ladder_hist.copy()
@@ -1075,7 +1072,7 @@ def build_pool_ma6_pullback(
         if hit_ma12:
             anchor_label.append(f"贴近MA12({dist_ma12:+.1f}%)")
 
-        tags = [f"#128 最高{meta['max_boards']}板龙头"] + anchor_label
+        tags = [f"#128 最高{meta['max_boards']}板样本"] + anchor_label
         risks = check_stock_risk_gates(
             bare, meta["name"], tr, None, meta["max_boards"], None, kdf, ladder_hist
         )
@@ -1106,20 +1103,20 @@ def build_pool_ma6_pullback(
 
     return {
         "pool_key": "pool_ma6_pullback",
-        "title": "📐 人气龙头首阴回踩 MA6 / MA12 观察池（#128 强势股低吸精髓）",
+        "title": "📐 高位股回踩 MA6 / MA12 观察池（#128）",
         "rule_ids": ["128", "087", "107"],
         "methodology_note": (
-            "依据 #128：作者实盘将常规 5日/10日均线改良为 **6日均线（MA6）与 12日均线（MA12）**，"
-            "专门防范主力故意击穿 MA5/MA10 制造破位假象的洗盘骗线。近期连板人气龙头断板后首次缩量回踩 MA6（强势洗盘）或 MA12（波段防守线），是高盈亏比观察位。"
+            "依据 #128：作者采用 **MA6 / MA12** 观察强势股回踩后的价格承接。"
+            "本站只记录收盘价与均线距离、成交变化和后续表现，不把击穿均线解释为特定资金行为，也尚未验证该形态的盈亏比。"
         ),
-        "next_day_anchor": "次日盘中观察回踩 MA6 或 MA12 时的分时承接（急跌缩量不破均线、分时双底企稳），若放量有效跌破 MA12 且无反抽则放弃。",
+        "next_day_anchor": "次日记录价格在 MA6 / MA12 附近的停留时间、成交变化和收盘位置；若放量跌破 MA12 后不能重新站回，记为该观察假设未成立。",
         "count": len(items),
         "items": items[:20],
     }
 
 
 def detect_rubbing_line(kdf: pd.DataFrame) -> dict | None:
-    """检测最后两根 K 线是否构成 #169 经典揉搓线（前日长上影试盘 + 今日长下影洗盘）。"""
+    """检测最后两根 K 线是否构成 #169 的长上影、长下影组合。"""
     if kdf is None or len(kdf) < 2:
         return None
     req = {"open", "high", "low", "close"}
@@ -1151,12 +1148,12 @@ def detect_rubbing_line(kdf: pd.DataFrame) -> dict | None:
     c_lower_ratio = c_lower / c_range
     c_upper_ratio = c_upper / c_range
 
-    # #169 揉搓线标准：前日上影占比 >= 45% 且下影 <= 35%；今日下影占比 >= 45% 且上影 <= 35%
+    # #169 长影线组合：前日上影占比 >= 45% 且下影 <= 35%；今日下影占比 >= 45% 且上影 <= 35%
     if p_upper_ratio >= 0.45 and p_lower_ratio <= 0.35 and c_lower_ratio >= 0.45 and c_upper_ratio <= 0.35:
         return {
             "prev_upper_ratio": round(p_upper_ratio * 100, 1),
             "curr_lower_ratio": round(c_lower_ratio * 100, 1),
-            "desc": f"前日长上影({p_upper_ratio*100:.0f}%)试盘 + 今日长下影({c_lower_ratio*100:.0f}%)探底回升",
+            "desc": f"前日长上影({p_upper_ratio*100:.0f}%) + 今日长下影({c_lower_ratio*100:.0f}%)",
         }
     return None
 
@@ -1170,7 +1167,7 @@ def build_pool_rubbing_and_breakout(
     kline_map: dict[str, pd.DataFrame] | None = None,
     prices_df: pd.DataFrame | None = None,
 ) -> dict:
-    """战法池 5：#169 揉搓线洗盘 & #139/#172 阶段突破缩量回踩池。"""
+    """战法池 5：#169 长影线组合与 #139/#172 阶段突破回踩池。"""
     dk = _norm_date(trade_date)
     # 汇总趋势/突破候选池元信息
     cand_meta: dict[str, dict] = {}
@@ -1208,7 +1205,7 @@ def build_pool_rubbing_and_breakout(
     if missing and prices_df is not None:
         k_lookup.update(_extract_kline_from_prices(prices_df, missing, dk))
 
-    # 同时允许 kline_map 中非北交所标的命中 #169 揉搓线
+    # 同时允许 kline_map 中非北交所标的命中 #169 长影线组合
     all_scan_codes = sorted(
         c for c in (set(cand_meta.keys()) | set(k_lookup.keys()))
         if not is_bj_stock(c)
@@ -1251,8 +1248,8 @@ def build_pool_rubbing_and_breakout(
         pattern_label = ""
         priority = 1
         if rub:
-            tags.append(f"🔥 #169 揉搓线({rub['desc']})")
-            pattern_label = "#169 揉搓线洗盘"
+            tags.append(f"🔥 #169 长影线组合({rub['desc']})")
+            pattern_label = "#169 长影线组合"
             priority = 0
         if is_pullback:
             src_txt = meta.get("source") or "趋势股"
@@ -1289,13 +1286,13 @@ def build_pool_rubbing_and_breakout(
 
     return {
         "pool_key": "pool_rubbing_breakout",
-        "title": "🌀 尾盘揉搓线洗盘 & 突破缩量回踩池（#169 / #139 / #172）",
+        "title": "🌀 长影线组合与突破回踩池（#169 / #139 / #172）",
         "rule_ids": ["169", "139", "172", "087"],
         "methodology_note": (
-            "依据 #169：前日长上影试盘测试抛压、今日长下影探底洗盘拉起的「揉搓线」组合，是主力洗盘结束的经典右侧信号。"
-            "依据 #139/#172：创阶段新高或进入高 RPS 池的强势股，首次缩量回踩 MA6/MA12 企稳，盈亏比显著优于突破当日追高。"
+            "依据 #169 提取前日长上影、今日长下影的形态组合；形态本身不说明资金属性或后续方向。"
+            "依据 #139/#172 提取新高或高 RPS 股回踩 MA6/MA12 的观察条件；本站尚未验证与突破日买入的盈亏比差异。"
         ),
-        "next_day_anchor": "揉搓线标的次日重点看能否放量站稳前日上影线半分位；突破回踩标的看 MA6/MA12 缩量止跌转阳。",
+        "next_day_anchor": "次日记录长影线组合能否站回前日上影线区间，以及突破回踩标的在 MA6/MA12 附近的成交与收盘位置。",
         "count": len(items),
         "items": items[:20],
     }
@@ -1414,13 +1411,13 @@ def build_pool_trend_catchup(
 
     return {
         "pool_key": "pool_trend_catchup",
-        "title": "🚀 强趋势板块低位首板补涨池（#077 趋势与连板共振 × #103 强趋势补涨）",
+        "title": "🚀 强行业中的低位首板池（#077 × #103）",
         "rule_ids": ["077", "103", "030"],
         "methodology_note": (
-            "依据 #077 与 #103：当某个行业内多只机构趋势大票持续创阶段新高或霸榜高 RPS（机构负责打造板块容量与持续性），"
-            "板块内新启动的小市值、低股价首板往往成为游资进攻的连板补涨先锋。"
+            "依据 #077/#103：先找出行业内多只进入阶段新高或高 RPS 的股票，再列出同日首板的较小市值标的。"
+            "行业强度与首板仅是两组并列事实，尚不能据此判断机构、游资意图或后续连板概率。"
         ),
-        "next_day_anchor": "次日观察同板块趋势大票是否维持红盘强势（板块不倒），若板块延续强势则前排小市值首板具备高1进2晋级潜质。",
+        "next_day_anchor": "次日观察同板块趋势大票是否维持红盘强势（板块不倒），并逐只核对前一日首板是否晋级。",
         "count": len(items),
         "strong_sector_count": len(strong_sectors),
         "items": items[:20],
@@ -1497,19 +1494,19 @@ def diagnose_watchlist(
                     dist_ma12 = round((cur_c - ma12) / ma12 * 100.0, 2)
 
                 if dist_ma6 is not None and -2.0 <= dist_ma6 <= 3.0:
-                    ma_status = f"回踩MA6支撑区({dist_ma6:+.1f}%)"
+                    ma_status = f"MA6 ±阈值区间({dist_ma6:+.1f}%)"
                 elif dist_ma12 is not None and -2.5 <= dist_ma12 <= 3.0:
-                    ma_status = f"回踩MA12防守线({dist_ma12:+.1f}%)"
+                    ma_status = f"MA12 ±阈值区间({dist_ma12:+.1f}%)"
                 elif dist_ma6 is not None and dist_ma6 > 3.0:
-                    ma_status = f"站稳MA6上方({dist_ma6:+.1f}%)"
+                    ma_status = f"现价高于MA6超过3%({dist_ma6:+.1f}%)"
                 elif dist_ma12 is not None and dist_ma12 < -2.5:
-                    ma_status = f"跌破MA12下方({dist_ma12:+.1f}% · #025下降通道警戒)"
+                    ma_status = f"现价低于MA12超过2.5%({dist_ma12:+.1f}%)"
 
         hits = list(pool_hits_map.get(b, []))
         if kdf is not None:
             rub = detect_rubbing_line(kdf)
-            if rub and not any("揉搓线" in h for h in hits):
-                hits.append(f"🌀 #169 揉搓线({rub['desc']})")
+            if rub and not any("长影线组合" in h for h in hits):
+                hits.append(f"🌀 #169 长影线组合({rub['desc']})")
 
         risks = check_stock_risk_gates(
             b, name, tr, None, None, None, kdf, ladder_hist
@@ -1543,8 +1540,8 @@ def diagnose_watchlist(
         "resonance_count": resonance_cnt,
         "risk_count": risk_cnt,
         "summary": (
-            f"自选股共 {len(diag_items)} 只：命中晚间战法池共振 {resonance_cnt} 只，"
-            f"触发防雷质检标签 {risk_cnt} 只。"
+            f"自选股共 {len(diag_items)} 只：命中候选池条件 {resonance_cnt} 只，"
+            f"带有现有风险标签 {risk_cnt} 只。"
         ),
         "items": diag_items,
     }
@@ -1570,7 +1567,7 @@ def compute_pool_scorecard(
 
     dates = sorted(h["date"].unique())
     if len(dates) < 3:
-        return {"status": "insufficient", "reason": f"归档仅 {len(dates)} 天，样本不足"}
+        return {"status": "insufficient", "reason": f"归档仅 {len(dates)} 天，尚未达到该统计窗口"}
 
     by_date = {d: grp for d, grp in h.groupby("date")}
     th = sm.phase_thresholds(h, before_date=dates[-1])
@@ -1600,7 +1597,7 @@ def compute_pool_scorecard(
 
         # 当日首板
         fb = df_cur[df_cur["limit_times"] == 1]
-        if len(fb) < 5:
+        if fb.empty:
             continue
         fb_prom_all = sum(1 for c in fb["code"].astype(str).map(_bare) if next_map.get(c, 0) >= 2)
         r12_cur = fb_prom_all / len(fb)
@@ -1666,7 +1663,7 @@ def compute_pool_scorecard(
         "trade_days": len(dates),
         "strategies": {
             "pre_10am_first": {
-                "label": "#125 10:00前硬核首板（1进2）",
+                "label": "#125 10:00前首板（1进2）",
                 "base": pre10_base,
                 "promoted": pre10_prom,
                 "promo_rate": pre10_rate,
@@ -1716,64 +1713,64 @@ def build_intraday_timeline(
     pk_desc = "；".join(
         f"{g['height']}板同台({','.join(s['name'] for s in g['stocks'][:4])})"
         for g in pk_groups if g.get("count", 0) >= 2
-    ) or "今日无≥3板多龙同台组"
+    ) or "今日无≥3板同身位组"
 
     return [
         {
             "time_window": "09:15 - 09:25",
-            "node_name": "集合竞价定方向（#049 中庸选股 × #080 弱转强检验）",
+            "node_name": "集合竞价记录（#049 同身位 × #080 回封样本）",
             "core_task": (
-                "① 09:20 前挂单可撤，重点看 09:20 后真实封单与前排连板跌停是否减少；"
-                "② 对同身位连板组执行 #049「去最高、去最低，看中间温和高开(+3%~+7%)」；"
-                "③ 检验昨日烂板/狗啃板今日是否高开实现「弱转强」。"
+                "① 记录 09:20 可撤单时点前后的封单变化；"
+                "② 分身高、中、低记录同身位组的开盘涨幅、换手和随后表现；"
+                "③ 记录昨日多次炸板回封样本今日相对前收的开盘变化。"
             ),
             "watch_targets": (
-                f"多龙PK：{pk_desc} ｜ 弱转强观察：{'、'.join(p_ice) if p_ice else '今日无狗啃板'}"
+                f"同身位组：{pk_desc} ｜ 炸板回封样本：{'、'.join(p_ice) if p_ice else '今日无'}"
             ),
-            "red_line": "若高标批量一字跌停（核按钮未消退）或目标股大幅低开<-4%，放弃早盘接力计划。",
+            "red_line": "若高位股批量一字跌停或目标样本大幅低开，记录为原观察条件未成立，并分别核对能否修复。",
         },
         {
             "time_window": "09:30 - 10:00",
-            "node_name": "开盘黄金半小时（#125 十点前涨停 × #033 换手晋级）",
+            "node_name": "开盘 30 分钟（#125 首板时间 × #033 换手二板）",
             "core_task": (
-                "① 全天最核心的连板晋级与新题材首板集中在此时段诞生；"
-                "② 观察昨日 10:00 前硬核首板与换手二板的分歧换手承接（分时均线之上缩量承接后放量拉升）。"
+                "① 记录昨日首板与二板在今日何时首次封板、炸板几次；"
+                "② 对高开、平开和低开样本分别核对成交变化与后续涨停结果。"
             ),
             "watch_targets": (
                 f"1进2锚点：{'、'.join(p_10am) if p_10am else '—'} ｜ "
                 f"连板锚点：{'、'.join(p_2b) if p_2b else '—'}"
             ),
-            "red_line": "高潮次日早盘直线缩量秒板且无板块梯队配合者，谨防冲高炸板大面（#069）。",
+            "red_line": "若早盘快速缩量封板且同方向缺少其他涨停样本，继续记录开板次数和收盘位置（#069）。",
         },
         {
             "time_window": "10:00 - 11:30",
-            "node_name": "早盘分歧检验与均线支撑观察（#128 MA6/MA12 低吸）",
+            "node_name": "均线位置与成交变化（#128 MA6/MA12）",
             "core_task": (
-                "① 10:00 后连板跟风溢价显著下降，转向观察前期人气龙头回踩 MA6 / MA12 均线时的缩量企稳信号；"
+                "① 10:00 后可继续记录连板股表现，以及前期人气股回踩 MA6 / MA12 时的量价变化；"
                 "② 观察早盘涨停股封单是否稳定、炸板率是否飙升。"
             ),
             "watch_targets": f"MA6/MA12观察：{'、'.join(p_ma6) if p_ma6 else '—'}",
-            "red_line": "下跌通道标的严禁左侧潜伏（#025）；放量跌破 MA12 且反抽无力者剔除。",
+            "red_line": "作者方法不把下跌通道中的左侧潜伏作为条件（#025）；放量跌破 MA12 后不能重新站回时，原观察假设未成立。",
         },
         {
             "time_window": "13:00 - 14:30",
-            "node_name": "午后垃圾时间防偷袭（#032 不能打的板）",
+            "node_name": "午后封板过程（#032）",
             "core_task": (
-                "① 午后无新逻辑催化的独苗直线偷袭板，次日溢价极低，坚持「宁可错过不打后排偷袭板」；"
-                "② 仅当指数共振大涨且新题材全线井喷时，观察前排容量核心。"
+                "① 记录午后首次封板、反复炸板和无同方向涨停配合的样本；"
+                "② 单独核对这批样本的次日开盘、换手和收盘表现。"
             ),
-            "watch_targets": "以持仓观察与风控为主，不新开后排跟风。",
-            "red_line": "严禁在午后大盘回落期去接频繁开板（炸板≥3次）的后排跟风烂板（#032）。",
+            "watch_targets": "午后新封板样本与同方向强度。",
+            "red_line": "作者方法不在午后市场回落时观察频繁开板的后排跟风股（#032）。",
         },
         {
             "time_window": "14:30 - 15:00",
-            "node_name": "尾盘节点确认（#169 揉搓线 × #035 被动炸板观察）",
+            "node_name": "收盘前记录（#169 长影线 × #035 触板回落）",
             "core_task": (
-                "① 14:45 后日内大盘风险基本释放，确认当日走出「长下影探底回升」构成 #169 揉搓线或 #172 突破回踩企稳的标的；"
-                "② 记录尾盘因大盘跳水而被动炸板的核心人气股（#035），纳入当晚反包复盘池。"
+                "① 记录 14:45 后仍保留长下影、突破回踩等形态的样本，并保留分时与成交条件；"
+                "② 记录触板后回落仍收红的样本，不推断炸板原因。"
             ),
-            "watch_targets": f"揉搓线/突破回踩：{'、'.join(p_rub) if p_rub else '—'}",
-            "red_line": "尾盘最后10分钟无故竞价抢筹拉升但全天成交稀疏的庄股形态（#154）坚决回避。",
+            "watch_targets": f"长影线组合/突破回踩：{'、'.join(p_rub) if p_rub else '—'}",
+            "red_line": "尾盘快速拉升但全天成交稀疏的异常形态单列为 #154 样本，核对次日是否延续。",
         },
     ]
 
@@ -1892,12 +1889,12 @@ def evening_plan_markdown(
     # 3. 六大池代表性客观名单摘要
     pool_summaries = []
     for key, short_lbl in (
-        ("pool_10am_first", "⚡ #125 10:00前硬核首板"),
-        ("pool_2b_pk", "🐉 #033/#049 换手二板与多龙PK"),
-        ("pool_ice_rebound", "🦴 #080/#118 狗啃板与分歧回封"),
-        ("pool_ma6_pullback", "📐 #128 龙头回踩MA6/MA12"),
-        ("pool_rubbing_breakout", "🌀 #169/#172 揉搓线与突破回踩"),
-        ("pool_trend_catchup", "🚀 #103 强趋势板块首板补涨"),
+        ("pool_10am_first", "⚡ #125 10:00前换手首板"),
+        ("pool_2b_pk", "🐉 #033/#049 换手二板与同身位组"),
+        ("pool_ice_rebound", "🦴 #080/#118 多次炸板回封"),
+        ("pool_ma6_pullback", "📐 #128 高位股回踩MA6/MA12"),
+        ("pool_rubbing_breakout", "🌀 #169/#172 长影线与突破回踩"),
+        ("pool_trend_catchup", "🚀 #103 强行业中的首板"),
     ):
         p = pools.get(key) or {}
         cnt = int(p.get("count") or 0)
@@ -1956,7 +1953,8 @@ def load_evening_plan(date_key: str | None = None) -> dict | None:
         return None
     try:
         with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            from review_language import current_wording
+            return current_wording(json.load(f))
     except Exception:
         return None
 

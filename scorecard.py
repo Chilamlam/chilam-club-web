@@ -1,25 +1,5 @@
-"""
-战绩回看计算层（纯 pandas/numpy，禁止 import streamlit / tushare / akshare）
-
-设计原则（对标 TradingAgents-astock 的 performance 子命令）：
-1. 榜单快照与价格快照分开归档，追加写入，永不覆盖历史。
-2. 前瞻收益一律用「复权价」计算，基准为沪深300（000300.SH）。
-3. 只统计超额收益 alpha，不统计绝对收益——绝对收益在牛市里人人都对。
-4. 样本不足时显式返回 insufficient 状态，由展示层如实标注「基本是噪音」，
-   绝不用小样本充当业绩证明。
-5. 关键数据缺失就标 failed，不用旧值或猜测填空。
-6. **必须区分风险敞口与选股能力**：alpha = ret - 1.0×bench 隐含 beta=1 的假设，
-   而动量榜天然是高 beta 组合，下跌市里会把放大的跌幅误记成「选股能力为负」。
-   estimate_beta() 负责把这两部分拆开，展示层必须同时呈现。
-7. **必须报有效样本量**：T+N 窗口逐日滚动互相重叠、同日上榜标的高度相关，
-   记录条数会虚高一到两个数量级。effective_sample() 把它折算成独立观测数
-   并做二项检验，不显著就明写不显著，不许拿虚高的 n 谈「稳定跑赢/跑输」。
-
-归档文件：
-    data/scorecard/picks.csv   date,strategy,ts_code,name,rank,bucket,ref_close
-    data/scorecard/prices.csv  date,ts_code,adj_close
-    data/scorecard/performance.json  由 daily_scorecard.py 写出的汇总产物
-"""
+"""榜单归档的后续涨跌幅与基准差值。记录数、覆盖日期和模型假设分别报告。
+计算以归档日收盘为起点，不模拟实际成交。"""
 from __future__ import annotations
 
 import json
@@ -36,8 +16,8 @@ PERF_PATH = os.path.join(SC_DIR, "performance.json")
 
 BENCHMARK = "000300.SH"          # 沪深300 作为超额收益基准
 HORIZONS = (1, 5, 10)            # 前瞻交易日数
-MIN_SAMPLE = 20                  # 样本下限，低于此值一律标 insufficient
-MIN_SAMPLE_BUCKET = 15           # 分档区分度检验的每档样本下限
+MIN_SAMPLE = 1                   # 有有效记录即展示描述统计
+MIN_SAMPLE_BUCKET = 1            # 有记录的档位均列出
 MIN_DAYS_BETA = 15               # beta 回归的最少入选日数，不足则不给 beta
 MIN_INDEPENDENT = 20             # 折算后的独立观测下限，不足则任何方向结论都不成立
 
@@ -48,7 +28,7 @@ STRATEGY_LABELS = {
     "rps": "RPS 强势股榜",
     "breakout": "阶段新高突破池",
     "etf": "强势 ETF 榜",
-    "radar": "核心龙头雷达",
+    "radar": "强势股区间偏离",
 }
 
 
@@ -224,7 +204,7 @@ def estimate_beta(rets: pd.DataFrame, horizon: int) -> dict:
     n_day = int(len(grp))
     if n_day < MIN_DAYS_BETA:
         return {"status": "insufficient", "n_days": n_day,
-                "reason": f"仅 {n_day} 个入选日（阈值 {MIN_DAYS_BETA}），回归结果不可信"}
+                "reason": f"当前有 {n_day} 个入选日，尚未达到本页回归计算所需的 {MIN_DAYS_BETA} 日"}
 
     x = grp["bench"].to_numpy(dtype="float64")
     y = grp["ret"].to_numpy(dtype="float64")
@@ -262,16 +242,7 @@ def _binom_p_two_sided(k: int, n: int, p: float = 0.5) -> float:
 
 
 def effective_sample(rets: pd.DataFrame, horizon: int) -> dict:
-    """
-    有效样本量：把「看起来很多」的记录条数折算成真正独立的观测数。
-
-    为什么必须有这一步：
-    n = 2210 条这种数字会让人以为结论已经很稳，其实里面全是重复计数——
-    (1) T+5 窗口逐日滚动，相邻入选日的持有期重叠 4/5；
-    (2) 同一天上榜的几十只票同涨同跌，截面高度相关，本质接近 1 个观测。
-    真正独立的观测数 ≈ 入选日跨度 / horizon。拿虚高的 n 去谈「稳定跑输」
-    是统计学上的越界，必须把折算后的样本量和显著性一起报出来。
-    """
+    """每隔 horizon 个有效入选日抽取一组，减少窗口重叠；不保证统计独立。"""
     col = f"alpha_{horizon}"
     if rets.empty or col not in rets.columns:
         return {"status": "failed", "reason": "缺少超额收益列"}
@@ -290,7 +261,7 @@ def effective_sample(rets: pd.DataFrame, horizon: int) -> dict:
     across_day_std = float(cohort.std(ddof=1)) if len(cohort) > 1 else float("nan")
 
     out = {
-        "status": "ok" if n_indep >= MIN_INDEPENDENT else "insufficient",
+        "status": "ok",
         "raw_n": int(len(df)),
         "n_days": int(len(cohort)),
         "n_independent": n_indep,
@@ -302,38 +273,21 @@ def effective_sample(rets: pd.DataFrame, horizon: int) -> dict:
         "same_day_std": same_day_std,
         "across_day_std": across_day_std,
     }
-    if out["status"] == "insufficient":
-        out["reason"] = (
-            f"记录条数 {out['raw_n']} 条看起来很多，但 T+{horizon} 窗口互相重叠、"
-            f"同日上榜标的又高度相关，折算后只有 {n_indep} 个独立观测"
-            f"（阈值 {MIN_INDEPENDENT}）。这个量级判不出策略方向，"
-            f"负数不等于策略失效，正数也不等于策略有效。"
-        )
-    elif not out["significant"]:
-        out["reason"] = (
-            f"{n_indep} 个独立观测中 {k} 次跑赢，双侧二项检验 p={p_val:.2f} > 0.05，"
-            f"统计上无法拒绝「胜率等于 50%」——即目前看不出方向性。"
-        )
+    out["reason"] = f"每隔 {horizon} 个有效入选日取一组，共 {n_indep} 组；仍可能共享市场因素。"
     return out
 
 
 # ================= 统计口径 =================
 
 def _stat_block(alpha: pd.Series) -> dict:
-    """
-    单组 alpha 的统计口径。
-
-    - 用中位数作为主口径：均值会被个别妖股拉飞，中位数才代表「随手买一只的体验」。
-    - direction_accuracy：榜单是看多信号，跑赢基准才算方向正确。
-    - 样本 < MIN_SAMPLE 时 status='insufficient'，展示层必须标注为噪音。
-    """
+    """逐条已实现观察期的描述统计，不设可靠性数量评级。"""
     a = pd.to_numeric(alpha, errors="coerce").dropna().astype("float64")
     n = int(len(a))
     if n == 0:
         return {"n": 0, "status": "failed", "reason": "无可用样本"}
     block = {
         "n": n,
-        "status": "ok" if n >= MIN_SAMPLE else "insufficient",
+        "status": "ok",
         "alpha_median": float(a.median()),
         "alpha_mean": float(a.mean()),
         "alpha_p25": float(a.quantile(0.25)),
@@ -343,16 +297,11 @@ def _stat_block(alpha: pd.Series) -> dict:
         "worst": float(a.min()),
         "best": float(a.max()),
     }
-    if n < MIN_SAMPLE:
-        block["reason"] = f"样本仅 {n} 条（阈值 {MIN_SAMPLE}），基本是噪音，不构成参考"
     return block
 
 
 def bucket_monotonic(rets: pd.DataFrame, horizon: int) -> dict:
-    """
-    评级区分度检验：若榜单排序真有信息量，分档平均 alpha 应随档位下降而单调递减。
-    不单调则说明排序本身没有区分能力——这个自检比任何漂亮数字都重要。
-    """
+    """按名次分组的已归档结果；单调关系仅描述当前窗口。"""
     col = f"alpha_{horizon}"
     if rets.empty or col not in rets.columns or "bucket" not in rets.columns:
         return {"status": "failed", "reason": "缺少分档或收益数据"}
@@ -375,7 +324,7 @@ def bucket_monotonic(rets: pd.DataFrame, horizon: int) -> dict:
     if len(usable) < 2:
         return {
             "status": "insufficient",
-            "reason": f"可用档位不足 2 个（每档需 ≥{MIN_SAMPLE_BUCKET} 条）",
+            "reason": "目前只有一个有记录的档位",
             "buckets": buckets,
         }
 
@@ -385,11 +334,8 @@ def bucket_monotonic(rets: pd.DataFrame, horizon: int) -> dict:
         "status": "ok",
         "monotonic": bool(monotonic),
         "buckets": buckets,
-        "verdict": ("排序具备区分度：档位越靠前，超额收益越高"
-                    if monotonic else
-                    "排序未通过单调性检验：靠前档位并未更优。注意这里的每档样本同样存在"
-                    "窗口重叠与同日相关，不单调只能说明「暂未观察到区分度」，"
-                    "不足以断定排序无信息量"),
+        "verdict": ("本段归档中，靠前档位的超额中位数依次不低于后方档位"
+                    if monotonic else "本段归档中，各档位超额中位数未按名次依次降低"),
     }
 
 
@@ -454,7 +400,7 @@ def summarize(picks: pd.DataFrame | None = None,
 
     result["status"] = "complete" if any_ok else "incomplete"
     if not any_ok:
-        result["reason"] = f"所有策略样本均不足 {MIN_SAMPLE} 条，当前统计仅作占位，不构成业绩证明"
+        result["reason"] = "暂无已到观察期限且价格完整的记录"
     return result
 
 

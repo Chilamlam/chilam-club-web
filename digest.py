@@ -79,7 +79,7 @@ def section_phase(derived: dict | None) -> tuple[str, str | None]:
     if promo:
         lines.append(f"- 1进2 晋级率 **{promo['rate'] * 100:.1f}%**"
                      f"（{promo['promoted']}/{promo['base']}）"
-                     + ("" if promo.get("reliable") else " ⚠️样本不足10"))
+                     )
     if prem.get("status") in ("ok", "insufficient"):
         lines.append(f"- 昨日连板股今日中位涨幅 **{prem['median_pct']:+.2f}%**"
                      f"，上涨占比 {prem['win_rate'] * 100:.0f}%（{prem['n']} 只）")
@@ -236,17 +236,11 @@ def section_scorecard(perf: dict | None) -> tuple[str, str | None]:
                      f"- {v.get('label')}：5日超额中位数 **{pct:+.2f}%**"
                      f"（样本 {h['n']} 条）")
     if not lines:
-        return "", f"战绩样本不足（{perf.get('reason', '样本积累中')}）"
-    # 区分度结论必须跟着战绩数字一起播——只报中位数而藏起"排序没有信息量"，
-    # 等于让用户以为榜单排名可用。自曝其短是这一段存在的全部理由。
-    for _, v in strats.items():
-        disc = v.get("discrimination") or {}
-        if disc.get("status") == "ok" and disc.get("monotonic") is False:
-            lines.append(f"- ⚠️ {v.get('label')}：{disc.get('verdict', '排序未通过单调性检验')}")
-    return "\n".join(["### 📊 榜单战绩（滚动统计，对基准沪深300的超额）", ""]
+        return "", f"暂无可核对且到期的榜单记录（{perf.get('reason', '归档积累中')}）"
+    return "\n".join(["### 📊 榜单历史表现（对基准沪深300的超额）", ""]
                      + lines
                      + ["", "口径：以上榜当日收盘为基准点，只统计超额收益。"
-                        "详细分档区分度与逐日曲线见站内「战绩回看」页。"]), None
+                        "分档结果与逐日曲线见站内「名单表现」页。"]), None
 
 
 # ================= 组装 =================

@@ -159,7 +159,7 @@ def _evd_promotion(derived: dict) -> dict | None:
     lines = []
     if pr.get("status") == "ok":
         for k, v in (pr.get("rates") or {}).items():
-            note = "" if v.get("reliable") else "（样本小）"
+            note = ""
             lines.append(f"- 晋级率 {k}：{_f((v.get('rate') or 0) * 100)}%"
                          f"（{v.get('promoted')}/{v.get('base')}）{note}")
     if lg.get("status") == "ok":
@@ -235,8 +235,8 @@ def _evd_popular(ladder: dict) -> dict | None:
         return None
     hi.sort(key=lambda s: -(s.get("limit_times") or 0))
     lines = [f"- {_stock_label(s)}" for s in hi[:10]]
-    lines.append(f"- 2板及以上共 {len(hi)} 只（高板池 = 当日人气核心区）")
-    return {"title": "人气股参考（2板及以上高板池）", "lines": lines,
+    lines.append(f"- 2板及以上共 {len(hi)} 只；仅按连板高度分组。")
+    return {"title": "连板高度分组（2板及以上）", "lines": lines,
             "source": "limit_ladder.json"}
 
 
@@ -253,7 +253,7 @@ def _evd_ladder(ladder: dict) -> dict | None:
              if (s.get("limit_times") or 0) == 1]
     first.sort(key=lambda s: s.get("first_time") or "99")
     if first:
-        lines.append("- 首板最早（明日 1进2 池参考）：" +
+        lines.append("- 首板最早（按首封时间排序）：" +
                      "、".join(s.get("name") or "" for s in first[:8]))
     return {"title": "连板天梯完整分层", "lines": lines,
             "source": "limit_ladder.json"}
@@ -376,7 +376,7 @@ def _evd_patterns(trade_date: str, ladder: dict) -> dict | None:
     lines = []
     snap = ladder_snapshot(ladder)
     if snap and snap.get("top5"):
-        lines.append("- 连板接力 · 最高板：" + "、".join(
+        lines.append("- 最高连板高度：" + "、".join(
             f"{s['name']}({s['limit_times']}板)" for s in snap["top5"][:3]))
     snap_rows = [r for r in _load_csv(SNAPSHOT_PATH) if _d8(r.get("date")) == trade_date]
     if snap_rows:
@@ -391,23 +391,23 @@ def _evd_patterns(trade_date: str, ladder: dict) -> dict | None:
     st = [r for r in _load_csv(STRONG_PATH) if _d8(r.get("更新日期")) == trade_date]
     if st:
         st.sort(key=lambda r: -(float(r["RPS_50"]) if r.get("RPS_50") else 0))
-        lines.append("- 趋势低吸 · RPS50 前列：" + "、".join(
+        lines.append("- RPS50 排名前列（仅相对强度排名）：" + "、".join(
             f"{r.get('name')}(RPS {_f(r.get('RPS_50'))})" for r in st[:3]))
         tr = sorted(st, key=lambda r: -(float(r["turnover_rate"]) if r.get("turnover_rate") else 0))
-        lines.append("- 人气低吸 · 强势股池换手前列（池内口径）：" + "、".join(
+        lines.append("- 强势股池换手率排名前列（仅池内排序）：" + "、".join(
             f"{r.get('name')}(换手 {_f(r.get('turnover_rate'))}%)" for r in tr[:5]))
     spec = _load_json(CONVERTIBLE_PATH) or {}
     cbs = ((spec.get("watch") or {}).get("today_leaders") or [])[:2] if _d8(spec.get("date")) == trade_date else []
     if cbs:
-        lines.append("- 转债投机 · 成交额达标涨幅榜：" + "、".join(
+        lines.append("- 转债成交额达标样本（当日涨幅排序）：" + "、".join(
             c.get("name") or "" for c in cbs))
     hi = [s for s in (ladder.get("stocks") or []) if (s.get("limit_times") or 0) >= 2]
     if hi:
-        lines.append(f"- 高板人气池：2板及以上 {len(hi)} 只")
-    lines.append("- 注册制次新 / 开板次新 / 后排补涨：站内暂无专门标的池（凭盘感）")
+        lines.append(f"- 2板及以上样本：{len(hi)} 只")
+    lines.append("- 注册制次新 / 开板次新 / 后排补涨：站内暂无归档，不生成候选。")
     if len(lines) <= 1:
         return None
-    return {"title": "各模式对应标的对照", "lines": lines,
+    return {"title": "模式与站内数据字段对照", "lines": lines,
             "source": "天梯+快照+RPS+转债（多源）"}
 
 

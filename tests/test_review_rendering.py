@@ -40,9 +40,13 @@ class ReviewRenderingTests(unittest.TestCase):
         self.assertTrue(all(not e.proto.expanded for e in app.expander))
         old.assert_not_called()
 
-    def test_history_keeps_original_and_labels_its_old_caliber(self):
+    def test_history_keeps_facts_but_rewrites_old_judgements(self):
+        old = (
+            "周五换手二板空间龙定律（#145）：新周期空间龙最高概率出自周五换手二板，"
+            "高位股极易断板。"
+        )
         with patch.object(page_digest, "_history_dates", return_value=["20261113"]), \
-             patch.object(page_digest, "_read_text", return_value="历史归档正文"), \
+             patch.object(page_digest, "_read_text", return_value=old), \
              patch.object(page_digest.digest, "build_markdown") as build, \
              patch.object(page_digest.auth, "is_logged_in", return_value=False):
             build.return_value = {"markdown": "最新", "date": "20261116", "narrative": {}, "missing": []}
@@ -51,8 +55,11 @@ class ReviewRenderingTests(unittest.TestCase):
             app.selectbox[0].select("20261113").run(timeout=30)
             build.assert_not_called()
         self.assertFalse(app.exception)
-        self.assertIn("历史归档正文", [m.value for m in app.markdown])
-        self.assertTrue(any("历史原文" in c.value for c in app.caption))
+        rendered = "\n".join(m.value for m in app.markdown)
+        self.assertNotIn("最高概率", rendered)
+        self.assertNotIn("极易", rendered)
+        self.assertIn("周五二板观察", rendered)
+        self.assertTrue(any("当前中性口径" in c.value for c in app.caption))
 
     def test_old_payload_text_cannot_reappear_in_homepage_or_review_evidence(self):
         derived = {

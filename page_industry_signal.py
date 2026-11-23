@@ -233,7 +233,7 @@ def render_quadrant(frame: pd.DataFrame, th: dict) -> None:
 
 
 def render_picks(picks: list, th: dict, mv_w, amt_w, industry_count) -> None:
-    """今日命中卡片。0 命中也是有效结论，必须明说而不是留空。
+    """今日命中卡片。0 命中也是一项完整筛选结果，必须明说而不是留空。
 
     刻意不用 st.metric 的 delta 显示涨跌：Streamlit 的 delta 默认
     「正数=绿色」，与 A 股红涨绿跌正好相反，会直接把涨读成跌。
@@ -242,7 +242,7 @@ def render_picks(picks: list, th: dict, mv_w, amt_w, industry_count) -> None:
     if not picks:
         st.info(
             f"📭 **今日无同时满足两条件的行业**（全 {industry_count or '—'} 个行业已逐一核对）。"
-            "这是有效结论，不是数据缺失——两个条件同时成立本身并不常见。"
+            "这是当天筛选结果为 0，不是数据缺失。"
         )
         return
     for p in picks:
@@ -387,7 +387,7 @@ def render_history_hits() -> None:
         return
     if status == "insufficient":
         st.info(
-            f"⏳ 历史回顾还在积累：{hits.get('reason', '样本不足')}。"
+            f"⏳ 历史回顾尚未满足所需窗口：{hits.get('reason', '可用交易日不足')}。"
             f"当前归档 {hits.get('trade_days_total', '—')} 个交易日，"
             f"其中分位窗口满额的有 {hits.get('trade_days_scanned', 0)} 天。"
             f"这里不给「近似统计」——窗口不满时的分位与满窗分位不是同一件事，"
@@ -406,7 +406,7 @@ def render_history_hits() -> None:
         f"**回算区间**：{hits.get('first_date', '—')} ~ {hits.get('last_date', '—')}，"
         f"共 **{scanned}** 个交易日，这些交易日的分位窗口均已满额。"
         f"其中 **{hit_days}** 天有命中、**{empty_days}** 天无任何行业命中"
-        f"（空命中同样是有效样本，计入下方统计基数），累计命中 **{total_hits}** 次。"
+        f"（空命中仍计入下方统计基数），累计命中 **{total_hits}** 次。"
     )
     if hits.get("skipped_short_window"):
         st.caption(
@@ -424,7 +424,7 @@ def render_history_hits() -> None:
     if not total_hits:
         st.info(
             f"📭 这 {scanned} 个交易日里，没有任何行业同时满足两个条件。"
-            f"这是有效结论，不是数据缺失——两个条件同时成立本身并不常见。"
+            f"这是这段窗口的筛选结果为 0，不是数据缺失。"
         )
         return
 
@@ -545,7 +545,7 @@ def render_history_hits() -> None:
   有效样本远小于表格里的 {total_hits} 次。
 - **同期基准是等权平均**：为当日全部参与行业（{hits.get('industry_count', '—')} 个）
   的等权平均涨跌，**不是任何可交易的指数**，因此「超额」不等于可实现收益。
-- **只有分位窗口满额的交易日纳入回算**：归档越长，可信区间越长；归档开头那段
+- **只有分位窗口满额的交易日纳入回算**：归档越长，可比较的历史越长；归档开头那段
   被跳过，见上方说明。
 - **涨跌取申万行业指数收盘价比值**：是行业整体涨跌，不代表个股表现。
 - **本页只做描述，不提供方向判断、目标价、买卖点或仓位指引；
@@ -601,9 +601,8 @@ def render_industry_signal_page(reference_date: str = "") -> None:
         # 与 no_data 分开报：样本不足是「归档积累中」，数据缺失是「这一步坏了」，
         # 处置方式完全不同，合并成一个提示会让人去修错的东西。
         st.info(
-            f"⏳ 归档还在积累：{sig.get('reason', '样本不足')}。"
-            f"在样本足够之前不给结论——给一个基于十几个交易日的分位结论，"
-            f"看起来和真结论一模一样，但毫无意义。"
+            f"⏳ 历史窗口尚未满足：{sig.get('reason', '可用交易日不足')}。"
+            f"当前分位窗口要求 {isig.MIN_TRADE_DAYS} 个完整交易日，尚未计算历史分位。"
         )
         st.caption(_SOURCE_NOTE)
         return
@@ -712,8 +711,8 @@ def render_industry_signal_page(reference_date: str = "") -> None:
 - **截面残缺日整日剔除**：某交易日归档的行业数明显少于常态（接口只返回半份）时，
   整日不参与计算。因为占比的分母是当日全体行业之和，少一半行业会让每个行业的
   占比凭空放大近一倍，而结果看起来仍然是一组正常的百分数，**没有任何下游迹象**。
-- **样本不足不出结论**：归档不足 {isig.MIN_TRADE_DAYS} 个完整截面交易日时不给结论。
-  分位窗口也不足时如实标注实际长度，不假装窗口是满的。
+- **分位所需历史**：计算滚动分位至少要 {isig.MIN_TRADE_DAYS} 个完整截面交易日。
+  未满足时只说明可用长度，尚未进入分位计算。
 - **数据源**：{_SOURCE_NOTE}
 - **本页只做描述，不提供方向判断、目标价、买卖点或仓位指引。**
   所有数据与名单由程序按固定量化规则自动生成，仅供研究参考，

@@ -5,7 +5,7 @@
 1. compute_returns 的 alpha 必须等于 自身收益 - 基准同期收益（手工算例对账）
 2. 未来交易日不足时对应 horizon 必须留空（NaN），禁止外推
 3. 基准缺失时 summarize 必须返回 status=failed，而不是给出一个漂亮数字
-4. 样本 < MIN_SAMPLE 时必须标 insufficient，并带上「基本是噪音」的说明
+4. 有记录就展示描述统计，不按固定记录数给可靠性评级
 5. 分档区分度检验：构造单调数据必须判 monotonic=True，构造反序必须判 False
 6. 计算层不得 import streamlit（托管环境下要能脱离 runtime 单测）
 7. beta 估计：构造 beta=2 必须估出 ≈2，构造 beta=1 必须估出 ≈1（反向验证，
@@ -99,12 +99,12 @@ def test_insufficient_sample() -> None:
 
     res = sc.summarize(picks, prices)
     blk = res["strategies"]["rps"]["horizons"]["5"]
-    check(f"样本 {n_small} 条 (<{sc.MIN_SAMPLE}) 标 insufficient",
-          blk.get("status") == "insufficient", blk.get("reason", ""))
-    check("insufficient 时带「噪音」说明",
-          "噪音" in str(blk.get("reason", "")))
-    check("全部策略样本不足时顶层 status=incomplete",
-          res.get("status") == "incomplete", res.get("reason", ""))
+    check(f"样本 {n_small} 条仍返回描述统计",
+          blk.get("status") == "ok" and blk.get("n") == n_small, blk.get("reason", ""))
+    check("不按记录数输出噪音评级",
+          "噪音" not in str(blk.get("reason", "")))
+    check("有到期记录时顶层 status=complete",
+          res.get("status") == "complete", res.get("reason", ""))
 
 
 def test_bucket_monotonic() -> None:
@@ -242,7 +242,7 @@ def test_effective_sample() -> None:
     rets = sc.compute_returns(picks, prices)
     eff = sc.effective_sample(rets, 5)
 
-    check("有效样本量返回非 failed", eff.get("status") in ("ok", "insufficient"),
+    check("有效样本量返回非 failed", eff.get("status") == "ok",
           str(eff.get("reason", "")))
     check("原始记录数被如实记录",
           eff.get("raw_n", 0) == len(rets.dropna(subset=["alpha_5"])),
@@ -258,10 +258,9 @@ def test_effective_sample() -> None:
     check("独立观测数远小于原始记录数（折算真的生效了）",
           eff.get("n_independent", 0) * 20 < eff.get("raw_n", 0),
           f"{eff.get('n_independent')} vs {eff.get('raw_n')}")
-    check(f"独立观测 < {sc.MIN_INDEPENDENT} 时标 insufficient",
-          eff.get("status") == "insufficient", str(eff.get("status")))
-    check("insufficient 时说明「负数不等于策略失效」",
-          "不等于策略失效" in str(eff.get("reason", "")))
+    check("间隔抽取仍报告实际组数",
+          eff.get("n_independent", 0) > 0 and "仍可能" in str(eff.get("reason", "")),
+          str(eff.get("reason", "")))
 
     # 反向验证 1：p 值必须真的在算。构造全胜，p 应当显著
     fake = pd.DataFrame([

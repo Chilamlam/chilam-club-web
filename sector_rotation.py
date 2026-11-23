@@ -300,7 +300,7 @@ def compute_analysis(history: pd.DataFrame | None, as_of: str | None = None,
 
     wname = window_col.replace("pct_", "")
 
-    # ---- 周期判读（启发式，理由必须带数字） ----
+    # ---- 榜单延续度分组；理由必须带数字 ----
     if overlap is None and prev_is_adjacent is False:
         # 归档有空档：上一份数据不是上一交易日。宁可如实说「不连续」，也不硬套
         # 主升/轮动标签——那两个标签的含义都建立在「日间变化」上，跨空档没有意义。
@@ -311,7 +311,7 @@ def compute_analysis(history: pd.DataFrame | None, as_of: str | None = None,
         else:
             gap_txt = f"上一份数据是 {prev_date}，相隔 {prev_gap_days} 天"
         verdict = {
-            "label": "样本不连续",
+            "label": "缺少相邻交易日",
             "reasons": [
                 f"{as_of} 之前归档缺了交易日（{gap_txt}），无法计算榜单重合度——"
                 f"跨空档算出的重合度反映的是这段空档的累计变化，"
@@ -323,45 +323,44 @@ def compute_analysis(history: pd.DataFrame | None, as_of: str | None = None,
         }
     elif overlap is None:
         verdict = {
-            "label": "样本不足",
+            "label": "尚无可比较的上一交易日",
             "reasons": [
-                f"截至 {as_of} 归档不足 2 个交易日，无法计算榜单重合度；"
-                f"明日收盘后再看判读。"
+                f"截至 {as_of} 只有这一份可用归档；计算榜单重合度至少需要两个相邻交易日。"
             ],
             "watch": None,
         }
     elif overlap >= 7:
         verdict = {
-            "label": "主线主升",
+            "label": "榜单延续度较高",
             "reasons": [
                 f"Top{n} 与{_prev_label(prev_date, prev_gap_days)}重合 {overlap}/{n}，"
-                f"榜单高度稳定；",
+                f"榜单重合数位于本页的高重合分组；",
                 f"Top{n} {wname}涨幅中位数 {_fmt(top_median)}%，"
                 f"全市场概念板块中位数 {_fmt(universe_median)}%。",
             ],
-            "watch": f"明日重合仍 ≥7 则维持主升判读；若掉到 ≤3 则转向轮动判读。",
+            "watch": f"下一交易日继续记录重合数；{n}只榜单中的 7 只只是本页分组边界。",
         }
     elif overlap <= 3:
         verdict = {
-            "label": "快速轮动",
+            "label": "榜单延续度较低",
             "reasons": [
                 f"Top{n} 与{_prev_label(prev_date, prev_gap_days)}重合仅 {overlap}/{n}，"
-                f"领涨板块快速换脸；",
+                f"相邻榜单大部分股票不同；",
                 f"Top{n} {wname}涨幅中位数 {_fmt(top_median)}%，"
                 f"全市场概念板块中位数 {_fmt(universe_median)}%。",
             ],
-            "watch": f"明日重合回升至 ≥7 则转向主升判读；仍 ≤3 则轮动延续。",
+            "watch": f"下一交易日继续记录重合数；3/10 只是本页的低重合分组边界。",
         }
     else:
         verdict = {
-            "label": "过渡/混合",
+            "label": "榜单延续度居中",
             "reasons": [
                 f"Top{n} 与{_prev_label(prev_date, prev_gap_days)}重合 {overlap}/{n}，"
-                f"介于主升（≥7）与轮动（≤3）之间，主线与轮动并存；",
+                f"重合数位于本页高、低分组之间；",
                 f"Top{n} {wname}涨幅中位数 {_fmt(top_median)}%，"
                 f"全市场概念板块中位数 {_fmt(universe_median)}%。",
             ],
-            "watch": f"明日重合 ≥7 转主升判读；≤3 转轮动判读。",
+            "watch": "下一交易日继续记录重合数和各股票涨幅，不把单日重合数外推为持续主线。",
         }
 
     return {

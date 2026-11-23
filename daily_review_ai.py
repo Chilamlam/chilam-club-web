@@ -21,8 +21,8 @@
 设计原则：
   1. **每题必须带 basis**（引用哪个产物、什么数值）——AI 答卷的说服力
      全在「有数据背书」，没有 basis 的题宁可不答。
-  2. **合规口径**：明日预期只做结构描述（延续/分歧/修复/加剧），
-     严禁个股推荐、目标价、买卖点。prompt 里显式约束。
+  2. **合规口径**：次日文字只列待核对指标、今日基准、阈值和观测项；
+     严禁概率、资金意图、技术定性、交易动作与仓位表述。
   3. **失败语义**：任何产物缺失或模型调用失败 → 本脚本退出码 0
      （跑批编排器约定：任一步失败不阻断当日数据落盘），但
      ai_answers 不写文件也不写库，页面显示「今日 AI 答卷未生成」——
@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from datetime import datetime, timezone, timedelta
 
@@ -51,9 +52,57 @@ DEEPSEEK_URL = "https://api.deepseek.com/chat/completions"
 DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 CST = timezone(timedelta(hours=8))
 
-# AI 不答的题（主观题）由模板 ai_checkable=False 且 prompt 注明；
-# 但 q02（用户心理感受）AI 确实不该答——双保险在这里也排除一次。
-AI_SKIP_IDS = {"q02_mood"}
+# 语义拒绝表。按风险类别返回稳定标签，生成校验与旧答卷展示共用。
+UNVERIFIED_LANGUAGE_PATTERNS = (
+    ("概率判断", re.compile(r"大概率|极高概率|高概率|有望|必然|极易")),
+    ("资金意图", re.compile(r"资金意图|主力|接力资金|停止出价|资金认可|资金只做|承接资金")),
+    (
+        "技术定性",
+        re.compile(
+            r"(?:上方|下方|关键)支撑(?:位|区|线)?|"
+            r"(?:上方|下方|关键)阻力(?:位|区|线)?|"
+            r"支撑位|阻力位|支撑区|阻力区|"
+            r"获得支撑|受到支撑|遇阻|"
+            r"突破阻力|跌破支撑|阻力较强|支撑较强"
+        ),
+    ),
+    ("交易动作", re.compile(
+        r"低吸|追高|买入|卖出|买卖|买点|卖点|仓位|建仓|加仓|减仓|清仓|进攻|防守"
+    )),
+    ("定性结论", re.compile(r"一票否决|阶段见顶|见顶")),
+    ("价格/收益承诺", re.compile(
+        r"目标价|目标位|推荐个股|保证收益|收益承诺|稳赚|必赚"
+    )),
+    ("样本判断", re.compile(
+        r"参考(?:意义|价值)(?:有限|不足|较低)|可参考性(?:低|有限|不足)|"
+        r"无参考(?:意义|价值)|不具(?:参考|统计)意义|"
+        r"样本(?:极小|太小|太少|很少|较少|不足)|样本量(?:小|少|不足)"
+    )),
+)
+
+
+def unverified_language_hits(value) -> list[str]:
+    """Return risk labels found in text used in AI answers or evidence."""
+    text = str(value or "")
+    return [label for label, pattern in UNVERIFIED_LANGUAGE_PATTERNS if pattern.search(text)]
+
+
+def ai_checklist_issues(value) -> list[str]:
+    """Validate that a next-day paragraph is a checklist, not a forecast."""
+    text = str(value or "").strip()
+    if not text:
+        return ["为空"]
+    issues = unverified_language_hits(text)
+    has_record_action = any(word in text for word in ("核对", "记录"))
+    has_observable = any(word in text for word in ("指标", "阈值", "观测", "结果", "基准"))
+    if not (has_record_action and has_observable):
+        issues.append("未列出待核对指标/阈值/观测项")
+    return issues
+
+
+# AI 不答主观题和只供个人核对当日事实的题目。q07 说的是用户是否
+# 逐只看过连板梯队，不能由 AI 代替，也不应转化成“样本是否足够”的评分。
+AI_SKIP_IDS = {"q02_mood", "q07_ladder"}
 
 DERIVED_PATH = os.path.join("data", "sentiment", "derived.json")
 LADDER_PATH = os.path.join("data", "limit_ladder.json")
@@ -136,15 +185,15 @@ def build_context(trade_date: str) -> dict:
 
 
 def build_prompt(trade_date: str, ctx: dict) -> str:
-    """题目清单 + 数据上下文 → Gemini prompt。"""
+    """题目清单 + 数据上下文 → DeepSeek prompt。"""
     questions = []
     for q in DEFAULT_TEMPLATE:
         if q["id"] in AI_SKIP_IDS:
             continue
         if q["type"] == "text":
             questions.append(
-                f"- {q['id']}（{q['prompt']}）：这是用户自由发挥题，你也要给出你的明日预期文字，"
-                "但只描述结构（情绪/梯队/题材格局怎么演变），严禁个股推荐、目标价、买卖点。")
+                f"- {q['id']}（{q['prompt']}）：这是文字题，只列下一交易日待核对指标、"
+                "今日基准、阈值与观测项，不写方向判断或操作建议。")
             continue
         opts = "、".join(q["options"]) if q.get("options") else "（选项来自当日板块涨幅榜，见数据）"
         if q["type"] == "choice_from_data":
@@ -164,11 +213,13 @@ def build_prompt(trade_date: str, ctx: dict) -> str:
 
 【作答规则】：
 1. 逐题作答，输出严格的 JSON（不要 markdown 代码块包裹，不要多余文字）。
-2. 结构：{{"answers": {{题目id: {{"choice": "选项原文", "basis": "依据（引用哪个数据、什么数值）"}}}}, "plan_text": "明日预期（结构描述）"}}
+2. 结构：{{"answers": {{题目id: {{"choice": "选项原文", "basis": "依据（引用哪个数据、什么数值）"}}}}, "plan_text": "次日核对清单"}}
 3. 每题 choice 必须是题目给出的选项原文之一（一字不差）。
 4. 每题 basis 必须引用上面数据的真实数值，格式如「连板溢价 -1.0%（18 只）」；没有依据就不要编。
-5. plan_text 只描述盘面结构预期（情绪修复/延续/分歧/加剧，梯队与题材格局），严禁出现具体股票代码、目标价、买卖点。
-6. 数据里没有的题，choice 填 "无法判断"，basis 写明缺哪个数据。
+5. plan_text 只写下一交易日要核对的指标、今日基准、阈值和将记录的观测项，例如「核对 1进2 晋级率是否低于 15%、昨日连板股中位涨幅；分别记录封板、换手与收盘结果」。
+6. 禁止出现概率或确定性判断、资金意图、支撑/阻力、低吸/追高、买卖、仓位、进攻/防守、一票否决、见顶、具体股票代码、目标价、目标位或收益承诺等未经本站验证的表述。
+7. 对样本较少的分组只写实际数量和待记录结果，不评价参考意义。
+8. 数据里没有的题，choice 填 "无法判断"，basis 写明缺哪个数据。
 """
 
 
@@ -186,11 +237,11 @@ def call_deepseek(prompt: str) -> dict | None:
             json={
                 "model": DEEPSEEK_MODEL,
                 "messages": [
-                    {"role": "system", "content": "你是严谨的A股短线复盘助手，只输出合法 JSON。"},
+                    {"role": "system", "content": "你是严谨的中立A股复盘记录助手，只输出合法 JSON。"},
                     {"role": "user", "content": prompt},
                 ],
                 "response_format": {"type": "json_object"},
-                "temperature": 0.3,   # 事实性作答：低温度减少发挥
+                "temperature": 0.1,   # 只保留可核对记录，进一步减少推断
                 "max_tokens": 3000,
             },
             timeout=90)
@@ -205,8 +256,10 @@ def call_deepseek(prompt: str) -> dict | None:
 
 
 def validate_answer(payload: dict | None, ctx: dict) -> tuple[dict, list]:
-    """校验 AI 答卷：题目覆盖、选项合法性、basis 非空。
-    返回 (清洗后的答卷, 问题清单)。问题严重（覆盖不足一半）→ 整份作废。"""
+    """校验选项、数据依据和次日核对清单；任何未验证表述均拒绝。
+
+    返回 (清洗后的答卷, 问题清单)。核对清单不合规或覆盖不足一半时整份作废。
+    """
     if not payload or not isinstance(payload.get("answers"), dict):
         return {}, ["答卷不是合法 JSON 或缺 answers"]
     problems = []
@@ -235,14 +288,23 @@ def validate_answer(payload: dict | None, ctx: dict) -> tuple[dict, list]:
         if not ok:
             problems.append(f"{qid}: 选项「{choice}」不在合法集")
             continue
-        if not str(a.get("basis", "")).strip() and choice != "无法判断":
+        basis = str(a.get("basis", "")).strip()
+        if not basis and choice != "无法判断":
             problems.append(f"{qid}: basis 为空")
             continue
-        cleaned[qid] = {"choice": choice, "basis": str(a.get("basis", ""))[:200]}
+        basis_issues = unverified_language_hits(basis)
+        if basis_issues:
+            problems.append(f"{qid}: basis 含未验证表述（{'、'.join(basis_issues)}）")
+            continue
+        cleaned[qid] = {"choice": choice, "basis": basis[:200]}
+    plan_text = str(payload.get("plan_text", "")).strip()
+    plan_issues = ai_checklist_issues(plan_text)
+    if plan_issues:
+        return {}, [f"plan_text: {'；'.join(plan_issues)}"] + problems
     # 覆盖率不足一半 → 作废（宁缺毋滥，半份答卷对比价值为负）
     if len(cleaned) < len(valid_ids) // 2:
         return {}, [f"覆盖率 {len(cleaned)}/{len(valid_ids)} 不足一半，整份作废"] + problems
-    return {"answers": cleaned, "plan_text": str(payload.get("plan_text", ""))[:800]}, problems
+    return {"answers": cleaned, "plan_text": plan_text[:800]}, problems
 
 
 def main() -> int:

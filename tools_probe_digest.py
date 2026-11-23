@@ -153,7 +153,7 @@ ck(full["has_content"] is True, "has_content=True")
 ck(full["missing"] == [], f"无缺失项（实际 {full['missing']}）")
 ck("2026-08-28" in full["title"], f"标题含统计日 — {full['title']}")
 ck("分歧期" not in full["title"], "连板模型档位不充当全市场标题")
-for kw in ("你的池子今日", "市场与题材", "接力样本", "榜单变动", "榜单战绩"):
+for kw in ("你的池子今日", "市场与题材", "接力样本", "榜单变动", "榜单历史表现"):
     ck(kw in md, f"正文含段落「{kw}」")
 ck(md.index("你的池子今日") < md.index("市场与题材"),
    "个性化段落排在大盘段落之前（用户关心顺序：我 → 我该盯什么 → 大盘）")
@@ -166,7 +166,10 @@ ck("+2.00%" in md, "连板溢价中位数原样透出")
 ck("5 板" in md and "[4] 板" in md, "梯队高度与断层原样透出")
 ck("+0.83%" in md, "5日超额中位数 0.0083 → 显示 +0.83%（小数必须乘 100）")
 ck("56%" in md, "跑赢基准比例 56% 原样透出")
-ck("排序未通过单调性检验" in md, "区分度不单调的结论必须与战绩数字一同播报，不许只报中位数")
+ck("排序未通过单调性检验" not in md and "排序信息量存疑" not in md,
+   "摘要不再播报分档单调性评价")
+ck("+0.83%" in md and "样本 900 条" in md and "口径：" in md,
+   "摘要仍保留实际战绩数字、样本数与计算口径")
 ck("浦发银行" in md, "自选股名称由 market_snapshot 映射得到")
 ck("+3.20%" in md and "-1.10%" in md, "自选股涨幅原样透出")
 ck("+1.05%" in md, "自选中位涨幅 = (3.2 + -1.1)/2 = 1.05%（手算对账）")
@@ -200,11 +203,11 @@ _fb = {"status": "complete",
        "phase": {"status": "ok", "phase": "分歧期", "basis": "晋级率中等",
                  "thresholds": {"method": "fallback", "high": 0.21, "mid": 0.16,
                                 "low": 0.11, "samples": 7,
-                                "note": "样本仅 7 个交易日（<20），暂用经验阈值 "
+                                "note": "当前用于滚动分位的窗口为 7 个交易日，尚未达到 20 日计算条件；现阶段使用经验阈值 "
                                         "21% / 16% / 11%，样本积累后自动切换为分位阈值"},
                  "note": "周期定位仅描述当前市场状态，不构成参与建议或仓位指引。"}}
 _txt_fb, _ = dg.section_phase(_fb)
-ck("样本仅 7" in _txt_fb and "经验阈值" in _txt_fb,
+ck("窗口为 7 个交易日" in _txt_fb and "经验阈值" in _txt_fb,
    "样本不足时基准行如实标注，不冒充分位阈值")
 
 print("=" * 60)

@@ -25,6 +25,7 @@ import streamlit as st
 
 import auth
 import database
+import daily_review_ai as review_ai
 from review_template import DEFAULT_TEMPLATE, get_checkable_ids
 import review_evidence
 from data_freshness import norm_date
@@ -229,14 +230,22 @@ def _render_compare(trade_date: str, user_row: dict) -> None:
                          expanded=not is_same):
             _render_evidence(qid, evidence)
             if a_basis:
-                st.caption(f"AI 依据：{a_basis}")
+                basis_issues = review_ai.unverified_language_hits(a_basis)
+                if basis_issues:
+                    st.caption("答案引用的站内记录：旧答卷文本未通过当前规则，已隐藏。")
+                else:
+                    st.caption(f"答案引用的站内记录：{a_basis}")
             if not is_same and qid in checkable:
                 st.caption("此题可回验——次日跑批后，实际盘面会给你们各自打分。")
     if diff + same:
         st.metric("今日一致率（可回验题）", f"{same}/{same + diff}")
-    if ai_row.get("plan_text"):
-        st.markdown("**AI 明日预期**（结构描述，不构成投资建议）：")
-        st.info(ai_row["plan_text"])
+    plan_text = str(ai_row.get("plan_text") or "").strip()
+    if plan_text:
+        st.markdown("**AI 次日核对清单**（仅列待核对指标与观测项）：")
+        if review_ai.ai_checklist_issues(plan_text):
+            st.warning("旧 AI 答卷的次日描述未通过当前中立性检查，已隐藏。请只使用上方站内记录逐项核对。")
+        else:
+            st.info(plan_text)
 
 
 def _render_scoring(trade_date: str, user_id: int) -> None:
@@ -250,7 +259,12 @@ def _render_scoring(trade_date: str, user_id: int) -> None:
         if st.button("👑 查看开通方式", key="review_vip"):
             st.switch_page("pages/dashboard.py")
         return
-    rows = database.get_user_scoring(user_id, trade_date)
+    active_ids = set(get_checkable_ids())
+    rows = [
+        row
+        for row in database.get_user_scoring(user_id, trade_date)
+        if row.get("question_id") in active_ids
+    ]
     if not rows:
         st.info("该日回验尚未生成（次日晚间跑批后出具）。")
         return
@@ -266,7 +280,7 @@ def _render_scoring(trade_date: str, user_id: int) -> None:
         st.markdown(
             f"{mark} **{r.get('question_id')}** 你：{r.get('user_choice')} "
             f"（AI {ai_mark} {r.get('ai_choice')}）→ 实际：{r.get('actual')}")
-    stats = database.get_scoring_stats(user_id)
+    stats = database.get_scoring_stats(user_id, active_question_ids=active_ids)
     if stats.get("total"):
         st.caption(
             f"近 {stats['days']} 个交易日累计：你 {stats['user_hits']}/{stats['total']}，"
@@ -274,8 +288,8 @@ def _render_scoring(trade_date: str, user_id: int) -> None:
 
 
 def render_review_page() -> None:
-    st.header("📝 引导式复盘答卷")
-    st.caption("按短线全覆盖复盘流程逐题作答 → 交卷解锁 AI 答卷对比 → 次日盘面回验双方命中")
+    st.header("📝 复盘答卷")
+    st.caption("把当日判断、依据和结果写在同一个地方；可按自己的顺序作答，需要时再对照 AI 答卷。")
 
     if not auth.is_logged_in():
         st.info("🔐 登录后开始你的每日复盘（填卷免费）。")

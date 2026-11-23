@@ -178,7 +178,7 @@ def render_sector_rotation_page() -> None:
         st.info(f"近10日涨幅榜与{data.get('prev_label') or '上次榜单'}重合 "
                 f"{data['overlap_count']}/{data.get('overlap_denominator') or 10} 个。")
     else:
-        st.info("此前榜单不足或不连续，暂不比较换位情况。")
+        st.info("缺少相邻交易日归档，因此不计算本次榜单重合数。")
 
     # 归档缺日期时把「缺了多少」显式说出来：读者据此判断这份判读能不能用来
     # 对比上一交易日，而不是只看一个笼统的「数据日期」。

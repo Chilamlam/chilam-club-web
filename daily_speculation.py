@@ -27,9 +27,9 @@ def get_latest_trade_date(api_func, max_days=5):
         df = api_func(trade_date=date_str)
         if not df.empty:
             if i > 0:
-                print(f"⚠️ 注意: Tushare 今日数据未就绪，自动回退抓取 {date_str} 的数据")
+                print(f"[提示] Tushare 今日数据未就绪，自动回退抓取 {date_str} 的数据")
             else:
-                print(f"✅ 成功获取今日 ({date_str}) 最新数据")
+                print(f"[完成] 成功获取今日 ({date_str}) 最新数据")
             return date_str, df
     return None, pd.DataFrame()
 
@@ -37,15 +37,15 @@ def get_cb_opportunities():
     """
     1. 可转债投机：放弃爬虫！使用纯数学公式自己计算真实溢价率（100%不被封）
     """
-    print("🛡️ [1/2] 正在扫描可转债市场...")
+    print("[1/2] 正在扫描可转债市场...")
     try:
         # 1. 自动寻找最新交易日数据，告别空窗期
         trade_date, df_cb = get_latest_trade_date(pro.cb_daily)
         if df_cb.empty:
-            print("❌ 连续5天未获取到可转债行情")
+            print("[失败] 连续5天未获取到可转债行情")
             return []
             
-        print(f"   📅 开始本地计算溢价率...")
+        print("   开始本地计算溢价率...")
         
         # 2. 获取基础信息 (包含计算必须的：转股价 conv_price 和 正股代码 stk_code)
         basic = pro.cb_basic(fields="ts_code,bond_short_name,stk_code,conv_price,remain_size")
@@ -75,7 +75,7 @@ def get_cb_opportunities():
         # 算出最终的双低值
         df['premium_rate'] = df['premium_rate'].round(2).fillna(0)
         df['double_low'] = (df['close'] + df['premium_rate']).round(2)
-        print("   ✅ 溢价率计算完成！")
+        print("   溢价率计算完成")
 
         # 4. 策略归类
         small_cap = df[
@@ -98,14 +98,14 @@ def get_cb_opportunities():
         return result[export_cols].to_dict('records')
         
     except Exception as e:
-        print(f"❌ 可转债获取失败: {type(e).__name__}")
+        print(f"[失败] 可转债获取失败: {type(e).__name__}")
         return []
 
 def get_fund_arbitrage():
     """
     2. 基金套利：自动回溯防空窗期 + 腾讯 API
     """
-    print("🧱 [2/2] 正在扫描基金异动...")
+    print("[2/2] 正在扫描基金异动...")
     try:
         # 使用新机制，防止白天运行抓不到数据
         trade_date, df = get_latest_trade_date(pro.fund_daily)
@@ -115,7 +115,7 @@ def get_fund_arbitrage():
         top_gainers = df_active.sort_values('pct_chg', ascending=False).head(20).copy()
         
         # 腾讯 API 获取名称
-        print("   🔄 正在通过腾讯 API 解析基金名称...")
+        print("   正在通过腾讯 API 解析基金名称...")
         name_map = {}
         query_list = []
         for code in top_gainers['ts_code']:
@@ -135,12 +135,12 @@ def get_fund_arbitrage():
                         market_str = 'SH' if q_code.startswith('sh') else 'SZ'
                         ts_code = f"{q_code[2:]}.{market_str}"
                         name_map[ts_code] = vals[1]
-            print("   ✅ 基金名称解析成功！")
+            print("   基金名称解析成功")
         except Exception as e:
-            print(f"   ⚠️ 腾讯 API 解析失败: {type(e).__name__}")
+            print(f"   [警告] 腾讯 API 解析失败: {type(e).__name__}")
 
         # fund_nav accepts one code per request. Keep each NAV's own valuation date.
-        print("   🔄 正在逐只核对价格与净值日期...")
+        print("   正在逐只核对价格与净值日期...")
         start_date = (datetime.datetime.strptime(trade_date, '%Y%m%d') - datetime.timedelta(days=14)).strftime('%Y%m%d')
 
         res = []
@@ -174,7 +174,7 @@ def get_fund_arbitrage():
         return res
         
     except Exception as e:
-        print(f"❌ 基金扫描失败: {type(e).__name__}")
+        print(f"[失败] 基金扫描失败: {type(e).__name__}")
         return []
 
 if __name__ == "__main__":
@@ -195,4 +195,4 @@ if __name__ == "__main__":
     
     with open(SPECULATION_PATH, 'w', encoding='utf-8') as f:
         json.dump(final_data, f, ensure_ascii=False, indent=2)
-    print("✅ 投机数据生成完毕")
+    print("[完成] 投机数据生成完毕")

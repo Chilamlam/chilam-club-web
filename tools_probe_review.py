@@ -56,6 +56,8 @@ ck(all(len(q["options"]) >= 2 for q in tpl
    "单选/多选/YN 题选项数 ≥ 2")
 ck(all(isinstance(q.get("ai_checkable"), bool) for q in tpl), "每题 ai_checkable 是布尔")
 ck(len(rt.get_checkable_ids()) >= 8, f"可判分题 {len(rt.get_checkable_ids())} ≥ 8（回验价值）")
+ck("q07_ladder" not in rt.get_checkable_ids(),
+   "连板逐只核对题退出次日命中评分")
 
 # 情绪周期题（q03）必须存在且可判分——它是短线复盘的灵魂题
 ck("q03_emotion_cycle" in ids, "情绪周期题存在（模板灵魂题）")
@@ -105,7 +107,7 @@ ck(_upsert_called, "main() 实际调用写库（AST 判定调用点，非定义�
 ck("文件已归档" in drai_src, "写库失败不回滚文件归档（文件是事实，库可补）")
 drai_ast = ast.parse(drai_src)
 func_names = [n.name for n in drai_ast.body if isinstance(n, ast.FunctionDef)]
-ck("validate_answer" in func_names, "有答卷校验函数（选项合法性+覆盖率）")
+ck("validate_answer" in func_names, "有答卷校验函数（选项、依据、核对清单与覆盖率）")
 ck("main" in func_names, "有 main 入口（编排器约定）")
 # 宁缺毋滥：derived 缺失时不生成
 ck("宁缺毋滥" in drai_src, "AI 答卷有宁缺毋滥注释与分支（数据缺失不硬答）")
@@ -138,11 +140,61 @@ for _q in tpl:
         _full_ok["answers"][_q["id"]] = {"choice": "文字", "basis": "—"}
         continue
     _full_ok["answers"][_q["id"]] = {"choice": _opt[0], "basis": "依据示例"}
-_full_ok["plan_text"] = "明日情绪延续退潮"
+_safe_plan = (
+    "下一交易日核对：1进2 晋级率是否低于 15%；昨日连板股中位涨幅是否转负；"
+    "分别记录各组开盘、换手与收盘结果。"
+)
+_full_ok["plan_text"] = _safe_plan
 c3, p3 = drai.validate_answer(_full_ok, ctx_fake)
 ck(len(c3.get("answers", {})) >= len([q for q in tpl if q["id"] not in drai.AI_SKIP_IDS]) - 2,
    f"合法完整答卷通过校验（{len(c3.get('answers', {}))} 题，剔除 {len(p3)}）")
-ck(c3.get("plan_text") == "明日情绪延续退潮", "明日预期文本保留")
+ck(c3.get("plan_text") == _safe_plan, "中性次日核对清单保留")
+
+# 语义拒绝：旧式推断/操作表达不得落盘，也不得进入展示层。
+ck(bool(drai.unverified_language_hits("明日大概率退潮")), "拒绝概率判断")
+ck(bool(drai.unverified_language_hits("主力资金认可")), "拒绝资金意图")
+ck(bool(drai.unverified_language_hits("构成上方阻力")), "拒绝支撑/阻力定性")
+ck(bool(drai.unverified_language_hits("开盘低吸、盘中追高")), "拒绝低吸/追高动作")
+ck(bool(drai.unverified_language_hits("建议买入并降低仓位")), "拒绝买卖/仓位动作")
+ck(bool(drai.unverified_language_hits("样本极小，参考意义有限")), "拒绝低样本无参考判断")
+ck(bool(drai.unverified_language_hits("目标价 12 元")), "拒绝目标价")
+for _bad_plan in (
+    "明日大概率退潮",
+    "情绪有望修复",
+    "资金意图已经明确",
+    "主力洗盘结束",
+    "当前构成支撑或阻力",
+    "开盘低吸、盘中追高",
+    "建议买入并降低仓位",
+    "采用进攻或防守策略",
+    "接力资金已经停止出价",
+    "命中者一票否决",
+    "命中即进入阶段见顶",
+    "2进3 样本极小、参考意义有限",
+    "核对 2进3 数量；样本不足",
+    "核对阈值，目标价为 12 元",
+    "明日情绪延续退潮",
+):
+    _bad = dict(_full_ok)
+    _bad["plan_text"] = _bad_plan
+    _clean_bad, _problems_bad = drai.validate_answer(_bad, ctx_fake)
+    ck(not _clean_bad and any("plan_text" in p for p in _problems_bad),
+       f"非法计划被拒绝：{_bad_plan}")
+
+_basis_bad = dict(_full_ok)
+_basis_bad["answers"] = dict(_full_ok["answers"])
+_basis_bad["answers"]["q03_emotion_cycle"] = {
+    "choice": _basis_bad["answers"]["q03_emotion_cycle"]["choice"],
+    "basis": "主力资金认可后继续接力",
+}
+_clean_basis, _problems_basis = drai.validate_answer(_basis_bad, ctx_fake)
+ck("q03_emotion_cycle" not in (_clean_basis.get("answers") or {}),
+   "含未验证表述的 basis 对应题目被剔除")
+ck(any("basis" in p for p in _problems_basis), "basis 拒绝有明确原因")
+
+_prompt_safe = drai.build_prompt("20261116", ctx_fake)
+ck("只列下一交易日待核对指标" in _prompt_safe, "prompt 要求列下一交易日核对项")
+ck("禁止出现概率或确定性判断" in _prompt_safe, "prompt 明确禁止未经验证判断")
 
 # ---- 3. 解锁门禁：database.get_ai_review 后端拒绝（产品灵魂） ----
 db_src = open(os.path.join(ROOT, "database.py"), encoding="utf-8").read()
@@ -179,12 +231,20 @@ ck("is_logged_in" in prv_src, "页面有登录门禁")
 # 付费墙：当日对比免费、历史/命中率 VIP
 ck("is_vip" in prv_src and "命中率" in prv_src, "付费墙在历史对比+命中率（VIP）")
 ck("填卷免费" in prv_src, "填卷免费的口径写明在页面")
+ck("AI 次日核对清单" in prv_src and "AI 明日预期" not in prv_src,
+   "页面使用中性标题“AI 次日核对清单”")
+ck("答案引用的站内记录" in prv_src and "AI 依据：" not in prv_src,
+   "页面使用中性标题“答案引用的站内记录”")
+ck("unverified_language_hits" in prv_src and "ai_checklist_issues" in prv_src,
+   "页面复用同一套旧答卷语义拒绝规则")
+ck("已隐藏" in prv_src, "旧模板文本不合格时明确拒绝展示")
 # 页面不自行取 AI 卷（必须经 database.get_ai_review 的后端门禁）
 ck("review_ai_answers" not in prv_src,
    "页面不直查 review_ai_answers 表（必须走后端门禁函数）")
 
 # ---- 5. 回验脚本：宁缺毋滥 + 不 import streamlit ----
 drs_src = open(os.path.join(ROOT, "daily_review_score.py"), encoding="utf-8").read()
+ck('"q07_ladder"' not in drs_src, "回验脚本不再为连板逐只核对题生成实际判据")
 # AST 判 import（同上，防 docstring 误命中）
 _drs_ast0 = ast.parse(drs_src)
 _drs_imports = []
@@ -331,6 +391,13 @@ _ev_all_text = json.dumps(_ev_real, ensure_ascii=False)
 _leaked = [w for w in rev_ev.PHASE_WORDS + rev_ev.LADDER_VERDICT_MARKS
            if w in _ev_all_text]
 ck(not _leaked, f"真实素材文本无泄题词（检出 {len(_leaked)} 个即失败）")
+_old_evidence_labels = (
+    "人气核心区", "人气股参考", "高板池", "趋势低吸", "人气低吸",
+    "高板人气池", "凭盘感",
+)
+_old_evidence_hits = [w for w in _old_evidence_labels if w in _ev_all_text]
+ck(not _old_evidence_hits,
+   f"真实素材无旧价值标签（检出 {len(_old_evidence_hits)} 个即失败）")
 # 天梯题素材含真实标的（连板股名）
 _q7 = _ev_real.get("q07_ladder") or {}
 ck(any("只" in ln or "板" in ln for ln in _q7.get("lines", [])),

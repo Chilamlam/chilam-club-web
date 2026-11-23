@@ -45,8 +45,6 @@ def _render_kpi(derived: dict) -> None:
                 delta_color="off",
                 help="昨日首板股中，今日继续涨停的比例；统计截止今日收盘。",
             )
-            if not r12.get("reliable"):
-                st.caption("⚠️ 样本不足 10，比率波动大")
         else:
             st.metric("1进2 晋级率", "—")
             st.caption(promo.get("reason", "缺少昨日归档"))
@@ -60,8 +58,6 @@ def _render_kpi(derived: dict) -> None:
                 delta_color="off",
                 help="昨日连板股今日收盘涨跌幅的中位数；上涨占比是样本内上涨只数比例。",
             )
-            if premium.get("reason"):
-                st.caption(f"⚠️ {premium['reason']}")
             if premium.get("missing"):
                 st.caption(f"（{premium['missing']} 只今日行情缺失，未计入）")
         else:
@@ -100,21 +96,24 @@ def _render_promotion_table(promo: dict) -> None:
     rates = (promo or {}).get("rates") or {}
     if not rates:
         return
-    with st.expander("🪜 各高度晋级率明细（样本不足的档位已标注）", expanded=False):
+    with st.expander("🪜 各高度晋级明细", expanded=True):
         rows = []
         for k, v in rates.items():
             rows.append({
                 "晋级路径": k,
                 "昨日基数": v["base"],
                 "今日晋级": v["promoted"],
+                "未晋级": v["base"] - v["promoted"],
                 "晋级率": f"{v['rate'] * 100:.1f}%",
-                "可参考性": "✅ 样本足" if v.get("reliable") else "⚠️ 样本<10，噪音大",
             })
         st.dataframe(rows, hide_index=True, use_container_width=True)
-        st.caption(
-            "高位板（4 进 5 以上）通常只有个位数样本，比率在 0% 和 100% 之间跳，"
-            "不要当信号看——这里照实列出而不是挑好看的展示。"
-        )
+        members = [{"昨日高度": r["previous_height"], "名称": r["name"], "代码": r["code"],
+                    "今日结果": "晋级" if r["promoted"] else "未晋级",
+                    "今日连板数": r["current_height"]}
+                   for v in reversed(list(rates.values())) for r in v.get("members", [])]
+        if members:
+            st.dataframe(members, hide_index=True, width="stretch")
+        st.caption("按昨日各高度的股票逐只核对今日涨停归档；未晋级不等于跌停，今日连板数留空表示未在当日涨停归档中找到。")
 
 
 def _render_caliber(derived: dict) -> None:
@@ -164,6 +163,12 @@ def render_sentiment_block() -> None:
         f"`{derived.get('prev_date') or '—'}` | 归档 {derived.get('archive_days', 0)} 天"
     )
 
-    _render_kpi(derived)
-    _render_promotion_table(derived.get("promotion") or {})
+    # 旧派生产物没有逐股结果，用同日期的原始归档补齐；不沿用旧可靠性标签。
+    promo = derived.get("promotion") or {}
+    if promo.get("rates") and not any("members" in r for r in promo["rates"].values()):
+        recalculated = sm.promotion_rates(sm.load_ladder_history(), derived.get("date"), derived.get("prev_date"))
+        if recalculated.get("status") == "ok":
+            promo = recalculated
+    _render_kpi(dict(derived, promotion=promo))
+    _render_promotion_table(promo)
     _render_caliber(derived)

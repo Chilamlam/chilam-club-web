@@ -32,6 +32,7 @@ import auth
 import push_binding as pb
 import narrative
 import digest
+import review_language
 
 DIGEST_DIR = os.path.join("data", "digest")
 LATEST_MD = os.path.join(DIGEST_DIR, "latest.md")
@@ -147,11 +148,15 @@ def render_digest_page() -> None:
                 for item in current["missing"]:
                     st.caption(item)
     else:
-        view_md, view_date = _read_text(os.path.join(HIST_DIR, f"{pick}.md")), pick
-        st.caption("历史原文：保留当时的模板和统计口径，可能含已停用的模型表述。")
-        if not view_md:
+        archived_md = _read_text(os.path.join(HIST_DIR, f"{pick}.md"))
+        view_date = pick
+        if not archived_md:
             st.info("该日归档暂不可用。")
             return
+        # 原始 Markdown 继续留在 history/ 供追溯；页面只改写过时的判断性
+        # 表述，历史日期、数字和当时实际生成的结构保持不变。
+        view_md = review_language.current_wording(archived_md)
+        st.caption("历史归档：日期与数字保留；判断性表述已按当前中性口径改写。")
         st.markdown(view_md)
 
     st.download_button(

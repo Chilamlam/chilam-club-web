@@ -24,6 +24,8 @@ while _ROOT in sys.path:
 sys.path.insert(0, _ROOT)
 
 import auth
+import account_shell
+import feedback_ui
 import database
 from ui_compat import image_stretch
 import admin_notify
@@ -68,7 +70,12 @@ def _notify_new_order(order: dict, user_email: str) -> None:
         ok, note = False, f"{type(e).__name__}: {e}"
     st.session_state["last_order_alert"] = (ok, note)
 
-st.set_page_config(page_title="会员中心 - Chilam Club", page_icon="👑", layout="centered")
+account_shell.configure_page(
+    current="dashboard",
+    page_title="会员中心 - Chilam Club",
+    page_icon="👑",
+    layout="centered",
+)
 
 st.title("👑 会员中心")
 
@@ -162,9 +169,10 @@ else:
         # 付费用户开通后会发现「什么都没变」——比不做付费墙更伤信任，故改为如实描述。
         st.markdown(
             "站内**所有行情与判断页面都免费开放**（全市场看板、板块轮动、收盘摘要正文、"
-            "强势股、投机与套利、投资作业本、战绩回看等），无需开通即可查看。\n\n"
-            "VIP 权益只有一项：**收盘摘要主动推送到微信**"
-            "VIP 权益聚焦在：**收盘摘要与次日交易计划主动推送到微信**（含你的池子诊断、六大策略池分周期历史胜率矩阵与次日盘中锚定时间轴），开通后需回本页扫码绑定一次微信。"
+            "强势股、投机与套利、机构持仓披露、战绩回看等），无需开通即可查看。\n\n"
+            "VIP 只增加一项能力：**把站内已有内容主动推送到你的微信**。"
+            "推送内容可包含收盘摘要、你的池子诊断、六大策略池记录和次日观察时间轴；"
+            "这些内容仍可在对应页面免费查看。开通后需回本页扫码绑定一次微信。"
         )
 
 # ================= 1.5 推送绑定（会员权益的第二个开关） =================
@@ -416,5 +424,6 @@ with c1:
         st.switch_page("app.py")
 with c2:
     if st.button("🚪 退出登录", use_container_width=True):
+        feedback_ui.request_feedback_session_clear()
         auth.logout()
         st.switch_page("app.py")

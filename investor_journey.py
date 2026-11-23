@@ -12,7 +12,8 @@ from update_schedule import beijing_now
 QUOTE_PAGE = "⚡ 实时行情 + 技术分析"
 WATCH_PAGE = "⭐ 我的池子 (每日复盘)"
 REVIEW_PAGE = "📝 复盘答卷"
-FIB_PAGE = "📏 黄金分割预测"
+FIB_PAGE = "📏 黄金分割参考位"
+WORKBENCH_PAGE = "👁 观察记录"
 
 
 def explicit_symbol(raw) -> str:
@@ -43,25 +44,35 @@ def apply_handoff(state) -> None:
     handoff = state.pop("journey_target", None)
     if not isinstance(handoff, dict):
         return
-    page = handoff.get("page")
+    from navigation import PAGE_ALIASES
+    page = PAGE_ALIASES.get(handoff.get("page"), handoff.get("page"))
     group = next((g for g, (_, pages) in NAV_GROUPS.items() if page in pages), None)
     if group is None:
         return
     state["nav_group"] = group
+    state["active_page"] = page
     state[f"nav_page_{group}"] = page
     state.setdefault("nav_saved_pages", {})[group] = page
     symbol = explicit_symbol(handoff.get("symbol"))
     if symbol:
         state["active_symbol"] = symbol
         state["fib_symbol"] = symbol
+        if page == WORKBENCH_PAGE:
+            state["workbench_symbol"] = symbol
+        context = handoff.get("context")
+        if isinstance(context, dict):
+            state["workbench_prefill"] = dict(context)
         if page == QUOTE_PAGE:
             # A ranking is a daily snapshot; open the daily chart first.
             state["period_A_SHARE"] = "日K"
             state["period_BJ_SHARE"] = "日K"
 
 
-def go(page: str, symbol="") -> None:
-    st.session_state["journey_target"] = {"page": page, "symbol": explicit_symbol(symbol)}
+def go(page: str, symbol="", *, context: dict | None = None) -> None:
+    payload = {"page": page, "symbol": explicit_symbol(symbol)}
+    if isinstance(context, dict):
+        payload["context"] = context
+    st.session_state["journey_target"] = payload
     st.rerun()
 
 
@@ -86,12 +97,14 @@ def candidate_actions(frame: pd.DataFrame, *, key: str, code_col="ts_code", name
     if not choices:
         return
     with st.container(border=True):
-        left, right = st.columns([3, 1])
+        left, middle, right = st.columns([3, 1, 1])
         selected = left.selectbox("选一只继续研究", list(choices),
                                   format_func=choices.get, key=f"{key}_pick")
-        if right.button("查看技术图 →", key=f"{key}_chart", use_container_width=True):
+        if middle.button("查看技术图 →", key=f"{key}_chart", use_container_width=True):
             go(QUOTE_PAGE, selected)
-        st.caption("技术页可继续记录观察条件、加入自选，或查看同一标的的黄金分割参考位。")
+        if right.button("打开观察记录 →", key=f"{key}_track", use_container_width=True):
+            go(WORKBENCH_PAGE, selected)
+        st.caption("技术页可核对分时与日线；观察记录会保留入选来源、风险和后续价格变化。")
 
 
 def _plans_key() -> str:
@@ -192,4 +205,6 @@ def render_symbol_workspace(symbol: str, name: str = "", *, key: str = "symbol")
             if c2.button("黄金分割参考位 →", key=f"{ident}_fib"):
                 go(FIB_PAGE, symbol)
         page_link("查看我的池子 →", WATCH_PAGE, key=f"{ident}_pool")
+        if st.button("打开观察记录 →", key=f"{ident}_workbench"):
+            go(WORKBENCH_PAGE, symbol)
     render_plan_book(key=f"{key}_plans")

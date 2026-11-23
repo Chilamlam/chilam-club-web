@@ -179,12 +179,22 @@ class PatternTests(unittest.TestCase):
         dates, bond, stock = self._ten_days()
         payload = _build(bond, stock, {"111001.SH": _basic()}, dates[-1])
         definitions = payload["patterns"]["definitions"]
-        self.assertIn("理论天花板", definitions["low_to_close"])
-        self.assertIn("不作收益统计", definitions["low_to_close"])
-        # 收盘必然高于最低价，所以这一列必然全部为正：它只说明振幅上限。
+        self.assertIn("事后区间上限", definitions["low_to_close"])
+        self.assertIn("不作正收益占比统计", definitions["low_to_close"])
+        # 按日线口径最低价不高于收盘价，所以这一列只说明振幅上限。
         rows = payload["patterns"]["rows"]
         self.assertTrue(rows)
         self.assertTrue(all(row["low_to_close"] > 0 for row in rows))
+
+    def test_price_comparisons_do_not_read_as_executable_orders(self):
+        dates, bond, stock = self._ten_days()
+        payload = _build(bond, stock, {"111001.SH": _basic()}, dates[-1])
+        definitions = payload["patterns"]["definitions"]
+        text = " ".join(str(definitions[key]) for key in (
+            "open_to_close", "low_to_close", "dip", "next_high"
+        ))
+        for phrase in ("低吸", "追高", "挂单", "成交后", "浮盈"):
+            self.assertNotIn(phrase, text)
 
     def test_dip_stat_only_counts_days_that_touch_the_trigger(self):
         dates = _dates(4)

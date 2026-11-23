@@ -82,13 +82,13 @@ def promotion_rates(hist: pd.DataFrame, date: str, prev_date: str) -> dict:
     """
     晋级率：prev_date 的 N 连板中，date 成功晋级到 N+1 的比例。
 
-    1进2 最敏感——首板数量通常几十只，样本足，且直接反映次日资金接力意愿；
-    高位板（4 进 5 以上）本身只有几只，比率波动巨大，必须标注样本数由前端弱化展示。
+    各高度列出完整归档群体的数量和逐股结果，不按数量评判参考价值。
+    未出现在当日涨停归档的股票标为未晋级，不推断其跌幅或是否可成交。
     """
     if hist.empty:
         return {"status": "failed", "reason": "涨停归档为空"}
-    prev = hist[hist["date"] == prev_date]
-    cur = hist[hist["date"] == date]
+    prev = hist[hist["date"] == prev_date].drop_duplicates("code", keep="last")
+    cur = hist[hist["date"] == date].drop_duplicates("code", keep="last")
     if prev.empty or cur.empty:
         return {"status": "failed",
                 "reason": f"缺少 {prev_date} 或 {date} 的涨停归档，无法计算晋级率"}
@@ -100,15 +100,21 @@ def promotion_rates(hist: pd.DataFrame, date: str, prev_date: str) -> dict:
         base = len(group)
         if base == 0:
             continue
-        promoted = 0
-        for code in group["code"].astype(str):
-            if cur_map.get(code, 0) >= n + 1:
-                promoted += 1
+        members = []
+        for row in group.to_dict("records"):
+            code = str(row["code"])
+            height = cur_map.get(code)
+            members.append({"code": code, "name": str(row.get("name", "")),
+                            "previous_height": int(n),
+                            "current_height": int(height) if height is not None else None,
+                            "promoted": bool(height is not None and height >= n + 1)})
+        promoted = sum(row["promoted"] for row in members)
         out[f"{int(n)}进{int(n) + 1}"] = {
             "base": int(base),
             "promoted": int(promoted),
             "rate": float(promoted / base),
-            "reliable": bool(base >= 10),   # 样本 <10 的高位板比率不可当信号看
+            "not_promoted": int(base - promoted),
+            "members": members,
         }
     return {"status": "ok", "prev_date": prev_date, "date": date, "rates": out}
 
@@ -164,8 +170,7 @@ def continuation_premium(hist: pd.DataFrame, prev_date: str,
     连板溢价：prev_date 的连板股（≥2板）今日实际涨幅表现。
     pct_map: {纯代码: 今日涨幅%}，由跑批层传入（不在计算层联网）。
 
-    中位数为主口径：均值容易被个别 20cm 涨停拉高，
-    中位数才代表「昨天追高的人今天的平均处境」。
+    同列中位数和均值，均为前收至今收的涨跌幅，不模拟个人买卖。
     """
     if hist.empty or not pct_map:
         return {"status": "failed", "reason": "缺少涨停归档或今日涨幅数据"}
@@ -176,7 +181,11 @@ def continuation_premium(hist: pd.DataFrame, prev_date: str,
     vals, missing = [], 0
     for code in prev["code"].astype(str):
         v = pct_map.get(code)
-        if v is None:
+        try:
+            v = float(v)
+        except (TypeError, ValueError):
+            v = float("nan")
+        if not np.isfinite(v):
             missing += 1
             continue
         vals.append(float(v))
@@ -185,7 +194,7 @@ def continuation_premium(hist: pd.DataFrame, prev_date: str,
 
     s = pd.Series(vals, dtype="float64")
     return {
-        "status": "ok" if len(vals) >= 5 else "insufficient",
+        "status": "ok",
         "prev_date": prev_date,
         "n": int(len(vals)),
         "missing": int(missing),
@@ -193,7 +202,7 @@ def continuation_premium(hist: pd.DataFrame, prev_date: str,
         "mean_pct": float(s.mean()),
         "win_rate": float((s > 0).mean()),
         "limit_again": int((s >= 9.8).sum()),
-        "reason": (None if len(vals) >= 5 else f"样本仅 {len(vals)} 只，参考价值有限"),
+        "reason": None,
     }
 
 
@@ -229,8 +238,8 @@ PHASE_MIN_SAMPLES = 20   # 分位法最低样本数；不足则回退经验阈�
 PHASE_QUANTILES = (0.80, 0.55, 0.25)   # 分别对应 发酵 / 分歧 / 退潮 三档门槛
 PHASE_FALLBACK = (0.21, 0.16, 0.11)    # 归档不足以估分位时的经验阈值
 
-# 归档里首板少于该数目的日子不进分布（样本太小，比率全是噪声）
-PHASE_MIN_BASE = 10
+# 只要求当日确有首板；数量本身属于市场状态的一部分。
+PHASE_MIN_BASE = 1
 
 
 def promotion_rate_series(hist: pd.DataFrame,
@@ -241,7 +250,7 @@ def promotion_rate_series(hist: pd.DataFrame,
     **只用严格早于 before_date 的交易日**——这是判定基准的方法论底线：
     阈值若包含当日自身的晋级率，等于用今天的结果解释今天的定位，既没有
     前瞻价值，也会让标签自指（当日 r12 必然落在自己的分位区间内）。
-    首板样本 < PHASE_MIN_BASE 的日子一并剔除，噪声不进分布。
+    每个有首板归档的交易日均进入分布。
     """
     if hist is None or hist.empty:
         return pd.Series(dtype="float64")
@@ -313,9 +322,10 @@ def phase_thresholds(hist: pd.DataFrame, before_date: str | None = None,
         "samples": n,
         "lookback": int(lookback),
         "window_from": None, "window_to": None,
-        "note": (f"样本仅 {n} 个交易日（<{PHASE_MIN_SAMPLES}），暂用经验阈值 "
+        "note": (f"当前用于滚动分位的窗口为 {n} 个交易日，尚未达到 "
+                 f"{PHASE_MIN_SAMPLES} 日计算条件；现阶段使用经验阈值 "
                  f"{hi * 100:.0f}% / {mid * 100:.0f}% / {lo * 100:.0f}%，"
-                 f"样本积累后自动切换为分位阈值"),
+                 f"达到条件后自动切换为分位阈值"),
     }
 
 
@@ -373,7 +383,7 @@ def cycle_phase(promo: dict, gap: dict, premium: dict,
     """
     r12 = None
     rates = (promo or {}).get("rates") or {}
-    if "1进2" in rates and rates["1进2"].get("reliable"):
+    if "1进2" in rates and rates["1进2"].get("base", 0) > 0:
         r12 = float(rates["1进2"]["rate"])
 
     prem = (premium or {}).get("median_pct") if (premium or {}).get("status") == "ok" else None
@@ -381,7 +391,7 @@ def cycle_phase(promo: dict, gap: dict, premium: dict,
 
     if r12 is None:
         return {"status": "insufficient",
-                "reason": "1进2 样本不足或缺失，无法定位周期（不做猜测）"}
+                "reason": "缺少1进2记录，无法计算统计档位"}
 
     th = _normalize_thresholds(thresholds)
     phase = classify_phase(r12, th, prem)
@@ -413,7 +423,7 @@ def verification_plan(promo: dict, gap: dict, premium: dict,
     plan = []
     rates = (promo or {}).get("rates") or {}
 
-    if "1进2" in rates and rates["1进2"].get("reliable"):
+    if "1进2" in rates and rates["1进2"].get("base", 0) > 0:
         cur = rates["1进2"]["rate"] * 100
         plan.append({
             "指标": "首板次日继续涨停比例",

@@ -12,7 +12,7 @@ import hmac
 import base64
 import time
 from datetime import datetime, timedelta, timezone
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Collection
 try:
     import streamlit as st
 except ImportError:
@@ -217,6 +217,31 @@ def get_user_by_id(user_id: int) -> Optional[Dict[str, Any]]:
     if res and isinstance(res, list) and len(res) > 0:
         return res[0]
     return None
+
+
+def get_user_by_id_checked(user_id: int) -> tuple:
+    """Return `(user, err)` and keep missing rows distinct from DB failures."""
+    try:
+        user_id = int(user_id)
+    except (TypeError, ValueError):
+        return None, {"code": "INVALID_USER", "message": "账号标识无效"}
+    rows, err = _supabase_request(
+        "GET",
+        "users",
+        params={
+            "id": f"eq.{user_id}",
+            "select": "id,email,is_admin",
+            "limit": "1",
+        },
+        return_error=True,
+        retries=2,
+        timeout=8,
+    )
+    if err:
+        return None, err
+    if isinstance(rows, list) and rows:
+        return rows[0], None
+    return None, {"code": "USER_NOT_FOUND", "message": "账号不存在"}
 
 def get_all_users() -> List[Dict[str, Any]]:
     """获取所有用户列表"""
@@ -816,8 +841,16 @@ def get_user_scoring(user_id: int, trade_date: str) -> List[Dict[str, Any]]:
     return res if isinstance(res, list) else []
 
 
-def get_scoring_stats(user_id: int, limit_days: int = 30) -> Dict[str, Any]:
-    """用户命中率统计（近 N 个交易日）。VIP 权益之一。"""
+def get_scoring_stats(
+    user_id: int,
+    limit_days: int = 30,
+    active_question_ids: Optional[Collection[str]] = None,
+) -> Dict[str, Any]:
+    """用户命中率统计（近 N 个交易日）。VIP 权益之一。
+
+    历史表中可能保留已退役题目的旧回验行；展示层传入当前可回验题号后，
+    这些旧行不会再进入命中率分母。
+    """
     params = {"user_id": f"eq.{user_id}", "select": "trade_date,question_id,user_hit,ai_hit",
               "order": "trade_date.desc", "limit": str(limit_days * 15)}
     res = _supabase_request("GET", "review_scoring", params=params)
@@ -825,6 +858,11 @@ def get_scoring_stats(user_id: int, limit_days: int = 30) -> Dict[str, Any]:
         return {"days": 0, "user_hits": 0, "ai_hits": 0, "total": 0}
     by_date = {}
     for r in res:
+        if (
+            active_question_ids is not None
+            and r.get("question_id") not in active_question_ids
+        ):
+            continue
         d = str(r.get("trade_date", ""))[:10].replace("-", "")
         by_date.setdefault(d, {"user": 0, "ai": 0, "n": 0})
         by_date[d]["n"] += 1
@@ -1134,3 +1172,247 @@ def check_site_settings_table() -> bool:
                             params={"select": "key", "limit": "1"},
                             retries=1, timeout=SITE_SETTINGS_TIMEOUT)
     return isinstance(res, list)
+
+
+# ===== 产品反馈（site_feedback） =====
+# 侧栏表单和后台反馈列表共用这一层。表只授给 service_role，RLS 下不给
+# anon / authenticated 任何策略；游客能提交是因为请求由 Streamlit 服务端
+# 使用 service key 发出，而不是浏览器直连 Supabase。
+
+SITE_FEEDBACK_TABLE = "site_feedback"
+SITE_FEEDBACK_CATEGORIES = (
+    "看不懂",
+    "找不到功能",
+    "页面报错",
+    "数据有误",
+    "功能建议",
+    "其他",
+)
+SITE_FEEDBACK_MIN_MESSAGE = 5
+SITE_FEEDBACK_MAX_MESSAGE = 1200
+SITE_FEEDBACK_RATE_ERRORS = (
+    (
+        "CHILAM_FEEDBACK_VISITOR_RATE_LIMIT_10M",
+        "VISITOR_RATE_LIMIT_10M",
+        "当前网络提交反馈过于频繁，请 10 分钟后再试。",
+    ),
+    (
+        "CHILAM_FEEDBACK_VISITOR_RATE_LIMIT_24H",
+        "VISITOR_RATE_LIMIT_24H",
+        "当前网络今天提交的反馈过多，请 24 小时后再试。",
+    ),
+    (
+        "CHILAM_FEEDBACK_USER_RATE_LIMIT_10M",
+        "USER_RATE_LIMIT_10M",
+        "当前账号提交反馈过于频繁，请 10 分钟后再试。",
+    ),
+    (
+        "CHILAM_FEEDBACK_USER_RATE_LIMIT_24H",
+        "USER_RATE_LIMIT_24H",
+        "当前账号今天提交的反馈过多，请 24 小时后再试。",
+    ),
+    (
+        "CHILAM_FEEDBACK_ANON_SITE_RATE_LIMIT_10M",
+        "ANON_SITE_RATE_LIMIT_10M",
+        "当前匿名反馈较多，请稍后再试。",
+    ),
+    (
+        "CHILAM_FEEDBACK_IDENTITY_UNAVAILABLE",
+        "RATE_IDENTITY_UNAVAILABLE",
+        "暂时无法确认反馈访客身份。请登录后提交，或复制下方内容交给管理员。",
+    ),
+)
+
+
+def _valid_feedback_visitor_key(value: str) -> bool:
+    return (
+        len(value) == 64
+        and value == value.lower()
+        and all(char in "0123456789abcdef" for char in value)
+    )
+
+
+def create_site_feedback(
+    *,
+    category: str,
+    message: str,
+    page: str,
+    section: str = "",
+    contact: str = "",
+    user_id: Optional[int] = None,
+    visitor_key: Optional[str] = None,
+    session_key: str,
+) -> tuple:
+    """写入一条产品反馈，返回 `(行, err)`。
+
+    输入在数据层再校验一次，避免绕过页面直接调用时写入空消息或超长内容。
+    `session_key` 在 SQL 中有唯一索引：同一 Streamlit 会话即使因并发点击
+    rerun，最多也只落一条反馈。游客只接收服务端生成的 HMAC 访客摘要，绝不
+    接收原 IP；登录用户完全忽略 `visitor_key`，只按数据库 `user_id` 配额。
+    """
+    category = str(category or "").strip()
+    message = str(message or "").strip()
+    page = str(page or "").strip()[:160]
+    section = str(section or "").strip()[:160]
+    contact = str(contact or "").strip()[:200]
+    session_key = str(session_key or "").strip()[:128]
+    visitor_key = str(visitor_key or "").strip().lower()
+
+    if category not in SITE_FEEDBACK_CATEGORIES:
+        return None, {"code": "INVALID_CATEGORY", "message": "请选择有效的反馈分类"}
+    if len(message) < SITE_FEEDBACK_MIN_MESSAGE:
+        return None, {
+            "code": "MESSAGE_TOO_SHORT",
+            "message": f"反馈说明至少 {SITE_FEEDBACK_MIN_MESSAGE} 个字",
+        }
+    if len(message) > SITE_FEEDBACK_MAX_MESSAGE:
+        return None, {
+            "code": "MESSAGE_TOO_LONG",
+            "message": f"反馈说明不能超过 {SITE_FEEDBACK_MAX_MESSAGE} 个字",
+        }
+    if not session_key:
+        return None, {"code": "INVALID_SESSION", "message": "反馈会话标识缺失"}
+
+    payload = {
+        "category": category,
+        "message": message,
+        "page": page,
+        "section": section,
+        "contact": contact,
+        "session_key": session_key,
+    }
+    if user_id not in (None, ""):
+        try:
+            parsed_user_id = int(user_id)
+        except (TypeError, ValueError):
+            return None, {"code": "INVALID_USER", "message": "账号标识无效"}
+        if parsed_user_id <= 0:
+            return None, {"code": "INVALID_USER", "message": "账号标识无效"}
+        payload["user_id"] = parsed_user_id
+        payload.pop("visitor_key", None)
+    else:
+        if not _valid_feedback_visitor_key(visitor_key):
+            return None, {
+                "code": "RATE_IDENTITY_UNAVAILABLE",
+                "message": (
+                    "暂时无法确认反馈访客身份。请登录后提交，"
+                    "或复制下方内容交给管理员。"
+                ),
+            }
+        payload["visitor_key"] = visitor_key
+
+    res, err = _supabase_request(
+        "POST",
+        SITE_FEEDBACK_TABLE,
+        json_data=payload,
+        return_error=True,
+    )
+    if err:
+        raw = " ".join(
+            str(err.get(key) or "") for key in ("code", "message", "detail")
+        ).upper()
+        for marker, code, message in SITE_FEEDBACK_RATE_ERRORS:
+            if marker in raw:
+                return None, {"code": code, "message": message}
+        if str(err.get("code") or "").upper() == "23505":
+            return None, {
+                "code": "23505",
+                "message": "本次会话已经提交过反馈",
+            }
+        # PostgREST detail may contain table names, SQL or schema internals.
+        # The public form gets a stable safe message; the full error remains in
+        # the server log printed by _supabase_request.
+        return None, {
+            "code": "FEEDBACK_WRITE_FAILED",
+            "message": "反馈服务暂时不可用，请复制下方内容交给管理员。",
+        }
+    if isinstance(res, list) and res:
+        return res[0], None
+    if isinstance(res, dict) and res:
+        return res, None
+    return None, {"code": "UNKNOWN", "message": "反馈写入返回空"}
+
+
+def get_site_feedback(
+    status: Optional[str] = None,
+    limit: int = 30,
+    offset: int = 0,
+) -> tuple:
+    """读取反馈，返回 `(行列表, err)`。
+
+    `status` 为 `new` / `handled`；不传则返回全部。取数失败必须与“没有反馈”
+    分开：前者返回 err，后台页面据此提示迁移或网络问题。
+    """
+    if status not in (None, "new", "handled"):
+        return [], {"code": "INVALID_STATUS", "message": "反馈状态无效"}
+    try:
+        safe_limit = max(1, min(int(limit), 1000))
+        safe_offset = max(0, int(offset))
+    except (TypeError, ValueError):
+        return [], {"code": "INVALID_PAGE", "message": "分页参数无效"}
+    params = {
+        "select": "*",
+        "order": "created_at.desc",
+        "limit": str(safe_limit),
+        "offset": str(safe_offset),
+    }
+    if status in ("new", "handled"):
+        params["status"] = f"eq.{status}"
+    rows, err = _supabase_request(
+        "GET",
+        SITE_FEEDBACK_TABLE,
+        params=params,
+        return_error=True,
+    )
+    if err:
+        return [], err
+    if not isinstance(rows, list):
+        return [], {
+            "code": "INVALID_RESPONSE",
+            "message": "反馈服务返回了无法识别的数据",
+        }
+    return rows, None
+
+
+def mark_site_feedback_handled(
+    feedback_id: int, handled_by: Optional[str] = None
+) -> tuple:
+    """把反馈标记为已处理，返回 `(ok, err)`。"""
+    try:
+        feedback_id = int(feedback_id)
+    except (TypeError, ValueError):
+        return False, {"code": "INVALID_ID", "message": "反馈编号无效"}
+    data = {
+        "status": "handled",
+        "handled_at": datetime.now(timezone.utc).isoformat(),
+        "handled_by": str(handled_by or "")[:200],
+    }
+    res, err = _supabase_request(
+        "PATCH",
+        f"{SITE_FEEDBACK_TABLE}?status=eq.new&id=eq.{feedback_id}",
+        json_data=data,
+        return_error=True,
+    )
+    if err:
+        return False, err
+    if isinstance(res, list) and res:
+        return True, None
+    # A concurrent click may already have changed the row to handled. Treat that
+    # as an idempotent success, while still reporting rows that disappeared.
+    rows, read_err = _supabase_request(
+        "GET",
+        SITE_FEEDBACK_TABLE,
+        params={
+            "id": f"eq.{feedback_id}",
+            "select": "id,status",
+            "limit": "1",
+        },
+        return_error=True,
+        retries=1,
+        timeout=8,
+    )
+    if read_err:
+        return False, {"code": "STATE_UNKNOWN", "message": "无法确认反馈当前状态"}
+    if isinstance(rows, list) and rows and rows[0].get("status") == "handled":
+        return True, None
+    return False, {"code": "NO_ROW", "message": "没有更新到任何反馈行"}

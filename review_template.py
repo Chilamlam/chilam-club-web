@@ -64,7 +64,7 @@ DEFAULT_TEMPLATE: list[dict] = [
     {
         "id": "q06_hot_money",
         "section": "赚钱效应在哪里 · 市场风格",
-        "prompt": "当前人气股（平台低吸）行情有没有？",
+        "prompt": "近期强势股在平台附近是否出现可记录的回撤承接？",
         "type": "yn",
         "options": ["有", "无"],
         "ai_checkable": True,
@@ -72,10 +72,10 @@ DEFAULT_TEMPLATE: list[dict] = [
     {
         "id": "q07_ladder",
         "section": "赚钱效应在哪里 · 市场风格",
-        "prompt": "最高板与连板梯队（接力行情）成立吗？",
+        "prompt": "今天连板梯队里，最高高度与各层股票是否已逐只核对？",
         "type": "yn",
-        "options": ["成立", "不成立"],
-        "ai_checkable": True,
+        "options": ["已核对", "未核对"],
+        "ai_checkable": False,   # 当日事实清单，不作为次日命中题
     },
     {
         "id": "q08_trend_new_high",
@@ -88,7 +88,7 @@ DEFAULT_TEMPLATE: list[dict] = [
     {
         "id": "q09_convertible",
         "section": "赚钱效应在哪里 · 市场风格",
-        "prompt": "转债投机（投机行情末期/主线套利）有高度吗？",
+        "prompt": "可转债是否进入当日涨幅与成交额前列样本？",
         "type": "yn",
         "options": ["有", "无"],
         "ai_checkable": True,
@@ -96,7 +96,7 @@ DEFAULT_TEMPLATE: list[dict] = [
     {
         "id": "q10_strongest_theme",
         "section": "主线题材",
-        "prompt": "今天最强题材（用于接力）是哪个？",
+        "prompt": "今天涨幅与成交表现靠前的题材是哪个？",
         "type": "choice_from_data",   # 选项注入自当日板块涨幅榜 Top10
         "options": [],                # 跑批时动态填充
         "ai_checkable": True,
@@ -104,7 +104,7 @@ DEFAULT_TEMPLATE: list[dict] = [
     {
         "id": "q11_new_theme",
         "section": "主线题材",
-        "prompt": "今天有没有值得关注的新题材（低迷期破局/篡位/分流轮动）？",
+        "prompt": "今天是否出现新的题材分组或轮动样本？",
         "type": "yn",
         "options": ["有", "无"],
         "ai_checkable": True,
@@ -112,10 +112,10 @@ DEFAULT_TEMPLATE: list[dict] = [
     {
         "id": "q12_main_pattern",
         "section": "主流模式",
-        "prompt": "今天盘面的主流赚钱模式是？（可多选）",
+        "prompt": "今天盘面出现哪些可核对的价格结构样本？（可多选）",
         "type": "multi",
-        "options": ["连板接力", "抱团", "趋势低吸", "人气低吸",
-                    "转债投机", "注册制次新", "开板次新", "后排补涨"],
+        "options": ["连板晋级样本", "成交集中", "趋势回踩样本", "高位股回撤样本",
+                    "可转债样本", "注册制次新", "开板次新", "同题材后排"],
         "ai_checkable": True,   # 多选题：命中一个记一半分？——见 scoring 的 multi 规则
     },
     {
@@ -130,7 +130,7 @@ DEFAULT_TEMPLATE: list[dict] = [
     {
         "id": "q14_tomorrow_expect",
         "section": "明天的计划",
-        "prompt": "预期明天盘面情况",
+        "prompt": "下一交易日优先核对哪一种变化？",
         "type": "single",
         "options": ["情绪修复", "延续今日", "高位分歧", "退潮加剧", "说不清"],
         "ai_checkable": True,   # 次日以实际情绪指标回验
@@ -138,7 +138,7 @@ DEFAULT_TEMPLATE: list[dict] = [
     {
         "id": "q15_tomorrow_plan",
         "section": "明天的计划",
-        "prompt": "你的明日操作计划（自由填写，不判分，仅存档对比）",
+        "prompt": "你的次日观察与核对计划（自由填写，不判分，仅存档对比）",
         "type": "text",
         "options": [],
         "ai_checkable": False,

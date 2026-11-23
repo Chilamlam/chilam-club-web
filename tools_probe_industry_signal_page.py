@@ -29,6 +29,7 @@ import pathlib
 import re
 import sys
 import tempfile
+from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 from streamlit.testing.v1 import AppTest
@@ -88,9 +89,12 @@ BOTH.write_text(
 )
 
 FAIL: list[str] = []
+CHECKED = 0
 
 
 def check(name: str, cond: bool, detail: str = "") -> None:
+    global CHECKED
+    CHECKED += 1
     print(f"{'✅' if cond else '❌'} {name}" + (f" — {detail}" if detail else ""))
     if not cond:
         FAIL.append(name)
@@ -247,7 +251,7 @@ def table_md(at):
 HAS_DATA_OK = "今日命中"
 NO_HIT_TEXT = "今日无同时满足两条件的行业"
 NO_DATA_TEXT = "行业信号数据缺失"
-INSUFFICIENT_TEXT = "归档还在积累"
+INSUFFICIENT_TEXT = "历史窗口尚未满足"
 STALE_TEXT = "数据可能未更新"
 NO_DETAIL_TEXT = "结论里没有行业明细"
 
@@ -364,7 +368,7 @@ def test_insufficient() -> None:
     tx = texts(at)
     check("insufficient 渲染不抛异常", not at.exception,
           str(at.exception[0].message) if at.exception else "")
-    check("insufficient 显示「归档还在积累」", INSUFFICIENT_TEXT in tx)
+    check("insufficient 说明完整截面窗口尚未满足", INSUFFICIENT_TEXT in tx)
     check("insufficient 带出实际交易日数（8）", "8 个完整截面交易日" in tx)
     check("insufficient 不显示「数据缺失」也不显示「今日无命中」",
           NO_DATA_TEXT not in tx and NO_HIT_TEXT not in tx)
@@ -384,8 +388,9 @@ def test_missing_product() -> None:
 # ============================ 4. 新鲜度 ============================
 
 def test_freshness() -> None:
-    at_ok = render(_mk_sig(date="20261009"), reference_date="20261009")
-    check("同批日期一致时不报过期",
+    today = datetime.now(timezone(timedelta(hours=8))).strftime("%Y%m%d")
+    at_ok = render(_mk_sig(date=today), reference_date=today)
+    check("数据日期与参考日期同为北京时间当日时不报过期",
           STALE_TEXT not in texts(at_ok) and not at_ok.error,
           str([e.value for e in at_ok.error])[:120])
 
@@ -398,7 +403,10 @@ def test_freshness() -> None:
     at_unk = render(_mk_sig(date=None), reference_date="20261009")
     tx_unk = texts(at_unk)
     check("产物缺日期戳时给 unknown 而不是 stale",
-          "找不到日期戳" in tx_unk and STALE_TEXT not in tx_unk)
+          "产物缺少有效日期戳" in tx_unk
+          and "无法确认是否为最新" in tx_unk
+          and STALE_TEXT not in tx_unk
+          and not at_unk.error)
 
 
 # ============================ 5. 缺值不补零 ============================
@@ -506,7 +514,8 @@ def test_public_content_and_disclaimer() -> None:
     at = render(_mk_sig())
     tx = texts(at)
     check("页面含「不构成投资建议」免责声明", "不构成投资建议" in tx)
-    check("页面声明这是描述性筛选而非操作建议", "不是买卖建议" in tx or "描述性筛选" in tx)
+    check("页面区分事实筛选与操作建议",
+          "只做描述" in tx and "不提供方向判断" in tx)
     check("页面说明命中高亮与红涨绿跌无关（避免被读成涨跌）",
           "与红涨绿跌无关" in tx)
 
@@ -584,7 +593,7 @@ def test_app_wiring() -> None:
     check("使用指南里有一节讲行业信号",
           "🏭 行业信号 怎么读" in src)
     check("使用指南里的摘要段落顺序已更新（含行业信号）",
-          re.search(r"明日验证条件\s*→\s*\*?\*?行业信号", src.replace("\n", " ")) is not None)
+          "接力样本、战法池、行业信号和榜单放在明细中" in src.replace("\n", " "))
 
 
 def table_at(at, i: int = 0):
@@ -690,8 +699,8 @@ def test_history_hits_section() -> None:
     tx4 = texts(at4)
     check("历史回顾：0 命中时如实播报「没有任何行业同时满足两条件」",
           "没有任何行业同时满足两个条件" in tx4)
-    check("历史回顾：0 命中时强调这是有效结论（不是数据缺失）",
-          "有效结论" in tx4 and "不是数据缺失" in tx4)
+    check("历史回顾：0 命中时说明筛选结果为 0，并与数据缺失分开",
+          "筛选结果为 0" in tx4 and "不是数据缺失" in tx4)
     check("历史回顾：0 命中时不渲染统计表与明细表（没样本可统计）",
           len(at4.dataframe) == 1, str(len(at4.dataframe)))
 
@@ -702,8 +711,12 @@ def test_history_hits_section() -> None:
                   "少于出统计所需 20 天",
         "trade_days_total": 260, "trade_days_scanned": 11})
     tx5 = texts(at5)
-    check("历史回顾：样本不足时明说「还在积累」并给出已积累天数",
-          "还在积累" in tx5 and "260" in tx5 and "11" in tx5)
+    check("历史回顾：样本不足时说明所需窗口、归档总日数与满窗日数",
+          "尚未满足所需窗口" in tx5
+          and "当前归档 260 个交易日" in tx5
+          and "分位窗口满额的有 11 天" in tx5)
+    check("历史回顾：样本不足时拒绝用窗口不满的近似分位统计",
+          "近似统计" in tx5)
     check("历史回顾：样本不足时不渲染统计表",
           len(at5.dataframe) == 1, str(len(at5.dataframe)))
     check("历史回顾：样本不足 ≠ 数据不可用（不显示「暂不可用」）",
@@ -800,7 +813,8 @@ def main() -> int:
                   f"{type(exc).__name__}: {exc}")
 
     total = len(FAIL)
-    print(f"\n{'=' * 50}\n共 {'通过' if not total else '失败'}：{total} 项失败")
+    passed = CHECKED - total
+    print(f"\n{'=' * 50}\n共检查 {CHECKED} 项：通过 {passed} 项，失败 {total} 项")
     if total:
         for f in FAIL:
             print(f"  ❌ {f}")

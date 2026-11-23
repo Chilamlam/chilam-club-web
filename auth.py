@@ -473,7 +473,7 @@ def request_manual_reset(email: str, reason: str = "用户主动申请") -> tupl
     _, derr = database.create_password_reset_request(row["id"], note=reason[:200])
     if derr:
         return "failed", (f"申请登记失败：{derr.get('message') or '未知原因'}。"
-                          "请通过站点页脚的联系方式直接联系管理员。")
+                          "请打开侧栏「💬 产品反馈」提交问题，或直接联系管理员。")
 
     delivered, note = _notify_admins_reset_request(email_clean, row["id"], reason)
     if delivered:
@@ -482,7 +482,7 @@ def request_manual_reset(email: str, reason: str = "用户主动申请") -> tupl
     # 申请已落库但没通知到——必须说清「下一步要你自己去找管理员」，
     # 否则用户会安心地等一个没人知道的申请。
     return "manual", ("人工重置申请已登记，但**自动通知管理员失败了**"
-                      f"（{note}）。\n\n请主动通过站点页脚的联系方式联系管理员，"
+                      f"（{note}）。\n\n请打开侧栏「💬 产品反馈」提交人工处理请求，"
                       "否则没人会看到这条申请。")
 
 

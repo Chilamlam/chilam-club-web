@@ -19,6 +19,26 @@ OUTPUT = ROOT / "data" / "limit_themes.json"
 THS_PUBLIC_URL = "https://data.10jqka.com.cn/dataapi/limit_up/limit_up_pool"
 
 
+def archive_attribution(ladder, payload, directory=None):
+    """Freeze each day's actual ladder and attribution, without historical guesses."""
+    date = norm_date(payload.get("date"))
+    if not date or date != norm_date(ladder.get("date")):
+        raise ValueError("题材与天梯日期不一致，拒绝归档")
+    directory = Path(directory) if directory is not None else ROOT / "data" / "theme_history"
+    directory.mkdir(parents=True, exist_ok=True)
+    target = directory / f"{date}.json"
+    # A failed retry must not erase useful same-date evidence already archived.
+    if target.exists():
+        old = json.loads(target.read_text(encoding="utf-8"))
+        payload = build_payload(ladder, payload.get("sources") or {},
+                                previous=old.get("attribution"), checked_at=payload.get("checked_at", ""))
+    tmp = target.with_suffix(".tmp")
+    tmp.write_text(json.dumps({"date": date, "ladder": ladder, "attribution": payload},
+                             ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(target)
+    return target
+
+
 def fetch_public_ths(trade_date, codes) -> dict:
     """Read the public dated pool; reject mismatched dates and partial pagination."""
     date = norm_date(trade_date)
@@ -118,6 +138,7 @@ def main():
     temporary = OUTPUT.with_suffix(".tmp")
     temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     temporary.replace(OUTPUT)
+    archive_attribution(ladder, payload)
     coverage = payload["coverage"]
     print(f"题材归因已保存：{payload['date']}，覆盖 {coverage['matched']}/{coverage['total']}")
 

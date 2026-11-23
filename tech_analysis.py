@@ -30,7 +30,7 @@
   - 目标位：需要 A(起点)→B(推动终点)→C(回撤终点) 三点。
         COP = C + 0.618*(B-A)，OP = C + 1.0*(B-A)，XOP = C + 1.618*(B-A)。
   - Confluence（汇聚区）：两段不同摆动算出的 Fibnode 互相靠近（< 1.5% 价差）
-        时合并标注，帝纳波利认为这类价位支撑/阻力更硬。
+        时合并标注；这是作者框架中的区域归类规则，不代表后续方向。
   - MACD 用 8/17/9（帝纳波利偏好的快参数），配合去趋势振荡器判背离。
 """
 
@@ -366,7 +366,7 @@ def fib_targets(points: list) -> dict:
 def confluence(nodes: list, tol_pct: float = 1.5) -> list:
     """
     汇聚区：不同摆动算出的 Fibnode 价位互相靠近（价差 < tol_pct%）时合并。
-    帝纳波利认为汇聚位的支撑/阻力强度显著高于单一节点。
+    这是帝纳波利方法给出的重要价格汇聚区定义；本站不把它视为已验证的强度优势。
     返回 [{"price": 中心价, "members": ["段1 F3", "段2 F5"], "lo": x, "hi": x}]
     """
     flat = []
@@ -471,7 +471,7 @@ def analyze(df: pd.DataFrame) -> dict:
 
 def _describe_state(close: float, pts: list, pivots: list, dmas: dict,
                     divs: list, targets: dict) -> dict:
-    """把结构翻译成人话。返回 {"chan": str, "dinapoli": str, "target": str, "warn": [str]}"""
+    """把结构翻译成可追溯的价格位置。返回 chan/dinapoli/target/warn。"""
     warn = []
 
     # --- 缠论位置
@@ -483,22 +483,22 @@ def _describe_state(close: float, pts: list, pivots: list, dmas: dict,
         dir_cn = "上涨" if pv["direction"] == "up" else "下跌"
         band = f"{_n(zd)} ~ {_n(zg)}"
         if close > zg:
-            chan = (f"已向上突破最近一个{dir_cn}中枢（{band}，{pv['legs']} 段），"
+            chan = (f"当前价高于最近一个{dir_cn}中枢上沿（{band}，{pv['legs']} 段），"
                     f"当前价高出中枢上沿 {_pct(zg, close):+.2f}%。")
         elif close < zd:
-            chan = (f"已向下跌破最近一个{dir_cn}中枢（{band}，{pv['legs']} 段），"
+            chan = (f"当前价低于最近一个{dir_cn}中枢下沿（{band}，{pv['legs']} 段），"
                     f"当前价低于中枢下沿 {_pct(zd, close):+.2f}%。")
         else:
             span = zg - zd
             pos = (close - zd) / span * 100 if span > 0 else 50.0
             chan = (f"仍在最近一个{dir_cn}中枢内部震荡（{band}，已走 {pv['legs']} 段），"
-                    f"当前处于中枢区间约 {pos:.0f}% 的位置，方向未明。")
+                    f"当前处于中枢区间约 {pos:.0f}% 的位置；现有规则未给出方向判断。")
         if pv["legs"] >= 7:
-            warn.append(f"该中枢已延伸 {pv['legs']} 段，属于长时间盘整，突破方向确认前假信号会偏多。")
+            warn.append(f"该中枢已延伸 {pv['legs']} 段；价格仍在区间内，后续位置需继续记录。")
     else:
         last = pts[-1]
-        d = "上涨笔" if last["type"] == "top" else "下跌笔"
-        chan = f"尚未形成中枢，当前处于单边{d}中，最近一个端点价位 {_n(last['price'])}。"
+        endpoint = "顶分型端点" if last["type"] == "top" else "底分型端点"
+        chan = f"尚未形成中枢；最近一个端点为{endpoint}，价位 {_n(last['price'])}。"
 
     if len(pts) >= 2:
         a, b = pts[-2], pts[-1]
@@ -511,29 +511,41 @@ def _describe_state(close: float, pts: list, pivots: list, dmas: dict,
     d255 = dmas.get("25x5", {}).get("last")
     parts = []
     if d33:
-        if close >= d33:
-            parts.append(f"价格站在 3x3 DMA（{_n(d33)}）上方，短线趋势健康")
+        distance = abs(_pct(d33, close))
+        if close > d33:
+            parts.append(f"现价高于 3x3 DMA（{_n(d33)}）{distance:.2f}%")
+        elif close < d33:
+            parts.append(f"现价低于 3x3 DMA（{_n(d33)}）{distance:.2f}%")
         else:
-            parts.append(f"价格已跌破 3x3 DMA（{_n(d33)}），短线趋势转弱")
+            parts.append(f"现价等于 3x3 DMA（{_n(d33)}）")
     if d33 and d75:
-        parts.append("3x3 位于 7x5 上方，中短期均线多头排列" if d33 > d75
-                     else "3x3 位于 7x5 下方，中短期均线空头排列")
+        if d33 == d75:
+            parts.append(f"3x3 DMA 与 7x5 DMA 相同（{_n(d33)}）")
+        else:
+            distance = abs(_pct(d75, d33))
+            parts.append(f"3x3 DMA 比 7x5 DMA {'高' if d33 > d75 else '低'} {distance:.2f}%")
     if d255:
-        parts.append(f"25x5 DMA 在 {_n(d255)}，{'构成下方支撑' if close >= d255 else '构成上方阻力'}")
-    dinapoli = "；".join(parts) + "。" if parts else "均线数据不足。"
+        if close == d255:
+            parts.append(f"25x5 DMA 在 {_n(d255)}，现价等于该均线")
+        else:
+            relation = "现价高于该均线" if close > d255 else "现价低于该均线"
+            parts.append(f"25x5 DMA 在 {_n(d255)}，{relation} {abs(_pct(d255, close)):.2f}%")
+    dinapoli = ("；".join(parts) + "。以上均线和结构价位只记录几何位置，"
+                "不能单独证明后续方向。") if parts else "均线数据不足。"
 
     for dv in divs:
         warn.append(f"MACD(8/17/9) 出现{dv['type']}：价格 {_n(dv['p0'])} → {_n(dv['p1'])}，"
                     f"但 DIF {dv['d0']:.3f} → {dv['d1']:.3f} 未同步。")
 
-    # --- 目标位描述
+    # --- 延伸测算位置描述
     if targets:
         way = "上涨" if targets["dir"] == "up" else "下跌"
-        tail = "" if targets.get("confirmed") else "（该 ABC 的 C 点已被后续走势突破，目标位仅作参考）"
+        tail = "" if targets.get("confirmed") else "（该 ABC 的 C 点之后出现价格越过；延伸测算仅作参考）"
         target = (f"以 A={_n(targets['a'])} → B={_n(targets['b'])} → C={_n(targets['c'])} 构成的"
                   f"{way} ABC 结构测算，回撤深度 {targets['retrace'] * 100:.1f}%："
                   f"COP {_n(targets['cop'])} ／ OP {_n(targets['op'])} ／ XOP {_n(targets['xop'])}。"
-                  f"帝纳波利的口径是 COP 最常达到、OP 次之、XOP 属于强势延伸。{tail}")
+                  f"作者口径将 COP、OP、XOP 分别视为逐级延伸位置；站内尚未核对各档到达频率，"
+                  f"这些价格也不能单独证明后续方向。{tail}")
     else:
         target = "尚未形成有效的 ABC 回撤结构（要求 C 点落在 A、B 之间），无法测算 COP/OP/XOP。"
 
@@ -542,17 +554,23 @@ def _describe_state(close: float, pts: list, pivots: list, dmas: dict,
 
 def _key_levels(close: float, pivots: list, nodes: list, targets: dict, conf: list) -> list:
     """
-    汇总所有关键价位并按「距现价远近」排序，标注类型与方向。
-    返回 [{"price", "label", "side", "gap_pct"}]，side ∈ {"支撑","阻力"}
+    汇总所有关键价位并按「距现价远近」排序，标注相对现价的位置。
+    返回 [{"price", "label", "side", "gap_pct"}]，side ∈ {"下方","上方","当前价"}
     """
     out = []
 
     def add(p, label):
         if p is None or not np.isfinite(p) or p <= 0:
             return
-        out.append({"price": float(p), "label": label,
-                    "side": "支撑" if p < close else "阻力",
-                    "gap_pct": _pct(close, p)})
+        price = float(p)
+        if price < close:
+            side = "下方"
+        elif price > close:
+            side = "上方"
+        else:
+            side = "当前价"
+        out.append({"price": price, "label": label,
+                    "side": side, "gap_pct": _pct(close, price)})
 
     if pivots:
         pv = pivots[-1]
@@ -562,9 +580,9 @@ def _key_levels(close: float, pivots: list, nodes: list, targets: dict, conf: li
         add(nd["f3"], f"F3 回撤位（段{idx} 0.382）")
         add(nd["f5"], f"F5 回撤位（段{idx} 0.618）")
     if targets:
-        add(targets["cop"], "COP 目标位（0.618）")
-        add(targets["op"], "OP 目标位（1.000）")
-        add(targets["xop"], "XOP 目标位（1.618）")
+        add(targets["cop"], "COP 延伸测算（0.618）")
+        add(targets["op"], "OP 延伸测算（1.000）")
+        add(targets["xop"], "XOP 延伸测算（1.618）")
     for c in conf:
         add(c["price"], f"汇聚区（{' + '.join(c['members'])}）")
 

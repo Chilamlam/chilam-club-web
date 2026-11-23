@@ -1,4 +1,4 @@
-"""主升浪黄金分割预测（斐波那契扩展线）。
+"""斐波那契扩展几何参考位。
 
 标的解析与日 K 取数**全部复用 page_live_quote**，不再自己写一套：
   · resolve_candidates() —— 沪深北撞号消歧。老实现是 `6/5/9 开头算沪市否则深市`，
@@ -149,7 +149,7 @@ def render_fibonacci_chart():
         )
 
     fig.update_layout(
-        title=f"{quote.get('name', '')} {sym['tx_code']} 黄金分割扩展预测图",
+        title=f"{quote.get('name', '')} {sym['tx_code']} 斐波那契扩展参考位",
         yaxis_title="价格", xaxis_title="日期",
         height=700, template="plotly_white",
         margin=dict(l=50, r=80, t=50, b=50),

@@ -5,49 +5,49 @@ GURUS = {
         "name": "David Tepper",
         "company": "Appaloosa Management",
         "avatar": "assets/tepper.jpg",
-        "style": "🐂 抄底之王 | 困境反转 | 极度乐观",
+        "style": "🏢 困境反转 | 集中持仓 | 宏观驱动",
         "source_url": "https://www.dataroma.com/m/holdings.php?m=AM"
     },
     "pershing": {
         "name": "Bill Ackman",
         "company": "Pershing Square",
         "avatar": "assets/ackman.jpg",
-        "style": "📣 激进主义 | 集中持仓 | 餐饮/消费",
+        "style": "📣 股东积极主义 | 集中持仓 | 餐饮/消费",
         "source_url": "https://www.dataroma.com/m/holdings.php?m=PSC"
     },
     "coatue": {
         "name": "Philippe Laffont",
         "company": "Coatue Management",
         "avatar": "assets/laffont.jpg",
-        "style": "🐯 老虎系 | TMT科技 | 创新趋势",
+        "style": "🖥️ TMT科技 | 成长股 | 集中持仓",
         "source_url": "https://www.dataroma.com/m/holdings.php?m=CM"
     },
     "scion": {
         "name": "Michael Burry",
         "company": "Scion Asset Management",
         "avatar": "assets/burry.jpg",
-        "style": "🐻 大空头 | 极致价值 | 崩盘对冲",
+        "style": "📉 价值策略 | 空头策略 | 公开披露追踪",
         "source_url": "https://www.dataroma.com/m/holdings.php?m=SAM"
     },
     "berkshire": {
         "name": "Warren Buffett",
         "company": "Berkshire Hathaway",
         "avatar": "assets/buffett.jpg",
-        "style": "👑 股神 | 护城河 | 现金流",
+        "style": "🏢 价值投资 | 长期持股 | 现金流",
         "source_url": "https://www.dataroma.com/m/holdings.php?m=BRK"
     },
     "greenlight": {
         "name": "David Einhorn",
         "company": "Greenlight Capital",
         "avatar": "assets/einhorn.jpg",
-        "style": "📉 价值做空 | 财务侦探 | 深度挖掘",
+        "style": "📉 价值投资 | 空头策略 | 集中持仓",
         "source_url": "https://www.dataroma.com/m/holdings.php?m=GLRE"
     },
     "himalaya": {
         "name": "Li Lu (李录)",
         "company": "Himalaya Capital",
         "avatar": "assets/lilu.jpg",
-        "style": "🇨🇳 芒格传人 | 中国资产 | 极简主义",
+        "style": "🇨🇳 价值投资 | 中国资产 | 长期持股",
         "source_url": "https://www.dataroma.com/m/holdings.php?m=HC"
     }
 }

@@ -1,4 +1,4 @@
-"""Convertible-bond speculator board: complete A/B/C split plus pattern stats."""
+"""Convertible-bond research board: complete A/B/C split plus pattern stats."""
 from __future__ import annotations
 
 import pandas as pd
@@ -9,11 +9,10 @@ from investor_journey import candidate_actions
 CLASS_TABS = [("A", "🅰️ 债强于股"), ("B", "🅱️ 股强于债"), ("C", "🔗 股债同向候选"), ("N", "➖ 待进一步判断")]
 
 PLAYBOOK = {
-    "A": ("尾盘隔夜当日最强第一/第二；次日开盘低吸昨日最强第一/第二；"
-          "盘中低吸昨日最强的一个；盘中追高日内第二，等它追平第一。"),
-    "B": "正股全天维持强度、转债还没激活时，尾盘隔夜该债，等次日债性激活。",
-    "C": "按题材节奏做启动、分歧、分歧转一致、加速高潮、退潮、回流，进度看盘面。",
-    "N": "未满足当前收盘阈值的标的，需要结合分时走势继续判断。",
+    "A": "收盘时转债涨幅相对正股领先至少 1.5 个百分点；分组记录后续跨日、开盘后与触价情形。",
+    "B": "收盘时正股涨幅相对转债领先至少 2 个百分点；分组记录后续价格结果。",
+    "C": "收盘时股债同向且达到幅度阈值；后续联动与阶段变化需另行记录。",
+    "N": "未满足当前收盘阈值；保留为未分组样本。",
 }
 
 
@@ -133,7 +132,7 @@ def _render_patterns(payload: dict) -> None:
         return
     st.caption(f"样本窗口：{window.get('from', '—')} ~ {window.get('to', '—')}，"
                f"共 {window.get('days', 0)} 个已完成交易日的次日结果。"
-               "每个统计都写明样本数与入场口径；未扣费用与滑点。")
+               "每个统计都写明样本数与价格比较口径；仅为历史理论价差，未扣费用与滑点。")
 
     def block(name: str, spec: dict, metric: str = "overnight", *,
               show_win: bool = True) -> None:
@@ -151,16 +150,16 @@ def _render_patterns(payload: dict) -> None:
 
     rank1 = aggregate.get("rank1") or {}
     rank2 = aggregate.get("rank2") or {}
-    st.markdown("**隔夜（昨收 → 次日开盘）**")
+    st.markdown("**跨日价差（昨收 → 次日开盘）**")
     block("当日最强第一", rank1)
     block("当日最强第二", rank2)
-    st.markdown("**次日开盘买入基准（次日开盘 → 次日收盘）**")
+    st.markdown("**开盘至收盘理论价差（次日开盘 → 次日收盘）**")
     block("昨日第一", rank1, "open_to_close")
     block("昨日第二", rank2, "open_to_close")
-    st.markdown("**次日盘中回踩挂单（次日开盘价下方 3% 挂单，最低价触及才算成交）**")
+    st.markdown("**开盘下方 3% 触及情形（次日最低价触及该价位后，按收盘价计算理论价差）**")
     block("昨日第一", rank1, "dip")
     block("昨日第二", rank2, "dip")
-    st.markdown("**次日最低 → 收盘（理论天花板，不作收益统计）**")
+    st.markdown("**次日最低 → 收盘（事后区间参考，不作收益统计）**")
     block("昨日第一", rank1, "low_to_close", show_win=False)
     block("昨日第二", rank2, "low_to_close", show_win=False)
     st.caption("「最低→收盘」非负，仅展示事后最低价到收盘的空间；最低点无法提前确定，"
@@ -170,7 +169,7 @@ def _render_patterns(payload: dict) -> None:
     if swap.get("n"):
         st.caption(f"次日排序互换：昨日第二今日反超第一 {swap.get('n', 0)} 次样本中"
                    f"发生 {_num(swap.get('rate'), 0)}%。它只比较次日涨幅；"
-                   "盘中第二名何时追到第一、追入后的结果，需要分时数据另行统计。")
+                   "盘中名次何时互换及其后续价格，需要分时数据另行记录。")
 
     st.markdown("**逐日明细**")
     rows = patterns.get("rows") or []
@@ -188,10 +187,10 @@ def _render_patterns(payload: dict) -> None:
                 "code": st.column_config.TextColumn("代码"),
                 "pct_chg": st.column_config.NumberColumn("当日涨幅%", format="%+.2f"),
                 "amount_yi": st.column_config.NumberColumn("成交额(亿)", format="%.2f"),
-                "overnight": st.column_config.NumberColumn("隔夜%", format="%+.2f"),
+                "overnight": st.column_config.NumberColumn("跨日%", format="%+.2f"),
                 "open_to_close": st.column_config.NumberColumn("开盘→收盘%", format="%+.2f"),
-                "dip_to_close": st.column_config.NumberColumn("回踩→收盘%", format="%+.2f"),
-                "next_high": st.column_config.NumberColumn("隔夜最高%", format="%+.2f"),
+                "dip_to_close": st.column_config.NumberColumn("触价→收盘%", format="%+.2f"),
+                "next_high": st.column_config.NumberColumn("跨日最高%", format="%+.2f"),
             }, use_container_width=True, hide_index=True,
         )
 
@@ -219,13 +218,13 @@ def _render_patterns(payload: dict) -> None:
                 "rule": st.column_config.TextColumn("判定规则", width="large"),
                 "n": st.column_config.NumberColumn("样本", format="%d"),
                 "next_pct": st.column_config.NumberColumn("次日涨跌%", format="%+.2f"),
-                "overnight": st.column_config.NumberColumn("隔夜%", format="%+.2f"),
+                "overnight": st.column_config.NumberColumn("跨日%", format="%+.2f"),
                 "open_to_close": st.column_config.NumberColumn("开盘→收盘%", format="%+.2f"),
                 "win": st.column_config.NumberColumn("次日正收益占比%", format="%.0f"),
             }, use_container_width=True, hide_index=True,
         )
-        st.caption("样本低于 3 个的阶段不构成统计结论，只作为规则提示。阶段在盘中被情绪改写，"
-                   "收盘后只能回看，不能当成明日的固定进度。")
+        st.caption("表内同时列出各阶段的记录数和结果分布；记录较少的阶段仍保留明细。"
+                   "阶段划分由收盘数据得到，盘中可能变化。")
 
     b_spec = aggregate.get("b_overnight") or {}
     st.markdown("**B 类观察样本：正股收盘强、转债涨幅落后**")
@@ -233,9 +232,9 @@ def _render_patterns(payload: dict) -> None:
     if b_spec.get("n"):
         _metric_row([
             ("样本", str(b_spec.get("n")), "正股涨幅≥3%、收盘位于日内上25%、转债落后≥2个百分点"),
-            ("隔夜均值", _pct((b_spec.get("overnight") or {}).get("mean")), None),
+            ("跨日均值", _pct((b_spec.get("overnight") or {}).get("mean")), None),
             ("开盘→收盘", _pct((b_spec.get("open_to_close") or {}).get("mean")), None),
-            ("隔夜正收益占比", f"{_num((b_spec.get('overnight') or {}).get('win'), 0)}%", None),
+            ("跨日正收益占比", f"{_num((b_spec.get('overnight') or {}).get('win'), 0)}%", None),
         ])
         b_rows = patterns.get("b_rows") or []
         if b_rows:
@@ -248,7 +247,7 @@ def _render_patterns(payload: dict) -> None:
                     "code": st.column_config.TextColumn("代码"),
                     "stock_pct": st.column_config.NumberColumn("正股%", format="%+.2f"),
                     "pct_chg": st.column_config.NumberColumn("转债%", format="%+.2f"),
-                    "overnight": st.column_config.NumberColumn("隔夜%", format="%+.2f"),
+                    "overnight": st.column_config.NumberColumn("跨日%", format="%+.2f"),
                     "open_to_close": st.column_config.NumberColumn("开盘→收盘%", format="%+.2f"),
                 }, use_container_width=True, hide_index=True,
             )
@@ -260,10 +259,10 @@ def _render_watch(payload: dict) -> None:
     watch = payload.get("watch") or {}
     patterns = payload.get("patterns") or {}
     aggregate = patterns.get("aggregate") or {}
-    st.caption("按你的模式规则筛出的观察清单，只说明「今天发生了什么、历史上同类样本怎么走」，"
-               "不是买卖建议。转债 T+0，进出都以实时盘口为准。")
+    st.caption("该清单只记录今天的分组与历史上同类样本的价格结果；"
+               "不提供交易动作，理论价差也不代表可以实际成交。")
 
-    st.markdown("**今日最强（明日隔夜 / 开盘低吸观察）**")
+    st.markdown("**今日涨幅前列（后续跨日与开盘后价格记录）**")
     leaders = watch.get("today_leaders") or []
     if leaders:
         for rank, row in enumerate(leaders, start=1):
@@ -276,15 +275,16 @@ def _render_watch(payload: dict) -> None:
                 f"今日 {_pct(row.get('pct_chg'))}｜正股 {row.get('stock_name')} "
                 f"{_pct(row.get('stock_pct'))}｜溢价 {_num(row.get('premium'))}%｜"
                 f"成交 {_num(row.get('amount_yi'))} 亿｜{row.get('sub_tag') or row.get('stage') or '—'}"
-                 f"　\n　　↳ 历史同排名样本 {spec.get('n', 0)} 个：隔夜均值 "
+                 f"　\n　　↳ 历史同排名样本 {spec.get('n', 0)} 个：跨日均值 "
                 f"{_pct(overnight.get('mean'))}（正收益占比 {_num(overnight.get('win'), 0)}%），"
                 f"开盘→收盘 {_pct(open_close.get('mean'))}，"
-                f"回踩挂单 {_pct(dip.get('mean'))}（触及 {dip.get('n', 0)}/{dip.get('total', 0)}）"
+                f"开盘下方3%触及后的理论价差 {_pct(dip.get('mean'))}"
+                f"（触及 {dip.get('n', 0)}/{dip.get('total', 0)}）"
             )
     else:
         st.caption("今日没有成交额达标的强势标的。")
 
-    st.markdown("**昨日最强，今日已兑现**")
+    st.markdown("**昨日涨幅前列：次日价格结果**")
     realised = watch.get("yesterday") or []
     if realised:
         frame = pd.DataFrame(realised)
@@ -297,16 +297,17 @@ def _render_watch(payload: dict) -> None:
                 "name": st.column_config.TextColumn("转债"),
                 "prev_pct": st.column_config.NumberColumn("昨日%", format="%+.2f"),
                 "today_pct": st.column_config.NumberColumn("今日%", format="%+.2f"),
-                "overnight": st.column_config.NumberColumn("隔夜%", format="%+.2f"),
+                "overnight": st.column_config.NumberColumn("跨日%", format="%+.2f"),
                 "open_to_close": st.column_config.NumberColumn("开盘→收盘%", format="%+.2f"),
-                "dip_to_close": st.column_config.NumberColumn("回踩→收盘%", format="%+.2f"),
+                "dip_to_close": st.column_config.NumberColumn("触价→收盘%", format="%+.2f"),
             }, use_container_width=True, hide_index=True,
         )
-        st.caption("回踩→收盘 为空白，说明今日没有跌到开盘价下方 3%，该模式今天没有成交机会。")
+        st.caption("触价→收盘为空白，表示次日最低价没有触及开盘价下方 3%；"
+                   "该情形仅作理论价差记录，不代表可以实际成交。")
     else:
         st.caption("昨日强势标的今日不在快照中。")
 
-    st.markdown("**B 类候选：正股强、转债还没跟上**")
+    st.markdown("**B 类分组：正股收盘涨幅高于转债**")
     candidates = watch.get("b_candidates") or []
     if candidates:
         frame = pd.DataFrame(candidates)
@@ -324,7 +325,7 @@ def _render_watch(payload: dict) -> None:
             }, use_container_width=True, hide_index=True,
         )
         st.caption(f"共 {watch.get('b_total', len(candidates))} 只 B 类转债成交额达标；"
-                   "上表按正股涨幅取前 8 只；是否符合“正股全天维持强度”的打法，需查看正股分时和尾盘表现。")
+                   "上表按正股涨幅取前 8 只；正股盘中联动和尾盘表现需另行记录。")
     else:
         st.caption("今日没有符合条件的 B 类标的。")
 
@@ -342,7 +343,7 @@ def _render_rules() -> None:
 
 **A 类的子标签**只描述可观测特征：次新（上市 60 日内）、高溢价（≥30%）、放量（成交额≥5 日均量 1.5 倍）。
 
-**C 类收盘形态标签**（收盘后回看，样本低于 3 个不下结论）：
+**C 类收盘形态标签**（收盘后回看；逐阶段保留记录数与结果）：
 
 - 退潮：今日跌幅≥5%，前 5 日累计涨幅≥8%
 - 分歧：振幅≥8%，收盘位于当日振幅下 40%，前 5 日累计≥5%
@@ -352,11 +353,11 @@ def _render_rules() -> None:
 - 启动：今日涨幅≥5%，前 5 日累计≤3%，成交额≥5 日均量 1.5 倍
 
 **统计口径**：强势榜只取当日成交额≥3000 万元（0.3 亿）的转债；第一/第二名按当日涨幅排序。
-隔夜 = 昨收→次日开盘；开盘买入 = 次日开盘→次日收盘；盘中回踩 = 次日开盘价下方 3% 挂单、
-最低价触及才成交、按次日收盘计（未触及不计样本）；隔夜最高 = 昨收→次日最高。
+跨日价差 = 昨收→次日开盘；开盘至收盘理论价差 = 次日开盘→次日收盘；
+开盘下方 3% 触及情形 = 次日最低价触及该价位后，按次日收盘价计算理论价差；跨日最高 = 昨收→次日最高。
 「次日最低→次日收盘」非负，只作事后空间参考，不统计正收益占比。
-收盘榜单形成后，已无法再按该收盘价买入；隔夜列用于观察后续表现。
-全部为价格理论涨幅，未扣费用与滑点；触价也不保证实际成交。
+榜单以收盘数据形成，所有比例都是事后价格比较，不代表可以在对应价格取得仓位。
+全部为价格理论涨幅，未扣费用与滑点；触及某价位也不表示当时可以实际成交。
 
 **已知局限**：溢价率用最新转股价计算，下修后若基础表未同步会短暂失真；
 分类不含成交额门槛，冷门债也会被分类，但不会进入强势榜与观察清单。
@@ -364,7 +365,7 @@ def _render_rules() -> None:
 
 
 def render_convertible_block(payload: dict | None) -> None:
-    st.subheader("🛡️ 可转债投机台")
+    st.subheader("🛡️ 可转债收盘分组")
     if not payload or not payload.get("date"):
         st.warning("可转债快照尚未生成：等待收盘跑批产出 data/convertible.json。")
         return
@@ -385,7 +386,7 @@ def render_convertible_block(payload: dict | None) -> None:
             for note in payload["notes"]:
                 st.markdown(f"- {note}")
 
-    tabs = st.tabs(["🧭 分类总览", "📊 十日模式", "🎯 明日观察", "📖 判定规则"])
+    tabs = st.tabs(["🧭 分类总览", "📊 十日模式", "🎯 候选与结果记录", "📖 判定规则"])
     with tabs[0]:
         _render_overview(payload)
     with tabs[1]:

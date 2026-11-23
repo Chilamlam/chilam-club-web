@@ -132,7 +132,7 @@ def gather_candidate_klines(
     breakout_df: pd.DataFrame,
     snap_df: pd.DataFrame,
 ) -> dict[str, pd.DataFrame]:
-    """为近期人气连板股、阶段新高股与高 RPS 股补充最近 30 根 OHLC 日K，用于精确计算 MA6/MA12 与 #169 揉搓线。"""
+    """为近期连板股、阶段新高股与高 RPS 股补充最近 30 根 OHLC 日K，用于 MA6/MA12 与 #169 长影线组合。"""
     max_date_fmt = f"{date_key[:4]}-{date_key[4:6]}-{date_key[6:]}"
     ts_hint_map: dict[str, str] = {}
     if not snap_df.empty and "ts_code" in snap_df.columns:
@@ -150,7 +150,7 @@ def gather_candidate_klines(
             seen.add(b)
             cands.append(b)
 
-    # 1. 近 10 个交易日曾达 ≥2 连板的人气股（#128 首阴/回踩核心池）
+    # 1. 近 10 个交易日曾达 ≥2 连板的股票（#128 回踩观察池）
     if not ladder_hist.empty:
         h = ladder_hist.copy()
         h = h[~h["code"].astype(str).map(ep.is_bj_stock)]
@@ -165,7 +165,7 @@ def gather_candidate_klines(
             if len(cands) >= 35:
                 break
 
-    # 2. 阶段新高池前 25 只（#169 揉搓线 & #172 突破回踩，剔除北交所）
+    # 2. 阶段新高池前 25 只（#169 长影线组合 & #172 突破回踩，剔除北交所）
     if not breakout_df.empty and "ts_code" in breakout_df.columns:
         b_non_bj = breakout_df[~breakout_df["ts_code"].astype(str).map(ep.is_bj_stock)]
         for c in b_non_bj["ts_code"].head(25).astype(str):
@@ -186,7 +186,7 @@ def gather_candidate_klines(
         if not df_k.empty and len(df_k) >= 6:
             kline_map[b] = df_k
 
-    print(f"📈 已获取 {len(kline_map)}/{len(cands[:65])} 只核心候选股近 30 日 OHLC K线（用于 MA6/MA12 与揉搓线扫描）")
+    print(f"📈 已获取 {len(kline_map)}/{len(cands[:65])} 只核心候选股近 30 日 OHLC K线（用于 MA6/MA12 与长影线组合扫描）")
     return kline_map
 
 
@@ -196,7 +196,7 @@ def gather_pct_map(
     prev_date: str,
     prices_df: pd.DataFrame | None = None,
 ) -> dict[str, float]:
-    """获取当日涨幅映射（用于 #125 首板分时溢价对比与 #065 中位股大面率）。
+    """获取当日涨幅映射（用于 #125 首板分时对比与 #065 中位股大跌占比）。
 
     1. 优先走 Tushare 全市场日线；
     2. 其次从本地 prices.csv 复权收盘序列计算涨跌幅（零网络开销）；

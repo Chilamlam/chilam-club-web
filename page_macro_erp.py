@@ -1,5 +1,5 @@
 """
-全球宏观资产与 A 股股债性价比 (ERP / FED 估值模型) & 行业流通市值占比历史分位 (支持个股反查行业)
+全球资产价格、A 股 ERP / FED 模型与行业流通市值占比历史分位（支持个股反查行业）
 """
 import streamlit as st
 import pandas as pd
@@ -13,7 +13,7 @@ import urllib.request
 import urllib.parse
 from datetime import datetime, timedelta
 
-# ==================== 全球核心资产实时报价（真实通道，2026-08-29 实测） ====================
+# ==================== 全球资产实时报价（真实通道，2026-08-29 实测） ====================
 # 铁律：这一块曾经写死过一组 2024 年的假数据（纳指 19,845 / 黄金 2,512 / 原油 75.8），
 # 长期把过期价格当实时行情展示给用户。任何看板数值都必须来自下面的实时接口，
 # 取不到就显示「—」并明确提示，绝不允许再出现硬编码价格。
@@ -33,15 +33,15 @@ _UA_SINA = dict(_UA, Referer="https://finance.sina.com.cn")
 
 # (key, 源, 源代码, 展示名, 价格格式, 类型标签, 解读)
 GLOBAL_ASSETS = [
-    ("ndx",  "tx",   "usNDX",       "纳斯达克 100",              "num",   "📈 全球风险资产", "全球科技股总风向标"),
-    ("inx",  "tx",   "usINX",       "标普 500",                  "num",   "📈 全球风险资产", "美股大盘中枢"),
-    ("dji",  "tx",   "usDJI",       "道琼斯工业",                "num",   "📈 全球风险资产", "美国传统经济与价值股"),
-    ("hsi",  "tx",   "hkHSI",       "恒生指数",                  "num",   "🐉 中国资产", "离岸中国资产定价锚"),
-    ("a50",  "sina", "hf_CHA50CFD", "富时中国 A50 期货",         "num",   "🐉 中国资产", "A股盘前盘后核心情绪指引"),
-    ("cnh",  "fx",   "fx_susdcnh",  "美元/离岸人民币 (USD/CNH)", "fx",    "💵 汇率变动", "上行=人民币贬值，外资流出压力"),
-    ("xau",  "sina", "hf_XAU",      "现货黄金 (XAU/USD)",        "usd_oz", "🛡️ 避险资产", "抗通胀与地缘避险核心"),
-    ("cl",   "sina", "hf_CL",       "WTI 原油",                  "usd_bbl", "🛢️ 大宗商品", "全球经济与能源需求温度计"),
-    ("cu",   "sina", "hf_CAD",      "伦铜 (LME)",                "usd_ton", "🛢️ 大宗商品", "工业需求先行指标，铜金比看复苏"),
+    ("ndx",  "tx",   "usNDX",       "纳斯达克 100",              "num",   "📈 美股指数", "纳斯达克 100 指数点位"),
+    ("inx",  "tx",   "usINX",       "标普 500",                  "num",   "📈 美股指数", "标普 500 指数点位"),
+    ("dji",  "tx",   "usDJI",       "道琼斯工业",                "num",   "📈 美股指数", "道琼斯工业指数点位"),
+    ("hsi",  "tx",   "hkHSI",       "恒生指数",                  "num",   "🐉 港股指数", "恒生指数点位"),
+    ("a50",  "sina", "hf_CHA50CFD", "富时中国 A50 期货",         "num",   "🐉 股指期货", "富时中国 A50 期货点位"),
+    ("cnh",  "fx",   "fx_susdcnh",  "美元/离岸人民币 (USD/CNH)", "fx",    "💵 汇率", "美元兑离岸人民币汇率"),
+    ("xau",  "sina", "hf_XAU",      "现货黄金 (XAU/USD)",        "usd_oz", "🪙 贵金属", "现货黄金美元/盎司报价"),
+    ("cl",   "sina", "hf_CL",       "WTI 原油",                  "usd_bbl", "🛢️ 能源", "WTI 原油期货美元/桶报价"),
+    ("cu",   "sina", "hf_CAD",      "伦铜 (LME)",                "usd_ton", "🛢️ 有色金属", "LME 铜美元/吨报价"),
 ]
 
 
@@ -490,21 +490,20 @@ def build_real_erp_history(index_code: str = "000300", start_date: str = "201401
 
 
 def render_macro_erp_page():
-    st.header("🌐 宏观资产、股债性价比 & 行业市值分位")
-    st.caption("大周期宏观与中观行业择时指南：行业流通市值占比历史分位 + 资金热度 (成交额分位) + 股债性价比 (FED 模型) + 全球核心资产联动")
+    st.header("🌐 行业市值、ERP 模型与全球资产价格")
+    st.caption("行业市值占比、成交额、ERP 模型与全球资产价格记录。分位和标准差区间描述历史位置，不直接给出买卖指令。")
 
-    tab_sector_mv, tab_erp, tab_global = st.tabs(["🏛️ 行业流通市值历史占比分位", "⚖️ 股债性价比 (大盘周期抄底/逃顶)", "🌍 全球宏观资产联动"])
+    tab_sector_mv, tab_erp, tab_global = st.tabs(["🏛️ 行业流通市值历史占比", "⚖️ ERP 与指数估值", "🌍 全球资产价格记录"])
 
-    # ==================== Tab 1: 行业流通市值真实占比历史分位 + 资金热度 ====================
+    # ==================== Tab 1: 行业流通市值真实占比历史分位 + 成交额 ====================
     with tab_sector_mv:
-        st.subheader("🏛️ 行业流通市值占全市场总市值比重（历史分位中枢）")
+        st.subheader("🏛️ 行业流通市值占全市场总市值比重（历史分位）")
         st.info("""
         **💡 行业流通市值占比历史分位核心逻辑**：
         - `行业市值占比 (%) = 行业所有股票流通市值之和 / A 股全市场总流通市值`
-        - **历史分位 (Percentile)** 衡量该行业在全市场中的体量占比处于“极度低估/被冷落”还是“极度拥挤/冲顶过热”：
-          - **分位 ≤ 20%**：🟢 **历史体量极度低估 (绝望潜伏区)** — 行业相对全市场份额处于历史冰点，长期赔率极大；
-          - **20% ~ 80%**：⚖️ **历史合理波动中枢**；
-          - **分位 ≥ 80%**：🔴 **历史体量高位拥挤 (冲顶防守区)** — 行业体量占全市场过高，警惕均值回归与资金分流。
+        - 历史分位表示当前市值占比在所选历史窗口中的相对位置。
+        - 20%与80%线用于比较历史位置。占比较低不等于估值便宜，占比较高不等于见顶。
+        - 行业股价、发行与解禁、行业分类调整，都可能改变市值占比。
         """)
 
         ind_options = get_available_industry_list()
@@ -556,7 +555,7 @@ def render_macro_erp_page():
             p80 = np.percentile(ratios, 80)
             p20 = np.percentile(ratios, 20)
 
-            # 资金热度 (成交额历史分位)
+            # 成交额历史分位
             amt_vals = df_hist["amount"].values
             cur_amt = amt_vals[-1]
             amt_rank = int((amt_vals < cur_amt).mean() * 100)
@@ -612,28 +611,28 @@ def render_macro_erp_page():
                 
                 fig_main = go.Figure()
 
-                # 80% 高位拥挤参考线 (深红虚线)
+                # 80% 历史分位线
                 fig_main.add_trace(go.Scatter(
                     x=df_hist["date"], y=[p80] * len(df_hist),
-                    name="80% 分位 (高位过热线)",
+                    name="80% 历史分位线",
                     line=dict(color="#dc2626", width=1.5, dash="dash"),
-                    hovertemplate="80% 过热线: %{y:.2f}%<extra></extra>"
+                    hovertemplate="80% 分位线: %{y:.2f}%<extra></extra>"
                 ))
 
-                # 历史均值中枢 (琥珀金实线)
+                # 历史均值 (琥珀金实线)
                 fig_main.add_trace(go.Scatter(
                     x=df_hist["date"], y=[hist_mean] * len(df_hist),
-                    name="历史均值中枢",
+                    name="历史均值",
                     line=dict(color="#f59e0b", width=1.8),
-                    hovertemplate="历史均值中枢: %{y:.2f}%<extra></extra>"
+                    hovertemplate="历史均值: %{y:.2f}%<extra></extra>"
                 ))
 
-                # 20% 低估潜伏线 (翡翠绿虚线)
+                # 20% 历史分位线
                 fig_main.add_trace(go.Scatter(
                     x=df_hist["date"], y=[p20] * len(df_hist),
-                    name="20% 分位 (低估潜伏线)",
+                    name="20% 历史分位线",
                     line=dict(color="#16a34a", width=1.5, dash="dash"),
-                    hovertemplate="20% 低估线: %{y:.2f}%<extra></extra>"
+                    hovertemplate="20% 历史分位线: %{y:.2f}%<extra></extra>"
                 ))
 
                 # 主折线：市值占比 (%) (科技蓝实线，微弱底色填充)
@@ -665,9 +664,9 @@ def render_macro_erp_page():
                 )
                 st.plotly_chart(fig_main, use_container_width=True)
 
-            # ==================== 卡片 2：副图【资金热度日成交额变动】 ====================
+            # ==================== 卡片 2：副图【行业日成交额与20日平均成交额】 ====================
             with st.container(border=True):
-                st.markdown(f"##### 🔥 【{target_industry}】资金热度：行业日成交额变动 (亿元)")
+                st.markdown(f"##### 📊 【{target_industry}】日成交额与20日平均成交额 (亿元)")
                 
                 amt_yi = df_hist["amount"] / 100000000.0 if df_hist["amount"].max() > 100000 else df_hist["amount"] / 10000.0
                 amt_ma20_yi = df_hist["amount_ma20"] / 100000000.0 if df_hist["amount_ma20"].max() > 100000 else df_hist["amount_ma20"] / 10000.0
@@ -682,21 +681,21 @@ def render_macro_erp_page():
                     hovertemplate="<b>%{x}</b><br>日成交额: <b>%{y:.1f} 亿元</b><extra></extra>"
                 ))
 
-                # MA20 均量线 (洋红紫粉线，与主图金色彻底区分)
+                # 20日平均成交额
                 fig_sub.add_trace(go.Scatter(
                     x=df_hist["date"], y=amt_ma20_yi,
-                    name="20日成交均量 (MA20)",
+                    name="20日平均成交额 (MA20)",
                     line=dict(color="#d946ef", width=1.8),
-                    hovertemplate="20日均量: %{y:.1f} 亿元<extra></extra>"
+                    hovertemplate="20日平均成交额: %{y:.1f} 亿元<extra></extra>"
                 ))
 
-                # 标注天量峰值点
+                # 标注区间最高成交额
                 max_amt_idx = amt_yi.idxmax()
                 max_amt_date = df_hist["date"].iloc[max_amt_idx]
                 max_amt_val = amt_yi.iloc[max_amt_idx]
                 fig_sub.add_annotation(
                     x=max_amt_date, y=max_amt_val,
-                    text=f"天量成交: {max_amt_val:.0f}亿",
+                    text=f"区间最高成交额: {max_amt_val:.0f}亿",
                     showarrow=True, arrowhead=2, arrowsize=1, arrowwidth=1.2, arrowcolor="#0ea5e9",
                     ax=0, ay=-20,
                     font=dict(size=11, color="#0284c7")
@@ -734,11 +733,13 @@ def render_macro_erp_page():
     with tab_erp:
         st.subheader("📊 A股股债风险溢价 (Equity Risk Premium, ERP)")
         st.info("""
-        **💡 ERP 指标释义 (FED 模型)**：
+        **💡 ERP 指标释义 (FED 模型口径)**：
         - `ERP = 指数盈利收益率 (1 / PE_TTM × 100) − 中国10年期国债收益率`
-        - **极度高估 (逃顶区)**：ERP 跌破 **-1倍标准差 / -2倍标准差**，代表股票性价比极低，国债更具吸引力。
-        - **黄金坑 (抄底区)**：ERP 突破 **+1倍标准差 / +2倍标准差**，代表股票资产极其便宜，长期赔率极大。
-        - 数据源：**中证指数官网**权威 PE-TTM 日频序列 + **东方财富**中债 10 年期国债到期收益率。
+        - **低于均值 -1SD / -2SD**：当前 ERP 低于所选窗口的对应标准差线。
+        - **高于均值 +1SD / +2SD**：只表示 ERP 在当前窗口的历史位置较高，不代表资产估值便宜，也不判断未来涨跌。
+        - 数据源：**中证指数官网** PE-TTM 日频序列 + **东方财富**中债 10 年期国债到期收益率。
+        - 中国 10 年期国债收益率是长期利率参照，并非严格的无风险利率。
+          ERP 还受盈利波动、期限溢价、税收和样本窗口影响，不能单独证明股债相对方向。
         """)
 
         ERP_INDEX_MAP = {
@@ -790,26 +791,26 @@ def render_macro_erp_page():
             col1.metric("当前 ERP (风险溢价)", f"{current_erp:.2f}%", delta=f"{current_erp - mean_val:+.2f}% 偏离均值")
 
             if current_erp > mean_val + 2 * std_val:
-                status_eval = "👑 极度低估 (坚决定投)"
+                status_eval = "高于均值 +2SD"
             elif current_erp > mean_val + std_val:
-                status_eval = "✅ 价值凸显 (可加仓)"
+                status_eval = "高于均值 +1SD"
             elif current_erp < mean_val - 2 * std_val:
-                status_eval = "🚨 极度泡沫 (逃顶区)"
+                status_eval = "低于均值 -2SD"
             elif current_erp < mean_val - std_val:
-                status_eval = "⚠️ 估值偏贵需防守"
+                status_eval = "低于均值 -1SD"
             else:
-                status_eval = "⚖️ 估值合理中枢"
-            col2.metric("当前估值水位状态", status_eval)
+                status_eval = "均值 ±1SD 区间"
+            col2.metric("ERP 相对统计窗口位置", status_eval)
             col3.metric(f"{range_label}历史分位数", f"{pct_rank:.1f}%",
-                        delta="越高越便宜", delta_color="off")
+                        delta="ERP 当前值在所选窗口中的相对位置", delta_color="off")
             col4.metric("PE-TTM / 10Y国债", f"{current_pe:.2f} / {current_bond:.2f}%")
 
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['plus_2sd'], name='+2SD 极度便宜 (坚决定投)', line=dict(color='rgba(46, 204, 113, 0.65)', dash='dash')))
-            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['plus_1sd'], name='+1SD 价值凸显', line=dict(color='rgba(52, 152, 219, 0.6)', dash='dot')))
-            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['mean'], name='历史均值中枢', line=dict(color='rgba(243, 156, 18, 0.85)', width=2)))
-            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['minus_1sd'], name='-1SD 估值偏贵', line=dict(color='rgba(231, 76, 60, 0.6)', dash='dot')))
-            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['minus_2sd'], name='-2SD 极度泡沫 (逃顶)', line=dict(color='rgba(192, 57, 43, 0.65)', dash='dash')))
+            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['plus_2sd'], name='+2SD', line=dict(color='rgba(46, 204, 113, 0.65)', dash='dash')))
+            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['plus_1sd'], name='+1SD', line=dict(color='rgba(52, 152, 219, 0.6)', dash='dot')))
+            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['mean'], name='历史均值', line=dict(color='rgba(243, 156, 18, 0.85)', width=2)))
+            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['minus_1sd'], name='-1SD', line=dict(color='rgba(231, 76, 60, 0.6)', dash='dot')))
+            fig.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['minus_2sd'], name='-2SD', line=dict(color='rgba(192, 57, 43, 0.65)', dash='dash')))
             fig.add_trace(go.Scatter(
                 x=df_erp['date'], y=df_erp['erp'], name=f'{idx_label.split(" ")[0]} ERP 实际值',
                 line=dict(color='#8e44ad', width=2.4),
@@ -818,7 +819,7 @@ def render_macro_erp_page():
             ))
 
             fig.update_layout(
-                title=f"{idx_label} 股债性价比通道 (ERP 标准差带 · {range_label})",
+                title=f"{idx_label} ERP 与标准差带 · {range_label}",
                 xaxis=dict(tickangle=-45, gridcolor='rgba(128,128,128,0.2)'),
                 yaxis=dict(title="ERP (%)", gridcolor='rgba(128,128,128,0.2)'),
                 hovermode="x unified",
@@ -832,7 +833,7 @@ def render_macro_erp_page():
             fig2.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['bond'], name='中国10年期国债收益率', line=dict(color='#27ae60', width=2)))
             fig2.add_trace(go.Scatter(x=df_erp['date'], y=df_erp['ey'], name='指数盈利收益率 (1/PE)', line=dict(color='#e74c3c', width=2), fill='tonexty', fillcolor='rgba(231, 76, 60, 0.12)'))
             fig2.update_layout(
-                title="FED 模型原始形态：股票盈利收益率 vs 无风险利率 (红线越高于绿线，股票越占优)",
+                title="FED 模型对照：指数盈利收益率与中国10年期国债收益率",
                 xaxis=dict(tickangle=-45, gridcolor='rgba(128,128,128,0.2)'),
                 yaxis=dict(title="收益率 (%)", gridcolor='rgba(128,128,128,0.2)'),
                 hovermode="x unified", height=380,
@@ -843,12 +844,12 @@ def render_macro_erp_page():
             cb1, cb2, cb3 = st.columns(3)
             cb1.caption(f"📊 样本覆盖：`{len(df_erp)}` 交易日 ({df_erp['date'].iloc[0]} 至 {df_erp['date'].iloc[-1]})")
             cb2.caption(f"📉 区间 ERP 极值：`{df_erp['erp'].min():.2f}%` ~ `{df_erp['erp'].max():.2f}%`")
-            cb3.caption(f"🧮 均值中枢 `{mean_val:.2f}%`｜标准差 `{std_val:.2f}%`｜全历史样本 `{len(df_full)}` 日")
+            cb3.caption(f"🧮 历史均值 `{mean_val:.2f}%`｜标准差 `{std_val:.2f}%`｜全历史样本 `{len(df_full)}` 日")
 
-    # ==================== Tab 3: 全球宏观资产联动 ====================
+    # ==================== Tab 3: 全球资产价格记录 ====================
     with tab_global:
-        st.subheader("🌍 全球核心资产走势与资金风向标")
-        st.caption("监控外盘流动性、大宗商品、汇率与避险情绪 · 数据来自腾讯/新浪实时行情接口，缓存 60 秒")
+        st.subheader("🌍 全球核心资产价格记录")
+        st.caption("记录外盘资产价格与涨跌幅 · 数据来自腾讯/新浪实时行情接口，缓存 60 秒")
 
         hc1, hc2 = st.columns([1, 4])
         if hc1.button("🔄 刷新报价", key="macro_asset_refresh"):
@@ -880,15 +881,16 @@ def render_macro_erp_page():
                         st.markdown(f"**涨跌幅**: :{color}[{pct:+.2f}%] | `{tag}`")
                     st.caption(desc)
 
-        # 铜金比：工业需求 / 避险需求的相对强弱，是判断全球复苏的经典比价
+        # 铜金比只记录两种资产价格的比值，不据此单独推断宏观原因。
         cu = assets.get("cu", {}).get("price")
         au = assets.get("xau", {}).get("price")
         st.divider()
         if cu and au:
             ratio = cu / au
             st.markdown(f"**🔀 铜金比 (LME 铜 / 现货黄金)**：`{ratio:.3f}`")
-            st.caption("铜金比走高 = 工业需求强于避险需求，通常对应全球复苏与风险偏好回升；"
-                       "走低 = 避险主导，对应衰退担忧。只看方向变化，不看绝对值。")
+            st.caption("该比值只记录 LME 铜与现货黄金两种资产价格的相对变化；"
+                       "上升或下降不能单独归因于工业需求、避险情绪、复苏或衰退，"
+                       "需结合其他变量另行核对。")
         else:
             st.caption("🔀 铜金比：所需报价缺失，暂不计算。")
 

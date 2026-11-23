@@ -31,6 +31,8 @@ while _ROOT in sys.path:
 sys.path.insert(0, _ROOT)
 
 import auth
+import account_shell
+import feedback_ui
 import password_reset as pr
 
 # 解析结果必须真的是根目录那个 auth。若哪天引导再被改坏，本页会在这里
@@ -41,7 +43,12 @@ if os.path.realpath(getattr(auth, "__file__", "") or "") != os.path.realpath(
         f"auth 模块解析错误：{getattr(auth, '__file__', None)!r}，"
         f"应为 {os.path.join(_ROOT, 'auth.py')!r}")
 
-st.set_page_config(page_title="会员登录 / 注册 - Chilam Club", page_icon="🔐", layout="centered")
+account_shell.configure_page(
+    current="auth",
+    page_title="会员登录 / 注册 - Chilam Club",
+    page_icon="🔐",
+    layout="centered",
+)
 
 MODE_LOGIN = "🔑 用户登录"
 MODE_REGISTER = "📝 新用户注册"
@@ -70,6 +77,7 @@ if auth.is_logged_in():
             st.switch_page("pages/dashboard.py")
     with c2:
         if st.button("退出登录 🚪", use_container_width=True):
+            feedback_ui.request_feedback_session_clear()
             auth.logout()
             st.rerun()
     st.stop()
@@ -124,6 +132,7 @@ if mode == MODE_LOGIN:
             else:
                 ok, err = auth.login(email, password)
                 if ok:
+                    feedback_ui.request_feedback_session_clear()
                     st.success("登录成功！正在跳转...")
                     st.rerun()
                 else:
@@ -150,6 +159,7 @@ elif mode == MODE_REGISTER:
             else:
                 ok, err = auth.register(reg_email, reg_password)
                 if ok:
+                    feedback_ui.request_feedback_session_clear()
                     st.success("注册成功并已自动登录！")
                     st.rerun()
                 else:

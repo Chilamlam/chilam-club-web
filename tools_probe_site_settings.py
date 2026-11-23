@@ -238,11 +238,13 @@ def _test_app_config_render():
     # 元断言：确认 app.py 真的渲染了（否则「没有按钮」是空洞通过）
     with patched(ss, "read_shop_entry", lambda: cfg(enabled=False)):
         at = render_app()
-        ck(any("Chilam.Club" in str(t.value) for t in at.sidebar.title),
+        ck(any("Chilam.Club" in str(t.value) for t in at.sidebar.markdown),
            "元断言：前台侧边栏确实渲染（排除空跑）")
-        nav = at.sidebar.radio[0] if at.sidebar.radio else None
-        ck(nav is not None and len(nav.options) == 18,
-           "元断言：原有 17 项导航加资讯雷达")
+        nav_labels = {str(button.label) for button in at.sidebar.button}
+        ck("🛸 全市场看板" in nav_labels and "📰 资讯雷达" in nav_labels,
+           "元断言：分组导航首尾页面均已渲染")
+        ck(len(nav_labels) >= 21,
+           f"元断言：至少 21 个页面入口（实际 {len(nav_labels)} 个按钮）")
 
 
 # ==================== 3. 后台真渲染 ====================

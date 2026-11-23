@@ -114,12 +114,15 @@ class ConvertiblePageTests(unittest.TestCase):
         labels = [metric.label for metric in app.metric]
         self.assertIn("A 债强于股", labels)
         self.assertIn("C 股债同向候选", labels)
-        self.assertIn("隔夜（昨收 → 次日开盘）", " ".join(m.value for m in app.markdown))
+        self.assertIn("跨日价差（昨收 → 次日开盘）", " ".join(m.value for m in app.markdown))
         self.assertEqual(len(app.tabs), 4)
         visible = " ".join([str(m.value) for m in app.markdown]
                            + [str(c.value) for c in app.caption] + labels)
         self.assertNotIn("胜率", visible)
+        for phrase in ("隔夜", "低吸", "追高", "买入", "挂单", "成交机会"):
+            self.assertNotIn(phrase, visible)
         self.assertIn("正收益占比", visible)
+        self.assertIn("理论价差", visible)
 
     def test_class_radio_switches_the_table(self):
         app = self._run(PAYLOAD)
@@ -165,7 +168,8 @@ class ConvertiblePageTests(unittest.TestCase):
             row.pop("dip_touch", None)
         app = self._run(payload)
         self.assertEqual(list(app.exception), [])
-        self.assertIn("回踩", " ".join(str(m.value) for m in app.markdown))
+        self.assertIn("开盘下方 3% 触及情形",
+                      " ".join(str(m.value) for m in app.markdown))
 
 
 if __name__ == "__main__":

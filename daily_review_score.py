@@ -56,11 +56,9 @@ def compute_actual(prev_date: str, cur_date: str) -> dict:
     out = {}
     derived = _load_json(DERIVED_PATH)
     sector = _load_json(SECTOR_PATH)
-    ladder = _load_json(LADDER_PATH)
     # derived 的 date 必须是 cur_date 才能作为「次日实际」
     d_ok = derived and str(derived.get("date")) == cur_date
     s_ok = sector and str(sector.get("date")).replace("-", "") == cur_date
-    l_ok = ladder and str(ladder.get("date")).replace("-", "") == cur_date
 
     if d_ok:
         ph = (derived.get("phase") or {})
@@ -68,20 +66,10 @@ def compute_actual(prev_date: str, cur_date: str) -> dict:
             # T 日判「退潮」，T+1 实际 phase 若仍退潮 → 命中；同理各档
             out["q03_emotion_cycle"] = ph.get("phase")
             out["q14_tomorrow_expect"] = ph.get("phase")
-        prem = derived.get("premium") or {}
-        if prem.get("status") == "ok":
-            med = float(prem.get("median_pct") or 0)
-            # 溢价正负 → 赚钱效应方向（q01 只有 T 日数据，不回验——主观题）
-            out["q07_ladder"] = "成立" if (
-                (derived.get("ladder_gap") or {}).get("max_height", 0) >= 3
-            ) else "不成立"
     if s_ok:
         top = (sector.get("top") or [])
         if top:
             out["q10_strongest_theme"] = top[0].get("name")
-    if l_ok:
-        mh = ladder.get("max_height") or 0
-        out["q07_ladder"] = "成立" if mh >= 3 else "不成立"
     return out
 
 

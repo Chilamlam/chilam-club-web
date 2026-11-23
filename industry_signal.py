@@ -609,7 +609,7 @@ def signal_markdown(sig: dict | None, *, include_disclaimer: bool = True) -> tup
     if st == "no_data":
         return "", f"行业信号不可用（{sig.get('reason', '未知')}）"
     if st == "insufficient":
-        return "", f"行业信号样本不足（{sig.get('reason', '未知')}）"
+        return "", f"行业信号历史窗口尚未满足（{sig.get('reason', '未知')}）"
 
     date = sig.get("date", "")
     th = sig.get("thresholds") or {}
