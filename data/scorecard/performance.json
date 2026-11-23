@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23 19:31:41",
+  "generated_at": "2026-11-24 06:41:10",
   "benchmark": "000300.SH",
   "horizons": [
     1,
@@ -17,7 +17,7 @@
           "n": 2742,
           "status": "ok",
           "alpha_median": -0.007212896644792854,
-          "alpha_mean": 0.0009161052910665623,
+          "alpha_mean": 0.0009159449987752987,
           "alpha_p25": -0.03951166810932738,
           "alpha_p75": 0.03503784556718009,
           "direction_accuracy": 0.44091903719912473,
@@ -29,7 +29,7 @@
           "n": 2596,
           "status": "ok",
           "alpha_median": -0.030426135957795808,
-          "alpha_mean": -0.020780356982076396,
+          "alpha_mean": -0.020780075008632132,
           "alpha_p25": -0.09675688709720831,
           "alpha_p75": 0.029484386238543686,
           "direction_accuracy": 0.3532357473035439,
@@ -41,7 +41,7 @@
           "n": 2309,
           "status": "ok",
           "alpha_median": -0.04724463259605172,
-          "alpha_mean": -0.027503644565601476,
+          "alpha_mean": -0.027527043541977686,
           "alpha_p25": -0.12307204646271475,
           "alpha_p75": 0.031379789003535885,
           "direction_accuracy": 0.3473365093113902,
@@ -256,19 +256,19 @@
         },
         {
           "date": "20261116",
-          "alpha_median": -0.013407174550316647
+          "alpha_median": -0.013486924259223043
         }
       ],
       "beta": {
         "status": "ok",
         "n_days": 45,
-        "beta": 1.8904335429386934,
-        "r_squared": 0.31665805881227627,
-        "intercept": -0.02485007947897315,
+        "beta": 1.8903730402062116,
+        "r_squared": 0.31665061869491845,
+        "intercept": -0.024852698328252616,
         "raw_alpha_median": -0.030426135957795808,
-        "adj_alpha_median": -0.019100737132209562,
+        "adj_alpha_median": -0.019101852131455835,
         "adj_direction_accuracy": 0.4110169491525424,
-        "adj_alpha_median_independent": -0.00739544246888825,
+        "adj_alpha_median_independent": -0.007397191072118461,
         "adj_direction_accuracy_independent": 0.3333333333333333,
         "n_independent": 9
       },
@@ -283,7 +283,7 @@
         "p_value": 0.1796875,
         "significant": false,
         "same_day_std": 0.12951267676117378,
-        "across_day_std": 0.04677860029640602,
+        "across_day_std": 0.04677767564662117,
         "reason": "每隔 5 个有效入选日取一组，共 9 组；仍可能共享市场因素。"
       }
     },
@@ -338,7 +338,7 @@
           "n": 5569,
           "status": "ok",
           "alpha_median": -0.00880116356980587,
-          "alpha_mean": -0.005363119182410278,
+          "alpha_mean": -0.005363176798414219,
           "alpha_p25": -0.0457287001039931,
           "alpha_p75": 0.030772283485944518,
           "direction_accuracy": 0.4341892619859939,
@@ -350,7 +350,7 @@
           "n": 5310,
           "status": "ok",
           "alpha_median": -0.038630528964882005,
-          "alpha_mean": -0.029468558514530913,
+          "alpha_mean": -0.029468705585304365,
           "alpha_p25": -0.11873239020836829,
           "alpha_p75": 0.04617301787493877,
           "direction_accuracy": 0.3734463276836158,
@@ -362,7 +362,7 @@
           "n": 5012,
           "status": "ok",
           "alpha_median": -0.05906364402010911,
-          "alpha_mean": -0.04164572981735871,
+          "alpha_mean": -0.041645666567282046,
           "alpha_p25": -0.16283833584084692,
           "alpha_p75": 0.0487966544752933,
           "direction_accuracy": 0.3463687150837989,
@@ -383,7 +383,7 @@
           {
             "bucket": "11-30",
             "n": 1765,
-            "alpha_median": -0.0401749739010111
+            "alpha_median": -0.040163661157682884
           },
           {
             "bucket": "31-50",
@@ -753,19 +753,19 @@
         },
         {
           "date": "20261116",
-          "alpha_median": -0.08052524268387751
+          "alpha_median": -0.08053025096659616
         }
       ],
       "beta": {
         "status": "ok",
         "n_days": 89,
-        "beta": 3.0680727958805982,
-        "r_squared": 0.42769529386163185,
-        "intercept": -0.021738966970246684,
+        "beta": 3.068072032065518,
+        "r_squared": 0.42769488793439137,
+        "intercept": -0.021739031171925903,
         "raw_alpha_median": -0.038630528964882005,
-        "adj_alpha_median": -0.014364547877344407,
+        "adj_alpha_median": -0.014364566873390373,
         "adj_direction_accuracy": 0.4453860640301318,
-        "adj_alpha_median_independent": 0.01113144999689214,
+        "adj_alpha_median_independent": 0.011131426085473947,
         "adj_direction_accuracy_independent": 0.5555555555555556,
         "n_independent": 18
       },
@@ -780,14 +780,14 @@
         "p_value": 0.09625244140625,
         "significant": false,
         "same_day_std": 0.11642078325315726,
-        "across_day_std": 0.07909246372845886,
+        "across_day_std": 0.07909249058337964,
         "reason": "每隔 5 个有效入选日取一组，共 18 组；仍可能共享市场因素。"
       }
     }
   },
   "archive": {
     "pick_rows": 11347,
-    "price_rows": 68513,
+    "price_rows": 68587,
     "date_from": "20260706",
     "date_to": "20261123",
     "trade_days": 95
