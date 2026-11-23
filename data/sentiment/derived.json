@@ -1,195 +1,230 @@
 {
   "status": "complete",
-  "date": "20261120",
-  "prev_date": "20261119",
-  "generated_at": "2026-11-23 10:23:57",
-  "archive_days": 66,
+  "date": "20261123",
+  "prev_date": "20261120",
+  "generated_at": "2026-11-23 19:31:35",
+  "archive_days": 67,
   "promotion": {
     "status": "ok",
-    "prev_date": "20261119",
-    "date": "20261120",
+    "prev_date": "20261120",
+    "date": "20261123",
     "rates": {
       "1进2": {
-        "base": 18,
-        "promoted": 1,
-        "rate": 0.05555555555555555,
-        "not_promoted": 17,
+        "base": 25,
+        "promoted": 13,
+        "rate": 0.52,
+        "not_promoted": 12,
         "members": [
           {
-            "code": "600520",
-            "name": "三佳科技",
+            "code": "600371",
+            "name": "万向德农",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "002579",
-            "name": "中京电子",
+            "code": "002086",
+            "name": "东方海洋",
             "previous_height": 1,
             "current_height": 2,
             "promoted": true
           },
           {
-            "code": "002242",
-            "name": "九阳股份",
+            "code": "002199",
+            "name": "东晶电子",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "002741",
+            "name": "光华科技",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "603928",
-            "name": "兴业股份",
+            "code": "603960",
+            "name": "克来机电",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "000530",
+            "name": "冰山冷热",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "301313",
+            "name": "凡拓数创",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "000607",
+            "name": "华媒控股",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "001358",
-            "name": "兴欣新材",
+            "code": "600360",
+            "name": "华微电子",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "603813",
-            "name": "原尚股份",
+            "code": "002749",
+            "name": "国光股份",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "002077",
-            "name": "大港股份",
+            "code": "600327",
+            "name": "大东方",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "600467",
+            "name": "好当家",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "603948",
+            "name": "建业股份",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "601616",
-            "name": "广电电气",
+            "code": "000593",
+            "name": "德龙汇能",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "300812",
+            "name": "易天股份",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "002418",
-            "name": "康盛股份",
+            "code": "301132",
+            "name": "满坤科技",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "605178",
-            "name": "时空科技",
+            "code": "605058",
+            "name": "澳弘电子",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "603931",
-            "name": "格林达",
+            "code": "002642",
+            "name": "荣联科技",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "000823",
+            "name": "超声电子",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "002420",
-            "name": "毅昌科技",
+            "code": "002548",
+            "name": "金新农",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "605018",
+            "name": "长华集团",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "603466",
+            "name": "风语筑",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "603078",
-            "name": "江化微",
+            "code": "603386",
+            "name": "骏亚科技",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "600619",
-            "name": "海立股份",
+            "code": "603004",
+            "name": "鼎龙科技",
             "previous_height": 1,
-            "current_height": null,
-            "promoted": false
+            "current_height": 2,
+            "promoted": true
           },
           {
-            "code": "002165",
-            "name": "红 宝 丽",
+            "code": "605577",
+            "name": "龙版传媒",
             "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "301348",
-            "name": "蓝箭电子",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "000678",
-            "name": "襄阳轴承",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "000656",
-            "name": "金科股份",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
+            "current_height": 2,
+            "promoted": true
           }
         ]
       },
       "2进3": {
-        "base": 2,
-        "promoted": 0,
-        "rate": 0.0,
-        "not_promoted": 2,
+        "base": 1,
+        "promoted": 1,
+        "rate": 1.0,
+        "not_promoted": 0,
         "members": [
           {
-            "code": "000711",
-            "name": "京蓝科技",
+            "code": "002579",
+            "name": "中京电子",
             "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "600156",
-            "name": "华升股份",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
+            "current_height": 3,
+            "promoted": true
           }
         ]
       },
-      "3进4": {
-        "base": 3,
+      "4进5": {
+        "base": 2,
         "promoted": 2,
-        "rate": 0.6666666666666666,
-        "not_promoted": 1,
+        "rate": 1.0,
+        "not_promoted": 0,
         "members": [
-          {
-            "code": "603030",
-            "name": "全筑股份",
-            "previous_height": 3,
-            "current_height": null,
-            "promoted": false
-          },
           {
             "code": "603324",
             "name": "盛剑科技",
-            "previous_height": 3,
-            "current_height": 4,
+            "previous_height": 4,
+            "current_height": 5,
             "promoted": true
           },
           {
             "code": "002771",
             "name": "真视通",
-            "previous_height": 3,
-            "current_height": 4,
+            "previous_height": 4,
+            "current_height": 5,
             "promoted": true
           }
         ]
@@ -198,60 +233,64 @@
   },
   "premium": {
     "status": "ok",
-    "prev_date": "20261119",
-    "n": 5,
+    "prev_date": "20261120",
+    "n": 3,
     "missing": 0,
-    "median_pct": 0.7833,
-    "mean_pct": 0.2168999999999997,
-    "win_rate": 0.6,
-    "limit_again": 2,
+    "median_pct": 9.9964,
+    "mean_pct": 9.9971,
+    "win_rate": 1.0,
+    "limit_again": 3,
     "reason": null
   },
   "ladder_gap": {
     "status": "ok",
-    "max_height": 4,
+    "max_height": 5,
     "min_height": 1,
-    "first_board": 25,
-    "total": 28,
+    "first_board": 130,
+    "total": 146,
     "tiers": [
       {
-        "height": 4,
+        "height": 5,
         "count": 2
       },
       {
-        "height": 3,
+        "height": 4,
         "count": 0
       },
       {
-        "height": 2,
+        "height": 3,
         "count": 1
       },
       {
+        "height": 2,
+        "count": 13
+      },
+      {
         "height": 1,
-        "count": 25
+        "count": 130
       }
     ],
     "gaps": [
-      3
+      4
     ],
-    "verdict": "最高 4 板，中间 [3] 板断层（该高度无股票）"
+    "verdict": "最高 5 板，中间 [4] 板断层（该高度无股票）"
   },
   "breadth": {
     "status": "ok",
-    "mean_pct": -4.756061019382627,
-    "median_pct": -5.07635,
-    "divergence": 0.32028898061737276,
-    "up": 313,
-    "down": 5236,
-    "up_ratio": 0.05640655974049378,
-    "verdict": "个股涨跌幅均值 -4.76%，中位数 -5.08%，相差 +0.32 个百分点"
+    "mean_pct": 2.865442190305206,
+    "median_pct": 2.4143499999999998,
+    "divergence": 0.4510921903052063,
+    "up": 4658,
+    "down": 783,
+    "up_ratio": 0.8560926300312443,
+    "verdict": "个股涨跌幅均值 +2.87%，中位数 +2.41%，相差 +0.45 个百分点"
   },
   "phase": {
     "status": "ok",
-    "phase": "冰点期",
-    "basis": "首板次日继续涨停比例 5.6%；昨日连板样本今日中位涨跌幅 +0.78%",
-    "r12": 0.05555555555555555,
-    "premium_median": 0.7833,
+    "phase": "发酵期",
+    "basis": "首板次日继续涨停比例 52.0%；昨日连板样本今日中位涨跌幅 +10.00%；中间 [4] 板无股票",
+    "r12": 0.52,
+    "premium_median": 9.9964,
     "thresholds": {
       "method": "percentile",
       "high": 0.2263594470046083,
@@ -259,8 +298,8 @@
       "low": 0.11025641025641025,
       "samples": 60,
       "lookback": 60,
-      "window_from": "20260819",
-      "window_to": "20261119",
+      "window_from": "20260820",
+      "window_to": "20261120",
       "note": "自适应阈值：近 60 个交易日 1进2 晋级率分位 p80/p55/p25 = 22.6% / 17.2% / 11.0%"
     },
     "note": "档位是连板样本的统计分组，不构成参与建议；未验证其预测收益的能力。"
@@ -272,33 +311,33 @@
     "low": 0.11025641025641025,
     "samples": 60,
     "lookback": 60,
-    "window_from": "20260819",
-    "window_to": "20261119",
+    "window_from": "20260820",
+    "window_to": "20261120",
     "note": "自适应阈值：近 60 个交易日 1进2 晋级率分位 p80/p55/p25 = 22.6% / 17.2% / 11.0%"
   },
   "verification_plan": [
     {
       "指标": "首板次日继续涨停比例",
-      "今日基准": "5.6%（1/18）",
-      "验证条件": "下一交易日收盘后，与 5.6% 比较，并同时列出继续涨停只数和首板样本数。",
+      "今日基准": "52.0%（13/25）",
+      "验证条件": "下一交易日收盘后，与 52.0% 比较，并同时列出继续涨停只数和首板样本数。",
       "为什么看它": "记录首板群体的次日表现，每日样本会变化。"
     },
     {
       "指标": "昨日连板股今日中位涨跌幅",
-      "今日基准": "+0.78%（5 只，上涨占比 60%）",
-      "验证条件": "下一交易日收盘后，与 +0.78% 比较，同列上涨占比、样本数及缺失行情数。",
+      "今日基准": "+10.00%（3 只，上涨占比 100%）",
+      "验证条件": "下一交易日收盘后，与 +10.00% 比较，同列上涨占比、样本数及缺失行情数。",
       "为什么看它": "记录连板样本的收盘涨跌幅，不计算买卖收益。"
     },
     {
       "指标": "连板梯队最高高度",
-      "今日基准": "4 板，中间缺少 [3] 板",
-      "验证条件": "下一交易日收盘后，与 4 板比较高度；另查中间高度是否有空档。高度下降与中间缺档分别记录。",
+      "今日基准": "5 板，中间缺少 [4] 板",
+      "验证条件": "下一交易日收盘后，与 5 板比较高度；另查中间高度是否有空档。高度下降与中间缺档分别记录。",
       "为什么看它": "最高连板数与各高度股票数是两项独立统计。"
     },
     {
       "指标": "全市场上涨家数与中位涨跌幅",
-      "今日基准": "上涨 313 家 / 下跌 5236 家，中位 -5.08%",
-      "验证条件": "下一交易日收盘后，与上涨 313 家及中位 -5.08% 分别比较。",
+      "今日基准": "上涨 4658 家 / 下跌 783 家，中位 +2.41%",
+      "验证条件": "下一交易日收盘后，与上涨 4658 家及中位 +2.41% 分别比较。",
       "为什么看它": "观察上涨覆盖面和中间位置个股的表现是否同时改善。"
     }
   ]
