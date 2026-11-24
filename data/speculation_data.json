@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-24 06:14:54",
+  "date": "2026-11-24 09:46:02",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -347,19 +347,6 @@
       "nav_status": "同日净值"
     },
     {
-      "code": "516620.SH",
-      "name": "影视ETF国泰",
-      "price": 0.9,
-      "change": 6.89,
-      "vol_yi": 2.24,
-      "quote_date": "20261123",
-      "nav_date": "20261123",
-      "nav": 0.8963,
-      "premium_rate": 0.413,
-      "reference_gap": null,
-      "nav_status": "同日净值"
-    },
-    {
       "code": "560630.SH",
       "name": "机器人ETF万家",
       "price": 0.931,
@@ -369,6 +356,19 @@
       "nav_date": "20261123",
       "nav": 0.9267,
       "premium_rate": 0.464,
+      "reference_gap": null,
+      "nav_status": "同日净值"
+    },
+    {
+      "code": "516620.SH",
+      "name": "影视ETF国泰",
+      "price": 0.9,
+      "change": 6.89,
+      "vol_yi": 2.24,
+      "quote_date": "20261123",
+      "nav_date": "20261123",
+      "nav": 0.8963,
+      "premium_rate": 0.413,
       "reference_gap": null,
       "nav_status": "同日净值"
     },

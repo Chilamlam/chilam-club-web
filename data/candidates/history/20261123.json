@@ -383,23 +383,9 @@
           "rps": null
         },
         {
-          "symbol": "001331.SZ",
-          "name": "胜通能源",
-          "industry": "供气供热",
-          "date": "20261123",
-          "reasons": [
-            "🚀 强行业中的低位首板池（#077 × #103）"
-          ],
-          "risks": [],
-          "sources": [
-            "data/evening_plan/latest.json:pool_trend_catchup"
-          ],
-          "rps": null
-        },
-        {
           "symbol": "001358.SZ",
           "name": "兴欣新材",
-          "industry": "化工原料",
+          "industry": "化学制品/化学制药",
           "date": "20261123",
           "reasons": [
             "🚀 强行业中的低位首板池（#077 × #103）"
@@ -566,13 +552,11 @@
           "industry": "互联网",
           "date": "20261123",
           "reasons": [
-            "RPS50 99.8",
-            "🚀 强行业中的低位首板池（#077 × #103）"
+            "RPS50 99.8"
           ],
           "risks": [],
           "sources": [
-            "data/strong_stocks.csv",
-            "data/evening_plan/latest.json:pool_trend_catchup"
+            "data/strong_stocks.csv"
           ],
           "rps": 99.77
         },
@@ -582,13 +566,11 @@
           "industry": "机械基件",
           "date": "20261123",
           "reasons": [
-            "RPS50 99.7",
-            "🚀 强行业中的低位首板池（#077 × #103）"
+            "RPS50 99.7"
           ],
           "risks": [],
           "sources": [
-            "data/strong_stocks.csv",
-            "data/evening_plan/latest.json:pool_trend_catchup"
+            "data/strong_stocks.csv"
           ],
           "rps": 99.71
         },
@@ -729,6 +711,20 @@
           "rps": 90.28
         },
         {
+          "symbol": "002527.SZ",
+          "name": "新时达",
+          "industry": "服装家纺",
+          "date": "20261123",
+          "reasons": [
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": null
+        },
+        {
           "symbol": "002563.SZ",
           "name": "森马服饰",
           "industry": "服饰",
@@ -741,20 +737,6 @@
             "data/strong_stocks.csv"
           ],
           "rps": 92.99
-        },
-        {
-          "symbol": "002584.SZ",
-          "name": "西陇科学",
-          "industry": "化工原料",
-          "date": "20261123",
-          "reasons": [
-            "🚀 强行业中的低位首板池（#077 × #103）"
-          ],
-          "risks": [],
-          "sources": [
-            "data/evening_plan/latest.json:pool_trend_catchup"
-          ],
-          "rps": null
         },
         {
           "symbol": "002597.SZ",
@@ -982,15 +964,11 @@
           "industry": "元器件",
           "date": "20261123",
           "reasons": [
-            "RPS50 89.5",
-            "🚀 强行业中的低位首板池（#077 × #103）"
+            "RPS50 89.5"
           ],
-          "risks": [
-            "ℹ️ 档案内 5 次涨停均止步首板（#032）"
-          ],
+          "risks": [],
           "sources": [
-            "data/strong_stocks.csv",
-            "data/evening_plan/latest.json:pool_trend_catchup"
+            "data/strong_stocks.csv"
           ],
           "rps": 89.54
         },
@@ -1085,20 +1063,6 @@
           "rps": null
         },
         {
-          "symbol": "003032.SZ",
-          "name": "传智教育",
-          "industry": "文教休闲",
-          "date": "20261123",
-          "reasons": [
-            "🚀 强行业中的低位首板池（#077 × #103）"
-          ],
-          "risks": [],
-          "sources": [
-            "data/evening_plan/latest.json:pool_trend_catchup"
-          ],
-          "rps": null
-        },
-        {
           "symbol": "003033.SZ",
           "name": "征和工业",
           "industry": "汽车配件",
@@ -1179,7 +1143,7 @@
         {
           "symbol": "300243.SZ",
           "name": "瑞丰高材",
-          "industry": "化工原料",
+          "industry": "塑料",
           "date": "20261123",
           "reasons": [
             "🚀 强行业中的低位首板池（#077 × #103）"
@@ -1193,7 +1157,7 @@
         {
           "symbol": "300244.SZ",
           "name": "迪安诊断",
-          "industry": "医疗保健",
+          "industry": "医疗服务",
           "date": "20261123",
           "reasons": [
             "RPS50 92.6"
@@ -1207,7 +1171,7 @@
         {
           "symbol": "300369.SZ",
           "name": "绿盟科技",
-          "industry": "软件服务",
+          "industry": "软件开发",
           "date": "20261123",
           "reasons": [
             "RPS50 97.2"
@@ -1221,7 +1185,7 @@
         {
           "symbol": "300413.SZ",
           "name": "芒果超媒",
-          "industry": "影视音像",
+          "industry": "数字媒体",
           "date": "20261123",
           "reasons": [
             "RPS50 99.6"
@@ -1235,7 +1199,7 @@
         {
           "symbol": "300473.SZ",
           "name": "德尔股份",
-          "industry": "汽车配件",
+          "industry": "汽车零部件",
           "date": "20261123",
           "reasons": [
             "RPS50 99.9"
@@ -1277,7 +1241,7 @@
         {
           "symbol": "300654.SZ",
           "name": "世纪天鸿",
-          "industry": "出版业",
+          "industry": "出版",
           "date": "20261123",
           "reasons": [
             "RPS50 95.2"
@@ -1289,23 +1253,9 @@
           "rps": 95.16
         },
         {
-          "symbol": "300703.SZ",
-          "name": "创源股份",
-          "industry": "文教休闲",
-          "date": "20261123",
-          "reasons": [
-            "🚀 强行业中的低位首板池（#077 × #103）"
-          ],
-          "risks": [],
-          "sources": [
-            "data/evening_plan/latest.json:pool_trend_catchup"
-          ],
-          "rps": null
-        },
-        {
           "symbol": "300721.SZ",
           "name": "怡达股份",
-          "industry": "化工原料",
+          "industry": "化学制品/化学制药",
           "date": "20261123",
           "reasons": [
             "🚀 强行业中的低位首板池（#077 × #103）"
@@ -1319,7 +1269,7 @@
         {
           "symbol": "300759.SZ",
           "name": "康龙化成",
-          "industry": "化学制药",
+          "industry": "医疗服务",
           "date": "20261123",
           "reasons": [
             "RPS50 90.0"
@@ -1333,7 +1283,7 @@
         {
           "symbol": "300761.SZ",
           "name": "立华股份",
-          "industry": "农业综合",
+          "industry": "养殖业",
           "date": "20261123",
           "reasons": [
             "RPS50 93.6",
@@ -1363,25 +1313,21 @@
         {
           "symbol": "300829.SZ",
           "name": "金丹科技",
-          "industry": "食品",
+          "industry": "化学制品",
           "date": "20261123",
           "reasons": [
-            "RPS50 99.9",
-            "🚀 强行业中的低位首板池（#077 × #103）"
+            "RPS50 99.9"
           ],
-          "risks": [
-            "ℹ️ 档案内 3 次涨停均止步首板（#032）"
-          ],
+          "risks": [],
           "sources": [
-            "data/strong_stocks.csv",
-            "data/evening_plan/latest.json:pool_trend_catchup"
+            "data/strong_stocks.csv"
           ],
           "rps": 99.86
         },
         {
           "symbol": "300949.SZ",
           "name": "奥雅股份",
-          "industry": "建筑工程",
+          "industry": "基础建设",
           "date": "20261123",
           "reasons": [
             "RPS50 100.0"
@@ -1425,7 +1371,7 @@
         {
           "symbol": "301132.SZ",
           "name": "满坤科技",
-          "industry": "元器件",
+          "industry": "元件",
           "date": "20261123",
           "reasons": [
             "RPS50 99.4"
@@ -1439,7 +1385,7 @@
         {
           "symbol": "301190.SZ",
           "name": "善水科技",
-          "industry": "染料涂料",
+          "industry": "化学原料",
           "date": "20261123",
           "reasons": [
             "RPS50 99.5"
@@ -1453,7 +1399,7 @@
         {
           "symbol": "301218.SZ",
           "name": "华是科技",
-          "industry": "软件服务",
+          "industry": "IT服务Ⅱ",
           "date": "20261123",
           "reasons": [
             "RPS50 99.8",
@@ -1472,7 +1418,7 @@
         {
           "symbol": "301252.SZ",
           "name": "同星科技",
-          "industry": "机械基件",
+          "industry": "家电零部件Ⅱ",
           "date": "20261123",
           "reasons": [
             "RPS50 87.2",
@@ -1516,7 +1462,7 @@
         {
           "symbol": "301273.SZ",
           "name": "瑞晨环保",
-          "industry": "机械基件",
+          "industry": "通用设备",
           "date": "20261123",
           "reasons": [
             "RPS50 98.9"
@@ -1530,7 +1476,7 @@
         {
           "symbol": "301288.SZ",
           "name": "清研环境",
-          "industry": "环境保护",
+          "industry": "环保设备Ⅱ",
           "date": "20261123",
           "reasons": [
             "RPS50 99.1"
@@ -1544,7 +1490,7 @@
         {
           "symbol": "301313.SZ",
           "name": "凡拓数创",
-          "industry": "文教休闲",
+          "industry": "数字媒体",
           "date": "20261123",
           "reasons": [
             "RPS50 99.9"
@@ -1558,7 +1504,7 @@
         {
           "symbol": "301381.SZ",
           "name": "赛维时代",
-          "industry": "互联网",
+          "industry": "互联网电商",
           "date": "20261123",
           "reasons": [
             "RPS50 95.1"
@@ -1572,7 +1518,7 @@
         {
           "symbol": "301395.SZ",
           "name": "仁信新材",
-          "industry": "化工原料",
+          "industry": "塑料",
           "date": "20261123",
           "reasons": [
             "RPS50 99.3"
@@ -1586,7 +1532,7 @@
         {
           "symbol": "301529.SZ",
           "name": "福赛科技",
-          "industry": "汽车配件",
+          "industry": "汽车零部件",
           "date": "20261123",
           "reasons": [
             "RPS50 99.6",
@@ -1630,7 +1576,7 @@
         {
           "symbol": "600007.SH",
           "name": "中国国贸",
-          "industry": "园区开发",
+          "industry": "房地产开发",
           "date": "20261123",
           "reasons": [
             "RPS50 97.7",
@@ -1646,7 +1592,7 @@
         {
           "symbol": "600012.SH",
           "name": "皖通高速",
-          "industry": "路桥",
+          "industry": "铁路公路",
           "date": "20261123",
           "reasons": [
             "RPS50 95.1"
@@ -1660,7 +1606,7 @@
         {
           "symbol": "600018.SH",
           "name": "上港集团",
-          "industry": "港口",
+          "industry": "航运港口",
           "date": "20261123",
           "reasons": [
             "RPS50 96.5",
@@ -1676,7 +1622,7 @@
         {
           "symbol": "600023.SH",
           "name": "浙能电力",
-          "industry": "火力发电",
+          "industry": "电力",
           "date": "20261123",
           "reasons": [
             "RPS50 97.4"
@@ -1690,7 +1636,7 @@
         {
           "symbol": "600025.SH",
           "name": "华能水电",
-          "industry": "水力发电",
+          "industry": "电力",
           "date": "20261123",
           "reasons": [
             "RPS50 98.4",
@@ -1706,7 +1652,7 @@
         {
           "symbol": "600028.SH",
           "name": "中国石化",
-          "industry": "石油加工",
+          "industry": "炼化及贸易",
           "date": "20261123",
           "reasons": [
             "RPS50 96.2",
@@ -1722,7 +1668,7 @@
         {
           "symbol": "600036.SH",
           "name": "招商银行",
-          "industry": "银行",
+          "industry": "银行Ⅱ",
           "date": "20261123",
           "reasons": [
             "RPS50 93.2",
@@ -1738,7 +1684,7 @@
         {
           "symbol": "600060.SH",
           "name": "海信视像",
-          "industry": "家用电器",
+          "industry": "黑色家电",
           "date": "20261123",
           "reasons": [
             "RPS50 87.1"
@@ -1752,7 +1698,7 @@
         {
           "symbol": "600066.SH",
           "name": "宇通客车",
-          "industry": "汽车整车",
+          "industry": "商用车",
           "date": "20261123",
           "reasons": [
             "RPS50 96.5",
@@ -1768,7 +1714,7 @@
         {
           "symbol": "600177.SH",
           "name": "雅戈尔",
-          "industry": "服饰",
+          "industry": "服装家纺",
           "date": "20261123",
           "reasons": [
             "RPS50 97.0"
@@ -1782,7 +1728,7 @@
         {
           "symbol": "600189.SH",
           "name": "泉阳泉",
-          "industry": "软饮料",
+          "industry": "饮料乳品",
           "date": "20261123",
           "reasons": [
             "RPS50 91.3"
@@ -1796,7 +1742,7 @@
         {
           "symbol": "600233.SH",
           "name": "圆通速递",
-          "industry": "仓储物流",
+          "industry": "物流",
           "date": "20261123",
           "reasons": [
             "RPS50 95.0"
@@ -1810,7 +1756,7 @@
         {
           "symbol": "600261.SH",
           "name": "阳光照明",
-          "industry": "家用电器",
+          "industry": "照明设备Ⅱ",
           "date": "20261123",
           "reasons": [
             "RPS50 99.4"
@@ -1868,7 +1814,7 @@
         {
           "symbol": "600312.SH",
           "name": "平高电气",
-          "industry": "电气设备",
+          "industry": "电网设备",
           "date": "20261123",
           "reasons": [
             "RPS50 95.9",
@@ -1926,7 +1872,7 @@
         {
           "symbol": "600350.SH",
           "name": "山东高速",
-          "industry": "路桥",
+          "industry": "铁路公路",
           "date": "20261123",
           "reasons": [
             "RPS50 97.3"
@@ -1940,7 +1886,7 @@
         {
           "symbol": "600377.SH",
           "name": "宁沪高速",
-          "industry": "路桥",
+          "industry": "铁路公路",
           "date": "20261123",
           "reasons": [
             "RPS50 98.2",
@@ -1956,7 +1902,7 @@
         {
           "symbol": "600398.SH",
           "name": "海澜之家",
-          "industry": "服饰",
+          "industry": "服装家纺",
           "date": "20261123",
           "reasons": [
             "RPS50 96.3"
@@ -1970,7 +1916,7 @@
         {
           "symbol": "600400.SH",
           "name": "红豆股份",
-          "industry": "服饰",
+          "industry": "服装家纺",
           "date": "20261123",
           "reasons": [
             "RPS50 97.8"
@@ -2014,7 +1960,7 @@
         {
           "symbol": "600483.SH",
           "name": "福能股份",
-          "industry": "新型电力",
+          "industry": "电力",
           "date": "20261123",
           "reasons": [
             "RPS50 95.2",
@@ -2044,7 +1990,7 @@
         {
           "symbol": "600566.SH",
           "name": "济川药业",
-          "industry": "中成药",
+          "industry": "中药Ⅱ",
           "date": "20261123",
           "reasons": [
             "RPS50 98.4",
@@ -2060,7 +2006,7 @@
         {
           "symbol": "600583.SH",
           "name": "海油工程",
-          "industry": "石油开采",
+          "industry": "油服工程",
           "date": "20261123",
           "reasons": [
             "RPS50 91.9",
@@ -2076,7 +2022,7 @@
         {
           "symbol": "600642.SH",
           "name": "申能股份",
-          "industry": "火力发电",
+          "industry": "电力",
           "date": "20261123",
           "reasons": [
             "RPS50 96.1"
@@ -2090,7 +2036,7 @@
         {
           "symbol": "600674.SH",
           "name": "川投能源",
-          "industry": "水力发电",
+          "industry": "电力",
           "date": "20261123",
           "reasons": [
             "RPS50 98.2",
@@ -2106,7 +2052,7 @@
         {
           "symbol": "600710.SH",
           "name": "苏美达",
-          "industry": "商贸代理",
+          "industry": "贸易Ⅱ",
           "date": "20261123",
           "reasons": [
             "RPS50 95.0",
@@ -2498,20 +2444,6 @@
           "rps": 96.86
         },
         {
-          "symbol": "601177.SH",
-          "name": "杭齿前进",
-          "industry": "机械基件",
-          "date": "20261123",
-          "reasons": [
-            "🚀 强行业中的低位首板池（#077 × #103）"
-          ],
-          "risks": [],
-          "sources": [
-            "data/evening_plan/latest.json:pool_trend_catchup"
-          ],
-          "rps": null
-        },
-        {
           "symbol": "601188.SH",
           "name": "龙江交通",
           "industry": "路桥",
@@ -2784,7 +2716,7 @@
         {
           "symbol": "601939.SH",
           "name": "建设银行",
-          "industry": "银行",
+          "industry": "银行Ⅱ",
           "date": "20261123",
           "reasons": [
             "RPS50 97.2",
@@ -2800,7 +2732,7 @@
         {
           "symbol": "601985.SH",
           "name": "中国核电",
-          "industry": "新型电力",
+          "industry": "电力",
           "date": "20261123",
           "reasons": [
             "RPS50 95.5",
@@ -2816,7 +2748,7 @@
         {
           "symbol": "601988.SH",
           "name": "中国银行",
-          "industry": "银行",
+          "industry": "银行Ⅱ",
           "date": "20261123",
           "reasons": [
             "RPS50 97.0",
@@ -2832,7 +2764,7 @@
         {
           "symbol": "601998.SH",
           "name": "中信银行",
-          "industry": "银行",
+          "industry": "银行Ⅱ",
           "date": "20261123",
           "reasons": [
             "RPS50 96.5",
@@ -2968,7 +2900,7 @@
         {
           "symbol": "603129.SH",
           "name": "春风动力",
-          "industry": "摩托车",
+          "industry": "摩托车及其他",
           "date": "20261123",
           "reasons": [
             "RPS50 95.8",
@@ -3086,7 +3018,7 @@
         {
           "symbol": "603317.SH",
           "name": "天味食品",
-          "industry": "食品",
+          "industry": "调味发酵品Ⅱ",
           "date": "20261123",
           "reasons": [
             "RPS50 94.5"
@@ -3100,7 +3032,7 @@
         {
           "symbol": "603324.SH",
           "name": "盛剑科技",
-          "industry": "环境保护",
+          "industry": "环保设备Ⅱ",
           "date": "20261123",
           "reasons": [
             "RPS50 98.5"
@@ -3128,7 +3060,7 @@
         {
           "symbol": "603355.SH",
           "name": "莱克电气",
-          "industry": "家用电器",
+          "industry": "小家电",
           "date": "20261123",
           "reasons": [
             "RPS50 97.2"
@@ -3142,7 +3074,7 @@
         {
           "symbol": "603391.SH",
           "name": "力聚热能",
-          "industry": "专用机械",
+          "industry": "专用设备",
           "date": "20261123",
           "reasons": [
             "RPS50 93.5"
@@ -3156,7 +3088,7 @@
         {
           "symbol": "603466.SH",
           "name": "风语筑",
-          "industry": "文教休闲",
+          "industry": "数字媒体",
           "date": "20261123",
           "reasons": [
             "RPS50 98.9"
@@ -3184,7 +3116,7 @@
         {
           "symbol": "603533.SH",
           "name": "掌阅科技",
-          "industry": "互联网",
+          "industry": "数字媒体",
           "date": "20261123",
           "reasons": [
             "RPS50 93.3",
@@ -3200,7 +3132,7 @@
         {
           "symbol": "603565.SH",
           "name": "中谷物流",
-          "industry": "水运",
+          "industry": "航运港口",
           "date": "20261123",
           "reasons": [
             "RPS50 90.4",
@@ -3216,7 +3148,7 @@
         {
           "symbol": "603587.SH",
           "name": "地素时尚",
-          "industry": "服饰",
+          "industry": "服装家纺",
           "date": "20261123",
           "reasons": [
             "RPS50 98.8",
@@ -3228,20 +3160,6 @@
             "data/evening_plan/latest.json:pool_rubbing_breakout"
           ],
           "rps": 98.81
-        },
-        {
-          "symbol": "603598.SH",
-          "name": "引力传媒",
-          "industry": "互联网",
-          "date": "20261123",
-          "reasons": [
-            "🚀 强行业中的低位首板池（#077 × #103）"
-          ],
-          "risks": [],
-          "sources": [
-            "data/evening_plan/latest.json:pool_trend_catchup"
-          ],
-          "rps": null
         },
         {
           "symbol": "603626.SH",
@@ -3260,7 +3178,7 @@
         {
           "symbol": "603657.SH",
           "name": "春光科技",
-          "industry": "家用电器",
+          "industry": "家电零部件Ⅱ",
           "date": "20261123",
           "reasons": [
             "RPS50 98.7"
@@ -3288,23 +3206,21 @@
         {
           "symbol": "603706.SH",
           "name": "东方环宇",
-          "industry": "供气供热",
+          "industry": "燃气Ⅱ",
           "date": "20261123",
           "reasons": [
-            "RPS50 99.4",
-            "🚀 强行业中的低位首板池（#077 × #103）"
+            "RPS50 99.4"
           ],
           "risks": [],
           "sources": [
-            "data/strong_stocks.csv",
-            "data/evening_plan/latest.json:pool_trend_catchup"
+            "data/strong_stocks.csv"
           ],
           "rps": 99.37
         },
         {
           "symbol": "603713.SH",
           "name": "密尔克卫",
-          "industry": "仓储物流",
+          "industry": "物流",
           "date": "20261123",
           "reasons": [
             "RPS50 93.1"
@@ -3318,7 +3234,7 @@
         {
           "symbol": "603766.SH",
           "name": "隆鑫通用",
-          "industry": "摩托车",
+          "industry": "摩托车及其他",
           "date": "20261123",
           "reasons": [
             "RPS50 96.7",
@@ -3334,7 +3250,7 @@
         {
           "symbol": "603889.SH",
           "name": "新澳股份",
-          "industry": "纺织",
+          "industry": "纺织制造",
           "date": "20261123",
           "reasons": [
             "RPS50 90.6"
@@ -3411,7 +3327,7 @@
         {
           "symbol": "603928.SH",
           "name": "兴业股份",
-          "industry": "化工原料",
+          "industry": "塑料",
           "date": "20261123",
           "reasons": [
             "RPS50 98.1"
@@ -3441,7 +3357,7 @@
         {
           "symbol": "603967.SH",
           "name": "中创物流",
-          "industry": "仓储物流",
+          "industry": "物流",
           "date": "20261123",
           "reasons": [
             "RPS50 93.9"
@@ -3455,7 +3371,7 @@
         {
           "symbol": "603990.SH",
           "name": "麦迪科技",
-          "industry": "软件服务",
+          "industry": "软件开发",
           "date": "20261123",
           "reasons": [
             "RPS50 91.8"
@@ -3469,7 +3385,7 @@
         {
           "symbol": "605058.SH",
           "name": "澳弘电子",
-          "industry": "元器件",
+          "industry": "元件",
           "date": "20261123",
           "reasons": [
             "RPS50 99.7"
@@ -3483,7 +3399,7 @@
         {
           "symbol": "605098.SH",
           "name": "行动教育",
-          "industry": "文教休闲",
+          "industry": "教育",
           "date": "20261123",
           "reasons": [
             "RPS50 87.3"
@@ -3527,7 +3443,7 @@
         {
           "symbol": "605577.SH",
           "name": "龙版传媒",
-          "industry": "出版业",
+          "industry": "出版",
           "date": "20261123",
           "reasons": [
             "RPS50 97.6"
@@ -3725,7 +3641,7 @@
         {
           "symbol": "688585.SH",
           "name": "上纬新材",
-          "industry": "化工原料",
+          "industry": "塑料",
           "date": "20261123",
           "reasons": [
             "🚀 强行业中的低位首板池（#077 × #103）"
@@ -3933,22 +3849,6 @@
           "rps": null
         },
         {
-          "symbol": "002527.SZ",
-          "name": "新时达",
-          "industry": "专用设备",
-          "date": "20261123",
-          "reasons": [
-            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
-          ],
-          "risks": [
-            "⚠️ 14:00 后多次炸板（#032）"
-          ],
-          "sources": [
-            "data/evening_plan/latest.json:pool_ice_rebound"
-          ],
-          "rps": null
-        },
-        {
           "symbol": "002579.SZ",
           "name": "中京电子",
           "industry": "元件",
@@ -4069,22 +3969,6 @@
             "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
           ],
           "risks": [],
-          "sources": [
-            "data/evening_plan/latest.json:pool_ice_rebound"
-          ],
-          "rps": null
-        },
-        {
-          "symbol": "300829.SZ",
-          "name": "金丹科技",
-          "industry": "化学制品",
-          "date": "20261123",
-          "reasons": [
-            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
-          ],
-          "risks": [
-            "ℹ️ 档案内 3 次涨停均止步首板（#032）"
-          ],
           "sources": [
             "data/evening_plan/latest.json:pool_ice_rebound"
           ],
@@ -4300,7 +4184,7 @@
         {
           "symbol": "603166.SH",
           "name": "福达股份",
-          "industry": "汽车零部",
+          "industry": "元件",
           "date": "20261123",
           "reasons": [
             "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
@@ -4577,20 +4461,6 @@
           "rps": null
         },
         {
-          "symbol": "002164.SZ",
-          "name": "宁波东力",
-          "industry": "通用设备",
-          "date": "20261123",
-          "reasons": [
-            "⚡ 10:00前换手首板池（#125 × #030）"
-          ],
-          "risks": [],
-          "sources": [
-            "data/evening_plan/latest.json:pool_10am_first"
-          ],
-          "rps": null
-        },
-        {
           "symbol": "002199.SZ",
           "name": "东晶电子",
           "industry": "元件",
@@ -4763,22 +4633,6 @@
           "rps": null
         },
         {
-          "symbol": "300829.SZ",
-          "name": "金丹科技",
-          "industry": "化学制品",
-          "date": "20261123",
-          "reasons": [
-            "⚡ 10:00前换手首板池（#125 × #030）"
-          ],
-          "risks": [
-            "ℹ️ 档案内 3 次涨停均止步首板（#032）"
-          ],
-          "sources": [
-            "data/evening_plan/latest.json:pool_10am_first"
-          ],
-          "rps": null
-        },
-        {
           "symbol": "301313.SZ",
           "name": "凡拓数创",
           "industry": "数字媒体",
@@ -4826,11 +4680,13 @@
           "industry": "家居用品",
           "date": "20261123",
           "reasons": [
-            "⚡ 10:00前换手首板池（#125 × #030）"
+            "⚡ 10:00前换手首板池（#125 × #030）",
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
           ],
           "risks": [],
           "sources": [
-            "data/evening_plan/latest.json:pool_10am_first"
+            "data/evening_plan/latest.json:pool_10am_first",
+            "data/evening_plan/latest.json:pool_2b_pk"
           ],
           "rps": null
         },
@@ -4838,20 +4694,6 @@
           "symbol": "600327.SH",
           "name": "大东方",
           "industry": "一般零售",
-          "date": "20261123",
-          "reasons": [
-            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
-          ],
-          "risks": [],
-          "sources": [
-            "data/evening_plan/latest.json:pool_2b_pk"
-          ],
-          "rps": null
-        },
-        {
-          "symbol": "600467.SH",
-          "name": "好当家",
-          "industry": "渔业",
           "date": "20261123",
           "reasons": [
             "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
@@ -6725,5 +6567,5 @@
       ]
     }
   },
-  "collected_at": "2026-11-24T06:42:04.160083+08:00"
+  "collected_at": "2026-11-24T10:12:07.331067+08:00"
 }
