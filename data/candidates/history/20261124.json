@@ -1,0 +1,5859 @@
+{
+  "schema": 1,
+  "date": "20261124",
+  "styles": {
+    "trend": {
+      "complete": true,
+      "missing": [],
+      "rows": [
+        {
+          "symbol": "000001.SZ",
+          "name": "平安银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.1",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 95.11
+        },
+        {
+          "symbol": "000100.SZ",
+          "name": "TCL科技",
+          "industry": "元器件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 91.3",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 91.34
+        },
+        {
+          "symbol": "000333.SZ",
+          "name": "美的集团",
+          "industry": "家用电器",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.8",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 95.8
+        },
+        {
+          "symbol": "000400.SZ",
+          "name": "许继电气",
+          "industry": "电气设备",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 创60日新高",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "000415.SZ",
+          "name": "渤海租赁",
+          "industry": "多元金融",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 92.3",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 92.33
+        },
+        {
+          "symbol": "000423.SZ",
+          "name": "东阿阿胶",
+          "industry": "中成药",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 95.49
+        },
+        {
+          "symbol": "000429.SZ",
+          "name": "粤高速A",
+          "industry": "路桥",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.4",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 95.38
+        },
+        {
+          "symbol": "000530.SZ",
+          "name": "冰山冷热",
+          "industry": "机械基件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 100.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.98
+        },
+        {
+          "symbol": "000635.SZ",
+          "name": "英力特",
+          "industry": "化工原料",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.33
+        },
+        {
+          "symbol": "000651.SZ",
+          "name": "格力电器",
+          "industry": "家用电器",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.2",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 93.2
+        },
+        {
+          "symbol": "000678.SZ",
+          "name": "襄阳轴承",
+          "industry": "汽车配件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.93
+        },
+        {
+          "symbol": "000700.SZ",
+          "name": "模塑科技",
+          "industry": "汽车配件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.44
+        },
+        {
+          "symbol": "000719.SZ",
+          "name": "中原传媒",
+          "industry": "出版业",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 91.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 90.98
+        },
+        {
+          "symbol": "000823.SZ",
+          "name": "超声电子",
+          "industry": "元器件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 98.48
+        },
+        {
+          "symbol": "000995.SZ",
+          "name": "皇台酒业",
+          "industry": "白酒",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.1
+        },
+        {
+          "symbol": "001201.SZ",
+          "name": "东瑞股份",
+          "industry": "农业综合",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.4",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 99.4
+        },
+        {
+          "symbol": "001219.SZ",
+          "name": "青岛食品",
+          "industry": "食品",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.53
+        },
+        {
+          "symbol": "001228.SZ",
+          "name": "永泰运",
+          "industry": "仓储物流",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 89.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 89.39
+        },
+        {
+          "symbol": "001358.SZ",
+          "name": "兴欣新材",
+          "industry": "化工原料",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.2",
+            "🏆 创一年(250日)新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/breakout_stocks.csv"
+          ],
+          "rps": 99.22
+        },
+        {
+          "symbol": "001872.SZ",
+          "name": "招商港口",
+          "industry": "港口",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.6",
+            "🏆 创一年(250日)新高",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/breakout_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 98.57
+        },
+        {
+          "symbol": "001965.SZ",
+          "name": "招商公路",
+          "industry": "路桥",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.5",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 96.46
+        },
+        {
+          "symbol": "002003.SZ",
+          "name": "伟星股份",
+          "industry": "服饰",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.2",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.22
+        },
+        {
+          "symbol": "002014.SZ",
+          "name": "永新股份",
+          "industry": "塑料",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 94.37
+        },
+        {
+          "symbol": "002086.SZ",
+          "name": "东方海洋",
+          "industry": "渔业",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.91
+        },
+        {
+          "symbol": "002100.SZ",
+          "name": "天康生物",
+          "industry": "饲料",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 87.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 87.06
+        },
+        {
+          "symbol": "002122.SZ",
+          "name": "汇洲智能",
+          "industry": "机床制造",
+          "date": "20261124",
+          "reasons": [
+            "🔥 创半年(120日)新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002142.SZ",
+          "name": "宁波银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.3",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 93.32
+        },
+        {
+          "symbol": "002148.SZ",
+          "name": "北纬科技",
+          "industry": "互联网",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.8",
+            "🏆 创一年(250日)新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/breakout_stocks.csv"
+          ],
+          "rps": 99.8
+        },
+        {
+          "symbol": "002164.SZ",
+          "name": "宁波东力",
+          "industry": "机械基件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.84
+        },
+        {
+          "symbol": "002172.SZ",
+          "name": "澳洋健康",
+          "industry": "医疗保健",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 98.14
+        },
+        {
+          "symbol": "002242.SZ",
+          "name": "九阳股份",
+          "industry": "家用电器",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 100.0",
+            "🏆 创一年(250日)新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/breakout_stocks.csv"
+          ],
+          "rps": 100.0
+        },
+        {
+          "symbol": "002293.SZ",
+          "name": "罗莱生活",
+          "industry": "纺织",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 96.52
+        },
+        {
+          "symbol": "002387.SZ",
+          "name": "维信诺",
+          "industry": "元器件",
+          "date": "20261124",
+          "reasons": [
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002415.SZ",
+          "name": "海康威视",
+          "industry": "IT设备",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 90.3",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 90.26
+        },
+        {
+          "symbol": "002422.SZ",
+          "name": "科伦药业",
+          "industry": "化学制药",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 92.1",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 92.11
+        },
+        {
+          "symbol": "002520.SZ",
+          "name": "日发精机",
+          "industry": "机床制造",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 92.3",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 92.28
+        },
+        {
+          "symbol": "002563.SZ",
+          "name": "森马服饰",
+          "industry": "服饰",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 93.43
+        },
+        {
+          "symbol": "002638.SZ",
+          "name": "勤上股份",
+          "industry": "家用电器",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.3",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 94.35
+        },
+        {
+          "symbol": "002667.SZ",
+          "name": "*ST威领",
+          "industry": "小金属",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 96.57
+        },
+        {
+          "symbol": "002685.SZ",
+          "name": "华东重机",
+          "industry": "机床制造",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.7",
+            "🔥 创半年(120日)新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/breakout_stocks.csv"
+          ],
+          "rps": 99.69
+        },
+        {
+          "symbol": "002696.SZ",
+          "name": "百洋股份",
+          "industry": "饲料",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 95.34
+        },
+        {
+          "symbol": "002708.SZ",
+          "name": "光洋股份",
+          "industry": "汽车配件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.46
+        },
+        {
+          "symbol": "002718.SZ",
+          "name": "友邦吊顶",
+          "industry": "其他建材",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 87.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 87.73
+        },
+        {
+          "symbol": "002724.SZ",
+          "name": "海洋王",
+          "industry": "元器件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.66
+        },
+        {
+          "symbol": "002749.SZ",
+          "name": "国光股份",
+          "industry": "农药化肥",
+          "date": "20261124",
+          "reasons": [
+            "🔥 创半年(120日)新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002771.SZ",
+          "name": "真视通",
+          "industry": "软件服务",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 98.21
+        },
+        {
+          "symbol": "002811.SZ",
+          "name": "郑中设计",
+          "industry": "装修装饰",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 89.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 89.88
+        },
+        {
+          "symbol": "002827.SZ",
+          "name": "高争民爆",
+          "industry": "化工原料",
+          "date": "20261124",
+          "reasons": [
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002832.SZ",
+          "name": "比音勒芬",
+          "industry": "服饰",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.1",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 96.12
+        },
+        {
+          "symbol": "002872.SZ",
+          "name": "ST天圣",
+          "industry": "医药商业",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.7",
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": 95.67
+        },
+        {
+          "symbol": "002948.SZ",
+          "name": "青岛银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.6",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 93.58
+        },
+        {
+          "symbol": "002966.SZ",
+          "name": "苏州银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.4",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 96.36
+        },
+        {
+          "symbol": "002983.SZ",
+          "name": "芯瑞达",
+          "industry": "元器件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.2",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 98.2
+        },
+        {
+          "symbol": "003816.SZ",
+          "name": "中国广核",
+          "industry": "新型电力",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 95.15
+        },
+        {
+          "symbol": "300006.SZ",
+          "name": "莱美药业",
+          "industry": "化学制药",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.73
+        },
+        {
+          "symbol": "300012.SZ",
+          "name": "华测检测",
+          "industry": "电器仪表",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.6",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 94.6
+        },
+        {
+          "symbol": "300234.SZ",
+          "name": "开尔新材",
+          "industry": "陶瓷",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 92.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 92.69
+        },
+        {
+          "symbol": "300244.SZ",
+          "name": "迪安诊断",
+          "industry": "医疗保健",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 90.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 90.35
+        },
+        {
+          "symbol": "300307.SZ",
+          "name": "慈星股份",
+          "industry": "纺织机械",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 97.04
+        },
+        {
+          "symbol": "300324.SZ",
+          "name": "旋极信息",
+          "industry": "软件服务",
+          "date": "20261124",
+          "reasons": [
+            "🔥 创半年(120日)新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "300369.SZ",
+          "name": "绿盟科技",
+          "industry": "软件服务",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 96.41
+        },
+        {
+          "symbol": "300413.SZ",
+          "name": "芒果超媒",
+          "industry": "影视音像",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.55
+        },
+        {
+          "symbol": "300426.SZ",
+          "name": "华智数媒",
+          "industry": "影视音像",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.49
+        },
+        {
+          "symbol": "300473.SZ",
+          "name": "德尔股份",
+          "industry": "汽车配件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.89
+        },
+        {
+          "symbol": "300508.SZ",
+          "name": "维宏股份",
+          "industry": "软件服务",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 95.78
+        },
+        {
+          "symbol": "300539.SZ",
+          "name": "横河精密",
+          "industry": "塑料",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 创60日新高",
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv",
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "300550.SZ",
+          "name": "和仁科技",
+          "industry": "软件服务",
+          "date": "20261124",
+          "reasons": [
+            "🏆 创一年(250日)新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "300613.SZ",
+          "name": "富瀚微",
+          "industry": "半导体",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 93.81
+        },
+        {
+          "symbol": "300628.SZ",
+          "name": "亿联网络",
+          "industry": "通信设备",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 88.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 88.61
+        },
+        {
+          "symbol": "300652.SZ",
+          "name": "雷迪克",
+          "industry": "汽车配件",
+          "date": "20261124",
+          "reasons": [
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "300759.SZ",
+          "name": "康龙化成",
+          "industry": "化学制药",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 90.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 90.2
+        },
+        {
+          "symbol": "300761.SZ",
+          "name": "立华股份",
+          "industry": "农业综合",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 92.9",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 92.89
+        },
+        {
+          "symbol": "300788.SZ",
+          "name": "中信出版",
+          "industry": "出版业",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 98.54
+        },
+        {
+          "symbol": "300829.SZ",
+          "name": "金丹科技",
+          "industry": "食品",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.9",
+            "🏆 创一年(250日)新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/breakout_stocks.csv"
+          ],
+          "rps": 99.86
+        },
+        {
+          "symbol": "300852.SZ",
+          "name": "四会富仕",
+          "industry": "元器件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 91.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 91.77
+        },
+        {
+          "symbol": "300949.SZ",
+          "name": "奥雅股份",
+          "industry": "建筑工程",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 100.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.95
+        },
+        {
+          "symbol": "301000.SZ",
+          "name": "肇民科技",
+          "industry": "汽车配件",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 创60日新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "301132.SZ",
+          "name": "满坤科技",
+          "industry": "元器件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 98.85
+        },
+        {
+          "symbol": "301190.SZ",
+          "name": "善水科技",
+          "industry": "染料涂料",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.48
+        },
+        {
+          "symbol": "301218.SZ",
+          "name": "华是科技",
+          "industry": "软件服务",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.87
+        },
+        {
+          "symbol": "301252.SZ",
+          "name": "同星科技",
+          "industry": "机械基件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 97.26
+        },
+        {
+          "symbol": "301261.SZ",
+          "name": "恒工精密",
+          "industry": "机械基件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.9",
+            "⚡ 创60日新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/breakout_stocks.csv"
+          ],
+          "rps": 98.9
+        },
+        {
+          "symbol": "301273.SZ",
+          "name": "瑞晨环保",
+          "industry": "机械基件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.8",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 98.81
+        },
+        {
+          "symbol": "301288.SZ",
+          "name": "清研环境",
+          "industry": "环境保护",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.7",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 98.72
+        },
+        {
+          "symbol": "301313.SZ",
+          "name": "凡拓数创",
+          "industry": "软件服务",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 100.0",
+            "🏆 创一年(250日)新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/breakout_stocks.csv"
+          ],
+          "rps": 99.96
+        },
+        {
+          "symbol": "301318.SZ",
+          "name": "维海德",
+          "industry": "IT设备",
+          "date": "20261124",
+          "reasons": [
+            "🔥 创半年(120日)新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "301376.SZ",
+          "name": "致欧科技",
+          "industry": "家居用品",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 89.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 89.5
+        },
+        {
+          "symbol": "301381.SZ",
+          "name": "赛维时代",
+          "industry": "互联网",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 94.79
+        },
+        {
+          "symbol": "301395.SZ",
+          "name": "仁信新材",
+          "industry": "化工原料",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.2",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 99.24
+        },
+        {
+          "symbol": "301413.SZ",
+          "name": "安培龙",
+          "industry": "电器仪表",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 创60日新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "301529.SZ",
+          "name": "福赛科技",
+          "industry": "汽车配件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.01
+        },
+        {
+          "symbol": "301575.SZ",
+          "name": "艾芬达",
+          "industry": "家居用品",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 创60日新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "600007.SH",
+          "name": "中国国贸",
+          "industry": "园区开发",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.7",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.74
+        },
+        {
+          "symbol": "600012.SH",
+          "name": "皖通高速",
+          "industry": "路桥",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 93.72
+        },
+        {
+          "symbol": "600018.SH",
+          "name": "上港集团",
+          "industry": "港口",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.5",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 96.55
+        },
+        {
+          "symbol": "600025.SH",
+          "name": "华能水电",
+          "industry": "水力发电",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.7",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 98.68
+        },
+        {
+          "symbol": "600028.SH",
+          "name": "中国石化",
+          "industry": "石油加工",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 96.07
+        },
+        {
+          "symbol": "600036.SH",
+          "name": "招商银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 94.42
+        },
+        {
+          "symbol": "600060.SH",
+          "name": "海信视像",
+          "industry": "家用电器",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 88.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 88.02
+        },
+        {
+          "symbol": "600066.SH",
+          "name": "宇通客车",
+          "industry": "汽车整车",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.1",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.06
+        },
+        {
+          "symbol": "600177.SH",
+          "name": "雅戈尔",
+          "industry": "服饰",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 96.95
+        },
+        {
+          "symbol": "600189.SH",
+          "name": "泉阳泉",
+          "industry": "软饮料",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 96.37
+        },
+        {
+          "symbol": "600201.SH",
+          "name": "生物股份",
+          "industry": "农业综合",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 89.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 89.73
+        },
+        {
+          "symbol": "600233.SH",
+          "name": "圆通速递",
+          "industry": "仓储物流",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 95.76
+        },
+        {
+          "symbol": "600261.SH",
+          "name": "阳光照明",
+          "industry": "家用电器",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.6",
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [
+            "⚠️ 14:00 后多次炸板（#032）"
+          ],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": 99.62
+        },
+        {
+          "symbol": "600267.SH",
+          "name": "海正药业",
+          "industry": "化学制药",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 94.51
+        },
+        {
+          "symbol": "600285.SH",
+          "name": "羚锐制药",
+          "industry": "中成药",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.8",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 98.75
+        },
+        {
+          "symbol": "600295.SH",
+          "name": "鄂尔多斯",
+          "industry": "特种钢",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 94.23
+        },
+        {
+          "symbol": "600312.SH",
+          "name": "平高电气",
+          "industry": "电气设备",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.0",
+            "🔥 创半年(120日)新高",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/breakout_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 96.99
+        },
+        {
+          "symbol": "600323.SH",
+          "name": "瀚蓝环境",
+          "industry": "环境保护",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 94.55
+        },
+        {
+          "symbol": "600327.SH",
+          "name": "大东方",
+          "industry": "医疗保健",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.12
+        },
+        {
+          "symbol": "600337.SH",
+          "name": "ST美克",
+          "industry": "家居用品",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.9",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 96.93
+        },
+        {
+          "symbol": "600350.SH",
+          "name": "山东高速",
+          "industry": "路桥",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 97.6
+        },
+        {
+          "symbol": "600377.SH",
+          "name": "宁沪高速",
+          "industry": "路桥",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.1",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 98.11
+        },
+        {
+          "symbol": "600398.SH",
+          "name": "海澜之家",
+          "industry": "服饰",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.2",
+            "🔥 创半年(120日)新高",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/breakout_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.17
+        },
+        {
+          "symbol": "600400.SH",
+          "name": "红豆股份",
+          "industry": "服饰",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.7",
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": 97.69
+        },
+        {
+          "symbol": "600406.SH",
+          "name": "国电南瑞",
+          "industry": "电气设备",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.9",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 95.92
+        },
+        {
+          "symbol": "600428.SH",
+          "name": "中远海特",
+          "industry": "水运",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 89.4",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 89.41
+        },
+        {
+          "symbol": "600467.SH",
+          "name": "好当家",
+          "industry": "渔业",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.1",
+            "🏆 创一年(250日)新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/breakout_stocks.csv"
+          ],
+          "rps": 99.13
+        },
+        {
+          "symbol": "600483.SH",
+          "name": "福能股份",
+          "industry": "新型电力",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.0",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 95.99
+        },
+        {
+          "symbol": "600566.SH",
+          "name": "济川药业",
+          "industry": "中成药",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 98.27
+        },
+        {
+          "symbol": "600583.SH",
+          "name": "海油工程",
+          "industry": "石油开采",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 91.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 91.37
+        },
+        {
+          "symbol": "600619.SH",
+          "name": "海立股份",
+          "industry": "家用电器",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 创60日新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "600674.SH",
+          "name": "川投能源",
+          "industry": "水力发电",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.4",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 98.41
+        },
+        {
+          "symbol": "600710.SH",
+          "name": "苏美达",
+          "industry": "商贸代理",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.3",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 94.33
+        },
+        {
+          "symbol": "600715.SH",
+          "name": "文投控股",
+          "industry": "影视音像",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.8",
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": 99.82
+        },
+        {
+          "symbol": "600722.SH",
+          "name": "金牛化工",
+          "industry": "化工原料",
+          "date": "20261124",
+          "reasons": [
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "600750.SH",
+          "name": "华润江中",
+          "industry": "中成药",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 94.7
+        },
+        {
+          "symbol": "600801.SH",
+          "name": "华新建材",
+          "industry": "水泥",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.2",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 96.21
+        },
+        {
+          "symbol": "600803.SH",
+          "name": "新奥股份",
+          "industry": "供气供热",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.5",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.55
+        },
+        {
+          "symbol": "600872.SH",
+          "name": "中炬高新",
+          "industry": "食品",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 93.7
+        },
+        {
+          "symbol": "600885.SH",
+          "name": "宏发股份",
+          "industry": "电气设备",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 91.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 91.18
+        },
+        {
+          "symbol": "600886.SH",
+          "name": "国投电力",
+          "industry": "水力发电",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 97.56
+        },
+        {
+          "symbol": "600887.SH",
+          "name": "伊利股份",
+          "industry": "乳制品",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.9",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 98.86
+        },
+        {
+          "symbol": "600900.SH",
+          "name": "长江电力",
+          "industry": "水力发电",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.4",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.38
+        },
+        {
+          "symbol": "600901.SH",
+          "name": "江苏金租",
+          "industry": "多元金融",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.0",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.96
+        },
+        {
+          "symbol": "600919.SH",
+          "name": "江苏银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.7",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 96.73
+        },
+        {
+          "symbol": "600926.SH",
+          "name": "杭州银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 95.13
+        },
+        {
+          "symbol": "600968.SH",
+          "name": "海油发展",
+          "industry": "石油开采",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.8",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 93.83
+        },
+        {
+          "symbol": "601000.SH",
+          "name": "唐山港",
+          "industry": "港口",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.5",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.51
+        },
+        {
+          "symbol": "601009.SH",
+          "name": "南京银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.2",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.2
+        },
+        {
+          "symbol": "601077.SH",
+          "name": "渝农商行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 95.31
+        },
+        {
+          "symbol": "601083.SH",
+          "name": "锦江航运",
+          "industry": "水运",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.9",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 93.9
+        },
+        {
+          "symbol": "601088.SH",
+          "name": "中国神华",
+          "industry": "煤炭开采",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.0",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.02
+        },
+        {
+          "symbol": "601107.SH",
+          "name": "四川成渝",
+          "industry": "路桥",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 98.34
+        },
+        {
+          "symbol": "601156.SH",
+          "name": "东航物流",
+          "industry": "仓储物流",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 91.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 91.79
+        },
+        {
+          "symbol": "601169.SH",
+          "name": "北京银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.8",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.78
+        },
+        {
+          "symbol": "601188.SH",
+          "name": "龙江交通",
+          "industry": "路桥",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.64
+        },
+        {
+          "symbol": "601225.SH",
+          "name": "陕西煤业",
+          "industry": "煤炭开采",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 94.77
+        },
+        {
+          "symbol": "601298.SH",
+          "name": "青岛港",
+          "industry": "港口",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.8",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 95.85
+        },
+        {
+          "symbol": "601328.SH",
+          "name": "交通银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.8",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 98.79
+        },
+        {
+          "symbol": "601333.SH",
+          "name": "广深铁路",
+          "industry": "铁路",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 92.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 92.01
+        },
+        {
+          "symbol": "601398.SH",
+          "name": "工商银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.3",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 98.3
+        },
+        {
+          "symbol": "601595.SH",
+          "name": "上海电影",
+          "industry": "影视音像",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.71
+        },
+        {
+          "symbol": "601598.SH",
+          "name": "中国外运",
+          "industry": "仓储物流",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.5",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 96.5
+        },
+        {
+          "symbol": "601658.SH",
+          "name": "邮储银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.8",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 95.83
+        },
+        {
+          "symbol": "601689.SH",
+          "name": "拓普集团",
+          "industry": "汽车配件",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 创60日新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "601728.SH",
+          "name": "中国电信",
+          "industry": "电信运营",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.3",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.31
+        },
+        {
+          "symbol": "601811.SH",
+          "name": "新华文轩",
+          "industry": "出版业",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.04
+        },
+        {
+          "symbol": "601825.SH",
+          "name": "沪农商行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.8",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 96.75
+        },
+        {
+          "symbol": "601838.SH",
+          "name": "成都银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 96.34
+        },
+        {
+          "symbol": "601857.SH",
+          "name": "中国石油",
+          "industry": "石油开采",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 97.62
+        },
+        {
+          "symbol": "601919.SH",
+          "name": "中远海控",
+          "industry": "水运",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.5",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.46
+        },
+        {
+          "symbol": "601939.SH",
+          "name": "建设银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.0",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.98
+        },
+        {
+          "symbol": "601985.SH",
+          "name": "中国核电",
+          "industry": "新型电力",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.1",
+            "🏆 创一年(250日)新高",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/breakout_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.13
+        },
+        {
+          "symbol": "601988.SH",
+          "name": "中国银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.1",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 98.12
+        },
+        {
+          "symbol": "601998.SH",
+          "name": "中信银行",
+          "industry": "银行",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.7",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 96.68
+        },
+        {
+          "symbol": "603001.SH",
+          "name": "奥康国际",
+          "industry": "服饰",
+          "date": "20261124",
+          "reasons": [
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603009.SH",
+          "name": "北特科技",
+          "industry": "汽车配件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 88.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 88.27
+        },
+        {
+          "symbol": "603030.SH",
+          "name": "全筑股份",
+          "industry": "装修装饰",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 创60日新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603129.SH",
+          "name": "春风动力",
+          "industry": "摩托车",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.9",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 96.91
+        },
+        {
+          "symbol": "603175.SH",
+          "name": "超颖电子",
+          "industry": "元器件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 93.88
+        },
+        {
+          "symbol": "603233.SH",
+          "name": "大参林",
+          "industry": "医药商业",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.7",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.67
+        },
+        {
+          "symbol": "603236.SH",
+          "name": "移远通信",
+          "industry": "通信设备",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.17
+        },
+        {
+          "symbol": "603261.SH",
+          "name": "立航科技",
+          "industry": "航空",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 90.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 90.64
+        },
+        {
+          "symbol": "603266.SH",
+          "name": "天龙股份",
+          "industry": "汽车配件",
+          "date": "20261124",
+          "reasons": [
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603278.SH",
+          "name": "大业股份",
+          "industry": "钢加工",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 98.97
+        },
+        {
+          "symbol": "603317.SH",
+          "name": "天味食品",
+          "industry": "食品",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 95.2
+        },
+        {
+          "symbol": "603338.SH",
+          "name": "浙江鼎力",
+          "industry": "工程机械",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 88.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 88.9
+        },
+        {
+          "symbol": "603355.SH",
+          "name": "莱克电气",
+          "industry": "家用电器",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 95.51
+        },
+        {
+          "symbol": "603366.SH",
+          "name": "日出东方",
+          "industry": "家用电器",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.51
+        },
+        {
+          "symbol": "603391.SH",
+          "name": "力聚热能",
+          "industry": "专用机械",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 88.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 88.54
+        },
+        {
+          "symbol": "603466.SH",
+          "name": "风语筑",
+          "industry": "文教休闲",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 98.88
+        },
+        {
+          "symbol": "603533.SH",
+          "name": "掌阅科技",
+          "industry": "互联网",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 91.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 91.48
+        },
+        {
+          "symbol": "603565.SH",
+          "name": "中谷物流",
+          "industry": "水运",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 91.5",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 91.52
+        },
+        {
+          "symbol": "603587.SH",
+          "name": "地素时尚",
+          "industry": "服饰",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.9",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.91
+        },
+        {
+          "symbol": "603608.SH",
+          "name": "天创股份",
+          "industry": "服饰",
+          "date": "20261124",
+          "reasons": [
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [
+            "ℹ️ 档案内 3 次涨停均止步首板（#032）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603626.SH",
+          "name": "科森科技",
+          "industry": "元器件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.26
+        },
+        {
+          "symbol": "603706.SH",
+          "name": "东方环宇",
+          "industry": "供气供热",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.15
+        },
+        {
+          "symbol": "603713.SH",
+          "name": "密尔克卫",
+          "industry": "仓储物流",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 89.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 89.17
+        },
+        {
+          "symbol": "603725.SH",
+          "name": "天安新材",
+          "industry": "塑料",
+          "date": "20261124",
+          "reasons": [
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603766.SH",
+          "name": "隆鑫通用",
+          "industry": "摩托车",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.5",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.47
+        },
+        {
+          "symbol": "603838.SH",
+          "name": "四通股份",
+          "industry": "家居用品",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 88.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 88.81
+        },
+        {
+          "symbol": "603889.SH",
+          "name": "新澳股份",
+          "industry": "纺织",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 91.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 91.81
+        },
+        {
+          "symbol": "603893.SH",
+          "name": "瑞芯微",
+          "industry": "半导体",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 95.27
+        },
+        {
+          "symbol": "603898.SH",
+          "name": "好莱客",
+          "industry": "家居用品",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.8",
+            "⚡ 创60日新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/breakout_stocks.csv"
+          ],
+          "rps": 98.77
+        },
+        {
+          "symbol": "603928.SH",
+          "name": "兴业股份",
+          "industry": "化工原料",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 98.05
+        },
+        {
+          "symbol": "603939.SH",
+          "name": "益丰药房",
+          "industry": "医药商业",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.7",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.71
+        },
+        {
+          "symbol": "603990.SH",
+          "name": "麦迪科技",
+          "industry": "软件服务",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 88.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 88.49
+        },
+        {
+          "symbol": "605058.SH",
+          "name": "澳弘电子",
+          "industry": "元器件",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.57
+        },
+        {
+          "symbol": "605222.SH",
+          "name": "起帆电缆",
+          "industry": "电气设备",
+          "date": "20261124",
+          "reasons": [
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "605488.SH",
+          "name": "福莱新材",
+          "industry": "塑料",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.75
+        },
+        {
+          "symbol": "605577.SH",
+          "name": "龙版传媒",
+          "industry": "出版业",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 94.68
+        },
+        {
+          "symbol": "605599.SH",
+          "name": "菜百股份",
+          "industry": "服饰",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 92.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 92.3
+        },
+        {
+          "symbol": "688004.SH",
+          "name": "博汇科技",
+          "industry": "软件服务",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.6
+        },
+        {
+          "symbol": "688018.SH",
+          "name": "乐鑫科技",
+          "industry": "半导体",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.28
+        },
+        {
+          "symbol": "688019.SH",
+          "name": "安集科技",
+          "industry": "半导体",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 89.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 89.59
+        },
+        {
+          "symbol": "688078.SH",
+          "name": "龙软科技",
+          "industry": "软件服务",
+          "date": "20261124",
+          "reasons": [
+            "🚀 强行业中的低位首板池（#077 × #103）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_trend_catchup"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "688131.SH",
+          "name": "皓元医药",
+          "industry": "化学制药",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 92.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 92.04
+        },
+        {
+          "symbol": "688137.SH",
+          "name": "近岸蛋白",
+          "industry": "生物制药",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.78
+        },
+        {
+          "symbol": "688293.SH",
+          "name": "奥浦迈",
+          "industry": "生物制药",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.2",
+            "🌀 长影线组合与突破回踩池（#169 / #139 / #172）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv",
+            "data/evening_plan/latest.json:pool_rubbing_breakout"
+          ],
+          "rps": 97.24
+        },
+        {
+          "symbol": "688315.SH",
+          "name": "诺禾致源",
+          "industry": "医疗保健",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 98.95
+        },
+        {
+          "symbol": "688507.SH",
+          "name": "索辰科技",
+          "industry": "软件服务",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 98.16
+        },
+        {
+          "symbol": "688585.SH",
+          "name": "上纬新材",
+          "industry": "化工原料",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 99.21
+        },
+        {
+          "symbol": "688710.SH",
+          "name": "益诺思",
+          "industry": "生物制药",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 88.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_stocks.csv"
+          ],
+          "rps": 88.33
+        },
+        {
+          "symbol": "920050.BJ",
+          "name": "爱伦医疗",
+          "industry": "医疗保健",
+          "date": "20261124",
+          "reasons": [
+            "🔥 创半年(120日)新高"
+          ],
+          "risks": [],
+          "sources": [
+            "data/breakout_stocks.csv"
+          ],
+          "rps": null
+        }
+      ]
+    },
+    "reversal": {
+      "complete": true,
+      "missing": [],
+      "rows": [
+        {
+          "symbol": "000525.SZ",
+          "name": "红太阳",
+          "industry": "农药化肥",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "001358.SZ",
+          "name": "兴欣新材",
+          "industry": "化学制品",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002086.SZ",
+          "name": "东方海洋",
+          "industry": "农产品加",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002160.SZ",
+          "name": "常铝股份",
+          "industry": "铝",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002209.SZ",
+          "name": "达意隆",
+          "industry": "轻工机械",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002310.SZ",
+          "name": "东方新能",
+          "industry": "新型电力",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002313.SZ",
+          "name": "日海智能",
+          "industry": "通信设备",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002347.SZ",
+          "name": "泰尔股份",
+          "industry": "机械基件",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002348.SZ",
+          "name": "高乐股份",
+          "industry": "文娱用品",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002611.SZ",
+          "name": "东方精工",
+          "industry": "专用设备",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002623.SZ",
+          "name": "亚玛顿",
+          "industry": "玻璃",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002651.SZ",
+          "name": "利君股份",
+          "industry": "航空装备",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002685.SZ",
+          "name": "华东重机",
+          "industry": "工程机械",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002749.SZ",
+          "name": "国光股份",
+          "industry": "农药化肥",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "300539.SZ",
+          "name": "横河精密",
+          "industry": "塑料",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "301252.SZ",
+          "name": "同星科技",
+          "industry": "家电零部",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "301313.SZ",
+          "name": "凡拓数创",
+          "industry": "软件服务",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "301413.SZ",
+          "name": "安培龙",
+          "industry": "通用设备",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "600189.SH",
+          "name": "泉阳泉",
+          "industry": "饮料乳品",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "600261.SH",
+          "name": "阳光照明",
+          "industry": "照明设备",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [
+            "⚠️ 14:00 后多次炸板（#032）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "600408.SH",
+          "name": "安泰集团",
+          "industry": "焦炭加工",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "600467.SH",
+          "name": "好当家",
+          "industry": "渔业",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "600609.SH",
+          "name": "金杯汽车",
+          "industry": "汽车配件",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "601188.SH",
+          "name": "龙江交通",
+          "industry": "路桥",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "601595.SH",
+          "name": "上海电影",
+          "industry": "影视音像",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "601599.SH",
+          "name": "浙文影业",
+          "industry": "纺织制造",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603040.SH",
+          "name": "新坐标",
+          "industry": "汽车零部",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603103.SH",
+          "name": "横店影视",
+          "industry": "影视院线",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603135.SH",
+          "name": "中重科技",
+          "industry": "专用机械",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603466.SH",
+          "name": "风语筑",
+          "industry": "文教休闲",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603536.SH",
+          "name": "惠发食品",
+          "industry": "食品",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [
+            "⚠️ 近5日 2 次长上影（#176）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603662.SH",
+          "name": "柯力传感",
+          "industry": "通用设备",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603706.SH",
+          "name": "东方环宇",
+          "industry": "供气供热",
+          "date": "20261124",
+          "reasons": [
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [
+            "⚠️ 近5日 4 次长上影（#176）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603725.SH",
+          "name": "天安新材",
+          "industry": "家居用品",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603813.SH",
+          "name": "原尚股份",
+          "industry": "物流",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [
+            "ℹ️ 档案内 3 次涨停均止步首板（#032）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "605255.SH",
+          "name": "天普股份",
+          "industry": "汽车配件",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）",
+            "📐 高位股回踩 MA6 / MA12 观察池（#128）"
+          ],
+          "risks": [
+            "⚠️ 近5日 2 次长上影（#176）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound",
+            "data/evening_plan/latest.json:pool_ma6_pullback"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "688078.SH",
+          "name": "龙软科技",
+          "industry": "软件开发",
+          "date": "20261124",
+          "reasons": [
+            "🦴 多次炸板回封与触板回落池（#080 / #118 / #035）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_ice_rebound"
+          ],
+          "rps": null
+        }
+      ]
+    },
+    "relay": {
+      "complete": true,
+      "missing": [],
+      "rows": [
+        {
+          "symbol": "001229.SZ",
+          "name": "魅视科技",
+          "industry": "计算机设",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [
+            "⚠️ 一字板缺换手（#004）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "001278.SZ",
+          "name": "一彬科技",
+          "industry": "汽车零部",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [
+            "⚠️ 一字板缺换手（#004）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "001358.SZ",
+          "name": "兴欣新材",
+          "industry": "化学制品",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002036.SZ",
+          "name": "联创电子",
+          "industry": "光学光电",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [
+            "⚠️ 一字板缺换手（#004）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002086.SZ",
+          "name": "东方海洋",
+          "industry": "农产品加",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002122.SZ",
+          "name": "汇洲智能",
+          "industry": "通用设备",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [
+            "⚠️ 一字板缺换手（#004）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002164.SZ",
+          "name": "宁波东力",
+          "industry": "通用设备",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [
+            "⚠️ 一字板缺换手（#004）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002242.SZ",
+          "name": "九阳股份",
+          "industry": "小家电",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002348.SZ",
+          "name": "高乐股份",
+          "industry": "文娱用品",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 10:00前换手首板池（#125 × #030）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_10am_first"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002548.SZ",
+          "name": "金新农",
+          "industry": "饲料",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002579.SZ",
+          "name": "中京电子",
+          "industry": "元件",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [
+            "⚠️ 一字板缺换手（#004）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002685.SZ",
+          "name": "华东重机",
+          "industry": "工程机械",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002708.SZ",
+          "name": "光洋股份",
+          "industry": "汽车零部",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [
+            "⚠️ 一字板缺换手（#004）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002724.SZ",
+          "name": "海洋王",
+          "industry": "照明设备",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002872.SZ",
+          "name": "天圣制药",
+          "industry": "化学制药",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 10:00前换手首板池（#125 × #030）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_10am_first"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "002931.SZ",
+          "name": "锋龙股份",
+          "industry": "通用设备",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "300539.SZ",
+          "name": "横河精密",
+          "industry": "塑料",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 10:00前换手首板池（#125 × #030）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_10am_first"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "300652.SZ",
+          "name": "雷迪克",
+          "industry": "汽车零部",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 10:00前换手首板池（#125 × #030）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_10am_first"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "300703.SZ",
+          "name": "创源股份",
+          "industry": "文娱用品",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "301189.SZ",
+          "name": "奥尼电子",
+          "industry": "消费电子",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 10:00前换手首板池（#125 × #030）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_10am_first"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "301252.SZ",
+          "name": "同星科技",
+          "industry": "家电零部",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "301413.SZ",
+          "name": "安培龙",
+          "industry": "通用设备",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "301575.SZ",
+          "name": "艾芬达",
+          "industry": "家居用品",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "600189.SH",
+          "name": "泉阳泉",
+          "industry": "饮料乳品",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 10:00前换手首板池（#125 × #030）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_10am_first"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "600814.SH",
+          "name": "杭州解百",
+          "industry": "一般零售",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "601599.SH",
+          "name": "浙文影业",
+          "industry": "纺织制造",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603001.SH",
+          "name": "奥康国际",
+          "industry": "服装家纺",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 10:00前换手首板池（#125 × #030）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_10am_first"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603040.SH",
+          "name": "新坐标",
+          "industry": "汽车零部",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603103.SH",
+          "name": "横店影视",
+          "industry": "影视院线",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603516.SH",
+          "name": "淳中科技",
+          "industry": "计算机设",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [
+            "⚠️ 一字板缺换手（#004）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603626.SH",
+          "name": "科森科技",
+          "industry": "消费电子",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603662.SH",
+          "name": "柯力传感",
+          "industry": "通用设备",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603666.SH",
+          "name": "亿嘉和",
+          "industry": "自动化设",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603725.SH",
+          "name": "天安新材",
+          "industry": "家居用品",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 10:00前换手首板池（#125 × #030）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_10am_first"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603926.SH",
+          "name": "铁流股份",
+          "industry": "汽车零部",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603956.SH",
+          "name": "威派格",
+          "industry": "专用设备",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 10:00前换手首板池（#125 × #030）"
+          ],
+          "risks": [
+            "ℹ️ 档案内 4 次涨停均止步首板（#032）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_10am_first"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "603960.SH",
+          "name": "克来机电",
+          "industry": "汽车零部",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [
+            "⚠️ 一字板缺换手（#004）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "605018.SH",
+          "name": "长华集团",
+          "industry": "汽车零部",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [
+            "⚠️ 一字板缺换手（#004）"
+          ],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "605222.SH",
+          "name": "起帆电缆",
+          "industry": "电网设备",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 10:00前换手首板池（#125 × #030）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_10am_first"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "605488.SH",
+          "name": "福莱新材",
+          "industry": "塑料",
+          "date": "20261124",
+          "reasons": [
+            "🐉 换手二板与同身位组（#033 / #049 / #071 / #145）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_2b_pk"
+          ],
+          "rps": null
+        },
+        {
+          "symbol": "688078.SH",
+          "name": "龙软科技",
+          "industry": "软件开发",
+          "date": "20261124",
+          "reasons": [
+            "⚡ 10:00前换手首板池（#125 × #030）"
+          ],
+          "risks": [],
+          "sources": [
+            "data/evening_plan/latest.json:pool_10am_first"
+          ],
+          "rps": null
+        }
+      ]
+    },
+    "etf": {
+      "complete": true,
+      "missing": [],
+      "rows": [
+        {
+          "symbol": "159021.SZ",
+          "name": "华夏国证大盘价值ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.09
+        },
+        {
+          "symbol": "159207.SZ",
+          "name": "广发中证智选高股息策略ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.61
+        },
+        {
+          "symbol": "159228.SZ",
+          "name": "长城中证红利低波动100ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.85
+        },
+        {
+          "symbol": "159253.SZ",
+          "name": "博时中证银行ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.71
+        },
+        {
+          "symbol": "159296.SZ",
+          "name": "华宝中证A500红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.38
+        },
+        {
+          "symbol": "159307.SZ",
+          "name": "博时中证红利低波动100ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.27
+        },
+        {
+          "symbol": "159332.SZ",
+          "name": "富国中证中央企业红利ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.7
+        },
+        {
+          "symbol": "159355.SZ",
+          "name": "华宝中证800红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.37
+        },
+        {
+          "symbol": "159391.SZ",
+          "name": "博时国证大盘价值ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.57
+        },
+        {
+          "symbol": "159520.SZ",
+          "name": "工银瑞信中证消费龙头ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.61
+        },
+        {
+          "symbol": "159525.SZ",
+          "name": "富国中证红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.56
+        },
+        {
+          "symbol": "159547.SZ",
+          "name": "华夏中证红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 96.56
+        },
+        {
+          "symbol": "159549.SZ",
+          "name": "天弘中证红利低波动100ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 96.61
+        },
+        {
+          "symbol": "159662.SZ",
+          "name": "南方国证交通运输行业ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 92.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 92.07
+        },
+        {
+          "symbol": "159670.SZ",
+          "name": "国联安中证消费50ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.47
+        },
+        {
+          "symbol": "159672.SZ",
+          "name": "博时中证主要消费ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.65
+        },
+        {
+          "symbol": "159689.SZ",
+          "name": "南方中证主要消费ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.94
+        },
+        {
+          "symbol": "159719.SZ",
+          "name": "平安富时中国国企开放共赢ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.23
+        },
+        {
+          "symbol": "159730.SZ",
+          "name": "博时国证龙头家电ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 94.65
+        },
+        {
+          "symbol": "159798.SZ",
+          "name": "易方达中证消费50ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.28
+        },
+        {
+          "symbol": "159843.SZ",
+          "name": "招商国证食品饮料行业ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.03
+        },
+        {
+          "symbol": "159862.SZ",
+          "name": "银华中证细分食品饮料产业主题ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 94.36
+        },
+        {
+          "symbol": "159887.SZ",
+          "name": "富国中证800银行ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 100.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 100.0
+        },
+        {
+          "symbol": "159928.SZ",
+          "name": "汇添富中证主要消费ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.99
+        },
+        {
+          "symbol": "159931.SZ",
+          "name": "汇添富中证金融地产ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 94.46
+        },
+        {
+          "symbol": "159933.SZ",
+          "name": "国投瑞银沪深300金融地产ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.89
+        },
+        {
+          "symbol": "159940.SZ",
+          "name": "广发中证全指金融地产ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 93.89
+        },
+        {
+          "symbol": "159981.SZ",
+          "name": "建信易盛郑商所能源化工期货ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 94.79
+        },
+        {
+          "symbol": "160222.SZ",
+          "name": "国泰国证食品饮料行业指数-A",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.18
+        },
+        {
+          "symbol": "160613.SZ",
+          "name": "鹏华盛世创新混合(LOF)-A",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 94.84
+        },
+        {
+          "symbol": "160631.SZ",
+          "name": "鹏华中证银行指数(LOF)-A",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.38
+        },
+        {
+          "symbol": "160716.SZ",
+          "name": "嘉实中证锐联基本面50指数(LOF)-A",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 96.23
+        },
+        {
+          "symbol": "160910.SZ",
+          "name": "大成创新成长混合(LOF)-A",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 93.41
+        },
+        {
+          "symbol": "161029.SZ",
+          "name": "富国中证银行指数-A",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.33
+        },
+        {
+          "symbol": "161121.SZ",
+          "name": "易方达中证银行ETF联接(LOF)-A",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.28
+        },
+        {
+          "symbol": "164824.SZ",
+          "name": "工银瑞信印度市场(QDII-LOF-FOF)-CNY",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 94.7
+        },
+        {
+          "symbol": "165521.SZ",
+          "name": "中信保诚中证800金融指数(LOF)-A",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 94.6
+        },
+        {
+          "symbol": "167301.SZ",
+          "name": "方正富邦中证保险主题指数-A",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 87.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 87.92
+        },
+        {
+          "symbol": "168104.SZ",
+          "name": "九泰锐丰灵活配置混合(LOF)-A",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.19
+        },
+        {
+          "symbol": "180203.SZ",
+          "name": "招商基金招商公路高速公路REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 96.51
+        },
+        {
+          "symbol": "180501.SZ",
+          "name": "红土创新深圳安居保障性租赁住房REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.23
+        },
+        {
+          "symbol": "180502.SZ",
+          "name": "招商基金招商蛇口租赁住房REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.24
+        },
+        {
+          "symbol": "180503.SZ",
+          "name": "中航北京昌保租赁住房REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.71
+        },
+        {
+          "symbol": "180701.SZ",
+          "name": "银华绍兴原水水利REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.46
+        },
+        {
+          "symbol": "501090.SH",
+          "name": "华宝中证消费龙头ETF联接(LOF)-A",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.47
+        },
+        {
+          "symbol": "501209.SH",
+          "name": "银华富久食品饮料精选混合(LOF)-A",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 94.51
+        },
+        {
+          "symbol": "508005.SH",
+          "name": "华夏首创奥特莱斯REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 96.13
+        },
+        {
+          "symbol": "508016.SH",
+          "name": "华夏华电清洁能源REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 93.94
+        },
+        {
+          "symbol": "508017.SH",
+          "name": "华夏金茂消费REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 96.85
+        },
+        {
+          "symbol": "508028.SH",
+          "name": "中信建投国家电投新能源REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.42
+        },
+        {
+          "symbol": "508031.SH",
+          "name": "国泰海通城投宽庭保障性租赁住房REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 91.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 91.4
+        },
+        {
+          "symbol": "508055.SH",
+          "name": "汇添富上海地产租赁住房REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.14
+        },
+        {
+          "symbol": "508058.SH",
+          "name": "中金厦门安居保障性租赁住房REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.85
+        },
+        {
+          "symbol": "508068.SH",
+          "name": "华夏北京保障房中心租赁住房REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.09
+        },
+        {
+          "symbol": "508077.SH",
+          "name": "华夏基金华润有巢租赁住房REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.18
+        },
+        {
+          "symbol": "508085.SH",
+          "name": "华泰紫金苏州恒泰租赁住房REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.19
+        },
+        {
+          "symbol": "508093.SH",
+          "name": "易方达广西北投高速公路REIT",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.08
+        },
+        {
+          "symbol": "510030.SH",
+          "name": "华宝上证180价值ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.99
+        },
+        {
+          "symbol": "510060.SH",
+          "name": "工银瑞信上证中央企业50ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.28
+        },
+        {
+          "symbol": "510150.SH",
+          "name": "招商上证消费80ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 87.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 87.63
+        },
+        {
+          "symbol": "510230.SH",
+          "name": "国泰上证180金融ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.42
+        },
+        {
+          "symbol": "510630.SH",
+          "name": "华夏上证主要消费ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 94.13
+        },
+        {
+          "symbol": "510650.SH",
+          "name": "华夏上证金融地产ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.76
+        },
+        {
+          "symbol": "510880.SH",
+          "name": "华泰柏瑞上证红利ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 88.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 88.83
+        },
+        {
+          "symbol": "511360.SH",
+          "name": "海富通中证短融ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 92.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 92.41
+        },
+        {
+          "symbol": "512530.SH",
+          "name": "建信沪深300红利ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.66
+        },
+        {
+          "symbol": "512600.SH",
+          "name": "嘉实中证主要消费ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.8
+        },
+        {
+          "symbol": "512640.SH",
+          "name": "嘉实中证金融地产ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.6"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 94.56
+        },
+        {
+          "symbol": "512700.SH",
+          "name": "南方中证银行ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.9
+        },
+        {
+          "symbol": "512730.SH",
+          "name": "鹏华中证银行ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.52
+        },
+        {
+          "symbol": "512750.SH",
+          "name": "嘉实中证锐联基本面50ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 96.8
+        },
+        {
+          "symbol": "512800.SH",
+          "name": "华宝中证银行ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.86
+        },
+        {
+          "symbol": "512820.SH",
+          "name": "汇添富中证银行ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.47
+        },
+        {
+          "symbol": "512890.SH",
+          "name": "华泰柏瑞中证红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.66
+        },
+        {
+          "symbol": "513290.SH",
+          "name": "汇添富纳斯达克生物科技ETF(QDII)",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 94.17
+        },
+        {
+          "symbol": "515020.SH",
+          "name": "华夏中证银行ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.76
+        },
+        {
+          "symbol": "515100.SH",
+          "name": "景顺长城中证红利低波动100ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 96.7
+        },
+        {
+          "symbol": "515170.SH",
+          "name": "华夏中证细分食品饮料产业主题ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 94.41
+        },
+        {
+          "symbol": "515290.SH",
+          "name": "天弘中证银行ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.81
+        },
+        {
+          "symbol": "515300.SH",
+          "name": "嘉实沪深300红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.04
+        },
+        {
+          "symbol": "515650.SH",
+          "name": "富国中证消费50ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.42
+        },
+        {
+          "symbol": "515710.SH",
+          "name": "华宝中证细分食品饮料产业主题ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 94.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 94.75
+        },
+        {
+          "symbol": "516130.SH",
+          "name": "华宝中证消费龙头ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.95
+        },
+        {
+          "symbol": "516210.SH",
+          "name": "华安中证银行ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.67
+        },
+        {
+          "symbol": "516310.SH",
+          "name": "易方达中证银行ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 100.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 99.95
+        },
+        {
+          "symbol": "516900.SH",
+          "name": "华安中证申万食品饮料ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.2"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 96.18
+        },
+        {
+          "symbol": "517090.SH",
+          "name": "国泰富时中国国企开放共赢ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.7"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 96.66
+        },
+        {
+          "symbol": "517180.SH",
+          "name": "南方富时中国国企开放共赢ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.13
+        },
+        {
+          "symbol": "517550.SH",
+          "name": "招商中证沪港深消费龙头ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 90.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 90.78
+        },
+        {
+          "symbol": "517900.SH",
+          "name": "招商中证银行AH价格优选ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.9
+        },
+        {
+          "symbol": "560030.SH",
+          "name": "汇添富中证800价值ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 93.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 93.55
+        },
+        {
+          "symbol": "560150.SH",
+          "name": "泰康中证红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.09
+        },
+        {
+          "symbol": "560330.SH",
+          "name": "申万菱信沪深300价值ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.4"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.37
+        },
+        {
+          "symbol": "560520.SH",
+          "name": "大成中证红利低波动100ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 96.47
+        },
+        {
+          "symbol": "560570.SH",
+          "name": "国联安中证A500红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.04
+        },
+        {
+          "symbol": "560680.SH",
+          "name": "广发中证主要消费ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 96.32
+        },
+        {
+          "symbol": "561320.SH",
+          "name": "国泰中证内地运输主题ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.75
+        },
+        {
+          "symbol": "561580.SH",
+          "name": "华泰柏瑞中证中央企业红利ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.5"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.51
+        },
+        {
+          "symbol": "561680.SH",
+          "name": "平安中证A500红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.76
+        },
+        {
+          "symbol": "562320.SH",
+          "name": "银华沪深300价值ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.32
+        },
+        {
+          "symbol": "563020.SH",
+          "name": "易方达中证红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 96.9"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 96.9
+        },
+        {
+          "symbol": "563180.SH",
+          "name": "银华中证高股息策略ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 95.1"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 95.13
+        },
+        {
+          "symbol": "563510.SH",
+          "name": "易方达中证A500红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 99.0"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.95
+        },
+        {
+          "symbol": "563590.SH",
+          "name": "国寿安保中证A500红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 98.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 98.81
+        },
+        {
+          "symbol": "563690.SH",
+          "name": "永赢中证红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.3"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.33
+        },
+        {
+          "symbol": "563700.SH",
+          "name": "易方达中证红利价值ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 92.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 92.79
+        },
+        {
+          "symbol": "563980.SH",
+          "name": "鑫元中证800红利低波动ETF",
+          "industry": "",
+          "date": "20261124",
+          "reasons": [
+            "RPS50 97.8"
+          ],
+          "risks": [],
+          "sources": [
+            "data/strong_etfs.csv"
+          ],
+          "rps": 97.85
+        }
+      ]
+    }
+  },
+  "collected_at": "2026-11-24T19:30:42.303555+08:00"
+}
