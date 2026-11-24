@@ -2,7 +2,7 @@
   "date": "20261124",
   "ladder": {
     "date": "2026-11-24",
-    "update_time": "2026-11-24 11:07:07",
+    "update_time": "2026-11-24 20:52:24",
     "total_count": 55,
     "max_height": 4,
     "stocks": [
@@ -450,7 +450,7 @@
   },
   "attribution": {
     "date": "20261124",
-    "checked_at": "2026-11-24T19:07:37.067604+08:00",
+    "checked_at": "2026-11-25T04:52:59.052293+08:00",
     "sources": {
       "ths_public": {
         "status": "ok",
