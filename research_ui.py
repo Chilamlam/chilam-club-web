@@ -154,6 +154,13 @@ def detail(record, quote=None):
     st.caption(f"{PLAYBOOKS[plan['style']]['name']} · {plan['mode']} · 建立于 {record['created_at'][:10]} · 依据数据 {plan['asof']} · {record['outcome']['status']}")
     if quote:
         st.write(f"最近可用收盘 **{quote['close']:g} 元** · {quote['date']} · {quote['source']}")
+    relay_evidence=(plan.get('market_evidence') or {}).get('theme_relay')
+    if relay_evidence:
+        from page_theme_relay import render_relay_followup
+        try:
+            render_relay_followup(relay_evidence,record['id'])
+        except (ValueError,KeyError,TypeError):
+            st.info('原题材预案的对照资料不完整，可继续查看和修改下方个人研究条件。')
     for item in workspace.price_checks(record, quote, today=beijing_now().strftime("%Y%m%d")):
         st.info(item["text"])
     a, b = st.columns(2)

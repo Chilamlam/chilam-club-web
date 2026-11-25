@@ -1,0 +1,105 @@
+{
+  "verified_through": "2026-11-25",
+  "note": "首批三案例的公司公告人工核对记录；发布日期按公告所载日期保守处理，未据此宣称覆盖全部监管措施。",
+  "events": {
+    "sz002242": [
+      {
+        "kind": "ordinary",
+        "start": "2026-09-28",
+        "end": "2026-09-29",
+        "published_on": "2026-09-30",
+        "value": 23.65,
+        "source": "https://disc.static.szse.cn/disc/disk03/finalpage/2026-09-30/78905d04-2f49-4e46-9de1-81a286656f35.PDF"
+      },
+      {
+        "kind": "ordinary",
+        "start": "2026-09-30",
+        "end": "2026-10-08",
+        "published_on": "2026-10-09",
+        "value": 22.89,
+        "source": "https://disc.static.szse.cn/download/disc/disk03/finalpage/2026-10-09/58cb0da7-48a6-4214-8127-5bfcd83eaf18.PDF"
+      },
+      {
+        "kind": "ordinary",
+        "start": "2026-10-09",
+        "end": "2026-10-12",
+        "published_on": "2026-10-13",
+        "value": 22.63,
+        "source": "https://static.cninfo.com.cn/finalpage/2026-10-13/1225602312.PDF"
+      },
+      {
+        "kind": "ordinary",
+        "start": "2026-10-20",
+        "end": "2026-10-21",
+        "published_on": "2026-10-22",
+        "value": 21.18,
+        "source": "https://static.cninfo.com.cn/finalpage/2026-10-22/1225615001.pdf"
+      },
+      {
+        "kind": "ordinary",
+        "start": "2026-11-16",
+        "end": "2026-11-17",
+        "published_on": "2026-11-18",
+        "value": 21.13,
+        "source": "https://vip.stock.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12710460&stockid=002242"
+      }
+    ],
+    "sz002148": [
+      {
+        "kind": "ordinary",
+        "start": "2026-11-11",
+        "end": "2026-11-12",
+        "published_on": "2026-11-13",
+        "source": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12703566&stockid=002148"
+      },
+      {
+        "kind": "ordinary",
+        "start": "2026-11-13",
+        "end": "2026-11-16",
+        "published_on": "2026-11-17",
+        "source": "https://money.finance.sina.com.cn/corp/go.php/vCB_AllBulletin/stockid/002148.phtml"
+      },
+      {
+        "kind": "ordinary",
+        "start": "2026-11-18",
+        "end": "2026-11-20",
+        "published_on": "2026-11-21",
+        "source": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12716880&stockid=002148"
+      },
+      {
+        "kind": "serious",
+        "start": "2026-11-11",
+        "end": "2026-11-24",
+        "published_on": "2026-11-25",
+        "reset_on": "2026-11-25",
+        "value": 100.09,
+        "source": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12721998&stockid=002148"
+      }
+    ],
+    "sh600467": [
+      {
+        "kind": "ordinary",
+        "start": "2026-11-11",
+        "end": "2026-11-13",
+        "published_on": "2026-11-14",
+        "source": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12705627&stockid=600467"
+      },
+      {
+        "kind": "ordinary",
+        "start": "2026-11-19",
+        "end": "2026-11-23",
+        "published_on": "2026-11-24",
+        "source": "https://static.cninfo.com.cn/finalpage/2026-11-24/1225684132.PDF"
+      }
+    ],
+    "sz300703": [
+      {
+        "kind": "ordinary",
+        "start": "2026-11-20",
+        "end": "2026-11-24",
+        "published_on": "2026-11-24",
+        "source": "https://news.10jqka.com.cn/field/sn/20261124/60651233.shtml"
+      }
+    ]
+  }
+}

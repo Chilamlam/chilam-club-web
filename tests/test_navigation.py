@@ -30,7 +30,9 @@ class NavigationTests(unittest.TestCase):
 
     def test_legacy_and_unknown_routes_resolve_to_current_pages(self):
         self.assertEqual(canonical_page('👁 观察记录'), '📒 研究档案')
-        self.assertEqual(canonical_page('🚨 核心龙头雷达'), '📐 强势股区间偏离')
+        self.assertEqual(canonical_page('🚨 核心龙头雷达'), '🧭 题材接力预案')
+        self.assertEqual(canonical_page('📐 强势股区间偏离'), '🧭 题材接力预案')
+        self.assertEqual(canonical_page('📐 异动窗口观察'), '🧭 题材接力预案')
         self.assertEqual(canonical_page('📏 黄金分割预测'), '📏 黄金分割参考位')
         self.assertEqual(canonical_page('📈 命运K线 (人生运势)'), DEFAULT_PAGE)
         self.assertEqual(canonical_page('📚 投资作业本'), '📚 机构持仓披露')

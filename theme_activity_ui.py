@@ -111,6 +111,12 @@ def render_activity(*,key,asof=None,calendar=None,archives=None,prices=None,trac
         navigate("🧩 题材跟踪")
     changes=ta.member_changes(result,selected)
     st.subheader(selected)
+    if tracking and row['members']:
+        if st.button('围绕这个题材准备接力预案 →',key=key+'_relay'):
+            from theme_relay import PAGE
+            st.session_state['relay_focus']=dict(theme=selected,symbol=row['members'][0]['symbol'],
+                date=selected_date[:4]+'-'+selected_date[4:6]+'-'+selected_date[6:])
+            navigate(PAGE)
     if changes['previous_date']:
         st.caption(f"与 {changes['previous_date']} 的同来源标签对照：两日均出现 {len(changes['retained'])} 只；"
                    f"本日新增记录 {len(changes['new'])} 只；前日出现、本日未归入 {len(changes['exited'])} 只。"

@@ -515,6 +515,10 @@ def render_etf_content(df):
 
 def render_arbitrage_page():
     st.header("⚡ 投机与套利")
+    st.markdown("**题材接力预案** · 提前看龙头明后日的异动约束，比较首板与反包候选，留下参与和取消条件。")
+    if st.button("准备题材接力预案 →", key="speculation_abnormal_windows"):
+        from investor_journey import go
+        go("🧭 题材接力预案")
     st.caption("可转债收盘强弱与模式统计；场内基金核对价格、净值日期及折溢价。")
     data = load_json("data/speculation_data.json") or {}
 
@@ -874,7 +878,7 @@ def main():
         render_market_observatory(global_page=True)
     elif page == "⚡ 投机与套利":
         render_arbitrage_page()
-    elif page == "📐 强势股区间偏离":
+    elif page == "🧭 题材接力预案":
         render_core_driver_page()
     elif page == "📚 机构持仓披露":
         render_guru_tracker()

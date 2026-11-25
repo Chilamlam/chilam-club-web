@@ -85,6 +85,10 @@ STEPS: list[dict] = [
      "backfill": BACKFILL_NONE, "timeout": 90},
     {"key": "speculation", "script": "daily_speculation.py", "label": "投机与套利",
      "backfill": BACKFILL_NONE, "timeout": 1200},
+    {"key": "abnormal_windows", "script": "daily_abnormal_windows.py", "label": "异动窗口案例日线",
+     "backfill": BACKFILL_NONE, "timeout": 180},
+    {"key": "theme_relay", "script": "daily_theme_relay.py", "label": "题材接力预案资料",
+     "backfill": BACKFILL_NONE, "timeout": 240},
     # 可转债分类与十日模式统计：读自己归档的转债/正股日线，首次跑批回补 35 个交易日。
     # 与 speculation 无依赖，放在其后只为日志顺序，失败不会影响 ETF 部分。
     {"key": "convertible", "script": "daily_convertible.py", "label": "可转债分类与统计",
