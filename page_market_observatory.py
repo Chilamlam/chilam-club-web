@@ -14,6 +14,7 @@ from investor_journey import go as navigate, QUOTE_PAGE, WORKBENCH_PAGE
 from site_data import load_csv
 from stock_search import matches_stock, stock_label
 from update_schedule import beijing_now
+from page_etf_flows import render_etf_flows
 
 LOCAL_PAGE = "📈 资金与基差"
 GLOBAL_PAGE = "🌍 海外预期与链上市场"
@@ -375,6 +376,7 @@ def render_market_observatory(global_page=False):
     st.title("海外预期与链上市场" if global_page else "资金与基差")
     # A radio renders only the selected section, so unused tabs make no network calls.
     choices={"预测市场":render_polymarket,"链上市场":render_onchain} if global_page else {
-        "A股涨跌与融资":render_breadth,"股指期货贴水":render_futures,"宽基ETF成交":render_etf}
+        "A股涨跌与融资":render_breadth,"股指期货贴水":render_futures,"宽基ETF成交":render_etf,
+        "ETF份额与申赎":render_etf_flows}
     selected=st.radio("查看内容",list(choices),horizontal=True,key="observatory_global" if global_page else "observatory_local")
     choices[selected]()

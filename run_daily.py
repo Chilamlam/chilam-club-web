@@ -69,6 +69,8 @@ STEPS: list[dict] = [
      "backfill": BACKFILL_NONE, "timeout": 90},
     {"key": "market_observatory", "script": "daily_market_observatory.py", "label": "期货贴水、ETF成交与海外市场归档",
      "backfill": BACKFILL_NONE, "timeout": 600},
+    {"key": "etf_flows", "script": "daily_etf_flows.py", "label": "宽基ETF份额申赎与融资结构",
+     "backfill": BACKFILL_INLINE, "backfill_cap": 400, "timeout": 900},
     {"key": "expire_orders", "script": "daily_expire_orders.py", "label": "订单过期清理",
      "backfill": BACKFILL_NONE, "timeout": 300},
     {"key": "rps", "script": "daily_rps_pro.py", "label": "RPS 强势股",
@@ -120,6 +122,9 @@ STEPS: list[dict] = [
 # 数据新鲜度自检：(标签, 单行 python 表达式脚本)。
 # 下沉到此处的理由与步骤表相同——新增产物只改 .py，不必再动 yml。
 FRESHNESS: list[tuple[str, str]] = [
+    ("ETF份额与申赎", "import json;d=json.load(open('data/observatory/etf_flows.json',encoding='utf-8'));"
+                   "r=d.get('rows') or [];print(d.get('status'),'| 份额截至',max((x['date'] for x in r),default='—'),"
+                   "'| ETF',len({x['symbol'] for x in r}),'| 记录',len(r),'| 未取得',len(d.get('errors') or []))"),
     ("市场情绪", "import pandas as pd;d=pd.read_csv('data/market_sentiment.csv');"
                  "print(d.iloc[-1].to_dict())"),
     # 日期列名两张表不一致（RPS 是中文「更新日期」，突破池是 update_date），

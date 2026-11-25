@@ -11,7 +11,7 @@ import threading
 # Dependencies precede their consumers, including consumers using `from ... import`.
 REVIEW_MODULES = (
     "data_freshness", "site_data", "stock_search", "navigation", "investor_journey", "fund_review",
-    "market_watch", "market_watch_data", "global_markets",
+    "market_watch", "market_watch_data", "global_markets", "etf_flows", "page_etf_flows",
     "strategy_playbooks", "decision_workbench", "journal_store",
     "ladder_themes", "theme_catalog", "sector_rotation", "review_template", "sentiment",
     "industry_signal", "review_language", "evening_plan", "scorecard", "page_scorecard", "narrative", "review_evidence", "digest",
