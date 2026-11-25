@@ -71,6 +71,8 @@ STEPS: list[dict] = [
      "backfill": BACKFILL_NONE, "timeout": 600},
     {"key": "etf_flows", "script": "daily_etf_flows.py", "label": "宽基ETF份额申赎与融资结构",
      "backfill": BACKFILL_INLINE, "backfill_cap": 400, "timeout": 900},
+    {"key": "cta_positions", "script": "daily_cta_positions.py", "label": "CFTC基金持仓与发布日历",
+     "backfill": BACKFILL_NONE, "timeout": 300},
     {"key": "expire_orders", "script": "daily_expire_orders.py", "label": "订单过期清理",
      "backfill": BACKFILL_NONE, "timeout": 300},
     {"key": "rps", "script": "daily_rps_pro.py", "label": "RPS 强势股",
@@ -122,6 +124,9 @@ STEPS: list[dict] = [
 # 数据新鲜度自检：(标签, 单行 python 表达式脚本)。
 # 下沉到此处的理由与步骤表相同——新增产物只改 .py，不必再动 yml。
 FRESHNESS: list[tuple[str, str]] = [
+    ("CFTC基金持仓", "import json;d=json.load(open('data/observatory/cta_positions.json',encoding='utf-8'));"
+                   "print(d.get('status'),'| 最近查新',d.get('checked_at'),'| 持仓日',"
+                   "{k:v.get('latest') for k,v in d.get('sources',{}).items()},'| 记录',len(d.get('rows') or []))"),
     ("ETF份额与申赎", "import json;d=json.load(open('data/observatory/etf_flows.json',encoding='utf-8'));"
                    "r=d.get('rows') or [];print(d.get('status'),'| 份额截至',max((x['date'] for x in r),default='—'),"
                    "'| ETF',len({x['symbol'] for x in r}),'| 记录',len(r),'| 未取得',len(d.get('errors') or []))"),
