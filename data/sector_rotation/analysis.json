@@ -124,8 +124,8 @@
   "overlap_count": 8,
   "overlap_denominator": 10,
   "top_median_pct": -6.17,
-  "universe_median_pct": -16.28,
-  "universe_count": 434,
+  "universe_median_pct": -16.29,
+  "universe_count": 435,
   "verdict": {
     "label": "榜单延续度较高",
     "reasons": [
@@ -134,7 +134,7 @@
     ],
     "watch": "下一交易日继续记录重合数；10只榜单中的 7 只只是本页分组边界。"
   },
-  "generated_at": "2026-11-25 19:14:50 CST",
+  "generated_at": "2026-11-26 04:18:23 CST",
   "source": "eastmoney_concept_boards",
   "data_channel": "tushare_dc",
   "channel_note": "东财 clist 本次取数失败或残缺（行数不足），改用 Tushare dc_index/dc_daily 重建——那是同一份东财概念板块数据",
