@@ -1,20 +1,7 @@
-"""板块轮动展示页：近 10 个交易日涨幅 Top10 概念板块 + 主升/轮动判读。
-
-数据链路：daily_sector_rotation.py（跑批）→ data/sector_rotation/{history.csv,
-analysis.json} → 本页只做渲染，不做计算（计算在 sector_rotation.py 计算层）。
-
-口径说明（必须如实展示）：
-- 板块口径是「东财概念板块」（约 500 个）。用户语境里的「同花顺题材概念」
-  没有免费的全量日频接口（名称接口无涨跌幅、历史接口逐板块限流），
-  东财概念板块覆盖等价的题材集合且一次请求组拿全量多窗口涨幅。
-- 属性型/复盘型板块（昨日涨停、基金重仓、沪深股通…）已从题材榜排除。
-- 判读是启发式描述（榜单重合度），不是操作建议。
-"""
+"""同花顺当日涨停归因轮动；东财概念指数作为独立的比较视图。"""
 from __future__ import annotations
 
 import html as _html
-import json
-import os
 
 import pandas as pd
 import plotly.express as px
@@ -22,43 +9,43 @@ import streamlit as st
 
 import sector_rotation as sr
 from ui_compat import html_embed
+from site_data import load_csv
+from theme_activity_ui import render_activity
 
 ANALYSIS_PATH = "data/sector_rotation/analysis.json"
 HISTORY_PATH = "data/sector_rotation/history.csv"
 
 _SOURCE_NOTE = (
-    "口径：东财概念板块（约 500 个，属性型板块已剔除）。"
+    "口径：东财概念板块（已排除指数成分、风格和持股等属性集合）。"
     "板块范围与其他平台可能不同；重合度只表示近10日涨幅榜的成员稳定程度。"
 )
 
 
-@st.cache_data(ttl=600)
 def load_analysis() -> dict | None:
-    if not os.path.exists(ANALYSIS_PATH):
-        return None
-    try:
-        with open(ANALYSIS_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return None
+    hist=load_csv(HISTORY_PATH)
+    return _analyze(hist) if hist is not None and not hist.empty else None
 
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=600,show_spinner=False)
+def _analyze(hist):
+    return sr.compute_analysis(hist)
+
+
 def load_history_tail() -> pd.DataFrame | None:
-    if not os.path.exists(HISTORY_PATH):
-        return None
-    try:
-        return pd.read_csv(HISTORY_PATH, dtype={"code": str})
-    except Exception:
-        return None
+    hist=load_csv(HISTORY_PATH)
+    return hist if hist is not None and not hist.empty else None
 
 
-@st.cache_data(ttl=600)
 def load_rank_matrix() -> dict | None:
     """排名矩阵：计算层从归档现算（None=归档不可读，绝不伪造空表）。"""
-    hist = sr.load_history(HISTORY_PATH)
+    hist = load_history_tail()
     if hist is None:
         return None
+    return _rank_matrix(hist)
+
+
+@st.cache_data(ttl=600,show_spinner=False)
+def _rank_matrix(hist):
     return sr.build_rank_matrix(hist)
 
 
@@ -153,9 +140,9 @@ def render_rank_matrix(matrix: dict | None) -> None:
     html_embed(f"<style>{css}</style>{table}", width=1000, height=560)
 
 
-def render_sector_rotation_page() -> None:
-    st.header("🔄 板块轮动")
-    st.caption("近10日强势题材的排名、当日表现和换位情况；先核对今天是否继续上涨。")
+def render_concept_comparison() -> None:
+    st.subheader("概念指数比较（东财）")
+    st.caption("比较概念指数的近10日表现；当日交易题材请看同花顺涨停归因视图。")
 
     data = load_analysis()
 
@@ -268,3 +255,12 @@ def render_sector_rotation_page() -> None:
 - **数据源**：{_SOURCE_NOTE}
 - **判读是客观描述，不构成任何操作建议**；不提供买点、目标价或仓位指引。
 """)
+
+
+def render_sector_rotation_page() -> None:
+    st.header("🔄 板块轮动")
+    view=st.radio("观察口径",["当日交易题材（同花顺归因）","概念指数比较（东财）"],horizontal=True,key="sector_view")
+    if view=="当日交易题材（同花顺归因）":
+        render_activity(key="rotation_theme")
+    else:
+        render_concept_comparison()

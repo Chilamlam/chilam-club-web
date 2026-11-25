@@ -11,6 +11,8 @@ from data_freshness import norm_date
 from site_data import load_csv, load_json
 from strategy_playbooks import PLAYBOOKS
 from update_schedule import beijing_now
+from theme_activity import trading_days
+from theme_activity_ui import render_activity
 
 SOURCE_LABELS = {"data/strong_stocks.csv": "RPS强度榜", "data/breakout_stocks.csv": "阶段新高池",
                  "data/strong_etfs.csv": "ETF强度榜", "pool_rubbing_breakout": "长影线与突破回踩池",
@@ -32,7 +34,7 @@ def load_insights(asof):
     days = mi.sessions(calendar, asof, 6)
     prices = load_csv("data/scorecard/prices.csv")
     plans = {d: load_json(f"data/evening_plan/history/{d}.json") for d in days}
-    archives = {d: load_json(f"data/theme_history/{d}.json") for d in days[-2:]}
+    archives = {d: load_json(f"data/theme_history/{d}.json") for d in trading_days(calendar,asof,20)}
     # Load files with revision-aware readers first. Cache only public calculations;
     # replacing any file invalidates its content hash, even inside the TTL.
     result = _calculate(mi.RULE_VERSION, asof, calendar, prices, plans, archives,
@@ -40,6 +42,8 @@ def load_insights(asof):
         load_csv("data/scorecard/picks.csv"), load_csv("data/sector_rotation/history.csv"),
         load_json("data/sentiment/derived.json"), load_csv("data/sentiment/breadth_history.csv"))
     result.update(ladder=load_json("data/limit_ladder.json"), attribution=load_json("data/limit_themes.json"))
+    if norm_date(result['ladder'].get('date'))==asof:
+        result['archives'][asof]=dict(date=asof,ladder=result['ladder'],attribution=result['attribution'])
     return result
 
 
@@ -120,55 +124,9 @@ def render_funding(analysis):
 
 
 def render_themes(analysis, asof):
-    result = analysis["themes"]
-    st.subheader("哪些方向在持续，哪些只是今天上涨？")
-    follow = result.get("followthrough")
-    if follow and follow["median"] is not None:
-        st.info(f"上一交易日（{follow['selected_on']}）近10日强度前列的 {follow['base']} 个方向，"
-                f"本日可核对 {follow['n']} 个，中位涨跌幅 **{pct(follow['median'])}**；"
-                f"仍在前列 **{follow['retained']} 个**。同日题材中位涨跌幅 {pct(follow['market_median'])}。")
-    rows = result["rows"]
-    if not rows:
-        st.info("板块历史缺失或本日快照不完整，暂时无法判断持续性。")
-        return
-    st.caption(f"数据日期 {asof} · 近5个交易日可用板块快照 {result['checked']}/5。按近10日涨幅前10名统计入榜次数。")
-    sort_options = {"近10日涨幅": "pct10", "今日涨幅": "pct", "近5日入榜次数": "appearances", "内部上涨占比": "breadth"}
-    order = st.selectbox("排序依据", list(sort_options), key="theme_sort")
-    field = sort_options[order]
-    rows = sorted(rows, key=lambda r: r[field] if r[field] is not None else float("-inf"), reverse=True)
-    st.dataframe(pd.DataFrame([{"方向": r["name"], "今日": pct(r["pct"]),
-        "近5日": pct(r["pct5"]), "近10日": pct(r["pct10"]), "近20日": pct(r["pct20"]),
-        "近5日进入前10": f"{r['appearances']}/{r['observed']}次", "近5日连续在前10": f"{r['streak']}日",
-        "内部上涨占比": f"{r['breadth']:.0%}" if r["breadth"] is not None else "—",
-        "上涨占比较前日(百分点)": (f"{r['breadth_delta']:+.1f}"
-                                          if r["breadth_delta"] is not None else "—")}
-        for r in rows]), hide_index=True, width="stretch")
-    options = {r["code"]: r for r in rows}
-    chosen = st.selectbox("查看方向内的涨停股票", list(options),
-                          format_func=lambda code: options[code]["name"], key="insight_theme")
-    row = options[chosen]
-    st.write(f"**{row['name']}**")
-    detail = mi.theme_leader_followers(row["name"], analysis["archives"], analysis["ladder"],
-        analysis["attribution"], analysis["prices"], analysis["calendar"], asof)
-    if detail["leaders"]:
-        groups = []
-        for label, group in (("昨日最高连板样本", detail["leaders"]), ("昨日其余涨停样本", detail["followers"])):
-            groups.append({"昨日身份": label, "今日中位涨跌幅": pct(group["median"]),
-                           "有效价格/样本": f"{group['n']}/{group['base']}"})
-        st.dataframe(pd.DataFrame(groups), hide_index=True, width="stretch")
-    st.caption(detail["note"])
-    members = detail["current"]
-    if members:
-        st.markdown("**本日明确归因到该方向的涨停股票**")
-        st.dataframe(pd.DataFrame([{"代码": r["symbol"], "名称": r["name"], "连板数": r["boards"],
-                                  "归因": r["theme"], "来源": r["source"]} for r in members]), hide_index=True, width="stretch")
-        journey.candidate_actions(pd.DataFrame(members), code_col="symbol", name_col="name", key="theme_insight")
-    else:
-        st.caption("本日涨停归因中没有同名标签；未用行业名称或关键词模糊匹配补齐股票。")
-    with st.expander("统计范围"):
-        st.write("展示当日、前一交易日近10日涨幅前10名，以及当日涨幅前5名的并集。内部上涨占比=上涨家数/(上涨+下跌家数)，不含平盘。板块可能交叉重叠。")
-        if result["missing"]:
-            st.write("缺少完整快照的日期：" + "、".join(result["missing"]))
+    st.subheader("哪些题材出现了联动，哪些股票还在其中？")
+    render_activity(key="tracking_theme",asof=asof,calendar=analysis['calendar'],
+        archives=analysis['archives'],prices=analysis['prices'],tracking=True)
 
 
 def candidate_detail(candidate, style, analysis, asof):

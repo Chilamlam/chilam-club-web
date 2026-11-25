@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import argparse
 import os
 import datetime as dt
 from pathlib import Path
@@ -27,11 +28,15 @@ def archive_attribution(ladder, payload, directory=None):
     directory = Path(directory) if directory is not None else ROOT / "data" / "theme_history"
     directory.mkdir(parents=True, exist_ok=True)
     target = directory / f"{date}.json"
+    historical_fetch=payload.get("historical_fetch",False)
     # A failed retry must not erase useful same-date evidence already archived.
     if target.exists():
         old = json.loads(target.read_text(encoding="utf-8"))
         payload = build_payload(ladder, payload.get("sources") or {},
                                 previous=old.get("attribution"), checked_at=payload.get("checked_at", ""))
+        historical_fetch=historical_fetch or old.get("attribution",{}).get("historical_fetch",False)
+    if historical_fetch:
+        payload['historical_fetch']=True
     tmp = target.with_suffix(".tmp")
     tmp.write_text(json.dumps({"date": date, "ladder": ladder, "attribution": payload},
                              ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -127,6 +132,9 @@ def fetch_sources(pro, ladder: dict) -> dict:
 def main():
     import tushare as ts
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--backfill", type=int, default=0)
+    args = parser.parse_args()
     token = (os.environ.get("TUSHARE_TOKEN") or "").strip()
     ladder = json.loads(LADDER_PATH.read_text(encoding="utf-8"))
     try:
@@ -141,6 +149,33 @@ def main():
     archive_attribution(ladder, payload)
     coverage = payload["coverage"]
     print(f"题材归因已保存：{payload['date']}，覆盖 {coverage['matched']}/{coverage['total']}")
+    if args.backfill > 0:
+        backfill_public_themes(min(args.backfill, 20), payload["date"])
+
+
+def backfill_public_themes(count, asof):
+    """Join explicitly dated source reasons to already archived limit-up stocks."""
+    import pandas as pd
+    history = pd.read_csv(ROOT / "data/sentiment/ladder_history.csv", dtype={"date":str,"code":str})
+    cal = json.loads((ROOT / "data/trading_calendar.json").read_text(encoding="utf-8"))
+    days = [d for d in cal.get("open_dates",[]) if d <= asof][-count:]
+    for date in days:
+        if date == asof:
+            continue
+        subset=history[history["date"] == date].astype(object)
+        stocks = subset.where(pd.notna(subset), None).to_dict("records")
+        if not stocks:
+            print(f"{date}：缺少当日涨停股归档，未回填")
+            continue
+        result = fetch_public_ths(date, [r["code"] for r in stocks])
+        if result.get("status") != "ok":
+            print(f"{date}：{result.get('status')}，保留原归档")
+            continue
+        ladder = dict(date=date,stocks=stocks,total_count=len(stocks))
+        payload = build_payload(ladder,{"ths_public":result},checked_at=beijing_now().isoformat())
+        payload["historical_fetch"] = True
+        archive_attribution(ladder,payload)
+        print(f"{date}：同花顺历史归因 {payload['coverage']['matched']}/{len(stocks)}")
 
 
 if __name__ == "__main__":

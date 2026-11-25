@@ -1,0 +1,606 @@
+{
+  "date": "20261118",
+  "ladder": {
+    "date": "20261118",
+    "stocks": [
+      {
+        "date": "20261118",
+        "code": "002685",
+        "name": "华东重机",
+        "industry": "工程机械",
+        "limit_times": 4,
+        "first_time": "09:25:00"
+      },
+      {
+        "date": "20261118",
+        "code": "603030",
+        "name": "全筑股份",
+        "industry": "装修装饰",
+        "limit_times": 2,
+        "first_time": "09:25:02"
+      },
+      {
+        "date": "20261118",
+        "code": "600410",
+        "name": "华胜天成",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 2,
+        "first_time": "09:55:01"
+      },
+      {
+        "date": "20261118",
+        "code": "301391",
+        "name": "卡莱特",
+        "industry": "计算机设",
+        "limit_times": 2,
+        "first_time": "10:15:54"
+      },
+      {
+        "date": "20261118",
+        "code": "000707",
+        "name": "双环科技",
+        "industry": "化学原料",
+        "limit_times": 2,
+        "first_time": "09:42:24"
+      },
+      {
+        "date": "20261118",
+        "code": "002843",
+        "name": "泰嘉股份",
+        "industry": "通用设备",
+        "limit_times": 2,
+        "first_time": "13:27:51"
+      },
+      {
+        "date": "20261118",
+        "code": "603324",
+        "name": "盛剑科技",
+        "industry": "环保设备",
+        "limit_times": 2,
+        "first_time": "09:25:00"
+      },
+      {
+        "date": "20261118",
+        "code": "002771",
+        "name": "真视通",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 2,
+        "first_time": "09:30:03"
+      },
+      {
+        "date": "20261118",
+        "code": "000889",
+        "name": "中嘉博创",
+        "industry": "通信服务",
+        "limit_times": 1,
+        "first_time": "09:45:57"
+      },
+      {
+        "date": "20261118",
+        "code": "603220",
+        "name": "中贝通信",
+        "industry": "通信服务",
+        "limit_times": 1,
+        "first_time": "11:14:03"
+      },
+      {
+        "date": "20261118",
+        "code": "000711",
+        "name": "京蓝科技",
+        "industry": "环境治理",
+        "limit_times": 1,
+        "first_time": "09:51:03"
+      },
+      {
+        "date": "20261118",
+        "code": "000980",
+        "name": "众泰汽车",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "09:46:54"
+      },
+      {
+        "date": "20261118",
+        "code": "300991",
+        "name": "创益通",
+        "industry": "其他电子",
+        "limit_times": 1,
+        "first_time": "09:45:06"
+      },
+      {
+        "date": "20261118",
+        "code": "603629",
+        "name": "利通电子",
+        "industry": "消费电子",
+        "limit_times": 1,
+        "first_time": "11:26:11"
+      },
+      {
+        "date": "20261118",
+        "code": "600405",
+        "name": "动力源",
+        "industry": "其他电源",
+        "limit_times": 1,
+        "first_time": "09:30:59"
+      },
+      {
+        "date": "20261118",
+        "code": "002148",
+        "name": "北纬科技",
+        "industry": "通信服务",
+        "limit_times": 1,
+        "first_time": "09:30:09"
+      },
+      {
+        "date": "20261118",
+        "code": "600156",
+        "name": "华升股份",
+        "industry": "纺织制造",
+        "limit_times": 1,
+        "first_time": "11:14:57"
+      },
+      {
+        "date": "20261118",
+        "code": "002042",
+        "name": "华孚时尚",
+        "industry": "纺织制造",
+        "limit_times": 1,
+        "first_time": "11:18:36"
+      },
+      {
+        "date": "20261118",
+        "code": "600839",
+        "name": "四川长虹",
+        "industry": "黑色家电",
+        "limit_times": 1,
+        "first_time": "09:35:01"
+      },
+      {
+        "date": "20261118",
+        "code": "603887",
+        "name": "城地香江",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "10:14:42"
+      },
+      {
+        "date": "20261118",
+        "code": "301396",
+        "name": "宏景科技",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:30:06"
+      },
+      {
+        "date": "20261118",
+        "code": "002272",
+        "name": "川润股份",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "13:31:12"
+      },
+      {
+        "date": "20261118",
+        "code": "000158",
+        "name": "常山北明",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "10:02:12"
+      },
+      {
+        "date": "20261118",
+        "code": "920924",
+        "name": "广脉科技",
+        "industry": "通信服务",
+        "limit_times": 1,
+        "first_time": "13:18:55"
+      },
+      {
+        "date": "20261118",
+        "code": "603985",
+        "name": "恒润股份",
+        "industry": "风电设备",
+        "limit_times": 1,
+        "first_time": "13:21:36"
+      },
+      {
+        "date": "20261118",
+        "code": "300324",
+        "name": "旋极信息",
+        "industry": "计算机设",
+        "limit_times": 1,
+        "first_time": "09:58:03"
+      },
+      {
+        "date": "20261118",
+        "code": "603657",
+        "name": "春光科技",
+        "industry": "家电零部",
+        "limit_times": 1,
+        "first_time": "09:30:13"
+      },
+      {
+        "date": "20261118",
+        "code": "002194",
+        "name": "武汉凡谷",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "09:30:00"
+      },
+      {
+        "date": "20261118",
+        "code": "000410",
+        "name": "沈阳机床",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "09:49:45"
+      },
+      {
+        "date": "20261118",
+        "code": "002463",
+        "name": "沪电股份",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "13:30:15"
+      },
+      {
+        "date": "20261118",
+        "code": "002929",
+        "name": "润建股份",
+        "industry": "通信服务",
+        "limit_times": 1,
+        "first_time": "11:14:54"
+      },
+      {
+        "date": "20261118",
+        "code": "002916",
+        "name": "深南电路",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "13:19:12"
+      },
+      {
+        "date": "20261118",
+        "code": "600336",
+        "name": "澳柯玛",
+        "industry": "白色家电",
+        "limit_times": 1,
+        "first_time": "09:30:28"
+      },
+      {
+        "date": "20261118",
+        "code": "002403",
+        "name": "爱仕达",
+        "industry": "小家电",
+        "limit_times": 1,
+        "first_time": "09:31:27"
+      },
+      {
+        "date": "20261118",
+        "code": "000815",
+        "name": "美利云",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "10:05:27"
+      },
+      {
+        "date": "20261118",
+        "code": "688757",
+        "name": "胜科纳米",
+        "industry": "专业服务",
+        "limit_times": 1,
+        "first_time": "13:19:40"
+      },
+      {
+        "date": "20261118",
+        "code": "600186",
+        "name": "莲花控股",
+        "industry": "调味发酵",
+        "limit_times": 1,
+        "first_time": "13:27:36"
+      },
+      {
+        "date": "20261118",
+        "code": "002197",
+        "name": "证通电子",
+        "industry": "计算机设",
+        "limit_times": 1,
+        "first_time": "10:12:45"
+      },
+      {
+        "date": "20261118",
+        "code": "688316",
+        "name": "青云科技-U",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:17:00"
+      },
+      {
+        "date": "20261118",
+        "code": "600162",
+        "name": "香江控股",
+        "industry": "房地产开",
+        "limit_times": 1,
+        "first_time": "10:55:27"
+      },
+      {
+        "date": "20261118",
+        "code": "002955",
+        "name": "鸿合科技",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "11:26:00"
+      }
+    ],
+    "total_count": 41
+  },
+  "attribution": {
+    "date": "20261118",
+    "checked_at": "2026-11-23T23:56:02.189518+08:00",
+    "sources": {
+      "ths_public": {
+        "status": "ok",
+        "records": {
+          "002463": {
+            "code": "002463",
+            "date": "20261118",
+            "reason": "",
+            "theme": "PCB+高速交换机+回购增持"
+          },
+          "600162": {
+            "code": "600162",
+            "date": "20261118",
+            "reason": "",
+            "theme": "算力运维+家居商贸+城市发展"
+          },
+          "002843": {
+            "code": "002843",
+            "date": "20261118",
+            "reason": "",
+            "theme": "服务器电源+锯切龙头+商业航天"
+          },
+          "600186": {
+            "code": "600186",
+            "date": "20261118",
+            "reason": "",
+            "theme": "算力租赁+类ABF膜+调味品"
+          },
+          "688757": {
+            "code": "688757",
+            "date": "20261118",
+            "reason": "",
+            "theme": "半导体检测+先进存储+光电子器件+CPO"
+          },
+          "002042": {
+            "code": "002042",
+            "date": "20261118",
+            "reason": "",
+            "theme": "算力租赁+色纺纱+回购注销"
+          },
+          "002272": {
+            "code": "002272",
+            "date": "20261118",
+            "reason": "",
+            "theme": "液冷+定增扩产+风电润滑+华为概念"
+          },
+          "301396": {
+            "code": "301396",
+            "date": "20261118",
+            "reason": "",
+            "theme": "算力租赁+推理算力+三季报增长"
+          },
+          "603985": {
+            "code": "603985",
+            "date": "20261118",
+            "reason": "",
+            "theme": "算力租赁+风电轴承+国企改革"
+          },
+          "002916": {
+            "code": "002916",
+            "date": "20261118",
+            "reason": "",
+            "theme": "AI算力PCB+封装基板+定增注册获批"
+          },
+          "688316": {
+            "code": "688316",
+            "date": "20261118",
+            "reason": "",
+            "theme": "算力租赁+Token工厂+AI算力云"
+          },
+          "002929": {
+            "code": "002929",
+            "date": "20261118",
+            "reason": "",
+            "theme": "词元出海+算力网络+算力租赁"
+          },
+          "603220": {
+            "code": "603220",
+            "date": "20261118",
+            "reason": "",
+            "theme": "算力租赁+6G+光模块+回购"
+          },
+          "603629": {
+            "code": "603629",
+            "date": "20261118",
+            "reason": "",
+            "theme": "算力租赁+英伟达概念+股份注销"
+          },
+          "000410": {
+            "code": "000410",
+            "date": "20261118",
+            "reason": "",
+            "theme": "工业母机+商业航天+央企"
+          },
+          "002148": {
+            "code": "002148",
+            "date": "20261118",
+            "reason": "",
+            "theme": "四足机器人+物联网+手机游戏"
+          },
+          "002955": {
+            "code": "002955",
+            "date": "20261118",
+            "reason": "",
+            "theme": "AI教育+智芯布局+智能交互显示"
+          },
+          "600156": {
+            "code": "600156",
+            "date": "20261118",
+            "reason": "",
+            "theme": "算力租赁+重组推进+麻纺+湖南国资"
+          },
+          "603887": {
+            "code": "603887",
+            "date": "20261118",
+            "reason": "",
+            "theme": "算力+东数西算+三季报增长"
+          },
+          "000815": {
+            "code": "000815",
+            "date": "20261118",
+            "reason": "",
+            "theme": "数据中心+东数西算+央企"
+          },
+          "000707": {
+            "code": "000707",
+            "date": "20261118",
+            "reason": "",
+            "theme": "氯化铵涨价+联碱+钠电池正极材料+湖北国资"
+          },
+          "002197": {
+            "code": "002197",
+            "date": "20261118",
+            "reason": "",
+            "theme": "算力+数据中心+金融科技"
+          },
+          "301391": {
+            "code": "301391",
+            "date": "20261118",
+            "reason": "",
+            "theme": "华为昇腾+AI算力调度+LED显示控制"
+          },
+          "300324": {
+            "code": "300324",
+            "date": "20261118",
+            "reason": "",
+            "theme": "AI芯片+算力+商业航天"
+          },
+          "000158": {
+            "code": "000158",
+            "date": "20261118",
+            "reason": "",
+            "theme": "华为昇腾+算力+AI应用"
+          },
+          "600410": {
+            "code": "600410",
+            "date": "20261118",
+            "reason": "",
+            "theme": "华为昇腾+AI算力+算力服务"
+          },
+          "000711": {
+            "code": "000711",
+            "date": "20261118",
+            "reason": "",
+            "theme": "7N高纯铟+铟资源循环+资产出售"
+          },
+          "000980": {
+            "code": "000980",
+            "date": "20261118",
+            "reason": "",
+            "theme": "聘任会计师事务所+汽车整车+高管增持+A0车型海外"
+          },
+          "000889": {
+            "code": "000889",
+            "date": "20261118",
+            "reason": "",
+            "theme": "算力销售+通信网络维护+业绩扭亏"
+          },
+          "300991": {
+            "code": "300991",
+            "date": "20261118",
+            "reason": "",
+            "theme": "高速连接器+存储互连"
+          },
+          "600839": {
+            "code": "600839",
+            "date": "20261118",
+            "reason": "",
+            "theme": "家电+出口+四川国资"
+          },
+          "600405": {
+            "code": "600405",
+            "date": "20261118",
+            "reason": "",
+            "theme": "AI智算中心电源+数据中心+液冷超充"
+          },
+          "002403": {
+            "code": "002403",
+            "date": "20261118",
+            "reason": "",
+            "theme": "人形机器人+智元合作+工业机器人"
+          },
+          "600336": {
+            "code": "600336",
+            "date": "20261118",
+            "reason": "",
+            "theme": "冰雪经济+家用电器+青岛国资"
+          },
+          "603657": {
+            "code": "603657",
+            "date": "20261118",
+            "reason": "",
+            "theme": "清洁电器代工+扫地机器人+家电出口"
+          },
+          "002771": {
+            "code": "002771",
+            "date": "20261118",
+            "reason": "",
+            "theme": "液冷算力+华为昇腾+多媒体视讯"
+          },
+          "002194": {
+            "code": "002194",
+            "date": "20261118",
+            "reason": "",
+            "theme": "6G预研+滤波器+卫星通信"
+          },
+          "603030": {
+            "code": "603030",
+            "date": "20261118",
+            "reason": "",
+            "theme": "边缘AI算力+智慧建筑+建筑装饰"
+          },
+          "603324": {
+            "code": "603324",
+            "date": "20261118",
+            "reason": "",
+            "theme": "光刻胶+半导体附属装备+电子化学品"
+          },
+          "002685": {
+            "code": "002685",
+            "date": "20261118",
+            "reason": "",
+            "theme": "GPU芯片+港口装卸设备+定增注册"
+          }
+        },
+        "rejected_dates": 0,
+        "conflicts": [],
+        "retained_count": 0
+      },
+      "ths": {
+        "status": "unavailable",
+        "records": {},
+        "retained_count": 0
+      },
+      "kpl": {
+        "status": "unavailable",
+        "records": {},
+        "retained_count": 0
+      }
+    },
+    "coverage": {
+      "matched": 40,
+      "total": 41
+    },
+    "historical_fetch": true
+  }
+}

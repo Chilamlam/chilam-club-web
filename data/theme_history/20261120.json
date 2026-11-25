@@ -1,240 +1,238 @@
 {
   "date": "20261120",
   "ladder": {
-    "date": "2026-11-20",
-    "update_time": "2026-11-23 02:16:56",
-    "total_count": 28,
-    "max_height": 4,
+    "date": "20261120",
     "stocks": [
       {
+        "date": "20261120",
         "code": "603324",
         "name": "盛剑科技",
         "industry": "环保设备",
         "limit_times": 4,
-        "first_time": "09:25:01",
-        "reason": "封板资金 0.43 亿 | 炸板 4 次"
+        "first_time": "09:25:01"
       },
       {
+        "date": "20261120",
         "code": "002771",
         "name": "真视通",
         "industry": "IT服务Ⅱ",
         "limit_times": 4,
-        "first_time": "09:30:21",
-        "reason": "封板资金 1.59 亿 | 炸板 0 次"
+        "first_time": "09:30:21"
       },
       {
+        "date": "20261120",
         "code": "002579",
         "name": "中京电子",
         "industry": "元件",
         "limit_times": 2,
-        "first_time": "09:36:24",
-        "reason": "封板资金 2.04 亿 | 炸板 0 次"
+        "first_time": "09:36:24"
       },
       {
+        "date": "20261120",
         "code": "600371",
         "name": "万向德农",
         "industry": "种植业",
         "limit_times": 1,
-        "first_time": "10:17:25",
-        "reason": "封板资金 0.55 亿 | 炸板 0 次"
+        "first_time": "10:17:25"
       },
       {
+        "date": "20261120",
         "code": "002086",
         "name": "东方海洋",
         "industry": "农产品加",
         "limit_times": 1,
-        "first_time": "09:42:06",
-        "reason": "封板资金 2.02 亿 | 炸板 0 次"
+        "first_time": "09:42:06"
       },
       {
+        "date": "20261120",
         "code": "002199",
         "name": "东晶电子",
         "industry": "元件",
         "limit_times": 1,
-        "first_time": "09:40:33",
-        "reason": "封板资金 0.29 亿 | 炸板 0 次"
+        "first_time": "09:40:33"
       },
       {
+        "date": "20261120",
         "code": "002741",
         "name": "光华科技",
         "industry": "电子化学",
         "limit_times": 1,
-        "first_time": "09:36:51",
-        "reason": "封板资金 0.49 亿 | 炸板 0 次"
+        "first_time": "09:36:51"
       },
       {
+        "date": "20261120",
         "code": "603960",
         "name": "克来机电",
         "industry": "汽车零部",
         "limit_times": 1,
-        "first_time": "10:34:12",
-        "reason": "封板资金 0.53 亿 | 炸板 0 次"
+        "first_time": "10:34:12"
       },
       {
+        "date": "20261120",
         "code": "000530",
         "name": "冰山冷热",
         "industry": "通用设备",
         "limit_times": 1,
-        "first_time": "10:00:54",
-        "reason": "封板资金 1.35 亿 | 炸板 2 次"
+        "first_time": "10:00:54"
       },
       {
+        "date": "20261120",
         "code": "301313",
         "name": "凡拓数创",
         "industry": "数字媒体",
         "limit_times": 1,
-        "first_time": "10:44:33",
-        "reason": "封板资金 0.9 亿 | 炸板 3 次"
+        "first_time": "10:44:33"
       },
       {
+        "date": "20261120",
         "code": "000607",
         "name": "华媒控股",
         "industry": "广告营销",
         "limit_times": 1,
-        "first_time": "11:17:12",
-        "reason": "封板资金 0.34 亿 | 炸板 0 次"
+        "first_time": "11:17:12"
       },
       {
+        "date": "20261120",
         "code": "600360",
         "name": "华微电子",
         "industry": "半导体",
         "limit_times": 1,
-        "first_time": "09:32:36",
-        "reason": "封板资金 0.63 亿 | 炸板 4 次"
+        "first_time": "09:32:36"
       },
       {
+        "date": "20261120",
         "code": "002749",
         "name": "国光股份",
         "industry": "农化制品",
         "limit_times": 1,
-        "first_time": "10:09:39",
-        "reason": "封板资金 0.35 亿 | 炸板 0 次"
+        "first_time": "10:09:39"
       },
       {
+        "date": "20261120",
         "code": "600327",
         "name": "大东方",
         "industry": "一般零售",
         "limit_times": 1,
-        "first_time": "11:12:19",
-        "reason": "封板资金 0.16 亿 | 炸板 3 次"
+        "first_time": "11:12:19"
       },
       {
+        "date": "20261120",
         "code": "600467",
         "name": "好当家",
         "industry": "渔业",
         "limit_times": 1,
-        "first_time": "11:26:46",
-        "reason": "封板资金 0.32 亿 | 炸板 2 次"
+        "first_time": "11:26:46"
       },
       {
+        "date": "20261120",
         "code": "603948",
         "name": "建业股份",
         "industry": "化学制品",
         "limit_times": 1,
-        "first_time": "09:37:57",
-        "reason": "封板资金 0.08 亿 | 炸板 4 次"
+        "first_time": "09:37:57"
       },
       {
+        "date": "20261120",
         "code": "000593",
         "name": "德龙汇能",
         "industry": "燃气Ⅱ",
         "limit_times": 1,
-        "first_time": "13:00:51",
-        "reason": "封板资金 0.54 亿 | 炸板 0 次"
+        "first_time": "13:00:51"
       },
       {
+        "date": "20261120",
         "code": "300812",
         "name": "易天股份",
         "industry": "消费电子",
         "limit_times": 1,
-        "first_time": "09:42:42",
-        "reason": "封板资金 0.12 亿 | 炸板 3 次"
+        "first_time": "09:42:42"
       },
       {
+        "date": "20261120",
         "code": "301132",
         "name": "满坤科技",
         "industry": "元件",
         "limit_times": 1,
-        "first_time": "11:20:27",
-        "reason": "封板资金 1.21 亿 | 炸板 0 次"
+        "first_time": "11:20:27"
       },
       {
+        "date": "20261120",
         "code": "605058",
         "name": "澳弘电子",
         "industry": "元件",
         "limit_times": 1,
-        "first_time": "10:04:24",
-        "reason": "封板资金 0.86 亿 | 炸板 0 次"
+        "first_time": "10:04:24"
       },
       {
+        "date": "20261120",
         "code": "002642",
         "name": "荣联科技",
         "industry": "IT服务Ⅱ",
         "limit_times": 1,
-        "first_time": "09:31:33",
-        "reason": "封板资金 0.94 亿 | 炸板 0 次"
+        "first_time": "09:31:33"
       },
       {
+        "date": "20261120",
         "code": "000823",
         "name": "超声电子",
         "industry": "元件",
         "limit_times": 1,
-        "first_time": "10:00:45",
-        "reason": "封板资金 1.67 亿 | 炸板 0 次"
+        "first_time": "10:00:45"
       },
       {
+        "date": "20261120",
         "code": "002548",
         "name": "金新农",
         "industry": "饲料",
         "limit_times": 1,
-        "first_time": "10:47:21",
-        "reason": "封板资金 0.1 亿 | 炸板 0 次"
+        "first_time": "10:47:21"
       },
       {
+        "date": "20261120",
         "code": "605018",
         "name": "长华集团",
         "industry": "汽车零部",
         "limit_times": 1,
-        "first_time": "10:14:31",
-        "reason": "封板资金 0.35 亿 | 炸板 0 次"
+        "first_time": "10:14:31"
       },
       {
+        "date": "20261120",
         "code": "603466",
         "name": "风语筑",
         "industry": "数字媒体",
         "limit_times": 1,
-        "first_time": "10:44:12",
-        "reason": "封板资金 0.52 亿 | 炸板 1 次"
+        "first_time": "10:44:12"
       },
       {
+        "date": "20261120",
         "code": "603386",
         "name": "骏亚科技",
         "industry": "元件",
         "limit_times": 1,
-        "first_time": "10:51:37",
-        "reason": "封板资金 0.63 亿 | 炸板 1 次"
+        "first_time": "10:51:37"
       },
       {
+        "date": "20261120",
         "code": "603004",
         "name": "鼎龙科技",
         "industry": "化学制品",
         "limit_times": 1,
-        "first_time": "10:30:09",
-        "reason": "封板资金 0.26 亿 | 炸板 0 次"
+        "first_time": "10:30:09"
       },
       {
+        "date": "20261120",
         "code": "605577",
         "name": "龙版传媒",
         "industry": "出版",
         "limit_times": 1,
-        "first_time": "09:47:10",
-        "reason": "封板资金 0.57 亿 | 炸板 1 次"
+        "first_time": "09:47:10"
       }
-    ]
+    ],
+    "total_count": 28
   },
   "attribution": {
     "date": "20261120",
-    "checked_at": "2026-11-23T11:44:10.555269+08:00",
+    "checked_at": "2026-11-23T23:56:02.563183+08:00",
     "sources": {
       "ths_public": {
         "status": "ok",
@@ -413,190 +411,189 @@
         "retained_count": 0
       },
       "ths": {
-        "status": "not_needed",
+        "status": "unavailable",
         "records": {},
         "retained_count": 0
       },
       "kpl": {
-        "status": "ok",
+        "status": "unavailable",
         "records": {
-          "000593": {
-            "code": "000593",
-            "date": "20261120",
-            "reason": "天然气",
-            "theme": "天然气、并购重组"
-          },
-          "600467": {
-            "code": "600467",
-            "date": "20261120",
-            "reason": "农业",
-            "theme": "水产品、农业"
-          },
-          "301132": {
-            "code": "301132",
-            "date": "20261120",
-            "reason": "PCB概念",
-            "theme": "PCB、通信"
-          },
-          "000607": {
-            "code": "000607",
-            "date": "20261120",
-            "reason": "AI视频",
-            "theme": "AI视频、AI应用"
-          },
-          "600327": {
-            "code": "600327",
-            "date": "20261120",
-            "reason": "零售",
-            "theme": "零售、信托概念"
-          },
-          "603386": {
-            "code": "603386",
-            "date": "20261120",
-            "reason": "PCB概念",
-            "theme": "PCB、通信"
-          },
-          "002548": {
-            "code": "002548",
-            "date": "20261120",
-            "reason": "农业",
-            "theme": "猪肉、农业"
-          },
-          "603466": {
-            "code": "603466",
-            "date": "20261120",
-            "reason": "机器人概念",
-            "theme": "数据采集、AI应用"
-          },
-          "301313": {
-            "code": "301313",
-            "date": "20261120",
-            "reason": "机器人概念",
-            "theme": "数据采集、数字经济"
-          },
-          "603960": {
-            "code": "603960",
-            "date": "20261120",
-            "reason": "机器人概念",
-            "theme": "机器人概念、CPO/MPO"
-          },
-          "603004": {
-            "code": "603004",
-            "date": "20261120",
-            "reason": "芯片",
-            "theme": "光刻胶、OLED"
-          },
-          "600371": {
-            "code": "600371",
-            "date": "20261120",
-            "reason": "农业",
-            "theme": "农业、种植业"
-          },
-          "605018": {
-            "code": "605018",
-            "date": "20261120",
-            "reason": "机器人概念",
-            "theme": "机器人概念、低空经济"
-          },
-          "002749": {
-            "code": "002749",
-            "date": "20261120",
-            "reason": "农业",
-            "theme": "化肥、农业"
-          },
-          "605058": {
-            "code": "605058",
-            "date": "20261120",
-            "reason": "PCB概念",
-            "theme": "PCB、PCB概念"
-          },
-          "000823": {
-            "code": "000823",
-            "date": "20261120",
-            "reason": "PCB概念",
-            "theme": "PCB、通信"
-          },
           "000530": {
-            "code": "000530",
             "date": "20261120",
             "reason": "冰雪产业",
-            "theme": "冰雪产业、算力"
+            "theme": "冰雪产业、算力",
+            "code": "000530"
           },
-          "605577": {
-            "code": "605577",
+          "000593": {
+            "date": "20261120",
+            "reason": "天然气",
+            "theme": "天然气、并购重组",
+            "code": "000593"
+          },
+          "000607": {
             "date": "20261120",
             "reason": "AI视频",
-            "theme": "AI视频、AI应用"
+            "theme": "AI视频、AI应用",
+            "code": "000607"
           },
-          "300812": {
-            "code": "300812",
-            "date": "20261120",
-            "reason": "芯片",
-            "theme": "先进封装、光通信"
-          },
-          "002086": {
-            "code": "002086",
-            "date": "20261120",
-            "reason": "农业",
-            "theme": "水产品、农业"
-          },
-          "002199": {
-            "code": "002199",
-            "date": "20261120",
-            "reason": "元器件",
-            "theme": "元器件、消费电子"
-          },
-          "603948": {
-            "code": "603948",
-            "date": "20261120",
-            "reason": "芯片",
-            "theme": "先进封装、化工"
-          },
-          "002579": {
-            "code": "002579",
+          "000823": {
             "date": "20261120",
             "reason": "PCB概念",
-            "theme": "PCB、端侧AI"
+            "theme": "PCB、通信",
+            "code": "000823"
           },
-          "002741": {
-            "code": "002741",
+          "002086": {
             "date": "20261120",
-            "reason": "芯片",
-            "theme": "光刻胶、通信"
+            "reason": "农业",
+            "theme": "水产品、农业",
+            "code": "002086"
           },
-          "600360": {
-            "code": "600360",
+          "002199": {
             "date": "20261120",
-            "reason": "芯片",
-            "theme": "IGBT、芯片"
+            "reason": "元器件",
+            "theme": "元器件、消费电子",
+            "code": "002199"
+          },
+          "002548": {
+            "date": "20261120",
+            "reason": "农业",
+            "theme": "猪肉、农业",
+            "code": "002548"
+          },
+          "002579": {
+            "date": "20261120",
+            "reason": "PCB概念",
+            "theme": "PCB、端侧AI",
+            "code": "002579"
           },
           "002642": {
-            "code": "002642",
             "date": "20261120",
             "reason": "算力",
-            "theme": "算力、国有企业"
+            "theme": "算力、国有企业",
+            "code": "002642"
           },
-          "002771": {
-            "code": "002771",
-            "date": "20261120",
-            "reason": "算力",
-            "theme": "算力、在线教育"
-          },
-          "603324": {
-            "code": "603324",
+          "002741": {
             "date": "20261120",
             "reason": "芯片",
-            "theme": "先进封装、芯片"
+            "theme": "光刻胶、通信",
+            "code": "002741"
+          },
+          "002749": {
+            "date": "20261120",
+            "reason": "农业",
+            "theme": "化肥、农业",
+            "code": "002749"
+          },
+          "002771": {
+            "date": "20261120",
+            "reason": "算力",
+            "theme": "算力、在线教育",
+            "code": "002771"
+          },
+          "300812": {
+            "date": "20261120",
+            "reason": "芯片",
+            "theme": "先进封装、光通信",
+            "code": "300812"
+          },
+          "301132": {
+            "date": "20261120",
+            "reason": "PCB概念",
+            "theme": "PCB、通信",
+            "code": "301132"
+          },
+          "301313": {
+            "date": "20261120",
+            "reason": "机器人概念",
+            "theme": "数据采集、数字经济",
+            "code": "301313"
+          },
+          "600327": {
+            "date": "20261120",
+            "reason": "零售",
+            "theme": "零售、信托概念",
+            "code": "600327"
+          },
+          "600360": {
+            "date": "20261120",
+            "reason": "芯片",
+            "theme": "IGBT、芯片",
+            "code": "600360"
+          },
+          "600371": {
+            "date": "20261120",
+            "reason": "农业",
+            "theme": "农业、种植业",
+            "code": "600371"
+          },
+          "600467": {
+            "date": "20261120",
+            "reason": "农业",
+            "theme": "水产品、农业",
+            "code": "600467"
+          },
+          "603004": {
+            "date": "20261120",
+            "reason": "芯片",
+            "theme": "光刻胶、OLED",
+            "code": "603004"
+          },
+          "603324": {
+            "date": "20261120",
+            "reason": "芯片",
+            "theme": "先进封装、芯片",
+            "code": "603324"
+          },
+          "603386": {
+            "date": "20261120",
+            "reason": "PCB概念",
+            "theme": "PCB、通信",
+            "code": "603386"
+          },
+          "603466": {
+            "date": "20261120",
+            "reason": "机器人概念",
+            "theme": "数据采集、AI应用",
+            "code": "603466"
+          },
+          "603948": {
+            "date": "20261120",
+            "reason": "芯片",
+            "theme": "先进封装、化工",
+            "code": "603948"
+          },
+          "603960": {
+            "date": "20261120",
+            "reason": "机器人概念",
+            "theme": "机器人概念、CPO/MPO",
+            "code": "603960"
+          },
+          "605018": {
+            "date": "20261120",
+            "reason": "机器人概念",
+            "theme": "机器人概念、低空经济",
+            "code": "605018"
+          },
+          "605058": {
+            "date": "20261120",
+            "reason": "PCB概念",
+            "theme": "PCB、PCB概念",
+            "code": "605058"
+          },
+          "605577": {
+            "date": "20261120",
+            "reason": "AI视频",
+            "theme": "AI视频、AI应用",
+            "code": "605577"
           }
         },
-        "rejected_dates": 0,
-        "conflicts": [],
-        "retained_count": 0
+        "retained_count": 28
       }
     },
     "coverage": {
       "matched": 28,
       "total": 28
-    }
+    },
+    "historical_fetch": true
   }
 }

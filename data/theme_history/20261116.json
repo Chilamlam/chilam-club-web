@@ -1,0 +1,486 @@
+{
+  "date": "20261116",
+  "ladder": {
+    "date": "20261116",
+    "stocks": [
+      {
+        "date": "20261116",
+        "code": "002148",
+        "name": "北纬科技",
+        "industry": "通信服务",
+        "limit_times": 4,
+        "first_time": "09:25:00"
+      },
+      {
+        "date": "20261116",
+        "code": "002205",
+        "name": "国统股份",
+        "industry": "水泥",
+        "limit_times": 3,
+        "first_time": "09:34:45"
+      },
+      {
+        "date": "20261116",
+        "code": "002187",
+        "name": "广百股份",
+        "industry": "一般零售",
+        "limit_times": 3,
+        "first_time": "09:30:03"
+      },
+      {
+        "date": "20261116",
+        "code": "002748",
+        "name": "世龙实业",
+        "industry": "化学原料",
+        "limit_times": 2,
+        "first_time": "10:23:39"
+      },
+      {
+        "date": "20261116",
+        "code": "002425",
+        "name": "凯撒文化",
+        "industry": "游戏Ⅱ",
+        "limit_times": 2,
+        "first_time": "09:30:00"
+      },
+      {
+        "date": "20261116",
+        "code": "002685",
+        "name": "华东重机",
+        "industry": "工程机械",
+        "limit_times": 2,
+        "first_time": "09:33:09"
+      },
+      {
+        "date": "20261116",
+        "code": "000819",
+        "name": "岳阳兴长",
+        "industry": "炼化及贸",
+        "limit_times": 2,
+        "first_time": "09:25:00"
+      },
+      {
+        "date": "20261116",
+        "code": "600715",
+        "name": "文投控股",
+        "industry": "游戏Ⅱ",
+        "limit_times": 2,
+        "first_time": "09:30:24"
+      },
+      {
+        "date": "20261116",
+        "code": "000595",
+        "name": "新能股份",
+        "industry": "电力",
+        "limit_times": 2,
+        "first_time": "11:14:51"
+      },
+      {
+        "date": "20261116",
+        "code": "002548",
+        "name": "金新农",
+        "industry": "饲料",
+        "limit_times": 2,
+        "first_time": "09:30:00"
+      },
+      {
+        "date": "20261116",
+        "code": "002905",
+        "name": "金逸影视",
+        "industry": "影视院线",
+        "limit_times": 2,
+        "first_time": "09:25:00"
+      },
+      {
+        "date": "20261116",
+        "code": "600822",
+        "name": "上海物贸",
+        "industry": "汽车服务",
+        "limit_times": 1,
+        "first_time": "09:46:34"
+      },
+      {
+        "date": "20261116",
+        "code": "603983",
+        "name": "丸美生物",
+        "industry": "化妆品",
+        "limit_times": 1,
+        "first_time": "10:36:13"
+      },
+      {
+        "date": "20261116",
+        "code": "603118",
+        "name": "共进股份",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "11:22:14"
+      },
+      {
+        "date": "20261116",
+        "code": "600386",
+        "name": "北巴传媒",
+        "industry": "汽车服务",
+        "limit_times": 1,
+        "first_time": "09:51:08"
+      },
+      {
+        "date": "20261116",
+        "code": "600936",
+        "name": "北投科技",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "09:47:41"
+      },
+      {
+        "date": "20261116",
+        "code": "300824",
+        "name": "北鼎股份",
+        "industry": "小家电",
+        "limit_times": 1,
+        "first_time": "10:45:09"
+      },
+      {
+        "date": "20261116",
+        "code": "002035",
+        "name": "华帝股份",
+        "industry": "厨卫电器",
+        "limit_times": 1,
+        "first_time": "09:48:45"
+      },
+      {
+        "date": "20261116",
+        "code": "000156",
+        "name": "华数传媒",
+        "industry": "电视广播",
+        "limit_times": 1,
+        "first_time": "10:53:30"
+      },
+      {
+        "date": "20261116",
+        "code": "601929",
+        "name": "吉视传媒",
+        "industry": "电视广播",
+        "limit_times": 1,
+        "first_time": "10:12:12"
+      },
+      {
+        "date": "20261116",
+        "code": "002419",
+        "name": "天虹股份",
+        "industry": "一般零售",
+        "limit_times": 1,
+        "first_time": "09:32:33"
+      },
+      {
+        "date": "20261116",
+        "code": "002959",
+        "name": "小熊电器",
+        "industry": "小家电",
+        "limit_times": 1,
+        "first_time": "10:42:54"
+      },
+      {
+        "date": "20261116",
+        "code": "002861",
+        "name": "瀛通通讯",
+        "industry": "消费电子",
+        "limit_times": 1,
+        "first_time": "13:05:57"
+      },
+      {
+        "date": "20261116",
+        "code": "002058",
+        "name": "紫竹高科",
+        "industry": "电池",
+        "limit_times": 1,
+        "first_time": "10:18:27"
+      },
+      {
+        "date": "20261116",
+        "code": "605378",
+        "name": "野马电池",
+        "industry": "电池",
+        "limit_times": 1,
+        "first_time": "09:36:49"
+      },
+      {
+        "date": "20261116",
+        "code": "000521",
+        "name": "长虹美菱",
+        "industry": "白色家电",
+        "limit_times": 1,
+        "first_time": "09:47:45"
+      },
+      {
+        "date": "20261116",
+        "code": "001318",
+        "name": "阳光乳业",
+        "industry": "饮料乳品",
+        "limit_times": 1,
+        "first_time": "09:57:03"
+      },
+      {
+        "date": "20261116",
+        "code": "000533",
+        "name": "顺钠股份",
+        "industry": "电网设备",
+        "limit_times": 1,
+        "first_time": "11:14:09"
+      },
+      {
+        "date": "20261116",
+        "code": "300530",
+        "name": "领湃科技",
+        "industry": "电池",
+        "limit_times": 1,
+        "first_time": "10:35:57"
+      },
+      {
+        "date": "20261116",
+        "code": "000628",
+        "name": "高新发展",
+        "industry": "房屋建设",
+        "limit_times": 1,
+        "first_time": "11:14:51"
+      },
+      {
+        "date": "20261116",
+        "code": "002356",
+        "name": "鹏飞绿能",
+        "industry": "一般零售",
+        "limit_times": 1,
+        "first_time": "09:36:00"
+      },
+      {
+        "date": "20261116",
+        "code": "601188",
+        "name": "龙江交通",
+        "industry": "铁路公路",
+        "limit_times": 1,
+        "first_time": "09:38:28"
+      }
+    ],
+    "total_count": 32
+  },
+  "attribution": {
+    "date": "20261116",
+    "checked_at": "2026-11-23T23:56:01.443194+08:00",
+    "sources": {
+      "ths_public": {
+        "status": "ok",
+        "records": {
+          "600715": {
+            "code": "600715",
+            "date": "20261116",
+            "reason": "",
+            "theme": "AI漫剧+剧集发行+北京国资"
+          },
+          "002205": {
+            "code": "002205",
+            "date": "20261116",
+            "reason": "",
+            "theme": "PCCP管道+风电混塔+央企控股"
+          },
+          "000819": {
+            "code": "000819",
+            "date": "20261116",
+            "reason": "",
+            "theme": "MOFs材料+茂金属聚烯烃+三季报扭亏"
+          },
+          "000595": {
+            "code": "000595",
+            "date": "20261116",
+            "reason": "",
+            "theme": "储能并网+风光储一体化+宁夏国资"
+          },
+          "603118": {
+            "code": "603118",
+            "date": "20261116",
+            "reason": "",
+            "theme": "数据中心交换机+具身机器人代工+国企"
+          },
+          "001318": {
+            "code": "001318",
+            "date": "20261116",
+            "reason": "",
+            "theme": "“羊”字辈+低温乳制品+送奶上户"
+          },
+          "300824": {
+            "code": "300824",
+            "date": "20261116",
+            "reason": "",
+            "theme": "高端厨小家电+自主品牌+内销增长"
+          },
+          "002356": {
+            "code": "002356",
+            "date": "20261116",
+            "reason": "",
+            "theme": "综合能源站+风光制氢+商贸零售"
+          },
+          "000156": {
+            "code": "000156",
+            "date": "20261116",
+            "reason": "",
+            "theme": "AI短剧+AI应用+杭州国资"
+          },
+          "002148": {
+            "code": "002148",
+            "date": "20261116",
+            "reason": "",
+            "theme": "四足机器人+物联网+手机游戏"
+          },
+          "002861": {
+            "code": "002861",
+            "date": "20261116",
+            "reason": "",
+            "theme": "AI眼镜+智能声学+消费电子"
+          },
+          "000628": {
+            "code": "000628",
+            "date": "20261116",
+            "reason": "",
+            "theme": "成都国资+功率半导体+虚拟电厂"
+          },
+          "000533": {
+            "code": "000533",
+            "date": "20261116",
+            "reason": "",
+            "theme": "数据中心配电+干式变压器+核电"
+          },
+          "002685": {
+            "code": "002685",
+            "date": "20261116",
+            "reason": "",
+            "theme": "GPU芯片+港口装卸设备+三季报增长"
+          },
+          "002035": {
+            "code": "002035",
+            "date": "20261116",
+            "reason": "",
+            "theme": "厨电+高股息"
+          },
+          "603983": {
+            "code": "603983",
+            "date": "20261116",
+            "reason": "",
+            "theme": "重组胶原蛋白+眼部护理+大消费"
+          },
+          "002959": {
+            "code": "002959",
+            "date": "20261116",
+            "reason": "",
+            "theme": "小家电+跨境电商+母婴产品"
+          },
+          "002748": {
+            "code": "002748",
+            "date": "20261116",
+            "reason": "",
+            "theme": "氯化亚砜+扩产+业绩增长"
+          },
+          "300530": {
+            "code": "300530",
+            "date": "20261116",
+            "reason": "",
+            "theme": "储能电池+钠离子电池+国企"
+          },
+          "002058": {
+            "code": "002058",
+            "date": "20261116",
+            "reason": "",
+            "theme": "固态电池+铝塑膜+汽车检具"
+          },
+          "601929": {
+            "code": "601929",
+            "date": "20261116",
+            "reason": "",
+            "theme": "AI微短剧+AI应用+智慧广电"
+          },
+          "601188": {
+            "code": "601188",
+            "date": "20261116",
+            "reason": "",
+            "theme": "冰雪旅游保障+高速公路运营+黑龙江国资"
+          },
+          "600386": {
+            "code": "600386",
+            "date": "20261116",
+            "reason": "",
+            "theme": "广告传媒+汽车服务+北京国资"
+          },
+          "000521": {
+            "code": "000521",
+            "date": "20261116",
+            "reason": "",
+            "theme": "B股估值提升+家电+国企"
+          },
+          "600936": {
+            "code": "600936",
+            "date": "20261116",
+            "reason": "",
+            "theme": "AI应用+平陆运河+广西国资"
+          },
+          "600822": {
+            "code": "600822",
+            "date": "20261116",
+            "reason": "",
+            "theme": "汽车贸易+有色金属交易平台+上海国资"
+          },
+          "002425": {
+            "code": "002425",
+            "date": "20261116",
+            "reason": "",
+            "theme": "AI游戏+手游IP储备+腾讯代理"
+          },
+          "605378": {
+            "code": "605378",
+            "date": "20261116",
+            "reason": "",
+            "theme": "董事会换届+锌锰电池+海外基地"
+          },
+          "002419": {
+            "code": "002419",
+            "date": "20261116",
+            "reason": "",
+            "theme": "“AI+零售”+超市调改+央企"
+          },
+          "002187": {
+            "code": "002187",
+            "date": "20261116",
+            "reason": "",
+            "theme": "百货零售+免税退税+广州国资"
+          },
+          "002548": {
+            "code": "002548",
+            "date": "20261116",
+            "reason": "",
+            "theme": "生猪养殖+猪饲料+养殖机器人"
+          },
+          "002905": {
+            "code": "002905",
+            "date": "20261116",
+            "reason": "",
+            "theme": "电影院线+特色影厅"
+          }
+        },
+        "rejected_dates": 0,
+        "conflicts": [],
+        "retained_count": 0
+      },
+      "ths": {
+        "status": "unavailable",
+        "records": {},
+        "retained_count": 0
+      },
+      "kpl": {
+        "status": "unavailable",
+        "records": {},
+        "retained_count": 0
+      }
+    },
+    "coverage": {
+      "matched": 32,
+      "total": 32
+    },
+    "historical_fetch": true
+  }
+}

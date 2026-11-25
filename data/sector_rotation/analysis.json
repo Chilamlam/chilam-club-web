@@ -12,94 +12,6 @@
   "top": [
     {
       "rank": 1,
-      "code": "BK1662",
-      "name": "权重股",
-      "pct_chg": 0.73,
-      "pct_5d": 0.93,
-      "pct_10d": 0.33,
-      "pct_20d": 0.81,
-      "pct_60d": -7.15,
-      "streak": 4
-    },
-    {
-      "rank": 2,
-      "code": "BK0611",
-      "name": "上证50_",
-      "pct_chg": 0.14,
-      "pct_5d": -0.05,
-      "pct_10d": -0.69,
-      "pct_20d": 0.14,
-      "pct_60d": -2.71,
-      "streak": 4
-    },
-    {
-      "rank": 3,
-      "code": "BK1666",
-      "name": "大盘价值",
-      "pct_chg": -0.86,
-      "pct_5d": -1.73,
-      "pct_10d": -1.95,
-      "pct_20d": -1.59,
-      "pct_60d": -3.08,
-      "streak": 4
-    },
-    {
-      "rank": 4,
-      "code": "BK0811",
-      "name": "超级品牌",
-      "pct_chg": -0.24,
-      "pct_5d": -2.07,
-      "pct_10d": -2.24,
-      "pct_20d": 0.6,
-      "pct_60d": -1.2,
-      "streak": 1
-    },
-    {
-      "rank": 5,
-      "code": "BK1711",
-      "name": "消费风格",
-      "pct_chg": 0.27,
-      "pct_5d": -1.89,
-      "pct_10d": -2.25,
-      "pct_20d": 1.67,
-      "pct_60d": -3.99,
-      "streak": 1
-    },
-    {
-      "rank": 6,
-      "code": "BK0999",
-      "name": "茅指数",
-      "pct_chg": -0.24,
-      "pct_5d": -1.11,
-      "pct_10d": -2.28,
-      "pct_20d": 3.28,
-      "pct_60d": -2.27,
-      "streak": 2
-    },
-    {
-      "rank": 7,
-      "code": "BK0612",
-      "name": "上证180_",
-      "pct_chg": 0.0,
-      "pct_5d": -0.7,
-      "pct_10d": -2.34,
-      "pct_20d": -0.98,
-      "pct_60d": -6.01,
-      "streak": 2
-    },
-    {
-      "rank": 8,
-      "code": "BK1714",
-      "name": "金融地产风格",
-      "pct_chg": -0.84,
-      "pct_5d": -2.27,
-      "pct_10d": -2.49,
-      "pct_20d": -1.94,
-      "pct_60d": -3.72,
-      "streak": 4
-    },
-    {
-      "rank": 9,
       "code": "BK1139",
       "name": "中特估",
       "pct_chg": -0.53,
@@ -107,40 +19,119 @@
       "pct_10d": -2.78,
       "pct_20d": -2.42,
       "pct_60d": -2.28,
+      "streak": 4
+    },
+    {
+      "rank": 2,
+      "code": "BK1068",
+      "name": "净水概念",
+      "pct_chg": 1.7,
+      "pct_5d": -3.15,
+      "pct_10d": -3.06,
+      "pct_20d": 0.41,
+      "pct_60d": -1.64,
+      "streak": 7
+    },
+    {
+      "rank": 3,
+      "code": "BK1784",
+      "name": "中韩自贸区",
+      "pct_chg": -0.12,
+      "pct_5d": -3.61,
+      "pct_10d": -3.67,
+      "pct_20d": null,
+      "pct_60d": null,
+      "streak": 5
+    },
+    {
+      "rank": 4,
+      "code": "BK0882",
+      "name": "猪肉概念",
+      "pct_chg": 0.06,
+      "pct_5d": -2.89,
+      "pct_10d": -3.92,
+      "pct_20d": -0.44,
+      "pct_60d": -5.65,
+      "streak": 3
+    },
+    {
+      "rank": 5,
+      "code": "BK0947",
+      "name": "屏下摄像",
+      "pct_chg": 1.87,
+      "pct_5d": -0.24,
+      "pct_10d": -4.3,
+      "pct_20d": -4.26,
+      "pct_60d": -14.79,
       "streak": 1
     },
     {
-      "rank": 10,
-      "code": "BK1638",
-      "name": "最近多板",
-      "pct_chg": 3.82,
-      "pct_5d": 3.78,
-      "pct_10d": -2.93,
-      "pct_20d": 5.01,
-      "pct_60d": 14.56,
+      "rank": 6,
+      "code": "BK1753",
+      "name": "光刻胶",
+      "pct_chg": 0.74,
+      "pct_5d": -1.78,
+      "pct_10d": -4.42,
+      "pct_20d": -2.3,
+      "pct_60d": -20.7,
       "streak": 2
+    },
+    {
+      "rank": 7,
+      "code": "BK0711",
+      "name": "券商概念",
+      "pct_chg": -1.61,
+      "pct_5d": -3.0,
+      "pct_10d": -5.22,
+      "pct_20d": -5.71,
+      "pct_60d": -10.8,
+      "streak": 1
+    },
+    {
+      "rank": 8,
+      "code": "BK0887",
+      "name": "鸡肉概念",
+      "pct_chg": -0.79,
+      "pct_5d": -4.63,
+      "pct_10d": -5.59,
+      "pct_20d": -2.77,
+      "pct_60d": -6.52,
+      "streak": 1
+    },
+    {
+      "rank": 9,
+      "code": "BK1121",
+      "name": "第四代半导体",
+      "pct_chg": -0.99,
+      "pct_5d": -2.39,
+      "pct_10d": -6.13,
+      "pct_20d": -5.58,
+      "pct_60d": -21.26,
+      "streak": 2
+    },
+    {
+      "rank": 10,
+      "code": "BK0967",
+      "name": "水产概念",
+      "pct_chg": 0.13,
+      "pct_5d": -2.3,
+      "pct_10d": -6.5,
+      "pct_20d": -0.59,
+      "pct_60d": -2.74,
+      "streak": 1
     }
   ],
-  "overlap_count": 7,
+  "overlap_count": 6,
   "overlap_denominator": 10,
-  "top_median_pct": -2.26,
-  "universe_median_pct": -11.62,
-  "universe_count": 518,
+  "top_median_pct": -4.36,
+  "universe_median_pct": -11.83,
+  "universe_count": 435,
   "verdict": {
-    "label": "榜单延续度较高",
+    "label": "榜单延续度居中",
     "reasons": [
-      "Top10 与上一交易日（2026-11-23）重合 7/10，榜单重合数位于本页的高重合分组；",
-      "Top10 10d涨幅中位数 -2.3%，全市场概念板块中位数 -11.6%。"
+      "Top10 与上一交易日（2026-11-23）重合 6/10，重合数位于本页高、低分组之间；",
+      "Top10 10d涨幅中位数 -4.4%，全市场概念板块中位数 -11.8%。"
     ],
-    "watch": "下一交易日继续记录重合数；10只榜单中的 7 只只是本页分组边界。"
-  },
-  "generated_at": "2026-11-25 07:42:08 CST",
-  "source": "eastmoney_concept_boards",
-  "data_channel": "tushare_dc",
-  "channel_note": "东财 clist 本次取数失败或残缺（行数不足），改用 Tushare dc_index/dc_daily 重建——那是同一份东财概念板块数据",
-  "fallback_probe": {
-    "ok": true,
-    "checked_date": "2026-11-24",
-    "is_trade_day": true
+    "watch": "下一交易日继续记录重合数和各股票涨幅，不把单日重合数外推为持续主线。"
   }
 }

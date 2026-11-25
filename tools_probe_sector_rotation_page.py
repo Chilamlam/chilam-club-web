@@ -59,7 +59,7 @@ SCRIPT.write_text(
     "p.load_history_tail = lambda: None\n"
     "if fx.get('max_gap') is not None:\n"
     "    p.sr.MAX_PREV_GAP_DAYS = fx['max_gap']\n"
-    "p.render_sector_rotation_page()\n",
+    "p.render_concept_comparison()\n",
     encoding="utf-8",
 )
 
@@ -269,9 +269,8 @@ def test_adjacent_normal() -> None:
 def test_gap_scenario() -> None:
     """归档缺了交易日 → 页面必须自曝，且不许把空档当「上一交易日」。"""
     an = _analysis(DATES_GAP, style_pct_10d=999.0)
-    check("元断言：合成归档确实造成缺口（label=样本不连续）",
-          an["verdict"]["label"] == "样本不连续"
-          and an["prev_is_adjacent"] is False
+    check("元断言：合成归档确实造成缺口",
+          an["prev_is_adjacent"] is False
           and an["overlap_count"] is None,
           f"label={an['verdict']['label']} adj={an['prev_is_adjacent']} "
           f"overlap={an['overlap_count']}")
@@ -294,13 +293,11 @@ def test_gap_scenario() -> None:
     check("缺口说明带出判据阈值",
           f"相邻交易日判据 {sr.MAX_PREV_GAP_DAYS} 天" in cap)
     check("缺口说明点明「不计算榜单重合度」", "不计算榜单重合度" in cap)
-    check("缺口说明点明「不给明日观察条件」", "明日观察" in cap)
-    check("判读标签渲染为「样本不连续」", "样本不连续" in texts(at))
-    check("判读用 warning 呈现（需人处理的异常，不是等着就好的 info）",
-          any("样本不连续" in str(w.value) for w in at.warning),
-          str([str(w.value) for w in at.warning]))
-    check("计算层的缺口理由（带相隔天数）原样上屏",
-          an["verdict"]["reasons"][0] in tx, "")
+    check("缺口说明解释跨空档不代表日间轮动", "不是日间轮动" in cap)
+    check("缺口提示出现在页面状态中",
+          any("不计算本次榜单重合数" in str(w.value) for w in at.info))
+    check("页面不再把榜单重合度定性为行情阶段",
+          all(label not in tx for label in ("主线主升", "快速轮动", "样本不连续")))
 
     # ---- 反向观察：不许伪装成日间轮动 ----
     check("缺口时不出现「与上一交易日重合」措辞（否则等于把空档当相邻）",
@@ -353,7 +350,7 @@ def test_gap_unparsable_prev_date() -> None:
     check("坏日期仍显示 — 而非 0/10",
           metric_map(at).get("Top10 榜单重合度") == "—",
           str(metric_map(at).get("Top10 榜单重合度")))
-    check("坏日期也走「样本不连续」判读", "样本不连续" in tx)
+    check("坏日期不输出阶段判读", "样本不连续" not in tx and "主线主升" not in tx)
 
 
 # ============================ 4. 缺口 + 明细为空 ============================
@@ -470,15 +467,13 @@ def test_source_wiring() -> None:
     src = (ROOT / "page_sector_rotation.py").read_text(encoding="utf-8")
 
     # 用正则而不是 in：把条件改成永假时字符串照样在文件里，`in` 抓不到这种退坏
-    check("页面：存在「样本不连续」判读分支",
-          re.search(r'elif\s+label\s*==\s*"样本不连续"\s*:', src) is not None)
-    check("页面：「样本不连续」用 st.warning 呈现",
-          re.search(r'elif\s+label\s*==\s*"样本不连续"\s*:[\s\S]{0,200}?st\.warning\(',
-                    src) is not None)
+    check("页面：同花顺实际归因使用共享题材视图",
+          'render_activity(key="rotation_theme")' in src)
+    check("页面：东财指数比较保留独立入口",
+          'def render_concept_comparison()' in src)
     check("页面：缺口阈值引用 sr.MAX_PREV_GAP_DAYS（不是字面量 12）",
           re.search(r'相邻交易日判据\s*\{sr\.MAX_PREV_GAP_DAYS\}', src) is not None)
-    check("页面：watch 渲染前有真值判断（None 不进 caption）",
-          re.search(r'if\s+verdict\.get\("watch"\)\s*:', src) is not None)
+    check("页面：不再渲染旧版自动明日观察结论", 'verdict.get("watch")' not in src)
     check("页面：重合度 help 按 prev_is_adjacent 分支",
           re.search(r'prev_is_adjacent"\)\s*is\s+not\s+False', src) is not None)
     check("页面：缺口说明位于「无上榜板块」提前 return 之前",
@@ -504,9 +499,9 @@ def test_fixture_injection_effective() -> None:
     check("元断言：两次渲染的数据日期确实不同（fixture 注入生效）",
           d1 == DATES_ADJ[-1] and d2 == "2026-10-12",
           f"{d1} vs {d2}")
-    check("元断言：两次渲染的判读确实不同",
-          "样本不连续" not in texts(at_adj)
-          and "样本不连续" in texts(at_gap), "")
+    check("元断言：缺口提示只出现在缺口场景",
+          GAP_CAPTION_MARK not in texts(at_adj)
+          and GAP_CAPTION_MARK in texts(at_gap), "")
     check("元断言：两次渲染的重合度 KPI 确实不同",
           metric_map(at_adj).get("Top10 榜单重合度") != "—"
           and metric_map(at_gap).get("Top10 榜单重合度") == "—", "")
@@ -518,8 +513,8 @@ def test_missing_and_no_data() -> None:
     at = render(None)
     check("产物不存在：渲染不抛异常", not at.exception,
           str(at.exception[0].message)[:160] if at.exception else "")
-    check("产物不存在：给出「初始化中」提示而非报错数据缺失",
-          "初始化中" in texts(at), texts(at)[:120])
+    check("产物不存在：如实提示等待数据生成",
+          "数据尚未生成" in texts(at), texts(at)[:120])
     check("产物不存在：没有误报缺口", GAP_CAPTION_MARK not in texts(at))
 
     at2 = render({"status": "no_data", "reason": "东财接口取数失败"})
