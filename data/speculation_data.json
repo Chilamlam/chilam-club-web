@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-26 04:10:53",
+  "date": "2026-11-26 07:12:11",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -353,19 +353,6 @@
       "nav_status": "同日净值"
     },
     {
-      "code": "161725.SZ",
-      "name": "白酒基金LOF",
-      "price": 0.569,
-      "change": 0.89,
-      "vol_yi": 0.19,
-      "quote_date": "20261125",
-      "nav_date": "20261125",
-      "nav": 0.5721,
-      "premium_rate": -0.542,
-      "reference_gap": null,
-      "nav_status": "同日净值"
-    },
-    {
       "code": "159843.SZ",
       "name": "食品饮料ETF招商",
       "price": 0.566,
@@ -375,6 +362,19 @@
       "nav_date": "20261125",
       "nav": 0.5655,
       "premium_rate": 0.088,
+      "reference_gap": null,
+      "nav_status": "同日净值"
+    },
+    {
+      "code": "161725.SZ",
+      "name": "白酒基金LOF",
+      "price": 0.569,
+      "change": 0.89,
+      "vol_yi": 0.19,
+      "quote_date": "20261125",
+      "nav_date": "20261125",
+      "nav": 0.5721,
+      "premium_rate": -0.542,
       "reference_gap": null,
       "nav_status": "同日净值"
     },
@@ -431,15 +431,15 @@
       "nav_status": "同日净值"
     },
     {
-      "code": "510630.SH",
-      "name": "消费ETF华夏",
-      "price": 0.848,
+      "code": "159297.SZ",
+      "name": "港股通创新药ETF南方",
+      "price": 0.609,
       "change": 0.83,
-      "vol_yi": 0.47,
+      "vol_yi": 2.28,
       "quote_date": "20261125",
       "nav_date": "20261125",
-      "nav": 0.8481,
-      "premium_rate": -0.012,
+      "nav": 0.6127,
+      "premium_rate": -0.604,
       "reference_gap": null,
       "nav_status": "同日净值"
     }
