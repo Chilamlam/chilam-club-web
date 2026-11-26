@@ -11,7 +11,7 @@ import journal_store
 import investor_journey as journey
 import research_store as store
 import research_workspace as workspace
-from strategy_playbooks import PLAYBOOKS
+from strategy_playbooks import JOURNAL_STYLES as PLAYBOOKS
 from update_schedule import beijing_now
 
 
@@ -93,16 +93,19 @@ def editor(record, *, prefix="research"):
         cost_risk = st.text_input("可承受损失与执行限制", value=values["cost_risk"],
                                  help="记录自己能承担的损失、盯盘时间以及成交限制。")
         due = st.date_input("下次复核日", value=date_value(values.get("review_on")))
-        with st.expander("设置价格复核条件（可留空）"):
-            st.caption("使用未复权价格，在收盘数据更新后对照。除权除息后请重新核对价位；达到价位时仍由你判断是否行动。")
-            c1, c2 = st.columns(2)
-            low = c1.number_input("观察区间下沿", min_value=0.0, value=values.get("observe_low"), step=0.01, format="%.3f")
-            high = c2.number_input("观察区间上沿", min_value=0.0, value=values.get("observe_high"), step=0.01, format="%.3f")
-            below = c1.number_input("收盘不高于此价时复核", min_value=0.0, value=values.get("invalid_below"), step=0.01, format="%.3f")
-            above = c2.number_input("收盘不低于此价时复核", min_value=0.0, value=values.get("invalid_above"), step=0.01, format="%.3f")
-            basis = st.date_input("价位适用日期", value=date_value(values.get("price_basis_date")) or beijing_now().date())
+        option_plan = record["plan"]["style"] == "us_options"
+        low, high, below, above, basis = None, None, None, None, None
+        if not option_plan:
+            with st.expander("设置价格复核条件（可留空）"):
+                st.caption("使用未复权价格，在收盘数据更新后对照。除权除息后请重新核对价位；达到价位时仍由你判断是否行动。")
+                c1, c2 = st.columns(2)
+                low = c1.number_input("观察区间下沿", min_value=0.0, value=values.get("observe_low"), step=0.01, format="%.3f")
+                high = c2.number_input("观察区间上沿", min_value=0.0, value=values.get("observe_high"), step=0.01, format="%.3f")
+                below = c1.number_input("收盘不高于此价时复核", min_value=0.0, value=values.get("invalid_below"), step=0.01, format="%.3f")
+                above = c2.number_input("收盘不低于此价时复核", min_value=0.0, value=values.get("invalid_above"), step=0.01, format="%.3f")
+                basis = st.date_input("价位适用日期", value=date_value(values.get("price_basis_date")) or beijing_now().date())
         shares, cost, position_date = values.get("shares"), values.get("cost_price"), values.get("position_date")
-        if record["plan"]["mode"] == "实盘记录":
+        if record["plan"]["mode"] == "实盘记录" and not option_plan:
             with st.expander("记录实际持仓（可留空）"):
                 st.caption("填写当前持有数量与每股成本。数量填 0 表示已无持仓；分红、送转及增减仓后请更新。")
                 a, b = st.columns(2)
@@ -127,14 +130,15 @@ def editor(record, *, prefix="research"):
 
 def execution(record):
     outcome = record["outcome"]
+    unit = "USD" if record["plan"].get("currency") == "USD" else "元"
     with st.form(f"{store.key()}_{record['id']}_execution"):
         status = st.selectbox("跟踪状态", engine.STATUSES, index=engine.STATUSES.index(outcome["status"]))
         options = ("待复核", "按计划", "偏离计划")
         discipline = st.selectbox("执行质量", options, index=options.index(outcome.get("discipline", "待复核")))
         notes = st.text_area("实际发生了什么 / 偏差原因 / 下次只改哪条规则", value=outcome.get("notes", ""))
         cols = st.columns(3)
-        gross = cols[0].number_input("毛盈亏（元，结束时填写）", value=outcome.get("gross_pnl"), step=100.0)
-        costs = cols[1].number_input("总成本（元，含手续费与滑点）", min_value=0.0, value=outcome.get("costs"), step=1.0)
+        gross = cols[0].number_input(f"毛盈亏（{unit}，结束时填写）", value=outcome.get("gross_pnl"), step=100.0)
+        costs = cols[1].number_input(f"总成本（{unit}，含手续费与滑点）", min_value=0.0, value=outcome.get("costs"), step=1.0)
         closed = cols[2].date_input("结束日期", value=date_value(outcome.get("closed_on")), max_value=beijing_now().date())
         st.caption("未参与的计划可标记“已放弃”；已结束的交易记录计入个人统计。")
         submitted = st.form_submit_button("保存跟踪结果")
@@ -152,6 +156,10 @@ def detail(record, quote=None):
     plan = record["plan"]
     st.subheader(f"{plan.get('name') or plan['symbol']} · {plan['symbol']}")
     st.caption(f"{PLAYBOOKS[plan['style']]['name']} · {plan['mode']} · 建立于 {record['created_at'][:10]} · 依据数据 {plan['asof']} · {record['outcome']['status']}")
+    option_plan = plan["style"] == "us_options"
+    if option_plan:
+        from page_us_options import render_saved_options
+        render_saved_options(record)
     if quote:
         st.write(f"最近可用收盘 **{quote['close']:g} 元** · {quote['date']} · {quote['source']}")
     relay_evidence=(plan.get('market_evidence') or {}).get('theme_relay')
@@ -161,10 +169,10 @@ def detail(record, quote=None):
             render_relay_followup(relay_evidence,record['id'])
         except (ValueError,KeyError,TypeError):
             st.info('原题材预案的对照资料不完整，可继续查看和修改下方个人研究条件。')
-    for item in workspace.price_checks(record, quote, today=beijing_now().strftime("%Y%m%d")):
+    for item in ([] if option_plan else workspace.price_checks(record, quote, today=beijing_now().strftime("%Y%m%d"))):
         st.info(item["text"])
     a, b = st.columns(2)
-    if a.button("查看技术图 →", key=store.key()+record["id"]+"_chart", width="stretch"):
+    if not option_plan and a.button("查看技术图 →", key=store.key()+record["id"]+"_chart", width="stretch"):
         journey.go(journey.QUOTE_PAGE, plan["symbol"])
     if plan["mode"] != "实盘记录" and b.button("建立实盘记录", key=store.key()+record["id"]+"_real", width="stretch"):
         saved, err = store.new_real_record(record)
@@ -192,7 +200,7 @@ def detail(record, quote=None):
                 for key, label in labels.items():
                     if values.get(key) is not None and values.get(key) != "":
                         st.write(f"{label}：{values[key]}")
-        st.download_button("下载这只股票的研究", engine.plan_markdown(record), "stock-research.md", "text/markdown", key=record["id"]+"_export")
+        st.download_button("下载这份研究", engine.plan_markdown(record), "research.md", "text/markdown", key=record["id"]+"_export")
     if record.get("_save_error", {}).get("code") == "CONFLICT":
         with st.expander("解决同步冲突"):
             st.caption("先下载当前备份，再选择保留哪份内容。")
@@ -219,6 +227,8 @@ def detail(record, quote=None):
 
 
 def position_table(records, quotes):
+    if any(r["plan"]["style"] == "us_options" for r in records.values()):
+        st.caption("美股期权在各自研究档案按组合复核，未纳入下方人民币股票持仓表。")
     result = workspace.holdings(list(records.values()), quotes)
     if result["duplicates"]:
         st.warning("以下股票有多条未结束的实盘持仓记录，暂不汇总，请先核对：" + "、".join(result["duplicates"]))

@@ -92,3 +92,6 @@ PLAYBOOKS = {
         "pages": [("ETF 强度榜", "🔥 强势股"), ("宏观风险", "🌐 宏观与股债性价比")],
     },
 }
+
+# Research records extend beyond the A-share candidate-pool taxonomy.
+JOURNAL_STYLES = {**PLAYBOOKS, "us_options": {"name": "美股 ETF 期权", "pools": []}}

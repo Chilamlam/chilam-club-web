@@ -188,5 +188,5 @@ def render_symbol_workspace(symbol: str, name: str = "", *, key: str = "symbol")
 
 
 def _playbook_label(record):
-    from strategy_playbooks import PLAYBOOKS
+    from strategy_playbooks import JOURNAL_STYLES as PLAYBOOKS
     return PLAYBOOKS[record["plan"]["style"]]["name"] + " · " + record["plan"]["mode"]

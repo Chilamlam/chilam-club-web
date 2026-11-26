@@ -16,7 +16,7 @@ class NavigationTests(unittest.TestCase):
                     and isinstance(node.comparators[0], ast.Constant)):
                 routes.append(node.comparators[0].value)
         pages = [page for description, entries in NAV_GROUPS.values() for page in entries]
-        self.assertEqual(len(pages), 24)
+        self.assertEqual(len(pages), 25)
         self.assertEqual(len(pages), len(set(pages)))
         self.assertEqual(set(pages), set(routes))
         self.assertEqual(next(iter(NAV_GROUPS.values()))[1][0], DEFAULT_PAGE)

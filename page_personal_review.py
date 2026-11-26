@@ -13,7 +13,7 @@ import research_store as store
 import research_ui
 import research_workspace as workspace
 from site_data import load_csv
-from strategy_playbooks import PLAYBOOKS
+from strategy_playbooks import JOURNAL_STYLES as PLAYBOOKS, PLAYBOOKS as A_SHARE_STYLES
 from stock_search import stock_label
 from update_schedule import beijing_now
 
@@ -26,13 +26,13 @@ def new_research(asof, *, key):
     scope = store.key()
     selected_style = st.session_state.pop(scope+"_new_style", None)
     style_key = key+"_style"
-    if selected_style in PLAYBOOKS:
+    if selected_style in A_SHARE_STYLES:
         st.session_state[style_key] = selected_style
     with st.form(key):
         a, b = st.columns(2)
         code = a.text_input("证券代码（含交易所）", placeholder="600519.SH / 159915.SZ")
         name = b.text_input("名称")
-        style = st.selectbox("研究方式", list(PLAYBOOKS), key=style_key, format_func=lambda k:PLAYBOOKS[k]["name"])
+        style = st.selectbox("研究方式", list(A_SHARE_STYLES), key=style_key, format_func=lambda k:PLAYBOOKS[k]["name"])
         reason = st.text_input("这次为什么关注", placeholder="写下一条实际依据，之后可以继续补充")
         evidence_date = st.date_input("这条依据的日期", value=beijing_now().date(), max_value=beijing_now().date())
         submitted = st.form_submit_button("建立研究档案", type="primary")
@@ -79,6 +79,15 @@ def _watchlist(quotes, records):
 
 
 def _changes(record, current, excluded, quote, analysis, asof):
+    if record["plan"]["style"] == "us_options":
+        import datetime as dt
+        from us_options_data import NY
+        today = dt.datetime.now(NY).strftime("%Y%m%d")
+        checks = workspace.price_checks(record, None, today=today)
+        expiry = (record["plan"].get("market_evidence", {}).get("us_options") or {}).get("expiry", "")
+        if expiry and expiry.replace("-", "") <= today:
+            checks.append(dict(kind="expiry", text="期权已到期或进入到期日，请核对平仓、交割与指派"))
+        return ["按原期权合约核对报价、退出条件与到期安排"], [r["text"] for r in checks], checks
     from workbench_insights_ui import source_label
     delta = mi.focus_changes(record, current, analysis.get("prices"), asof)
     changes = []
@@ -189,14 +198,14 @@ def render_personal_stats(records):
     for style, book in PLAYBOOKS.items():
         stats=engine.journal_stats(list(records.values()), mode=mode, style=style)
         if stats["total"]:
-            rows.append({"研究方式":book["name"], "已结束":stats["n"], "其他记录":stats["pending"],
+            rows.append({"研究方式":book["name"], "币种":stats["currency"], "已结束":stats["n"], "其他记录":stats["pending"],
                 "盈利占比(%)":100*stats["win_rate"] if stats["win_rate"] is not None else None,
-                "平均盈利/平均亏损":stats["payoff"], "单笔平均净盈亏(元)":stats["expectancy"], "偏离计划次数":stats["breaks"]})
+                "平均盈利/平均亏损":stats["payoff"], "单笔平均净盈亏（原币）":stats["expectancy"], "偏离计划次数":stats["breaks"]})
     if rows:
         st.dataframe(pd.DataFrame(rows),hide_index=True,width="stretch")
     else:
         st.info("当前没有这类个人记录。执行或放弃后回到研究档案，留下原因，再检查哪些判断反复出错。")
-    st.caption("按自己填写的已结束记录统计，模拟与实盘分开；结果依赖记录完整性，未核验券商成交。")
+    st.caption("按自己填写的已结束记录统计，模拟与实盘、人民币与美元分别计算；结果依赖记录完整性，未核验券商成交。")
 
 
 def render_tracking(frames, evening, asof, analysis):
@@ -206,6 +215,7 @@ def render_tracking(frames, evening, asof, analysis):
     quotes=_quotes(frames, asof)
     _watchlist(quotes,records)
     with st.expander("新建研究档案", expanded=not records):
+        journey.page_link("建立美股期权预案 →", "🇺🇸 美股期权策略", key="journal_new_options")
         new_research(asof,key=store.key()+"_journal_new")
     if not records:
         return
@@ -218,12 +228,12 @@ def render_tracking(frames, evening, asof, analysis):
         st.session_state[scope+"_version"]=preferred
     if transferred in groups:
         st.session_state[scope+"_stock"]=transferred
-    selected=st.selectbox("研究的股票",list(groups),format_func=lambda code:stock_label(groups[code][0]['plan'].get('name'), code),key=scope+"_stock",
+    selected=st.selectbox("研究的标的",list(groups),format_func=lambda code:stock_label(groups[code][0]['plan'].get('name'), code),key=scope+"_stock",
                           help="可输入名称、代码或拼音首字母搜索。")
     versions={r["id"]:r for r in groups[selected]}
     if st.session_state.get(scope+"_version") not in versions:
         st.session_state.pop(scope+"_version",None)
-    ident=st.selectbox("这只股票的研究记录",list(versions),key=scope+"_version",
+    ident=st.selectbox("这个标的的研究记录",list(versions),key=scope+"_version",
         format_func=lambda i:f"{PLAYBOOKS[versions[i]['plan']['style']]['name']} · {versions[i]['plan']['mode']} · {versions[i]['plan']['asof']} · {versions[i]['outcome']['status']}")
     record=versions[ident]
     tracking=engine.tracking_evidence(record,frames,evening,asof=asof) if asof else {"current":None,"excluded":["尚无收盘数据"]}

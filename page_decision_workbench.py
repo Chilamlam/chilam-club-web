@@ -47,7 +47,8 @@ def render_decision_workbench_page(section="candidates"):
         return
     titles = {"candidates": "筛选与比较", "themes": "题材跟踪", "outcomes": "名单表现", "tracking": "研究档案"}
     st.title(titles[section])
-    st.caption(f"数据日期 {asof or '未知'} · {publication.get('message', '')}")
+    if section != "tracking":
+        st.caption(f"数据日期 {asof or '未知'} · {publication.get('message', '')}")
     if section == "themes":
         insights.render_themes(analysis, asof)
         return

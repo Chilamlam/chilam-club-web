@@ -14,7 +14,7 @@ import uuid
 import pandas as pd
 
 from data_freshness import norm_date
-from strategy_playbooks import PLAYBOOKS, VERSION
+from strategy_playbooks import JOURNAL_STYLES as PLAYBOOKS, VERSION
 
 SCHEMA_VERSION = 1
 MODES = ("模拟观察", "实盘记录")
@@ -33,6 +33,8 @@ def number(value):
 
 def symbol_id(value, *, equity=False):
     text = str(value or "").strip().upper()
+    if text in ("SPY.US", "QQQ.US", "IWM.US"):
+        return text
     if re.fullmatch(r"\d{6}\.(SH|SZ|BJ)", text):
         return text
     if re.fullmatch(r"(SH|SZ|BJ)\d{6}", text):
@@ -107,6 +109,8 @@ def market_evidence(sentiment, market, evening, *, asof):
 
 def candidate_rows(style, frames, evening, *, asof):
     """Deterministic union of dated evidence, never a recommendation score."""
+    if style == "us_options":
+        return [], []
     book = PLAYBOOKS[style]
     found, excluded = {}, []
 
@@ -161,7 +165,8 @@ def candidate_rows(style, frames, evening, *, asof):
 def plan_checks(plan):
     issues = []
     if not plan.get("data_current"):
-        issues.append("数据未确认最新：本计划仅作历史研究。")
+        issues.append("期权报价时效待券商核对，当前记录为研究预案。" if plan.get("style") == "us_options"
+                      else "数据未确认最新：本计划仅作历史研究。")
     for field, label in (("thesis", "观察依据"), ("trigger", "触发条件"), ("invalid", "失效条件"),
                          ("exit_rule", "退出与期限"), ("cost_risk", "成本与风险预算")):
         if not str(plan.get(field) or "").strip():
@@ -180,6 +185,8 @@ def plan_checks(plan):
 def tracking_evidence(record, frames, evening, *, asof):
     """Compare pool membership; absence isn't proof that a price rule failed."""
     original = record["plan"]
+    if original["style"] == "us_options":
+        return dict(message="在研究档案中按原合约复核期权报价与退出条件。", current=None, excluded=[], date=asof)
     rows, excluded = candidate_rows(original["style"], frames, evening, asof=asof)
     current = next((row for row in rows if row["symbol"] == original["symbol"]), None)
     if asof < original["asof"]:
@@ -205,6 +212,17 @@ def new_plan(fields, *, now):
     value["symbol"] = symbol_id(value.get("symbol"))
     if not value["symbol"]:
         raise ValueError("请输入带交易所的代码，例如 600519.SH 或 159915.SZ。")
+    is_option = value["style"] == "us_options"
+    if is_option != value["symbol"].endswith(".US"):
+        raise ValueError("美股 ETF 请从期权策略页建立合约预案；A 股记录请选择对应研究方式。")
+    expected_currency = "USD" if is_option else "CNY"
+    if value.get("currency", expected_currency) != expected_currency:
+        raise ValueError("币种与研究标的不一致。")
+    if is_option:
+        from us_options import validate_evidence
+        value["currency"] = "USD"
+        evidence = value.get("market_evidence")
+        validate_evidence(evidence.get("us_options") if isinstance(evidence, dict) else None, value["symbol"])
     if not norm_date(value.get("asof")):
         raise ValueError("需要有效的证据日期。")
     for field in ("name", "thesis", "trigger", "invalid", "exit_rule", "cost_risk", "manual_evidence",
@@ -250,7 +268,7 @@ def with_outcome(record, outcome):
             raise ValueError("结束日期不能早于原计划证据日期。")
         gross, costs = number(result.get("gross_pnl")), number(result.get("costs"))
         if gross is None or costs is None or costs < 0:
-            raise ValueError("结束记录需填写有效的毛盈亏与非负总成本（元）。")
+            raise ValueError("结束记录需按原记录币种填写有效的毛盈亏与非负总成本。")
         result.update(closed_on=date, gross_pnl=gross, costs=costs, net_pnl=gross - costs)
     else:
         for key in ("gross_pnl", "costs", "net_pnl", "closed_on"):
@@ -264,13 +282,17 @@ def journal_stats(records, *, mode, style=None):
     closed = [r for r in selected if r.get("outcome", {}).get("status") == "已结束"
               and number(r["outcome"].get("net_pnl")) is not None]
     pnl = [float(r["outcome"]["net_pnl"]) for r in closed]
+    currencies = {r["plan"].get("currency", "CNY") for r in selected}
+    single_currency = len(currencies) <= 1
     wins, losses = [p for p in pnl if p > 0], [p for p in pnl if p < 0]
     avg_win = sum(wins) / len(wins) if wins else None
     avg_loss = -sum(losses) / len(losses) if losses else None
     return dict(total=len(selected), n=len(pnl), pending=len(selected) - len(closed),
                 win_rate=len(wins) / len(pnl) if pnl else None,
-                payoff=avg_win / avg_loss if avg_win is not None and avg_loss else None,
-                expectancy=sum(pnl) / len(pnl) if pnl else None, net_total=sum(pnl) if pnl else None,
+                currency=next(iter(currencies), "CNY") if single_currency else "混合币种",
+                payoff=avg_win / avg_loss if single_currency and avg_win is not None and avg_loss else None,
+                expectancy=sum(pnl) / len(pnl) if pnl and single_currency else None,
+                net_total=sum(pnl) if pnl and single_currency else None,
                 breaks=sum(r["outcome"].get("discipline") == "偏离计划" for r in closed))
 
 
@@ -317,7 +339,10 @@ def plan_markdown(record):
         lines.append(f"{label}：{p.get(field) or '待补充'}")
     lines.extend([f"跟踪状态：{o['status']}", f"结果与偏差：{o.get('notes') or '待记录'}"])
     if o.get("net_pnl") is not None:
-        lines.append(f"扣费后盈亏：{o['net_pnl']:.2f} 元（用户记录）")
+        lines.append(f"扣费后盈亏：{o['net_pnl']:.2f} {p.get('currency', 'CNY')}（用户记录）")
+    if p.get("style") == "us_options":
+        lines.extend(["### 原始期权预案（含合约与报价依据）", "```json\n" +
+                      json.dumps(p["market_evidence"]["us_options"], ensure_ascii=False, indent=2) + "\n```"])
     if o.get("research"):
         lines.append("### 后续研究修订（原始判断保留在上方）")
         for revision in o.get("research_history", []):

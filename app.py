@@ -615,6 +615,22 @@ def render_guru_tracker():
 def render_manual_page():
     st.header("📖 Chilam Club 驾驶舱使用指南")
     st.caption("“工欲善其事，必先利其器” —— 投资逻辑与指标释义")
+
+    with st.expander("🇺🇸 美股期权：从目的到合约预案"):
+        st.markdown("""
+        选择 SPY、QQQ 或 IWM，再选择看涨、看跌或保护同一 ETF 的已有持仓。
+        方向交易比较单腿 Call / Put 与同到期日价差；持仓保护比较保护性 Put 与领口。
+
+        填写到期目标、压力情景和损失预算后，查看成本、到期最大损失、平衡价与未覆盖股数。
+        合约行权价和组数可以修改。公开期权链按需读取，缓存最多五分钟；来源没有给出期权时间戳，
+        因此保留参考报价标识，也可手动录入券商同一时点的报价。
+
+        在“保存期权预案”填写自己的依据、行动条件、反证和退出安排。
+        研究档案保留原始合约与价格，可重新查询相同合约的参考平仓金额。
+        实际执行结果由你记录，美元与人民币分别统计。游客请下载备份；登录后的新记录保存到账号。
+
+        到期盈亏图不代表到期前价格。ETF 期权可能提前行权或被指派；核对除息日、交割资金和券商截止时间。
+        """)
     
     with st.expander("🔥 强势股 (RPS 动量策略) 玩法说明", expanded=True):
         st.markdown("""
@@ -876,6 +892,9 @@ def main():
         render_market_observatory()
     elif page == "🌍 海外预期与链上市场":
         render_market_observatory(global_page=True)
+    elif page == "🇺🇸 美股期权策略":
+        from page_us_options import render_us_options
+        render_us_options()
     elif page == "⚡ 投机与套利":
         render_arbitrage_page()
     elif page == "🧭 题材接力预案":

@@ -143,6 +143,8 @@ def holdings(records, quotes):
     """One latest real position per symbol; coverage and unknown exposure stay visible."""
     rows, duplicates = [], []
     for code, versions in active_by_symbol(records).items():
+        if code.endswith(".US"):
+            continue  # Option plans do not represent CNY equity share holdings.
         real = [r for r in versions if r["plan"]["mode"] == "实盘记录"
                 and r.get("outcome", {}).get("status") not in ("已结束", "已放弃")
                 and research(r).get("shares") is not None]
