@@ -107,7 +107,7 @@ def candidate_actions(frame: pd.DataFrame, *, key: str, code_col="ts_code", name
             go(QUOTE_PAGE, selected)
         if right.button("打开研究档案 →", key=f"{key}_track", use_container_width=True, disabled=selected is None):
             go(WORKBENCH_PAGE, selected)
-        st.caption("技术页可核对分时与日线；研究档案会保留入选来源、风险和后续价格变化。")
+        st.caption("技术页可核对分时、日线与 PE Band 估值带；研究档案会保留入选来源、风险和后续价格变化。")
 
 
 def _plans_key() -> str:

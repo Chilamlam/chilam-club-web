@@ -207,7 +207,8 @@ def resolve_symbol(raw: str) -> dict:
 
     # 美股：纯字母(可带 . 分隔)
     if re.fullmatch(r"[A-Z][A-Z\.\-]{0,7}", s):
-        ticker = s.split(".")[0]
+        # A class suffix (BRK.B) is part of the security, not an exchange suffix.
+        ticker = re.sub(r"\.(?:OQ|N|AM|US)$", "", s)
         return {"market": "US_SHARE", "tx_code": f"us{ticker}", "sina_sym": ticker, "display": ticker}
 
     return {}
@@ -1234,9 +1235,9 @@ def _pick_candidate(raw: str, cands: list, key_prefix: str = "lq") -> dict:
 
 
 def render_live_quote_page():
-    st.header("⚡ 全市场实时行情与自动技术分析")
+    st.header("⚡ 个股行情、技术与估值")
     st.caption("A股 / ETF / 指数 · 北交所 · 港股 · 美股 · 国际大宗商品 —— 周期选项按各市场实际可取到的数据动态生成；"
-               "K 线周期支持自动画缠论结构（笔 / 线段 / 中枢）与帝纳波利位置（DMA / F3·F5 回撤 / COP·OP·XOP 目标位）")
+               "K 线支持缠论与帝纳波利分析；A 股、港股、美股个股可切换到 PE Band 估值带。")
 
     if "active_symbol" not in st.session_state:
         st.session_state.active_symbol = "600519"
@@ -1278,8 +1279,15 @@ def render_live_quote_page():
         _fallback_to_search(raw)
         return
 
+    view = st.radio("研究视角", ["行情与技术", "PE Band 估值带"], horizontal=True,
+                    index=1 if st.query_params.get("analysis") == "pe" else 0, key="quote_research_view")
     cands = resolve_candidates(raw)
     if not cands:
+        if view == "PE Band 估值带":
+            from page_pe_band import render_pe_band
+            st.caption("暂未取得实时报价，继续查询该代码的历史估值。")
+            render_pe_band(resolve_symbol(raw))
+            return
         st.error(f"未取到 `{raw}` 的行情。沪深北三个市场都没有这个代码的有效报价，"
                  f"请确认代码是否正确。")
         _fallback_to_search(raw)
@@ -1312,6 +1320,11 @@ def render_live_quote_page():
     plan_symbol = sym.get("tx_code") or f"HF_{sym.get('sina_sym') or sym['display']}"
     render_symbol_workspace(plan_symbol, quote.get("name", ""), key="quote")
     st.markdown("---")
+
+    if view == "PE Band 估值带":
+        from page_pe_band import render_pe_band
+        render_pe_band(sym, quote)
+        return
 
     periods = MARKET_PERIODS[market]
     period = st.radio("📈 周期", periods, index=0, horizontal=True, key=f"period_{market}")

@@ -22,6 +22,7 @@ REVIEW_MODULES = (
     "page_us_options", "workbench_insights_ui", "research_ui", "candidate_ui", "page_personal_review", "page_decision_workbench",
     "page_sentiment", "page_digest", "page_review", "page_industry_signal",
     "page_evening_plan", "convertible", "page_convertible",
+    "pe_band", "pe_band_data", "page_pe_band",
     "page_live_quote", "page_fibonacci", "page_watchlist", "page_core_driver",
     "page_sector_rotation", "page_macro_erp", "page_market_observatory",
 )
