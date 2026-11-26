@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-27 03:51:26",
+  "date": "2026-11-27 07:06:54",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -451,16 +451,16 @@
       "nav_status": "净值滞后，仅供对照"
     },
     {
-      "code": "159660.SZ",
-      "name": "纳指ETF汇添富",
-      "price": 2.218,
+      "code": "162411.SZ",
+      "name": "华宝油气LOF",
+      "price": 0.877,
       "change": 2.21,
-      "vol_yi": 2.54,
+      "vol_yi": 0.46,
       "quote_date": "20261126",
       "nav_date": "20261125",
-      "nav": 1.9017,
+      "nav": 0.8742,
       "premium_rate": null,
-      "reference_gap": 16.632,
+      "reference_gap": 0.32,
       "nav_status": "净值滞后，仅供对照"
     }
   ],
