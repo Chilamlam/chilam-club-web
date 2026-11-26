@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-26 19:08:58",
+  "date": "2026-11-27 03:51:26",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -210,10 +210,10 @@
       "change": 4.53,
       "vol_yi": 1.44,
       "quote_date": "20261126",
-      "nav_date": "20261124",
-      "nav": 0.888,
+      "nav_date": "20261125",
+      "nav": 0.9052,
       "premium_rate": null,
-      "reference_gap": 3.941,
+      "reference_gap": 1.966,
       "nav_status": "净值滞后，仅供对照"
     },
     {
@@ -223,10 +223,10 @@
       "change": 3.96,
       "vol_yi": 0.53,
       "quote_date": "20261126",
-      "nav_date": "20261124",
-      "nav": 0.8961,
+      "nav_date": "20261125",
+      "nav": 0.8995,
       "premium_rate": null,
-      "reference_gap": 2.444,
+      "reference_gap": 2.057,
       "nav_status": "净值滞后，仅供对照"
     },
     {
@@ -236,10 +236,10 @@
       "change": 3.83,
       "vol_yi": 1.72,
       "quote_date": "20261126",
-      "nav_date": "20261124",
-      "nav": 1.7773,
+      "nav_date": "20261125",
+      "nav": 1.8242,
       "premium_rate": null,
-      "reference_gap": 2.177,
+      "reference_gap": -0.45,
       "nav_status": "净值滞后，仅供对照"
     },
     {
@@ -249,10 +249,10 @@
       "change": 3.62,
       "vol_yi": 3.48,
       "quote_date": "20261126",
-      "nav_date": "20261124",
-      "nav": 1.8746,
+      "nav_date": "20261125",
+      "nav": 1.9153,
       "premium_rate": null,
-      "reference_gap": 2.422,
+      "reference_gap": 0.245,
       "nav_status": "净值滞后，仅供对照"
     },
     {
@@ -262,11 +262,11 @@
       "change": 3.34,
       "vol_yi": 0.71,
       "quote_date": "20261126",
-      "nav_date": "20261125",
-      "nav": 1.1403,
-      "premium_rate": null,
-      "reference_gap": 3.218,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261126",
+      "nav": 1.1772,
+      "premium_rate": -0.017,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "159562.SZ",
@@ -275,11 +275,11 @@
       "change": 3.31,
       "vol_yi": 1.48,
       "quote_date": "20261126",
-      "nav_date": "20261125",
-      "nav": 1.5711,
-      "premium_rate": null,
-      "reference_gap": 3.24,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261126",
+      "nav": 1.6218,
+      "premium_rate": 0.012,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "517520.SH",
@@ -288,11 +288,11 @@
       "change": 3.19,
       "vol_yi": 5.68,
       "quote_date": "20261126",
-      "nav_date": "20261125",
-      "nav": 1.4401,
-      "premium_rate": null,
-      "reference_gap": 3.187,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261126",
+      "nav": 1.4869,
+      "premium_rate": -0.061,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "159322.SZ",
@@ -301,11 +301,11 @@
       "change": 3.09,
       "vol_yi": 0.18,
       "quote_date": "20261126",
-      "nav_date": "20261125",
-      "nav": 1.1643,
-      "premium_rate": null,
-      "reference_gap": 3.152,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261126",
+      "nav": 1.2016,
+      "premium_rate": -0.05,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "160723.SZ",
@@ -314,10 +314,10 @@
       "change": 3.08,
       "vol_yi": 1.61,
       "quote_date": "20261126",
-      "nav_date": "20261124",
-      "nav": 2.138,
+      "nav_date": "20261125",
+      "nav": 2.1889,
       "premium_rate": null,
-      "reference_gap": 1.684,
+      "reference_gap": -0.681,
       "nav_status": "净值滞后，仅供对照"
     },
     {
@@ -327,11 +327,11 @@
       "change": 3.01,
       "vol_yi": 10.7,
       "quote_date": "20261126",
-      "nav_date": "20261125",
-      "nav": 1.7288,
-      "premium_rate": null,
-      "reference_gap": 2.904,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261126",
+      "nav": 1.7781,
+      "premium_rate": 0.051,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "159321.SZ",
@@ -340,11 +340,11 @@
       "change": 2.88,
       "vol_yi": 0.57,
       "quote_date": "20261126",
-      "nav_date": "20261125",
-      "nav": 1.1063,
-      "premium_rate": null,
-      "reference_gap": 3.227,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261126",
+      "nav": 1.1419,
+      "premium_rate": 0.009,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "159945.SZ",
@@ -353,11 +353,11 @@
       "change": 2.88,
       "vol_yi": 0.11,
       "quote_date": "20261126",
-      "nav_date": "20261125",
-      "nav": 1.2915,
-      "premium_rate": null,
-      "reference_gap": 2.439,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261126",
+      "nav": 1.3249,
+      "premium_rate": -0.143,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "159315.SZ",
@@ -366,11 +366,11 @@
       "change": 2.77,
       "vol_yi": 0.16,
       "quote_date": "20261126",
-      "nav_date": "20261125",
-      "nav": 1.1868,
-      "premium_rate": null,
-      "reference_gap": 3.134,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261126",
+      "nav": 1.225,
+      "premium_rate": -0.082,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "515880.SH",
@@ -379,11 +379,11 @@
       "change": 2.68,
       "vol_yi": 24.87,
       "quote_date": "20261126",
-      "nav_date": "20261125",
-      "nav": 0.3736,
-      "premium_rate": null,
-      "reference_gap": 2.516,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261126",
+      "nav": 0.3818,
+      "premium_rate": 0.314,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "159518.SZ",
@@ -392,10 +392,10 @@
       "change": 2.51,
       "vol_yi": 4.37,
       "quote_date": "20261126",
-      "nav_date": "20261124",
-      "nav": 1.1139,
+      "nav_date": "20261125",
+      "nav": 1.1249,
       "premium_rate": null,
-      "reference_gap": 2.612,
+      "reference_gap": 1.609,
       "nav_status": "净值滞后，仅供对照"
     },
     {
@@ -405,11 +405,11 @@
       "change": 2.48,
       "vol_yi": 5.12,
       "quote_date": "20261126",
-      "nav_date": "20261125",
-      "nav": 1.1295,
-      "premium_rate": null,
-      "reference_gap": 2.435,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261126",
+      "nav": 1.1581,
+      "premium_rate": -0.095,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "159930.SZ",
@@ -418,11 +418,11 @@
       "change": 2.24,
       "vol_yi": 0.66,
       "quote_date": "20261126",
-      "nav_date": "20261125",
-      "nav": 1.6497,
-      "premium_rate": null,
-      "reference_gap": 2.261,
-      "nav_status": "净值滞后，仅供对照"
+      "nav_date": "20261126",
+      "nav": 1.6922,
+      "premium_rate": -0.307,
+      "reference_gap": null,
+      "nav_status": "同日净值"
     },
     {
       "code": "159513.SZ",
@@ -431,10 +431,10 @@
       "change": 2.22,
       "vol_yi": 4.02,
       "quote_date": "20261126",
-      "nav_date": "20261124",
-      "nav": 1.4581,
+      "nav_date": "20261125",
+      "nav": 1.4483,
       "premium_rate": null,
-      "reference_gap": 13.71,
+      "reference_gap": 14.479,
       "nav_status": "净值滞后，仅供对照"
     },
     {
@@ -444,23 +444,23 @@
       "change": 2.21,
       "vol_yi": 6.62,
       "quote_date": "20261126",
-      "nav_date": "20261124",
-      "nav": 1.1681,
+      "nav_date": "20261125",
+      "nav": 1.1797,
       "premium_rate": null,
-      "reference_gap": 3.159,
+      "reference_gap": 2.145,
       "nav_status": "净值滞后，仅供对照"
     },
     {
-      "code": "162411.SZ",
-      "name": "华宝油气LOF",
-      "price": 0.877,
+      "code": "159660.SZ",
+      "name": "纳指ETF汇添富",
+      "price": 2.218,
       "change": 2.21,
-      "vol_yi": 0.46,
+      "vol_yi": 2.54,
       "quote_date": "20261126",
-      "nav_date": "20261124",
-      "nav": 0.8662,
+      "nav_date": "20261125",
+      "nav": 1.9017,
       "premium_rate": null,
-      "reference_gap": 1.247,
+      "reference_gap": 16.632,
       "nav_status": "净值滞后，仅供对照"
     }
   ],
