@@ -1,191 +1,275 @@
 {
   "status": "complete",
-  "date": "20261125",
-  "prev_date": "20261124",
-  "generated_at": "2026-11-26 07:21:19",
-  "archive_days": 69,
+  "date": "20261126",
+  "prev_date": "20261125",
+  "generated_at": "2026-11-26 19:21:02",
+  "archive_days": 70,
   "promotion": {
     "status": "ok",
-    "prev_date": "20261124",
-    "date": "20261125",
+    "prev_date": "20261125",
+    "date": "20261126",
     "rates": {
       "1进2": {
-        "base": 25,
-        "promoted": 5,
-        "rate": 0.2,
-        "not_promoted": 20,
+        "base": 37,
+        "promoted": 8,
+        "rate": 0.21621621621621623,
+        "not_promoted": 29,
         "members": [
           {
-            "code": "002611",
-            "name": "东方精工",
+            "code": "301066",
+            "name": "万事利",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "603030",
-            "name": "全筑股份",
+            "code": "600280",
+            "name": "中央商场",
             "previous_height": 1,
             "current_height": 2,
             "promoted": true
           },
           {
-            "code": "002651",
-            "name": "利君股份",
+            "code": "600088",
+            "name": "中视传媒",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "605136",
+            "name": "丽人丽妆",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "301211",
+            "name": "亨迪药业",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "600829",
+            "name": "人民同泰",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002038",
+            "name": "双鹭药业",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "603122",
+            "name": "合富中国",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002900",
+            "name": "哈三联",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "601086",
+            "name": "国芳集团",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "603887",
+            "name": "城地香江",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "600229",
+            "name": "城市传媒",
             "previous_height": 1,
             "current_height": 2,
             "promoted": true
           },
           {
-            "code": "603813",
-            "name": "原尚股份",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "603206",
-            "name": "嘉环科技",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "603608",
-            "name": "天创股份",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "002872",
-            "name": "天圣制药",
+            "code": "600467",
+            "name": "好当家",
             "previous_height": 1,
             "current_height": 2,
             "promoted": true
           },
           {
-            "code": "603725",
-            "name": "天安新材",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "603266",
-            "name": "天龙股份",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "301189",
-            "name": "奥尼电子",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "603001",
-            "name": "奥康国际",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "603956",
-            "name": "威派格",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "600715",
-            "name": "文投控股",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "300539",
-            "name": "横河精密",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "600189",
-            "name": "泉阳泉",
-            "previous_height": 1,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "603360",
-            "name": "百傲化学",
+            "code": "002144",
+            "name": "宏达高科",
             "previous_height": 1,
             "current_height": 2,
             "promoted": true
           },
           {
-            "code": "600400",
-            "name": "红豆股份",
+            "code": "603708",
+            "name": "家家悦",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "002387",
-            "name": "维信诺",
+            "code": "300086",
+            "name": "康芝药业",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "605222",
-            "name": "起帆电缆",
+            "code": "000593",
+            "name": "德龙汇能",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "600722",
-            "name": "金牛化工",
+            "code": "301089",
+            "name": "拓新药业",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "000756",
+            "name": "新华制药",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002480",
+            "name": "新筑股份",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002820",
+            "name": "桂发祥",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002275",
+            "name": "桂林三金",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "000702",
+            "name": "正虹科技",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "603069",
+            "name": "海汽集团",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002861",
+            "name": "瀛通通讯",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002728",
+            "name": "特一药业",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002069",
+            "name": "獐子岛",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "002864",
+            "name": "盘龙药业",
+            "previous_height": 1,
+            "current_height": null,
+            "promoted": false
+          },
+          {
+            "code": "603324",
+            "name": "盛剑科技",
             "previous_height": 1,
             "current_height": 2,
             "promoted": true
           },
           {
-            "code": "600261",
-            "name": "阳光照明",
+            "code": "000908",
+            "name": "石药景峰",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "300652",
-            "name": "雷迪克",
+            "code": "600223",
+            "name": "福瑞达",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "002348",
-            "name": "高乐股份",
+            "code": "002642",
+            "name": "荣联科技",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "002827",
-            "name": "高争民爆",
+            "code": "002197",
+            "name": "证通电子",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "600227",
+            "name": "赤天化",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "002145",
+            "name": "钛能化学",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "688078",
-            "name": "龙软科技",
+            "code": "600103",
+            "name": "青山纸业",
+            "previous_height": 1,
+            "current_height": 2,
+            "promoted": true
+          },
+          {
+            "code": "605577",
+            "name": "龙版传媒",
             "previous_height": 1,
             "current_height": null,
             "promoted": false
@@ -193,218 +277,92 @@
         ]
       },
       "2进3": {
-        "base": 25,
-        "promoted": 6,
-        "rate": 0.24,
-        "not_promoted": 19,
+        "base": 5,
+        "promoted": 4,
+        "rate": 0.8,
+        "not_promoted": 1,
         "members": [
           {
-            "code": "001278",
-            "name": "一彬科技",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "002242",
-            "name": "九阳股份",
+            "code": "603030",
+            "name": "全筑股份",
             "previous_height": 2,
             "current_height": 3,
             "promoted": true
           },
           {
-            "code": "603666",
-            "name": "亿嘉和",
+            "code": "002651",
+            "name": "利君股份",
+            "previous_height": 2,
+            "current_height": 3,
+            "promoted": true
+          },
+          {
+            "code": "002872",
+            "name": "天圣制药",
+            "previous_height": 2,
+            "current_height": 3,
+            "promoted": true
+          },
+          {
+            "code": "603360",
+            "name": "百傲化学",
             "previous_height": 2,
             "current_height": null,
             "promoted": false
           },
           {
-            "code": "002708",
-            "name": "光洋股份",
+            "code": "600722",
+            "name": "金牛化工",
             "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          },
+            "current_height": 3,
+            "promoted": true
+          }
+        ]
+      },
+      "3进4": {
+        "base": 6,
+        "promoted": 1,
+        "rate": 0.16666666666666666,
+        "not_promoted": 5,
+        "members": [
           {
-            "code": "001358",
-            "name": "兴欣新材",
-            "previous_height": 2,
+            "code": "002242",
+            "name": "九阳股份",
+            "previous_height": 3,
             "current_height": null,
             "promoted": false
           },
           {
             "code": "300703",
             "name": "创源股份",
-            "previous_height": 2,
-            "current_height": 3,
-            "promoted": true
-          },
-          {
-            "code": "002685",
-            "name": "华东重机",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "301252",
-            "name": "同星科技",
-            "previous_height": 2,
+            "previous_height": 3,
             "current_height": null,
             "promoted": false
           },
           {
             "code": "002164",
             "name": "宁波东力",
-            "previous_height": 2,
-            "current_height": 3,
-            "promoted": true
-          },
-          {
-            "code": "301413",
-            "name": "安培龙",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "603040",
-            "name": "新坐标",
-            "previous_height": 2,
+            "previous_height": 3,
             "current_height": null,
             "promoted": false
           },
           {
             "code": "600814",
             "name": "杭州解百",
-            "previous_height": 2,
-            "current_height": 3,
+            "previous_height": 3,
+            "current_height": 4,
             "promoted": true
-          },
-          {
-            "code": "603662",
-            "name": "柯力传感",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "603103",
-            "name": "横店影视",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
           },
           {
             "code": "002122",
             "name": "汇洲智能",
-            "previous_height": 2,
-            "current_height": 3,
-            "promoted": true
-          },
-          {
-            "code": "601599",
-            "name": "浙文影业",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "002724",
-            "name": "海洋王",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "603516",
-            "name": "淳中科技",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "605488",
-            "name": "福莱新材",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "603626",
-            "name": "科森科技",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "002036",
-            "name": "联创电子",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "301575",
-            "name": "艾芬达",
-            "previous_height": 2,
+            "previous_height": 3,
             "current_height": null,
             "promoted": false
           },
           {
             "code": "603926",
             "name": "铁流股份",
-            "previous_height": 2,
-            "current_height": 3,
-            "promoted": true
-          },
-          {
-            "code": "002931",
-            "name": "锋龙股份",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "001229",
-            "name": "魅视科技",
-            "previous_height": 2,
-            "current_height": null,
-            "promoted": false
-          }
-        ]
-      },
-      "3进4": {
-        "base": 4,
-        "promoted": 2,
-        "rate": 0.5,
-        "not_promoted": 2,
-        "members": [
-          {
-            "code": "002086",
-            "name": "东方海洋",
-            "previous_height": 3,
-            "current_height": null,
-            "promoted": false
-          },
-          {
-            "code": "603960",
-            "name": "克来机电",
-            "previous_height": 3,
-            "current_height": 4,
-            "promoted": true
-          },
-          {
-            "code": "002548",
-            "name": "金新农",
-            "previous_height": 3,
-            "current_height": 4,
-            "promoted": true
-          },
-          {
-            "code": "605018",
-            "name": "长华集团",
             "previous_height": 3,
             "current_height": null,
             "promoted": false
@@ -412,17 +370,39 @@
         ]
       },
       "4进5": {
-        "base": 1,
+        "base": 2,
         "promoted": 1,
-        "rate": 1.0,
-        "not_promoted": 0,
+        "rate": 0.5,
+        "not_promoted": 1,
+        "members": [
+          {
+            "code": "603960",
+            "name": "克来机电",
+            "previous_height": 4,
+            "current_height": 5,
+            "promoted": true
+          },
+          {
+            "code": "002548",
+            "name": "金新农",
+            "previous_height": 4,
+            "current_height": null,
+            "promoted": false
+          }
+        ]
+      },
+      "5进6": {
+        "base": 1,
+        "promoted": 0,
+        "rate": 0.0,
+        "not_promoted": 1,
         "members": [
           {
             "code": "002579",
             "name": "中京电子",
-            "previous_height": 4,
-            "current_height": 5,
-            "promoted": true
+            "previous_height": 5,
+            "current_height": null,
+            "promoted": false
           }
         ]
       }
@@ -430,21 +410,21 @@
   },
   "premium": {
     "status": "ok",
-    "prev_date": "20261124",
-    "n": 30,
+    "prev_date": "20261125",
+    "n": 14,
     "missing": 0,
-    "median_pct": -3.78545,
-    "mean_pct": -0.12466000000000035,
-    "win_rate": 0.4,
-    "limit_again": 9,
+    "median_pct": 8.28715,
+    "mean_pct": 6.192828571428571,
+    "win_rate": 0.8571428571428571,
+    "limit_again": 6,
     "reason": null
   },
   "ladder_gap": {
     "status": "ok",
     "max_height": 5,
     "min_height": 1,
-    "first_board": 37,
-    "total": 51,
+    "first_board": 51,
+    "total": 65,
     "tiers": [
       {
         "height": 5,
@@ -452,19 +432,19 @@
       },
       {
         "height": 4,
-        "count": 2
+        "count": 1
       },
       {
         "height": 3,
-        "count": 6
+        "count": 4
       },
       {
         "height": 2,
-        "count": 5
+        "count": 8
       },
       {
         "height": 1,
-        "count": 37
+        "count": 51
       }
     ],
     "gaps": [],
@@ -472,55 +452,55 @@
   },
   "breadth": {
     "status": "ok",
-    "mean_pct": -3.6059352054548723,
-    "median_pct": -3.7685,
-    "divergence": 0.16256479454512762,
-    "up": 586,
-    "down": 4926,
-    "up_ratio": 0.10631349782293179,
-    "verdict": "个股涨跌幅均值 -3.61%，中位数 -3.77%，相差 +0.16 个百分点"
+    "mean_pct": -0.5337549480100394,
+    "median_pct": -0.7937,
+    "divergence": 0.25994505198996054,
+    "up": 1766,
+    "down": 3642,
+    "up_ratio": 0.3265532544378698,
+    "verdict": "个股涨跌幅均值 -0.53%，中位数 -0.79%，相差 +0.26 个百分点"
   },
   "phase": {
     "status": "ok",
     "phase": "分歧期",
-    "basis": "首板次日继续涨停比例 20.0%；昨日连板样本今日中位涨跌幅 -3.79%",
-    "r12": 0.2,
-    "premium_median": -3.78545,
+    "basis": "首板次日继续涨停比例 21.6%；昨日连板样本今日中位涨跌幅 +8.29%",
+    "r12": 0.21621621621621623,
+    "premium_median": 8.28715,
     "thresholds": {
       "method": "percentile",
       "high": 0.2304761904761905,
-      "mid": 0.17857142857142858,
-      "low": 0.1243161094224924,
+      "mid": 0.18003246753246754,
+      "low": 0.1283434650455927,
       "samples": 60,
       "lookback": 60,
-      "window_from": "20260825",
-      "window_to": "20261124",
-      "note": "自适应阈值：近 60 个交易日 1进2 晋级率分位 p80/p55/p25 = 23.0% / 17.9% / 12.4%"
+      "window_from": "20260826",
+      "window_to": "20261125",
+      "note": "自适应阈值：近 60 个交易日 1进2 晋级率分位 p80/p55/p25 = 23.0% / 18.0% / 12.8%"
     },
     "note": "档位是连板样本的统计分组，不构成参与建议；未验证其预测收益的能力。"
   },
   "phase_thresholds": {
     "method": "percentile",
     "high": 0.2304761904761905,
-    "mid": 0.17857142857142858,
-    "low": 0.1243161094224924,
+    "mid": 0.18003246753246754,
+    "low": 0.1283434650455927,
     "samples": 60,
     "lookback": 60,
-    "window_from": "20260825",
-    "window_to": "20261124",
-    "note": "自适应阈值：近 60 个交易日 1进2 晋级率分位 p80/p55/p25 = 23.0% / 17.9% / 12.4%"
+    "window_from": "20260826",
+    "window_to": "20261125",
+    "note": "自适应阈值：近 60 个交易日 1进2 晋级率分位 p80/p55/p25 = 23.0% / 18.0% / 12.8%"
   },
   "verification_plan": [
     {
       "指标": "首板次日继续涨停比例",
-      "今日基准": "20.0%（5/25）",
-      "验证条件": "下一交易日收盘后，与 20.0% 比较，并同时列出继续涨停只数和首板样本数。",
+      "今日基准": "21.6%（8/37）",
+      "验证条件": "下一交易日收盘后，与 21.6% 比较，并同时列出继续涨停只数和首板样本数。",
       "为什么看它": "记录首板群体的次日表现，每日样本会变化。"
     },
     {
       "指标": "昨日连板股今日中位涨跌幅",
-      "今日基准": "-3.79%（30 只，上涨占比 40%）",
-      "验证条件": "下一交易日收盘后，与 -3.79% 比较，同列上涨占比、样本数及缺失行情数。",
+      "今日基准": "+8.29%（14 只，上涨占比 86%）",
+      "验证条件": "下一交易日收盘后，与 +8.29% 比较，同列上涨占比、样本数及缺失行情数。",
       "为什么看它": "记录连板样本的收盘涨跌幅，不计算买卖收益。"
     },
     {
@@ -531,8 +511,8 @@
     },
     {
       "指标": "全市场上涨家数与中位涨跌幅",
-      "今日基准": "上涨 586 家 / 下跌 4926 家，中位 -3.77%",
-      "验证条件": "下一交易日收盘后，与上涨 586 家及中位 -3.77% 分别比较。",
+      "今日基准": "上涨 1766 家 / 下跌 3642 家，中位 -0.79%",
+      "验证条件": "下一交易日收盘后，与上涨 1766 家及中位 -0.79% 分别比较。",
       "为什么看它": "观察上涨覆盖面和中间位置个股的表现是否同时改善。"
     }
   ]
