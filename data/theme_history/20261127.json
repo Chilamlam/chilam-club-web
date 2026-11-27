@@ -1,0 +1,5855 @@
+{
+  "date": "20261127",
+  "ladder": {
+    "date": "2026-11-27",
+    "update_time": "2026-11-27 11:09:14",
+    "total_count": 417,
+    "max_height": 6,
+    "stocks": [
+      {
+        "code": "603960",
+        "name": "克来机电",
+        "industry": "汽车零部",
+        "limit_times": 6,
+        "first_time": "13:10:03",
+        "reason": "封板资金 0.47 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603030",
+        "name": "全筑股份",
+        "industry": "装修装饰",
+        "limit_times": 4,
+        "first_time": "09:30:33",
+        "reason": "封板资金 0.88 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002651",
+        "name": "利君股份",
+        "industry": "航空装备",
+        "limit_times": 4,
+        "first_time": "09:30:03",
+        "reason": "封板资金 0.77 亿 | 炸板 3 次"
+      },
+      {
+        "code": "002872",
+        "name": "天圣制药",
+        "industry": "化学制药",
+        "limit_times": 4,
+        "first_time": "09:30:15",
+        "reason": "封板资金 0.15 亿 | 炸板 8 次"
+      },
+      {
+        "code": "600280",
+        "name": "中央商场",
+        "industry": "一般零售",
+        "limit_times": 3,
+        "first_time": "09:30:01",
+        "reason": "封板资金 0.13 亿 | 炸板 4 次"
+      },
+      {
+        "code": "002144",
+        "name": "宏达高科",
+        "industry": "纺织制造",
+        "limit_times": 3,
+        "first_time": "09:51:42",
+        "reason": "封板资金 0.59 亿 | 炸板 2 次"
+      },
+      {
+        "code": "002197",
+        "name": "证通电子",
+        "industry": "计算机设",
+        "limit_times": 3,
+        "first_time": "09:25:00",
+        "reason": "封板资金 2.97 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600520",
+        "name": "三佳科技",
+        "industry": "半导体",
+        "limit_times": 2,
+        "first_time": "09:34:10",
+        "reason": "封板资金 0.58 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002713",
+        "name": "东易日盛",
+        "industry": "装修装饰",
+        "limit_times": 2,
+        "first_time": "13:00:24",
+        "reason": "封板资金 0.15 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002199",
+        "name": "东晶电子",
+        "industry": "元件",
+        "limit_times": 2,
+        "first_time": "09:30:00",
+        "reason": "封板资金 0.13 亿 | 炸板 1 次"
+      },
+      {
+        "code": "000889",
+        "name": "中嘉博创",
+        "industry": "通信服务",
+        "limit_times": 2,
+        "first_time": "09:30:06",
+        "reason": "封板资金 1.11 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002298",
+        "name": "中电鑫龙",
+        "industry": "电网设备",
+        "limit_times": 2,
+        "first_time": "09:30:51",
+        "reason": "封板资金 0.34 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002453",
+        "name": "华软科技",
+        "industry": "化学制品",
+        "limit_times": 2,
+        "first_time": "14:46:45",
+        "reason": "封板资金 0.15 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002077",
+        "name": "大港股份",
+        "industry": "半导体",
+        "limit_times": 2,
+        "first_time": "10:43:36",
+        "reason": "封板资金 0.28 亿 | 炸板 5 次"
+      },
+      {
+        "code": "603687",
+        "name": "大胜达",
+        "industry": "包装印刷",
+        "limit_times": 2,
+        "first_time": "10:05:41",
+        "reason": "封板资金 0.32 亿 | 炸板 3 次"
+      },
+      {
+        "code": "603373",
+        "name": "安邦护卫",
+        "industry": "专业服务",
+        "limit_times": 2,
+        "first_time": "09:31:02",
+        "reason": "封板资金 0.35 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600567",
+        "name": "山鹰国际",
+        "industry": "造纸",
+        "limit_times": 2,
+        "first_time": "09:25:02",
+        "reason": "封板资金 0.8 亿 | 炸板 3 次"
+      },
+      {
+        "code": "002815",
+        "name": "崇达技术",
+        "industry": "元件",
+        "limit_times": 2,
+        "first_time": "13:31:24",
+        "reason": "封板资金 0.33 亿 | 炸板 3 次"
+      },
+      {
+        "code": "000158",
+        "name": "常山北明",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 2,
+        "first_time": "09:25:00",
+        "reason": "封板资金 4.25 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603203",
+        "name": "快克智能",
+        "industry": "自动化设",
+        "limit_times": 2,
+        "first_time": "13:29:51",
+        "reason": "封板资金 0.13 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002261",
+        "name": "拓维信息",
+        "industry": "软件开发",
+        "limit_times": 2,
+        "first_time": "09:33:45",
+        "reason": "封板资金 2.48 亿 | 炸板 2 次"
+      },
+      {
+        "code": "300324",
+        "name": "旋极信息",
+        "industry": "计算机设",
+        "limit_times": 2,
+        "first_time": "13:01:21",
+        "reason": "封板资金 0.75 亿 | 炸板 2 次"
+      },
+      {
+        "code": "003040",
+        "name": "楚天龙",
+        "industry": "通信设备",
+        "limit_times": 2,
+        "first_time": "09:43:36",
+        "reason": "封板资金 0.52 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002843",
+        "name": "泰嘉股份",
+        "industry": "通用设备",
+        "limit_times": 2,
+        "first_time": "11:17:54",
+        "reason": "封板资金 0.18 亿 | 炸板 0 次"
+      },
+      {
+        "code": "000603",
+        "name": "盛达资源",
+        "industry": "贵金属",
+        "limit_times": 2,
+        "first_time": "14:27:36",
+        "reason": "封板资金 0.05 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002081",
+        "name": "金 螳 螂",
+        "industry": "装修装饰",
+        "limit_times": 2,
+        "first_time": "13:03:06",
+        "reason": "封板资金 0.17 亿 | 炸板 3 次"
+      },
+      {
+        "code": "002565",
+        "name": "顺灏股份",
+        "industry": "包装印刷",
+        "limit_times": 2,
+        "first_time": "14:32:30",
+        "reason": "封板资金 0.44 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603386",
+        "name": "骏亚科技",
+        "industry": "元件",
+        "limit_times": 2,
+        "first_time": "09:25:02",
+        "reason": "封板资金 0.46 亿 | 炸板 3 次"
+      },
+      {
+        "code": "603051",
+        "name": "鹿山新材",
+        "industry": "化学制品",
+        "limit_times": 2,
+        "first_time": "09:25:00",
+        "reason": "封板资金 0.51 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603172",
+        "name": "万丰股份",
+        "industry": "化学制品",
+        "limit_times": 1,
+        "first_time": "13:46:51",
+        "reason": "封板资金 0.0 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600246",
+        "name": "万通发展",
+        "industry": "房地产开",
+        "limit_times": 1,
+        "first_time": "13:01:06",
+        "reason": "封板资金 0.3 亿 | 炸板 4 次"
+      },
+      {
+        "code": "002785",
+        "name": "万里石",
+        "industry": "装修建材",
+        "limit_times": 1,
+        "first_time": "10:30:51",
+        "reason": "封板资金 0.54 亿 | 炸板 0 次"
+      },
+      {
+        "code": "605168",
+        "name": "三人行",
+        "industry": "广告营销",
+        "limit_times": 1,
+        "first_time": "09:37:30",
+        "reason": "封板资金 0.86 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603938",
+        "name": "三孚股份",
+        "industry": "化学原料",
+        "limit_times": 1,
+        "first_time": "14:46:04",
+        "reason": "封板资金 0.03 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603663",
+        "name": "三祥新材",
+        "industry": "化学原料",
+        "limit_times": 1,
+        "first_time": "13:06:23",
+        "reason": "封板资金 0.08 亿 | 炸板 8 次"
+      },
+      {
+        "code": "603033",
+        "name": "三维股份",
+        "industry": "橡胶",
+        "limit_times": 1,
+        "first_time": "14:42:32",
+        "reason": "封板资金 0.02 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688585",
+        "name": "上纬新材",
+        "industry": "塑料",
+        "limit_times": 1,
+        "first_time": "14:20:23",
+        "reason": "封板资金 0.37 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002065",
+        "name": "东华软件",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:05:33",
+        "reason": "封板资金 0.16 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002384",
+        "name": "东山精密",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "13:02:27",
+        "reason": "封板资金 6.01 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002819",
+        "name": "东方中科",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "13:28:27",
+        "reason": "封板资金 0.0 亿 | 炸板 6 次"
+      },
+      {
+        "code": "002889",
+        "name": "东方嘉盛",
+        "industry": "物流",
+        "limit_times": 1,
+        "first_time": "13:17:00",
+        "reason": "封板资金 0.01 亿 | 炸板 7 次"
+      },
+      {
+        "code": "000962",
+        "name": "东方钽业",
+        "industry": "小金属",
+        "limit_times": 1,
+        "first_time": "13:44:42",
+        "reason": "封板资金 0.06 亿 | 炸板 0 次"
+      },
+      {
+        "code": "601208",
+        "name": "东材科技",
+        "industry": "塑料",
+        "limit_times": 1,
+        "first_time": "13:33:32",
+        "reason": "封板资金 0.35 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600114",
+        "name": "东睦股份",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "14:06:04",
+        "reason": "封板资金 0.19 亿 | 炸板 4 次"
+      },
+      {
+        "code": "600176",
+        "name": "中国巨石",
+        "industry": "玻璃玻纤",
+        "limit_times": 1,
+        "first_time": "14:44:31",
+        "reason": "封板资金 0.55 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600536",
+        "name": "中国软件",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "11:01:09",
+        "reason": "封板资金 0.45 亿 | 炸板 0 次"
+      },
+      {
+        "code": "000066",
+        "name": "中国长城",
+        "industry": "计算机设",
+        "limit_times": 1,
+        "first_time": "14:44:27",
+        "reason": "封板资金 0.26 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002779",
+        "name": "中坚科技",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "14:20:21",
+        "reason": "封板资金 0.06 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688012",
+        "name": "中微公司",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:44:27",
+        "reason": "封板资金 0.34 亿 | 炸板 2 次"
+      },
+      {
+        "code": "002364",
+        "name": "中恒电气",
+        "industry": "其他电源",
+        "limit_times": 1,
+        "first_time": "14:33:42",
+        "reason": "封板资金 0.12 亿 | 炸板 0 次"
+      },
+      {
+        "code": "001212",
+        "name": "中旗新材",
+        "industry": "装修建材",
+        "limit_times": 1,
+        "first_time": "14:44:12",
+        "reason": "封板资金 0.0 亿 | 炸板 6 次"
+      },
+      {
+        "code": "003026",
+        "name": "中晶科技",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:06:09",
+        "reason": "封板资金 0.21 亿 | 炸板 0 次"
+      },
+      {
+        "code": "003031",
+        "name": "中瓷电子",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "13:35:15",
+        "reason": "封板资金 0.09 亿 | 炸板 2 次"
+      },
+      {
+        "code": "300684",
+        "name": "中石科技",
+        "industry": "电子化学",
+        "limit_times": 1,
+        "first_time": "14:40:54",
+        "reason": "封板资金 0.02 亿 | 炸板 4 次"
+      },
+      {
+        "code": "603019",
+        "name": "中科曙光",
+        "industry": "计算机设",
+        "limit_times": 1,
+        "first_time": "14:52:48",
+        "reason": "封板资金 0.02 亿 | 炸板 3 次"
+      },
+      {
+        "code": "603927",
+        "name": "中科软",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "13:10:57",
+        "reason": "封板资金 0.03 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002657",
+        "name": "中科金财",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "10:11:21",
+        "reason": "封板资金 0.06 亿 | 炸板 17 次"
+      },
+      {
+        "code": "688361",
+        "name": "中科飞测",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:03:10",
+        "reason": "封板资金 1.37 亿 | 炸板 2 次"
+      },
+      {
+        "code": "603220",
+        "name": "中贝通信",
+        "industry": "通信服务",
+        "limit_times": 1,
+        "first_time": "09:37:33",
+        "reason": "封板资金 0.81 亿 | 炸板 2 次"
+      },
+      {
+        "code": "000657",
+        "name": "中钨高新",
+        "industry": "小金属",
+        "limit_times": 1,
+        "first_time": "14:34:12",
+        "reason": "封板资金 0.37 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002687",
+        "name": "乔治白",
+        "industry": "服装家纺",
+        "limit_times": 1,
+        "first_time": "13:46:48",
+        "reason": "封板资金 0.06 亿 | 炸板 5 次"
+      },
+      {
+        "code": "688485",
+        "name": "九州一轨",
+        "industry": "轨交设备",
+        "limit_times": 1,
+        "first_time": "10:38:27",
+        "reason": "封板资金 0.35 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002428",
+        "name": "云南锗业",
+        "industry": "小金属",
+        "limit_times": 1,
+        "first_time": "14:45:54",
+        "reason": "封板资金 0.33 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688343",
+        "name": "云天励飞-U",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:04:21",
+        "reason": "封板资金 0.34 亿 | 炸板 13 次"
+      },
+      {
+        "code": "600602",
+        "name": "云赛智联",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "14:51:14",
+        "reason": "封板资金 0.08 亿 | 炸板 2 次"
+      },
+      {
+        "code": "000409",
+        "name": "云鼎科技",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "09:39:03",
+        "reason": "封板资金 0.58 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603667",
+        "name": "五洲新春",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "14:21:14",
+        "reason": "封板资金 0.21 亿 | 炸板 2 次"
+      },
+      {
+        "code": "603929",
+        "name": "亚翔集成",
+        "industry": "专业工程",
+        "limit_times": 1,
+        "first_time": "13:44:52",
+        "reason": "封板资金 0.11 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600487",
+        "name": "亨通光电",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "14:22:43",
+        "reason": "封板资金 1.52 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688652",
+        "name": "京仪装备",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "10:52:02",
+        "reason": "封板资金 0.79 亿 | 炸板 1 次"
+      },
+      {
+        "code": "600683",
+        "name": "京投发展",
+        "industry": "房地产开",
+        "limit_times": 1,
+        "first_time": "13:03:21",
+        "reason": "封板资金 0.03 亿 | 炸板 15 次"
+      },
+      {
+        "code": "002885",
+        "name": "京泉华",
+        "industry": "其他电子",
+        "limit_times": 1,
+        "first_time": "14:34:12",
+        "reason": "封板资金 0.02 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002647",
+        "name": "仁东控股",
+        "industry": "多元金融",
+        "limit_times": 1,
+        "first_time": "14:56:36",
+        "reason": "封板资金 0.04 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603680",
+        "name": "今创集团",
+        "industry": "轨交设备",
+        "limit_times": 1,
+        "first_time": "10:52:12",
+        "reason": "封板资金 0.07 亿 | 炸板 1 次"
+      },
+      {
+        "code": "688313",
+        "name": "仕佳光子",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "14:35:02",
+        "reason": "封板资金 0.02 亿 | 炸板 2 次"
+      },
+      {
+        "code": "688807",
+        "name": "优迅股份",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:01:56",
+        "reason": "封板资金 0.11 亿 | 炸板 2 次"
+      },
+      {
+        "code": "688372",
+        "name": "伟测科技",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:27:43",
+        "reason": "封板资金 0.18 亿 | 炸板 9 次"
+      },
+      {
+        "code": "002871",
+        "name": "伟隆股份",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "13:48:06",
+        "reason": "封板资金 0.02 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603912",
+        "name": "佳力图",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "10:36:16",
+        "reason": "封板资金 0.17 亿 | 炸板 0 次"
+      },
+      {
+        "code": "001388",
+        "name": "信通电子",
+        "industry": "电网设备",
+        "limit_times": 1,
+        "first_time": "11:14:33",
+        "reason": "封板资金 0.24 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600571",
+        "name": "信雅达",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:06:28",
+        "reason": "封板资金 0.03 亿 | 炸板 17 次"
+      },
+      {
+        "code": "003021",
+        "name": "兆威机电",
+        "industry": "电机Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:33:57",
+        "reason": "封板资金 0.21 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603986",
+        "name": "兆易创新",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:26:07",
+        "reason": "封板资金 3.11 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600641",
+        "name": "先导基电",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:02:51",
+        "reason": "封板资金 1.03 亿 | 炸板 1 次"
+      },
+      {
+        "code": "688605",
+        "name": "先锋精科",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:02:52",
+        "reason": "封板资金 0.03 亿 | 炸板 4 次"
+      },
+      {
+        "code": "300480",
+        "name": "光力科技",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "14:12:36",
+        "reason": "封板资金 0.03 亿 | 炸板 2 次"
+      },
+      {
+        "code": "002708",
+        "name": "光洋股份",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "09:55:24",
+        "reason": "封板资金 0.74 亿 | 炸板 3 次"
+      },
+      {
+        "code": "002281",
+        "name": "光迅科技",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "13:04:27",
+        "reason": "封板资金 1.72 亿 | 炸板 3 次"
+      },
+      {
+        "code": "002655",
+        "name": "共达电声",
+        "industry": "消费电子",
+        "limit_times": 1,
+        "first_time": "13:06:54",
+        "reason": "封板资金 0.25 亿 | 炸板 8 次"
+      },
+      {
+        "code": "002674",
+        "name": "兴业科技",
+        "industry": "纺织制造",
+        "limit_times": 1,
+        "first_time": "13:46:06",
+        "reason": "封板资金 0.02 亿 | 炸板 0 次"
+      },
+      {
+        "code": "000426",
+        "name": "兴业银锡",
+        "industry": "贵金属",
+        "limit_times": 1,
+        "first_time": "14:30:15",
+        "reason": "封板资金 0.2 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002436",
+        "name": "兴森科技",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "10:51:42",
+        "reason": "封板资金 2.28 亿 | 炸板 1 次"
+      },
+      {
+        "code": "688545",
+        "name": "兴福电子",
+        "industry": "电子化学",
+        "limit_times": 1,
+        "first_time": "14:38:48",
+        "reason": "封板资金 0.21 亿 | 炸板 1 次"
+      },
+      {
+        "code": "605588",
+        "name": "冠石科技",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "13:10:02",
+        "reason": "封板资金 0.01 亿 | 炸板 2 次"
+      },
+      {
+        "code": "000811",
+        "name": "冰轮环境",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "13:49:33",
+        "reason": "封板资金 0.13 亿 | 炸板 1 次"
+      },
+      {
+        "code": "600071",
+        "name": "凤凰光学",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "14:28:24",
+        "reason": "封板资金 0.09 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603037",
+        "name": "凯众股份",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "13:43:46",
+        "reason": "封板资金 0.01 亿 | 炸板 5 次"
+      },
+      {
+        "code": "600552",
+        "name": "凯盛科技",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "14:40:21",
+        "reason": "封板资金 0.08 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603629",
+        "name": "利通电子",
+        "industry": "消费电子",
+        "limit_times": 1,
+        "first_time": "13:33:57",
+        "reason": "封板资金 0.72 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603083",
+        "name": "剑桥科技",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "13:09:54",
+        "reason": "封板资金 1.17 亿 | 炸板 2 次"
+      },
+      {
+        "code": "605118",
+        "name": "力鼎光电",
+        "industry": "计算机设",
+        "limit_times": 1,
+        "first_time": "13:48:13",
+        "reason": "封板资金 0.01 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002371",
+        "name": "北方华创",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:01:15",
+        "reason": "封板资金 4.35 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603009",
+        "name": "北特科技",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "10:27:15",
+        "reason": "封板资金 0.78 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688629",
+        "name": "华丰科技",
+        "industry": "军工电子",
+        "limit_times": 1,
+        "first_time": "13:02:16",
+        "reason": "封板资金 0.68 亿 | 炸板 5 次"
+      },
+      {
+        "code": "603400",
+        "name": "华之杰",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "13:23:46",
+        "reason": "封板资金 0.04 亿 | 炸板 0 次"
+      },
+      {
+        "code": "003043",
+        "name": "华亚智能",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:02:57",
+        "reason": "封板资金 0.07 亿 | 炸板 1 次"
+      },
+      {
+        "code": "603679",
+        "name": "华体科技",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "13:28:53",
+        "reason": "封板资金 0.01 亿 | 炸板 6 次"
+      },
+      {
+        "code": "920592",
+        "name": "华信永道",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "14:51:28",
+        "reason": "封板资金 0.11 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603296",
+        "name": "华勤技术",
+        "industry": "消费电子",
+        "limit_times": 1,
+        "first_time": "14:43:49",
+        "reason": "封板资金 0.0 亿 | 炸板 2 次"
+      },
+      {
+        "code": "002185",
+        "name": "华天科技",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:44:09",
+        "reason": "封板资金 0.57 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688200",
+        "name": "华峰测控",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:44:14",
+        "reason": "封板资金 0.42 亿 | 炸板 7 次"
+      },
+      {
+        "code": "000988",
+        "name": "华工科技",
+        "industry": "自动化设",
+        "limit_times": 1,
+        "first_time": "13:09:54",
+        "reason": "封板资金 1.4 亿 | 炸板 1 次"
+      },
+      {
+        "code": "603306",
+        "name": "华懋科技",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "10:28:22",
+        "reason": "封板资金 0.73 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603186",
+        "name": "华正新材",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "13:00:01",
+        "reason": "封板资金 3.49 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688120",
+        "name": "华海清科",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:36:51",
+        "reason": "封板资金 0.95 亿 | 炸板 2 次"
+      },
+      {
+        "code": "688535",
+        "name": "华海诚科",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "10:35:49",
+        "reason": "封板资金 0.83 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002787",
+        "name": "华源控股",
+        "industry": "包装印刷",
+        "limit_times": 1,
+        "first_time": "13:06:21",
+        "reason": "封板资金 0.08 亿 | 炸板 3 次"
+      },
+      {
+        "code": "002980",
+        "name": "华盛昌",
+        "industry": "电网设备",
+        "limit_times": 1,
+        "first_time": "14:26:51",
+        "reason": "封板资金 0.08 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603038",
+        "name": "华立股份",
+        "industry": "装修建材",
+        "limit_times": 1,
+        "first_time": "13:02:14",
+        "reason": "封板资金 0.01 亿 | 炸板 11 次"
+      },
+      {
+        "code": "600410",
+        "name": "华胜天成",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "10:11:30",
+        "reason": "封板资金 2.95 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688347",
+        "name": "华虹宏力",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:25:56",
+        "reason": "封板资金 1.78 亿 | 炸板 3 次"
+      },
+      {
+        "code": "603358",
+        "name": "华达科技",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "14:34:21",
+        "reason": "封板资金 0.03 亿 | 炸板 9 次"
+      },
+      {
+        "code": "002757",
+        "name": "南兴股份",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "11:02:12",
+        "reason": "封板资金 0.46 亿 | 炸板 1 次"
+      },
+      {
+        "code": "000948",
+        "name": "南天信息",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "13:07:21",
+        "reason": "封板资金 0.04 亿 | 炸板 2 次"
+      },
+      {
+        "code": "603636",
+        "name": "南威软件",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "11:15:18",
+        "reason": "封板资金 0.17 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002649",
+        "name": "博彦科技",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:08:21",
+        "reason": "封板资金 0.01 亿 | 炸板 3 次"
+      },
+      {
+        "code": "603936",
+        "name": "博敏电子",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "13:00:02",
+        "reason": "封板资金 0.59 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002975",
+        "name": "博杰股份",
+        "industry": "自动化设",
+        "limit_times": 1,
+        "first_time": "13:47:18",
+        "reason": "封板资金 0.14 亿 | 炸板 3 次"
+      },
+      {
+        "code": "300363",
+        "name": "博腾股份",
+        "industry": "医疗服务",
+        "limit_times": 1,
+        "first_time": "14:30:06",
+        "reason": "封板资金 0.07 亿 | 炸板 5 次"
+      },
+      {
+        "code": "605376",
+        "name": "博迁新材",
+        "industry": "金属新材",
+        "limit_times": 1,
+        "first_time": "13:06:38",
+        "reason": "封板资金 0.42 亿 | 炸板 2 次"
+      },
+      {
+        "code": "603068",
+        "name": "博通集成",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:42:11",
+        "reason": "封板资金 0.08 亿 | 炸板 4 次"
+      },
+      {
+        "code": "301391",
+        "name": "卡莱特",
+        "industry": "计算机设",
+        "limit_times": 1,
+        "first_time": "11:17:30",
+        "reason": "封板资金 0.46 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603052",
+        "name": "可川科技",
+        "industry": "消费电子",
+        "limit_times": 1,
+        "first_time": "13:43:32",
+        "reason": "封板资金 0.04 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603917",
+        "name": "合力科技",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "13:31:19",
+        "reason": "封板资金 0.02 亿 | 炸板 1 次"
+      },
+      {
+        "code": "301172",
+        "name": "君逸数码",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:26:51",
+        "reason": "封板资金 0.05 亿 | 炸板 17 次"
+      },
+      {
+        "code": "001225",
+        "name": "和泰机电",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "13:31:48",
+        "reason": "封板资金 0.06 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002971",
+        "name": "和远气体",
+        "industry": "化学制品",
+        "limit_times": 1,
+        "first_time": "14:41:54",
+        "reason": "封板资金 0.03 亿 | 炸板 9 次"
+      },
+      {
+        "code": "000935",
+        "name": "四川双马",
+        "industry": "多元金融",
+        "limit_times": 1,
+        "first_time": "13:48:45",
+        "reason": "封板资金 0.0 亿 | 炸板 1 次"
+      },
+      {
+        "code": "600839",
+        "name": "四川长虹",
+        "industry": "黑色家电",
+        "limit_times": 1,
+        "first_time": "13:21:24",
+        "reason": "封板资金 0.44 亿 | 炸板 3 次"
+      },
+      {
+        "code": "002768",
+        "name": "国恩股份",
+        "industry": "塑料",
+        "limit_times": 1,
+        "first_time": "13:38:48",
+        "reason": "封板资金 0.07 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002046",
+        "name": "国机精工",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "13:29:15",
+        "reason": "封板资金 0.08 亿 | 炸板 6 次"
+      },
+      {
+        "code": "002670",
+        "name": "国盛证券",
+        "industry": "证券Ⅱ",
+        "limit_times": 1,
+        "first_time": "10:40:09",
+        "reason": "封板资金 1.2 亿 | 炸板 2 次"
+      },
+      {
+        "code": "300672",
+        "name": "国科微",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:59:48",
+        "reason": "封板资金 0.1 亿 | 炸板 1 次"
+      },
+      {
+        "code": "000859",
+        "name": "国风新材",
+        "industry": "塑料",
+        "limit_times": 1,
+        "first_time": "09:39:15",
+        "reason": "封板资金 0.26 亿 | 炸板 4 次"
+      },
+      {
+        "code": "603163",
+        "name": "圣晖集成",
+        "industry": "专业工程",
+        "limit_times": 1,
+        "first_time": "13:06:24",
+        "reason": "封板资金 0.04 亿 | 炸板 1 次"
+      },
+      {
+        "code": "688610",
+        "name": "埃科光电",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "14:49:28",
+        "reason": "封板资金 0.01 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600460",
+        "name": "士兰微",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:27:56",
+        "reason": "封板资金 0.18 亿 | 炸板 0 次"
+      },
+      {
+        "code": "001306",
+        "name": "夏厦精密",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "13:27:09",
+        "reason": "封板资金 0.01 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002213",
+        "name": "大为股份",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:31:09",
+        "reason": "封板资金 0.03 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600589",
+        "name": "大位科技",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "09:30:57",
+        "reason": "封板资金 0.69 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603757",
+        "name": "大元泵业",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "13:48:30",
+        "reason": "封板资金 0.05 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002008",
+        "name": "大族激光",
+        "industry": "自动化设",
+        "limit_times": 1,
+        "first_time": "13:27:27",
+        "reason": "封板资金 0.81 亿 | 炸板 1 次"
+      },
+      {
+        "code": "601519",
+        "name": "大智慧",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "13:05:02",
+        "reason": "封板资金 0.11 亿 | 炸板 13 次"
+      },
+      {
+        "code": "301178",
+        "name": "天亿马",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "09:33:39",
+        "reason": "封板资金 0.4 亿 | 炸板 1 次"
+      },
+      {
+        "code": "603608",
+        "name": "天创股份",
+        "industry": "服装家纺",
+        "limit_times": 1,
+        "first_time": "09:30:18",
+        "reason": "封板资金 0.43 亿 | 炸板 3 次"
+      },
+      {
+        "code": "605255",
+        "name": "天普股份",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "13:41:17",
+        "reason": "封板资金 0.03 亿 | 炸板 6 次"
+      },
+      {
+        "code": "603895",
+        "name": "天永智能",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "14:46:04",
+        "reason": "封板资金 0.0 亿 | 炸板 1 次"
+      },
+      {
+        "code": "300047",
+        "name": "天源迪科",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "09:33:39",
+        "reason": "封板资金 0.5 亿 | 炸板 2 次"
+      },
+      {
+        "code": "600330",
+        "name": "天通股份",
+        "industry": "电子化学",
+        "limit_times": 1,
+        "first_time": "13:28:10",
+        "reason": "封板资金 0.29 亿 | 炸板 1 次"
+      },
+      {
+        "code": "600667",
+        "name": "太极实业",
+        "industry": "工程咨询",
+        "limit_times": 1,
+        "first_time": "14:24:03",
+        "reason": "封板资金 0.33 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002368",
+        "name": "太极股份",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "10:09:03",
+        "reason": "封板资金 0.43 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002913",
+        "name": "奥士康",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "13:28:15",
+        "reason": "封板资金 0.3 亿 | 炸板 10 次"
+      },
+      {
+        "code": "002338",
+        "name": "奥普光电",
+        "industry": "军工电子",
+        "limit_times": 1,
+        "first_time": "13:07:12",
+        "reason": "封板资金 0.11 亿 | 炸板 7 次"
+      },
+      {
+        "code": "600666",
+        "name": "奥瑞德",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "09:32:17",
+        "reason": "封板资金 0.13 亿 | 炸板 4 次"
+      },
+      {
+        "code": "603956",
+        "name": "威派格",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "13:22:53",
+        "reason": "封板资金 0.09 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002164",
+        "name": "宁波东力",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "10:04:18",
+        "reason": "封板资金 0.06 亿 | 炸板 8 次"
+      },
+      {
+        "code": "002048",
+        "name": "宁波华翔",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "14:34:30",
+        "reason": "封板资金 0.0 亿 | 炸板 3 次"
+      },
+      {
+        "code": "601789",
+        "name": "宁波建工",
+        "industry": "房屋建设",
+        "limit_times": 1,
+        "first_time": "09:37:03",
+        "reason": "封板资金 0.23 亿 | 炸板 4 次"
+      },
+      {
+        "code": "002943",
+        "name": "宇晶股份",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "13:10:03",
+        "reason": "封板资金 0.03 亿 | 炸板 4 次"
+      },
+      {
+        "code": "002903",
+        "name": "宇环数控",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "13:30:18",
+        "reason": "封板资金 0.02 亿 | 炸板 4 次"
+      },
+      {
+        "code": "603031",
+        "name": "安孚科技",
+        "industry": "电池",
+        "limit_times": 1,
+        "first_time": "14:30:36",
+        "reason": "封板资金 0.05 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688019",
+        "name": "安集科技",
+        "industry": "电子化学",
+        "limit_times": 1,
+        "first_time": "13:47:43",
+        "reason": "封板资金 0.08 亿 | 炸板 6 次"
+      },
+      {
+        "code": "603256",
+        "name": "宏和科技",
+        "industry": "玻璃玻纤",
+        "limit_times": 1,
+        "first_time": "13:44:36",
+        "reason": "封板资金 0.42 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002930",
+        "name": "宏川智慧",
+        "industry": "物流",
+        "limit_times": 1,
+        "first_time": "09:25:00",
+        "reason": "封板资金 0.51 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603002",
+        "name": "宏昌电子",
+        "industry": "电子化学",
+        "limit_times": 1,
+        "first_time": "14:24:39",
+        "reason": "封板资金 0.13 亿 | 炸板 1 次"
+      },
+      {
+        "code": "301396",
+        "name": "宏景科技",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:58:42",
+        "reason": "封板资金 0.39 亿 | 炸板 1 次"
+      },
+      {
+        "code": "603090",
+        "name": "宏盛股份",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "10:52:42",
+        "reason": "封板资金 0.35 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002552",
+        "name": "宝鼎科技",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "14:50:51",
+        "reason": "封板资金 0.18 亿 | 炸板 0 次"
+      },
+      {
+        "code": "003019",
+        "name": "宸展光电",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "14:48:42",
+        "reason": "封板资金 0.16 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688409",
+        "name": "富创精密",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:06:51",
+        "reason": "封板资金 0.56 亿 | 炸板 5 次"
+      },
+      {
+        "code": "002723",
+        "name": "小崧股份",
+        "industry": "照明设备",
+        "limit_times": 1,
+        "first_time": "13:18:45",
+        "reason": "封板资金 0.12 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688729",
+        "name": "屹唐股份",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:32:07",
+        "reason": "封板资金 0.04 亿 | 炸板 2 次"
+      },
+      {
+        "code": "002253",
+        "name": "川大智胜",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "13:27:42",
+        "reason": "封板资金 0.01 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002272",
+        "name": "川润股份",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "10:30:24",
+        "reason": "封板资金 0.59 亿 | 炸板 0 次"
+      },
+      {
+        "code": "001389",
+        "name": "广合科技",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "13:31:30",
+        "reason": "封板资金 0.49 亿 | 炸板 2 次"
+      },
+      {
+        "code": "002152",
+        "name": "广电运通",
+        "industry": "计算机设",
+        "limit_times": 1,
+        "first_time": "13:10:12",
+        "reason": "封板资金 0.01 亿 | 炸板 2 次"
+      },
+      {
+        "code": "002119",
+        "name": "康强电子",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "10:42:51",
+        "reason": "封板资金 0.69 亿 | 炸板 3 次"
+      },
+      {
+        "code": "603015",
+        "name": "弘讯科技",
+        "industry": "自动化设",
+        "limit_times": 1,
+        "first_time": "13:47:53",
+        "reason": "封板资金 0.02 亿 | 炸板 2 次"
+      },
+      {
+        "code": "600895",
+        "name": "张江高科",
+        "industry": "房地产开",
+        "limit_times": 1,
+        "first_time": "13:35:42",
+        "reason": "封板资金 0.17 亿 | 炸板 3 次"
+      },
+      {
+        "code": "688809",
+        "name": "强一股份",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:03:04",
+        "reason": "封板资金 0.4 亿 | 炸板 5 次"
+      },
+      {
+        "code": "603650",
+        "name": "彤程新材",
+        "industry": "橡胶",
+        "limit_times": 1,
+        "first_time": "13:06:06",
+        "reason": "封板资金 0.47 亿 | 炸板 6 次"
+      },
+      {
+        "code": "003033",
+        "name": "征和工业",
+        "industry": "摩托车及",
+        "limit_times": 1,
+        "first_time": "13:09:57",
+        "reason": "封板资金 0.03 亿 | 炸板 4 次"
+      },
+      {
+        "code": "603303",
+        "name": "得邦照明",
+        "industry": "照明设备",
+        "limit_times": 1,
+        "first_time": "13:08:11",
+        "reason": "封板资金 0.04 亿 | 炸板 6 次"
+      },
+      {
+        "code": "688147",
+        "name": "微导纳米",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:04:28",
+        "reason": "封板资金 0.31 亿 | 炸板 7 次"
+      },
+      {
+        "code": "002631",
+        "name": "德尔未来",
+        "industry": "家居用品",
+        "limit_times": 1,
+        "first_time": "14:03:21",
+        "reason": "封板资金 0.01 亿 | 炸板 4 次"
+      },
+      {
+        "code": "300473",
+        "name": "德尔股份",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "13:26:15",
+        "reason": "封板资金 0.06 亿 | 炸板 6 次"
+      },
+      {
+        "code": "001309",
+        "name": "德明利",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:00:06",
+        "reason": "封板资金 1.13 亿 | 炸板 2 次"
+      },
+      {
+        "code": "688069",
+        "name": "德林海",
+        "industry": "环境治理",
+        "limit_times": 1,
+        "first_time": "09:30:58",
+        "reason": "封板资金 0.46 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688205",
+        "name": "德科立",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "13:02:04",
+        "reason": "封板资金 0.29 亿 | 炸板 3 次"
+      },
+      {
+        "code": "688035",
+        "name": "德邦科技",
+        "industry": "电子化学",
+        "limit_times": 1,
+        "first_time": "14:00:25",
+        "reason": "封板资金 0.09 亿 | 炸板 3 次"
+      },
+      {
+        "code": "603496",
+        "name": "恒为科技",
+        "industry": "计算机设",
+        "limit_times": 1,
+        "first_time": "10:03:38",
+        "reason": "封板资金 0.53 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002492",
+        "name": "恒基达鑫",
+        "industry": "物流",
+        "limit_times": 1,
+        "first_time": "13:28:09",
+        "reason": "封板资金 0.0 亿 | 炸板 4 次"
+      },
+      {
+        "code": "603661",
+        "name": "恒林股份",
+        "industry": "家居用品",
+        "limit_times": 1,
+        "first_time": "14:24:54",
+        "reason": "封板资金 0.02 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688785",
+        "name": "恒运昌",
+        "industry": "其他电源",
+        "limit_times": 1,
+        "first_time": "13:25:09",
+        "reason": "封板资金 0.14 亿 | 炸板 9 次"
+      },
+      {
+        "code": "002947",
+        "name": "恒铭达",
+        "industry": "消费电子",
+        "limit_times": 1,
+        "first_time": "13:02:33",
+        "reason": "封板资金 0.38 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002897",
+        "name": "意华股份",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "10:30:33",
+        "reason": "封板资金 0.64 亿 | 炸板 0 次"
+      },
+      {
+        "code": "301316",
+        "name": "慧博云通",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "10:31:30",
+        "reason": "封板资金 0.87 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002190",
+        "name": "成飞集成",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "09:55:54",
+        "reason": "封板资金 0.23 亿 | 炸板 2 次"
+      },
+      {
+        "code": "688072",
+        "name": "拓荆科技",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:47:31",
+        "reason": "封板资金 0.57 亿 | 炸板 1 次"
+      },
+      {
+        "code": "603067",
+        "name": "振华股份",
+        "industry": "化学原料",
+        "limit_times": 1,
+        "first_time": "14:52:40",
+        "reason": "封板资金 0.18 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002855",
+        "name": "捷荣技术",
+        "industry": "消费电子",
+        "limit_times": 1,
+        "first_time": "09:59:30",
+        "reason": "封板资金 0.6 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600825",
+        "name": "新华传媒",
+        "industry": "出版",
+        "limit_times": 1,
+        "first_time": "09:25:01",
+        "reason": "封板资金 1.31 亿 | 炸板 2 次"
+      },
+      {
+        "code": "603040",
+        "name": "新坐标",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "13:01:57",
+        "reason": "封板资金 0.03 亿 | 炸板 2 次"
+      },
+      {
+        "code": "000571",
+        "name": "新大洲A",
+        "industry": "煤炭开采",
+        "limit_times": 1,
+        "first_time": "13:40:15",
+        "reason": "封板资金 0.05 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002527",
+        "name": "新时达",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "13:40:39",
+        "reason": "封板资金 0.03 亿 | 炸板 4 次"
+      },
+      {
+        "code": "300502",
+        "name": "新易盛",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "14:47:57",
+        "reason": "封板资金 2.03 亿 | 炸板 0 次"
+      },
+      {
+        "code": "605111",
+        "name": "新洁能",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:28:33",
+        "reason": "封板资金 0.26 亿 | 炸板 0 次"
+      },
+      {
+        "code": "605398",
+        "name": "新炬网络",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:35:43",
+        "reason": "封板资金 0.11 亿 | 炸板 2 次"
+      },
+      {
+        "code": "603080",
+        "name": "新疆火炬",
+        "industry": "燃气Ⅱ",
+        "limit_times": 1,
+        "first_time": "10:55:18",
+        "reason": "封板资金 0.65 亿 | 炸板 1 次"
+      },
+      {
+        "code": "688593",
+        "name": "新相微",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:52:06",
+        "reason": "封板资金 0.07 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002480",
+        "name": "新筑股份",
+        "industry": "电力",
+        "limit_times": 1,
+        "first_time": "09:41:57",
+        "reason": "封板资金 0.09 亿 | 炸板 3 次"
+      },
+      {
+        "code": "000510",
+        "name": "新金路",
+        "industry": "化学原料",
+        "limit_times": 1,
+        "first_time": "13:33:00",
+        "reason": "封板资金 0.17 亿 | 炸板 1 次"
+      },
+      {
+        "code": "600353",
+        "name": "旭光电子",
+        "industry": "其他电子",
+        "limit_times": 1,
+        "first_time": "13:26:34",
+        "reason": "封板资金 0.18 亿 | 炸板 6 次"
+      },
+      {
+        "code": "603305",
+        "name": "旭升集团",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "11:21:34",
+        "reason": "封板资金 0.26 亿 | 炸板 0 次"
+      },
+      {
+        "code": "605178",
+        "name": "时空科技",
+        "industry": "专业工程",
+        "limit_times": 1,
+        "first_time": "10:09:10",
+        "reason": "封板资金 0.29 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600378",
+        "name": "昊华科技",
+        "industry": "化学制品",
+        "limit_times": 1,
+        "first_time": "14:40:11",
+        "reason": "封板资金 0.08 亿 | 炸板 2 次"
+      },
+      {
+        "code": "603380",
+        "name": "易德龙",
+        "industry": "消费电子",
+        "limit_times": 1,
+        "first_time": "14:48:16",
+        "reason": "封板资金 0.01 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002396",
+        "name": "星网锐捷",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "13:06:21",
+        "reason": "封板资金 0.41 亿 | 炸板 4 次"
+      },
+      {
+        "code": "300943",
+        "name": "春晖智控",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "14:05:33",
+        "reason": "封板资金 0.01 亿 | 炸板 6 次"
+      },
+      {
+        "code": "603127",
+        "name": "昭衍新药",
+        "industry": "医疗服务",
+        "limit_times": 1,
+        "first_time": "13:29:42",
+        "reason": "封板资金 0.21 亿 | 炸板 1 次"
+      },
+      {
+        "code": "603228",
+        "name": "景旺电子",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "14:05:20",
+        "reason": "封板资金 0.39 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603683",
+        "name": "晶华新材",
+        "industry": "化学制品",
+        "limit_times": 1,
+        "first_time": "13:41:19",
+        "reason": "封板资金 0.06 亿 | 炸板 4 次"
+      },
+      {
+        "code": "603005",
+        "name": "晶方科技",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:26:18",
+        "reason": "封板资金 0.17 亿 | 炸板 7 次"
+      },
+      {
+        "code": "001339",
+        "name": "智微智能",
+        "industry": "计算机设",
+        "limit_times": 1,
+        "first_time": "13:07:15",
+        "reason": "封板资金 0.21 亿 | 炸板 11 次"
+      },
+      {
+        "code": "688636",
+        "name": "智明达",
+        "industry": "军工电子",
+        "limit_times": 1,
+        "first_time": "13:45:08",
+        "reason": "封板资金 0.01 亿 | 炸板 4 次"
+      },
+      {
+        "code": "600206",
+        "name": "有研新材",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:46:36",
+        "reason": "封板资金 1.01 亿 | 炸板 1 次"
+      },
+      {
+        "code": "688432",
+        "name": "有研硅",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:17:33",
+        "reason": "封板资金 0.4 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603655",
+        "name": "朗博科技",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "13:25:20",
+        "reason": "封板资金 0.06 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603337",
+        "name": "杰克科技",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "14:28:26",
+        "reason": "封板资金 0.16 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688141",
+        "name": "杰华特",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:06:17",
+        "reason": "封板资金 0.36 亿 | 炸板 3 次"
+      },
+      {
+        "code": "002353",
+        "name": "杰瑞股份",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "13:44:54",
+        "reason": "封板资金 0.15 亿 | 炸板 2 次"
+      },
+      {
+        "code": "601133",
+        "name": "柏诚股份",
+        "industry": "专业工程",
+        "limit_times": 1,
+        "first_time": "13:27:34",
+        "reason": "封板资金 0.02 亿 | 炸板 1 次"
+      },
+      {
+        "code": "603931",
+        "name": "格林达",
+        "industry": "电子化学",
+        "limit_times": 1,
+        "first_time": "14:41:27",
+        "reason": "封板资金 0.02 亿 | 炸板 2 次"
+      },
+      {
+        "code": "002123",
+        "name": "梦网科技",
+        "industry": "通信服务",
+        "limit_times": 1,
+        "first_time": "13:00:21",
+        "reason": "封板资金 0.3 亿 | 炸板 0 次"
+      },
+      {
+        "code": "000700",
+        "name": "模塑科技",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "09:59:36",
+        "reason": "封板资金 0.93 亿 | 炸板 1 次"
+      },
+      {
+        "code": "688530",
+        "name": "欧莱新材",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:05:39",
+        "reason": "封板资金 0.04 亿 | 炸板 1 次"
+      },
+      {
+        "code": "300870",
+        "name": "欧陆通",
+        "industry": "其他电源",
+        "limit_times": 1,
+        "first_time": "14:40:36",
+        "reason": "封板资金 0.04 亿 | 炸板 2 次"
+      },
+      {
+        "code": "688596",
+        "name": "正帆科技",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "13:27:13",
+        "reason": "封板资金 0.1 亿 | 炸板 9 次"
+      },
+      {
+        "code": "603901",
+        "name": "永创智能",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "14:35:43",
+        "reason": "封板资金 0.19 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603297",
+        "name": "永新光学",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "13:06:11",
+        "reason": "封板资金 0.07 亿 | 炸板 1 次"
+      },
+      {
+        "code": "605208",
+        "name": "永茂泰",
+        "industry": "工业金属",
+        "limit_times": 1,
+        "first_time": "14:12:46",
+        "reason": "封板资金 0.03 亿 | 炸板 2 次"
+      },
+      {
+        "code": "600105",
+        "name": "永鼎股份",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "14:43:25",
+        "reason": "封板资金 0.45 亿 | 炸板 0 次"
+      },
+      {
+        "code": "301392",
+        "name": "汇成真空",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "13:14:48",
+        "reason": "封板资金 0.29 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002122",
+        "name": "汇洲智能",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "10:00:30",
+        "reason": "封板资金 0.37 亿 | 炸板 0 次"
+      },
+      {
+        "code": "001267",
+        "name": "汇绿生态",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "13:41:33",
+        "reason": "封板资金 0.32 亿 | 炸板 0 次"
+      },
+      {
+        "code": "920092",
+        "name": "汉鑫科技",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "10:00:49",
+        "reason": "封板资金 0.33 亿 | 炸板 0 次"
+      },
+      {
+        "code": "300666",
+        "name": "江丰电子",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:27:21",
+        "reason": "封板资金 0.76 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603078",
+        "name": "江化微",
+        "industry": "电子化学",
+        "limit_times": 1,
+        "first_time": "14:34:49",
+        "reason": "封板资金 0.3 亿 | 炸板 3 次"
+      },
+      {
+        "code": "603124",
+        "name": "江南新材",
+        "industry": "金属新材",
+        "limit_times": 1,
+        "first_time": "13:29:15",
+        "reason": "封板资金 0.83 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002484",
+        "name": "江海股份",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "13:07:18",
+        "reason": "封板资金 0.35 亿 | 炸板 1 次"
+      },
+      {
+        "code": "603773",
+        "name": "沃格光电",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "13:28:39",
+        "reason": "封板资金 0.17 亿 | 炸板 5 次"
+      },
+      {
+        "code": "002463",
+        "name": "沪电股份",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "13:46:39",
+        "reason": "封板资金 1.49 亿 | 炸板 4 次"
+      },
+      {
+        "code": "300925",
+        "name": "法本信息",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "10:11:09",
+        "reason": "封板资金 0.28 亿 | 炸板 1 次"
+      },
+      {
+        "code": "605318",
+        "name": "法狮龙",
+        "industry": "装修建材",
+        "limit_times": 1,
+        "first_time": "13:01:05",
+        "reason": "封板资金 0.04 亿 | 炸板 0 次"
+      },
+      {
+        "code": "301421",
+        "name": "波长光电",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "14:04:54",
+        "reason": "封板资金 0.05 亿 | 炸板 8 次"
+      },
+      {
+        "code": "003036",
+        "name": "泰坦股份",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "13:34:30",
+        "reason": "封板资金 0.02 亿 | 炸板 3 次"
+      },
+      {
+        "code": "603738",
+        "name": "泰晶科技",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "14:42:47",
+        "reason": "封板资金 0.1 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002859",
+        "name": "洁美科技",
+        "industry": "其他电子",
+        "limit_times": 1,
+        "first_time": "13:45:00",
+        "reason": "封板资金 0.23 亿 | 炸板 1 次"
+      },
+      {
+        "code": "603800",
+        "name": "洪田股份",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "13:02:57",
+        "reason": "封板资金 0.06 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600797",
+        "name": "浙大网新",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "09:30:45",
+        "reason": "封板资金 0.64 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603119",
+        "name": "浙江荣泰",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "13:00:03",
+        "reason": "封板资金 0.58 亿 | 炸板 1 次"
+      },
+      {
+        "code": "000977",
+        "name": "浪潮信息",
+        "industry": "计算机设",
+        "limit_times": 1,
+        "first_time": "14:48:12",
+        "reason": "封板资金 0.28 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002344",
+        "name": "海宁皮城",
+        "industry": "一般零售",
+        "limit_times": 1,
+        "first_time": "09:25:00",
+        "reason": "封板资金 0.27 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600619",
+        "name": "海立股份",
+        "industry": "家电零部",
+        "limit_times": 1,
+        "first_time": "10:16:57",
+        "reason": "封板资金 0.46 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603138",
+        "name": "海量数据",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "10:41:19",
+        "reason": "封板资金 0.29 亿 | 炸板 2 次"
+      },
+      {
+        "code": "300339",
+        "name": "润和软件",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "10:00:30",
+        "reason": "封板资金 2.45 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002929",
+        "name": "润建股份",
+        "industry": "通信服务",
+        "limit_times": 1,
+        "first_time": "11:25:12",
+        "reason": "封板资金 0.31 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002916",
+        "name": "深南电路",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "11:17:24",
+        "reason": "封板资金 2.21 亿 | 炸板 0 次"
+      },
+      {
+        "code": "000062",
+        "name": "深圳华强",
+        "industry": "其他电子",
+        "limit_times": 1,
+        "first_time": "09:36:24",
+        "reason": "封板资金 0.91 亿 | 炸板 1 次"
+      },
+      {
+        "code": "603978",
+        "name": "深圳新星",
+        "industry": "金属新材",
+        "limit_times": 1,
+        "first_time": "13:46:03",
+        "reason": "封板资金 0.02 亿 | 炸板 17 次"
+      },
+      {
+        "code": "000032",
+        "name": "深桑达Ａ",
+        "industry": "专业工程",
+        "limit_times": 1,
+        "first_time": "14:35:09",
+        "reason": "封板资金 0.03 亿 | 炸板 4 次"
+      },
+      {
+        "code": "000029",
+        "name": "深深房Ａ",
+        "industry": "房地产开",
+        "limit_times": 1,
+        "first_time": "13:28:15",
+        "reason": "封板资金 0.0 亿 | 炸板 20 次"
+      },
+      {
+        "code": "000021",
+        "name": "深科技",
+        "industry": "消费电子",
+        "limit_times": 1,
+        "first_time": "14:06:12",
+        "reason": "封板资金 0.43 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600095",
+        "name": "湘财股份",
+        "industry": "证券Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:06:35",
+        "reason": "封板资金 0.33 亿 | 炸板 8 次"
+      },
+      {
+        "code": "688498",
+        "name": "源杰科技",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:29:09",
+        "reason": "封板资金 0.98 亿 | 炸板 4 次"
+      },
+      {
+        "code": "603955",
+        "name": "灵动股份",
+        "industry": "基础建设",
+        "limit_times": 1,
+        "first_time": "13:10:10",
+        "reason": "封板资金 0.15 亿 | 炸板 4 次"
+      },
+      {
+        "code": "688691",
+        "name": "灿芯股份",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "11:11:11",
+        "reason": "封板资金 0.37 亿 | 炸板 1 次"
+      },
+      {
+        "code": "600498",
+        "name": "烽火通信",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "14:33:07",
+        "reason": "封板资金 0.25 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688172",
+        "name": "燕东微",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:10:15",
+        "reason": "封板资金 0.39 亿 | 炸板 9 次"
+      },
+      {
+        "code": "002403",
+        "name": "爱仕达",
+        "industry": "小家电",
+        "limit_times": 1,
+        "first_time": "09:54:27",
+        "reason": "封板资金 0.25 亿 | 炸板 0 次"
+      },
+      {
+        "code": "000070",
+        "name": "特发信息",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "14:56:03",
+        "reason": "封板资金 0.02 亿 | 炸板 0 次"
+      },
+      {
+        "code": "301611",
+        "name": "珂玛科技",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:41:30",
+        "reason": "封板资金 0.03 亿 | 炸板 2 次"
+      },
+      {
+        "code": "301107",
+        "name": "瑜欣电子",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "10:36:24",
+        "reason": "封板资金 0.14 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603893",
+        "name": "瑞芯微",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:44:09",
+        "reason": "封板资金 1.35 亿 | 炸板 2 次"
+      },
+      {
+        "code": "600183",
+        "name": "生益科技",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "14:23:28",
+        "reason": "封板资金 1.28 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688362",
+        "name": "甬矽电子",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:03:12",
+        "reason": "封板资金 0.1 亿 | 炸板 2 次"
+      },
+      {
+        "code": "300461",
+        "name": "田中精机",
+        "industry": "自动化设",
+        "limit_times": 1,
+        "first_time": "14:37:42",
+        "reason": "封板资金 0.0 亿 | 炸板 2 次"
+      },
+      {
+        "code": "002730",
+        "name": "电光科技",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "13:45:06",
+        "reason": "封板资金 0.01 亿 | 炸板 1 次"
+      },
+      {
+        "code": "600850",
+        "name": "电科数字",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:04:15",
+        "reason": "封板资金 0.02 亿 | 炸板 6 次"
+      },
+      {
+        "code": "002331",
+        "name": "皖通科技",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:01:39",
+        "reason": "封板资金 0.12 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688820",
+        "name": "盛合晶微",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:26:08",
+        "reason": "封板资金 0.36 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603375",
+        "name": "盛景微",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:28:19",
+        "reason": "封板资金 0.09 亿 | 炸板 7 次"
+      },
+      {
+        "code": "688702",
+        "name": "盛科通信-U",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:26:56",
+        "reason": "封板资金 0.47 亿 | 炸板 7 次"
+      },
+      {
+        "code": "688082",
+        "name": "盛美上海",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:27:19",
+        "reason": "封板资金 0.26 亿 | 炸板 2 次"
+      },
+      {
+        "code": "002990",
+        "name": "盛视科技",
+        "industry": "计算机设",
+        "limit_times": 1,
+        "first_time": "13:00:00",
+        "reason": "封板资金 0.6 亿 | 炸板 0 次"
+      },
+      {
+        "code": "003007",
+        "name": "直真科技",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "10:35:51",
+        "reason": "封板资金 0.61 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603688",
+        "name": "石英股份",
+        "industry": "非金属材",
+        "limit_times": 1,
+        "first_time": "14:34:56",
+        "reason": "封板资金 0.04 亿 | 炸板 0 次"
+      },
+      {
+        "code": "000555",
+        "name": "神州信息",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:03:06",
+        "reason": "封板资金 0.04 亿 | 炸板 14 次"
+      },
+      {
+        "code": "000034",
+        "name": "神州数码",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "10:01:24",
+        "reason": "封板资金 0.63 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002222",
+        "name": "福晶科技",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "13:00:21",
+        "reason": "封板资金 0.6 亿 | 炸板 1 次"
+      },
+      {
+        "code": "603045",
+        "name": "福达合金",
+        "industry": "金属新材",
+        "limit_times": 1,
+        "first_time": "14:40:24",
+        "reason": "封板资金 0.02 亿 | 炸板 4 次"
+      },
+      {
+        "code": "603063",
+        "name": "禾望电气",
+        "industry": "风电设备",
+        "limit_times": 1,
+        "first_time": "14:41:32",
+        "reason": "封板资金 0.06 亿 | 炸板 4 次"
+      },
+      {
+        "code": "002290",
+        "name": "禾盛新材",
+        "industry": "家电零部",
+        "limit_times": 1,
+        "first_time": "13:10:03",
+        "reason": "封板资金 0.09 亿 | 炸板 1 次"
+      },
+      {
+        "code": "300939",
+        "name": "秋田微",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "10:07:36",
+        "reason": "封板资金 0.42 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002335",
+        "name": "科华数据",
+        "industry": "其他电源",
+        "limit_times": 1,
+        "first_time": "14:47:36",
+        "reason": "封板资金 0.04 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002972",
+        "name": "科安达",
+        "industry": "轨交设备",
+        "limit_times": 1,
+        "first_time": "13:41:18",
+        "reason": "封板资金 0.02 亿 | 炸板 0 次"
+      },
+      {
+        "code": "300192",
+        "name": "科德教育",
+        "industry": "教育",
+        "limit_times": 1,
+        "first_time": "13:30:06",
+        "reason": "封板资金 0.13 亿 | 炸板 4 次"
+      },
+      {
+        "code": "688788",
+        "name": "科思科技",
+        "industry": "军工电子",
+        "limit_times": 1,
+        "first_time": "13:45:10",
+        "reason": "封板资金 0.03 亿 | 炸板 10 次"
+      },
+      {
+        "code": "603626",
+        "name": "科森科技",
+        "industry": "消费电子",
+        "limit_times": 1,
+        "first_time": "13:12:37",
+        "reason": "封板资金 0.15 亿 | 炸板 7 次"
+      },
+      {
+        "code": "002957",
+        "name": "科瑞技术",
+        "industry": "自动化设",
+        "limit_times": 1,
+        "first_time": "13:09:48",
+        "reason": "封板资金 0.05 亿 | 炸板 3 次"
+      },
+      {
+        "code": "300663",
+        "name": "科蓝软件",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "13:00:45",
+        "reason": "封板资金 0.33 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002850",
+        "name": "科达利",
+        "industry": "电池",
+        "limit_times": 1,
+        "first_time": "14:43:21",
+        "reason": "封板资金 0.09 亿 | 炸板 2 次"
+      },
+      {
+        "code": "603236",
+        "name": "移远通信",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "13:00:01",
+        "reason": "封板资金 1.66 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603171",
+        "name": "税友股份",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:27:10",
+        "reason": "封板资金 0.05 亿 | 炸板 0 次"
+      },
+      {
+        "code": "605358",
+        "name": "立昂微",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:06:15",
+        "reason": "封板资金 0.46 亿 | 炸板 5 次"
+      },
+      {
+        "code": "003005",
+        "name": "竞业达",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:00:27",
+        "reason": "封板资金 0.03 亿 | 炸板 4 次"
+      },
+      {
+        "code": "000573",
+        "name": "粤宏远Ａ",
+        "industry": "房地产开",
+        "limit_times": 1,
+        "first_time": "11:15:09",
+        "reason": "封板资金 0.01 亿 | 炸板 6 次"
+      },
+      {
+        "code": "301660",
+        "name": "粤芯半导-U",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:52:18",
+        "reason": "封板资金 0.07 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688627",
+        "name": "精智达",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "13:02:50",
+        "reason": "封板资金 0.33 亿 | 炸板 3 次"
+      },
+      {
+        "code": "300567",
+        "name": "精测电子",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "11:09:57",
+        "reason": "封板资金 0.96 亿 | 炸板 0 次"
+      },
+      {
+        "code": "000938",
+        "name": "紫光股份",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:41:27",
+        "reason": "封板资金 1.46 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603459",
+        "name": "红板科技",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "13:49:34",
+        "reason": "封板资金 0.28 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002825",
+        "name": "纳尔股份",
+        "industry": "塑料",
+        "limit_times": 1,
+        "first_time": "13:24:36",
+        "reason": "封板资金 0.01 亿 | 炸板 19 次"
+      },
+      {
+        "code": "603997",
+        "name": "继峰股份",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "14:13:04",
+        "reason": "封板资金 0.02 亿 | 炸板 2 次"
+      },
+      {
+        "code": "300508",
+        "name": "维宏股份",
+        "industry": "计算机设",
+        "limit_times": 1,
+        "first_time": "13:15:39",
+        "reason": "封板资金 0.11 亿 | 炸板 3 次"
+      },
+      {
+        "code": "001393",
+        "name": "维通利",
+        "industry": "电网设备",
+        "limit_times": 1,
+        "first_time": "14:00:21",
+        "reason": "封板资金 0.03 亿 | 炸板 0 次"
+      },
+      {
+        "code": "605289",
+        "name": "罗曼股份",
+        "industry": "专业工程",
+        "limit_times": 1,
+        "first_time": "13:46:16",
+        "reason": "封板资金 0.06 亿 | 炸板 1 次"
+      },
+      {
+        "code": "603319",
+        "name": "美湖股份",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "14:35:48",
+        "reason": "封板资金 0.06 亿 | 炸板 6 次"
+      },
+      {
+        "code": "002575",
+        "name": "群兴玩具",
+        "industry": "综合Ⅱ",
+        "limit_times": 1,
+        "first_time": "14:55:21",
+        "reason": "封板资金 0.0 亿 | 炸板 0 次"
+      },
+      {
+        "code": "001373",
+        "name": "翔腾新材",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "13:41:24",
+        "reason": "封板资金 0.01 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688419",
+        "name": "耐科装备",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:47:02",
+        "reason": "封板资金 0.03 亿 | 炸板 2 次"
+      },
+      {
+        "code": "301209",
+        "name": "联合化学",
+        "industry": "化学制品",
+        "limit_times": 1,
+        "first_time": "13:26:39",
+        "reason": "封板资金 0.05 亿 | 炸板 14 次"
+      },
+      {
+        "code": "001326",
+        "name": "联域股份",
+        "industry": "照明设备",
+        "limit_times": 1,
+        "first_time": "13:26:24",
+        "reason": "封板资金 0.02 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002921",
+        "name": "联诚精密",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "14:27:24",
+        "reason": "封板资金 0.02 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688757",
+        "name": "胜科纳米",
+        "industry": "专业服务",
+        "limit_times": 1,
+        "first_time": "14:25:40",
+        "reason": "封板资金 0.07 亿 | 炸板 3 次"
+      },
+      {
+        "code": "300843",
+        "name": "胜蓝股份",
+        "industry": "消费电子",
+        "limit_times": 1,
+        "first_time": "13:00:03",
+        "reason": "封板资金 0.24 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603859",
+        "name": "能科科技",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "14:47:07",
+        "reason": "封板资金 0.08 亿 | 炸板 0 次"
+      },
+      {
+        "code": "920298",
+        "name": "腾信精密",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "13:34:37",
+        "reason": "封板资金 0.11 亿 | 炸板 2 次"
+      },
+      {
+        "code": "688195",
+        "name": "腾景科技",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "10:30:54",
+        "reason": "封板资金 0.92 亿 | 炸板 2 次"
+      },
+      {
+        "code": "603690",
+        "name": "至纯科技",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:27:59",
+        "reason": "封板资金 0.05 亿 | 炸板 4 次"
+      },
+      {
+        "code": "688797",
+        "name": "臻宝科技",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:25:11",
+        "reason": "封板资金 0.15 亿 | 炸板 8 次"
+      },
+      {
+        "code": "688552",
+        "name": "航天南湖",
+        "industry": "军工电子",
+        "limit_times": 1,
+        "first_time": "13:26:37",
+        "reason": "封板资金 0.04 亿 | 炸板 2 次"
+      },
+      {
+        "code": "002025",
+        "name": "航天电器",
+        "industry": "军工电子",
+        "limit_times": 1,
+        "first_time": "13:00:00",
+        "reason": "封板资金 0.46 亿 | 炸板 0 次"
+      },
+      {
+        "code": "000818",
+        "name": "航锦科技",
+        "industry": "化学原料",
+        "limit_times": 1,
+        "first_time": "09:33:09",
+        "reason": "封板资金 0.12 亿 | 炸板 3 次"
+      },
+      {
+        "code": "301259",
+        "name": "艾布鲁",
+        "industry": "环境治理",
+        "limit_times": 1,
+        "first_time": "09:32:30",
+        "reason": "封板资金 0.69 亿 | 炸板 0 次"
+      },
+      {
+        "code": "920799",
+        "name": "艾融软件",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "13:03:25",
+        "reason": "封板资金 0.23 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688521",
+        "name": "芯原股份",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:46:37",
+        "reason": "封板资金 0.47 亿 | 炸板 5 次"
+      },
+      {
+        "code": "688037",
+        "name": "芯源微",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:53:10",
+        "reason": "封板资金 0.24 亿 | 炸板 1 次"
+      },
+      {
+        "code": "688630",
+        "name": "芯碁微装",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "11:20:50",
+        "reason": "封板资金 1.34 亿 | 炸板 2 次"
+      },
+      {
+        "code": "300820",
+        "name": "英杰电气",
+        "industry": "其他电源",
+        "limit_times": 1,
+        "first_time": "13:25:09",
+        "reason": "封板资金 0.11 亿 | 炸板 16 次"
+      },
+      {
+        "code": "002837",
+        "name": "英维克",
+        "industry": "专用设备",
+        "limit_times": 1,
+        "first_time": "13:06:27",
+        "reason": "封板资金 0.49 亿 | 炸板 10 次"
+      },
+      {
+        "code": "688502",
+        "name": "茂莱光学",
+        "industry": "光学光电",
+        "limit_times": 1,
+        "first_time": "13:49:27",
+        "reason": "封板资金 0.16 亿 | 炸板 3 次"
+      },
+      {
+        "code": "002642",
+        "name": "荣联科技",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "09:46:18",
+        "reason": "封板资金 0.62 亿 | 炸板 1 次"
+      },
+      {
+        "code": "600186",
+        "name": "莲花控股",
+        "industry": "调味发酵",
+        "limit_times": 1,
+        "first_time": "11:23:10",
+        "reason": "封板资金 1.13 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688371",
+        "name": "菲沃泰",
+        "industry": "电子化学",
+        "limit_times": 1,
+        "first_time": "13:02:39",
+        "reason": "封板资金 0.1 亿 | 炸板 2 次"
+      },
+      {
+        "code": "300862",
+        "name": "蓝盾光电",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "11:13:30",
+        "reason": "封板资金 0.82 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603739",
+        "name": "蔚蓝生物",
+        "industry": "化学制品",
+        "limit_times": 1,
+        "first_time": "13:24:27",
+        "reason": "封板资金 0.04 亿 | 炸板 7 次"
+      },
+      {
+        "code": "688515",
+        "name": "裕太微-U",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:27:22",
+        "reason": "封板资金 0.07 亿 | 炸板 0 次"
+      },
+      {
+        "code": "300598",
+        "name": "诚迈科技",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "13:30:03",
+        "reason": "封板资金 0.4 亿 | 炸板 1 次"
+      },
+      {
+        "code": "603316",
+        "name": "诚邦股份",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:27:17",
+        "reason": "封板资金 0.01 亿 | 炸板 4 次"
+      },
+      {
+        "code": "002963",
+        "name": "豪尔赛",
+        "industry": "装修装饰",
+        "limit_times": 1,
+        "first_time": "13:03:21",
+        "reason": "封板资金 0.01 亿 | 炸板 4 次"
+      },
+      {
+        "code": "002988",
+        "name": "豪美新材",
+        "industry": "工业金属",
+        "limit_times": 1,
+        "first_time": "13:49:18",
+        "reason": "封板资金 0.05 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603283",
+        "name": "赛腾股份",
+        "industry": "自动化设",
+        "limit_times": 1,
+        "first_time": "13:00:43",
+        "reason": "封板资金 0.56 亿 | 炸板 0 次"
+      },
+      {
+        "code": "300377",
+        "name": "赢时胜",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "13:08:12",
+        "reason": "封板资金 0.19 亿 | 炸板 4 次"
+      },
+      {
+        "code": "301717",
+        "name": "超纯应材",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:22:06",
+        "reason": "封板资金 0.11 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603322",
+        "name": "超讯科技",
+        "industry": "通信服务",
+        "limit_times": 1,
+        "first_time": "09:33:10",
+        "reason": "封板资金 0.06 亿 | 炸板 4 次"
+      },
+      {
+        "code": "603175",
+        "name": "超颖电子",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "13:27:31",
+        "reason": "封板资金 0.0 亿 | 炸板 9 次"
+      },
+      {
+        "code": "301236",
+        "name": "软通动力",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:00:24",
+        "reason": "封板资金 1.1 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002406",
+        "name": "远东传动",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "10:07:15",
+        "reason": "封板资金 0.13 亿 | 炸板 1 次"
+      },
+      {
+        "code": "000766",
+        "name": "通化金马",
+        "industry": "化学制药",
+        "limit_times": 1,
+        "first_time": "13:04:18",
+        "reason": "封板资金 0.28 亿 | 炸板 14 次"
+      },
+      {
+        "code": "002156",
+        "name": "通富微电",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:36:30",
+        "reason": "封板资金 1.29 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002491",
+        "name": "通鼎互联",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "14:55:24",
+        "reason": "封板资金 0.13 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002636",
+        "name": "金安国纪",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "13:48:33",
+        "reason": "封板资金 0.52 亿 | 炸板 1 次"
+      },
+      {
+        "code": "003018",
+        "name": "金富科技",
+        "industry": "包装印刷",
+        "limit_times": 1,
+        "first_time": "14:34:57",
+        "reason": "封板资金 0.04 亿 | 炸板 4 次"
+      },
+      {
+        "code": "603918",
+        "name": "金桥信息",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "14:48:51",
+        "reason": "封板资金 0.05 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603061",
+        "name": "金海通",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "10:31:18",
+        "reason": "封板资金 0.95 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600446",
+        "name": "金证股份",
+        "industry": "IT服务Ⅱ",
+        "limit_times": 1,
+        "first_time": "13:03:05",
+        "reason": "封板资金 0.07 亿 | 炸板 1 次"
+      },
+      {
+        "code": "688827",
+        "name": "钶锐锶",
+        "industry": "通用设备",
+        "limit_times": 1,
+        "first_time": "13:35:26",
+        "reason": "封板资金 0.12 亿 | 炸板 2 次"
+      },
+      {
+        "code": "300085",
+        "name": "银之杰",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "13:02:33",
+        "reason": "封板资金 1.47 亿 | 炸板 3 次"
+      },
+      {
+        "code": "603285",
+        "name": "键邦股份",
+        "industry": "化学制品",
+        "limit_times": 1,
+        "first_time": "13:30:23",
+        "reason": "封板资金 0.01 亿 | 炸板 4 次"
+      },
+      {
+        "code": "688693",
+        "name": "锴威特",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "14:56:41",
+        "reason": "封板资金 0.0 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603213",
+        "name": "镇洋发展",
+        "industry": "化学原料",
+        "limit_times": 1,
+        "first_time": "09:25:01",
+        "reason": "封板资金 0.3 亿 | 炸板 4 次"
+      },
+      {
+        "code": "688048",
+        "name": "长光华芯",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:44:50",
+        "reason": "封板资金 0.26 亿 | 炸板 3 次"
+      },
+      {
+        "code": "300604",
+        "name": "长川科技",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:04:27",
+        "reason": "封板资金 2.35 亿 | 炸板 3 次"
+      },
+      {
+        "code": "600345",
+        "name": "长江通信",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "14:48:13",
+        "reason": "封板资金 0.06 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603950",
+        "name": "长源东谷",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "13:07:15",
+        "reason": "封板资金 0.13 亿 | 炸板 0 次"
+      },
+      {
+        "code": "600584",
+        "name": "长电科技",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:03:38",
+        "reason": "封板资金 3.01 亿 | 炸板 2 次"
+      },
+      {
+        "code": "688143",
+        "name": "长盈通",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "13:25:44",
+        "reason": "封板资金 0.17 亿 | 炸板 2 次"
+      },
+      {
+        "code": "603407",
+        "name": "长裕集团",
+        "industry": "化学原料",
+        "limit_times": 1,
+        "first_time": "13:27:49",
+        "reason": "封板资金 0.02 亿 | 炸板 9 次"
+      },
+      {
+        "code": "601869",
+        "name": "长飞光纤",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "13:44:54",
+        "reason": "封板资金 0.83 亿 | 炸板 1 次"
+      },
+      {
+        "code": "605389",
+        "name": "长龄液压",
+        "industry": "工程机械",
+        "limit_times": 1,
+        "first_time": "14:35:29",
+        "reason": "封板资金 0.0 亿 | 炸板 4 次"
+      },
+      {
+        "code": "603722",
+        "name": "阿科力",
+        "industry": "化学制品",
+        "limit_times": 1,
+        "first_time": "10:26:59",
+        "reason": "封板资金 0.24 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002409",
+        "name": "雅克科技",
+        "industry": "半导体",
+        "limit_times": 1,
+        "first_time": "13:04:15",
+        "reason": "封板资金 1.01 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002979",
+        "name": "雷赛智能",
+        "industry": "自动化设",
+        "limit_times": 1,
+        "first_time": "13:28:36",
+        "reason": "封板资金 0.17 亿 | 炸板 10 次"
+      },
+      {
+        "code": "000636",
+        "name": "风华高科",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "13:42:39",
+        "reason": "封板资金 0.46 亿 | 炸板 1 次"
+      },
+      {
+        "code": "600651",
+        "name": "飞乐音响",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "14:50:09",
+        "reason": "封板资金 0.0 亿 | 炸板 0 次"
+      },
+      {
+        "code": "000026",
+        "name": "飞亚达",
+        "industry": "饰品",
+        "limit_times": 1,
+        "first_time": "13:00:24",
+        "reason": "封板资金 0.71 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002536",
+        "name": "飞龙股份",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "11:11:24",
+        "reason": "封板资金 1.03 亿 | 炸板 1 次"
+      },
+      {
+        "code": "002870",
+        "name": "香山股份",
+        "industry": "汽车零部",
+        "limit_times": 1,
+        "first_time": "13:52:27",
+        "reason": "封板资金 0.01 亿 | 炸板 11 次"
+      },
+      {
+        "code": "600162",
+        "name": "香江控股",
+        "industry": "房地产开",
+        "limit_times": 1,
+        "first_time": "10:32:12",
+        "reason": "封板资金 0.32 亿 | 炸板 1 次"
+      },
+      {
+        "code": "000628",
+        "name": "高新发展",
+        "industry": "房屋建设",
+        "limit_times": 1,
+        "first_time": "11:16:30",
+        "reason": "封板资金 0.75 亿 | 炸板 0 次"
+      },
+      {
+        "code": "301086",
+        "name": "鸿富瀚",
+        "industry": "消费电子",
+        "limit_times": 1,
+        "first_time": "14:11:21",
+        "reason": "封板资金 0.05 亿 | 炸板 2 次"
+      },
+      {
+        "code": "002938",
+        "name": "鹏鼎控股",
+        "industry": "元件",
+        "limit_times": 1,
+        "first_time": "14:41:30",
+        "reason": "封板资金 0.24 亿 | 炸板 0 次"
+      },
+      {
+        "code": "002851",
+        "name": "麦格米特",
+        "industry": "其他电源",
+        "limit_times": 1,
+        "first_time": "14:30:45",
+        "reason": "封板资金 0.29 亿 | 炸板 0 次"
+      },
+      {
+        "code": "603990",
+        "name": "麦迪科技",
+        "industry": "软件开发",
+        "limit_times": 1,
+        "first_time": "13:01:34",
+        "reason": "封板资金 0.22 亿 | 炸板 3 次"
+      },
+      {
+        "code": "603421",
+        "name": "鼎信通讯",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "09:59:46",
+        "reason": "封板资金 0.29 亿 | 炸板 0 次"
+      },
+      {
+        "code": "688668",
+        "name": "鼎通科技",
+        "industry": "通信设备",
+        "limit_times": 1,
+        "first_time": "14:51:43",
+        "reason": "封板资金 0.01 亿 | 炸板 0 次"
+      }
+    ]
+  },
+  "attribution": {
+    "date": "20261127",
+    "checked_at": "2026-11-27T19:09:32.070371+08:00",
+    "sources": {
+      "ths_public": {
+        "status": "ok",
+        "records": {
+          "603019": {
+            "code": "603019",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力+存储新品+战略合作"
+          },
+          "300363": {
+            "code": "300363",
+            "date": "20261127",
+            "reason": "",
+            "theme": "细胞与基因治疗+小分子原料药CDMO+新签订单增长"
+          },
+          "688693": {
+            "code": "688693",
+            "date": "20261127",
+            "reason": "",
+            "theme": "功率半导体+SiC+MOSFET+并购重组"
+          },
+          "603175": {
+            "code": "603175",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI算力PCB+存储PCB+高阶PCB认证"
+          },
+          "002647": {
+            "code": "002647",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力+东数西算+第三方支付"
+          },
+          "603285": {
+            "code": "603285",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI算力配套材料+电子材料+赛克送样+回购"
+          },
+          "001212": {
+            "code": "001212",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体材料+高纯石英砂+转型升级预期"
+          },
+          "000070": {
+            "code": "000070",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力+MPO连接器+光纤光缆"
+          },
+          "002971": {
+            "code": "002971",
+            "date": "20261127",
+            "reason": "",
+            "theme": "电子特气+大宗气体+硅基新材料"
+          },
+          "002491": {
+            "code": "002491",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光纤光缆+电网设备+三季报扭亏"
+          },
+          "002575": {
+            "code": "002575",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+腾讯合作+酒类销售"
+          },
+          "002870": {
+            "code": "002870",
+            "date": "20261127",
+            "reason": "",
+            "theme": "回购贷款+电子皮肤+人形机器人"
+          },
+          "688313": {
+            "code": "688313",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光芯片+CPO+在手订单"
+          },
+          "002631": {
+            "code": "002631",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+石墨烯+家居"
+          },
+          "002048": {
+            "code": "002048",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+智元合作+PEEK材料+机器狗"
+          },
+          "605208": {
+            "code": "605208",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+镁合金+机器人零部件"
+          },
+          "603067": {
+            "code": "603067",
+            "date": "20261127",
+            "reason": "",
+            "theme": "铬盐+SOFC+金属铬+回购"
+          },
+          "301660": {
+            "code": "301660",
+            "date": "20261127",
+            "reason": "",
+            "theme": "硅光代工+12英寸晶圆代工+CPO"
+          },
+          "688593": {
+            "code": "688593",
+            "date": "20261127",
+            "reason": "",
+            "theme": "显示驱动芯片+半导体+OLED"
+          },
+          "000029": {
+            "code": "000029",
+            "date": "20261127",
+            "reason": "",
+            "theme": "深圳国资+私募基金+房地产"
+          },
+          "688419": {
+            "code": "688419",
+            "date": "20261127",
+            "reason": "",
+            "theme": "先进封装+半导体封装装备+HBM设备"
+          },
+          "688668": {
+            "code": "688668",
+            "date": "20261127",
+            "reason": "",
+            "theme": "高速连接器+液冷散热"
+          },
+          "600602": {
+            "code": "600602",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+松江智算中心+上海国资"
+          },
+          "605389": {
+            "code": "605389",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AGV机器人+股份回购+国企改革"
+          },
+          "002552": {
+            "code": "002552",
+            "date": "20261127",
+            "reason": "",
+            "theme": "覆铜板+铜箔+黄金采选"
+          },
+          "002819": {
+            "code": "002819",
+            "date": "20261127",
+            "reason": "",
+            "theme": "具身智能测试+中科院+半导体测试"
+          },
+          "002687": {
+            "code": "002687",
+            "date": "20261127",
+            "reason": "",
+            "theme": "职业装+校服+股东户数下降"
+          },
+          "600651": {
+            "code": "600651",
+            "date": "20261127",
+            "reason": "",
+            "theme": "芯片测试+存储器+上海国资"
+          },
+          "603078": {
+            "code": "603078",
+            "date": "20261127",
+            "reason": "",
+            "theme": "湿电子化学品+光刻胶+上海国资"
+          },
+          "603931": {
+            "code": "603931",
+            "date": "20261127",
+            "reason": "",
+            "theme": "湿电子化学品+先进封装+光刻胶"
+          },
+          "000977": {
+            "code": "000977",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+液冷+超节点"
+          },
+          "688610": {
+            "code": "688610",
+            "date": "20261127",
+            "reason": "",
+            "theme": "PCB检测+半导体检测+工业相机"
+          },
+          "600280": {
+            "code": "600280",
+            "date": "20261127",
+            "reason": "",
+            "theme": "百货零售+罗森便利+剥离亏损主体"
+          },
+          "603063": {
+            "code": "603063",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光伏设备+储能+风电变流器"
+          },
+          "603918": {
+            "code": "603918",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人工智能+司法+智慧法院+多元解纷"
+          },
+          "003019": {
+            "code": "003019",
+            "date": "20261127",
+            "reason": "",
+            "theme": "端侧AI+机器人概念+商用显示"
+          },
+          "603380": {
+            "code": "603380",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI服务器+半导体设备+柔性EMS"
+          },
+          "600345": {
+            "code": "600345",
+            "date": "20261127",
+            "reason": "",
+            "theme": "卫星互联网+商业航天+应急通信+业绩增长"
+          },
+          "300684": {
+            "code": "300684",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光通信散热+中际旭创入股+算力液冷"
+          },
+          "300870": {
+            "code": "300870",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力服务器电源+谷歌电源合作+股份回购"
+          },
+          "603045": {
+            "code": "603045",
+            "date": "20261127",
+            "reason": "",
+            "theme": "数据中心+电接触材料+三季报增长"
+          },
+          "300502": {
+            "code": "300502",
+            "date": "20261127",
+            "reason": "",
+            "theme": "1.6T光模块+CPO+回购"
+          },
+          "002453": {
+            "code": "002453",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光引发剂+精细化工"
+          },
+          "002335": {
+            "code": "002335",
+            "date": "20261127",
+            "reason": "",
+            "theme": "液冷CDU+算力基础设施+储能"
+          },
+          "688012": {
+            "code": "688012",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+存储芯片+回购"
+          },
+          "603895": {
+            "code": "603895",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+协议转让+机器人系统集成"
+          },
+          "002889": {
+            "code": "002889",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光刻机保税维修+半导体供应链+智慧仓"
+          },
+          "002850": {
+            "code": "002850",
+            "date": "20261127",
+            "reason": "",
+            "theme": "固态电池+锂电结构件+人形机器人"
+          },
+          "603859": {
+            "code": "603859",
+            "date": "20261127",
+            "reason": "",
+            "theme": "具身智能+工业软件+AI业务增长+已与清华大学"
+          },
+          "603358": {
+            "code": "603358",
+            "date": "20261127",
+            "reason": "",
+            "theme": "项目定点+人形机器人+电池箱托盘+新能源零部件"
+          },
+          "002492": {
+            "code": "002492",
+            "date": "20261127",
+            "reason": "",
+            "theme": "石化仓储+回购+粤港澳大湾区"
+          },
+          "688019": {
+            "code": "688019",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体材料+先进封装+存储芯片"
+          },
+          "603296": {
+            "code": "603296",
+            "date": "20261127",
+            "reason": "",
+            "theme": "超节点+算力+回购"
+          },
+          "603938": {
+            "code": "603938",
+            "date": "20261127",
+            "reason": "",
+            "theme": "高纯四氯化硅+存储芯片+光纤材料+业绩增长"
+          },
+          "002428": {
+            "code": "002428",
+            "date": "20261127",
+            "reason": "",
+            "theme": "磷化铟+光通信+半导体材料"
+          },
+          "003018": {
+            "code": "003018",
+            "date": "20261127",
+            "reason": "",
+            "theme": "液冷服务器+三季报增长+富士康+适配服务器"
+          },
+          "600378": {
+            "code": "600378",
+            "date": "20261127",
+            "reason": "",
+            "theme": "六氟化钨涨价+电子特气+AI液冷"
+          },
+          "300461": {
+            "code": "300461",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人设备+无框力矩电机+精密绕线"
+          },
+          "603316": {
+            "code": "603316",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体存储+嵌入式存储扩产"
+          },
+          "600176": {
+            "code": "600176",
+            "date": "20261127",
+            "reason": "",
+            "theme": "电子布+PCB+回购"
+          },
+          "002463": {
+            "code": "002463",
+            "date": "20261127",
+            "reason": "",
+            "theme": "PCB+高速交换机+回购"
+          },
+          "000066": {
+            "code": "000066",
+            "date": "20261127",
+            "reason": "",
+            "theme": "国产CPU+自主智算+太空算力+服务器电源"
+          },
+          "002185": {
+            "code": "002185",
+            "date": "20261127",
+            "reason": "",
+            "theme": "先进封装+华羿微电+封测"
+          },
+          "603319": {
+            "code": "603319",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人执行器+服务器液冷+泵类龙头"
+          },
+          "301611": {
+            "code": "301611",
+            "date": "20261127",
+            "reason": "",
+            "theme": "先进陶瓷+半导体设备零部件+股份回购"
+          },
+          "600105": {
+            "code": "600105",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光芯片+光纤量价齐升+回购"
+          },
+          "301086": {
+            "code": "301086",
+            "date": "20261127",
+            "reason": "",
+            "theme": "液冷散热+人形机器人+回购"
+          },
+          "603738": {
+            "code": "603738",
+            "date": "20261127",
+            "reason": "",
+            "theme": "定增扩产+BAW振荡器+光模块晶振"
+          },
+          "603033": {
+            "code": "603033",
+            "date": "20261127",
+            "reason": "",
+            "theme": "轨道交通中标+BDO+橡胶输送带"
+          },
+          "300943": {
+            "code": "300943",
+            "date": "20261127",
+            "reason": "",
+            "theme": "并购重组上会+商业航天+半导体设备"
+          },
+          "688502": {
+            "code": "688502",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体光学+AR/VR检测+光刻机"
+          },
+          "002938": {
+            "code": "002938",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI服务器+高速光模块+股东回报"
+          },
+          "000811": {
+            "code": "000811",
+            "date": "20261127",
+            "reason": "",
+            "theme": "数据中心温控+液冷+工商制冷+烟台国资"
+          },
+          "603002": {
+            "code": "603002",
+            "date": "20261127",
+            "reason": "",
+            "theme": "先进封装膜材+高端覆铜板+环氧树脂"
+          },
+          "688545": {
+            "code": "688545",
+            "date": "20261127",
+            "reason": "",
+            "theme": "存储芯片+电子级磷酸+湿电子化学品"
+          },
+          "600552": {
+            "code": "600552",
+            "date": "20261127",
+            "reason": "",
+            "theme": "TGV玻璃基板+折叠屏UTG+央企"
+          },
+          "603997": {
+            "code": "603997",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人+乘用车座椅+座椅定点"
+          },
+          "688729": {
+            "code": "688729",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+干法去胶+存储芯片+人形机器人"
+          },
+          "000032": {
+            "code": "000032",
+            "date": "20261127",
+            "reason": "",
+            "theme": "中国电子云+数据要素+洁净室+央企"
+          },
+          "688082": {
+            "code": "688082",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+在手订单高增+清洗设备"
+          },
+          "688605": {
+            "code": "688605",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备零部件+陶瓷加热器+半导体设备"
+          },
+          "002152": {
+            "code": "002152",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+机器人+昇腾"
+          },
+          "603978": {
+            "code": "603978",
+            "date": "20261127",
+            "reason": "",
+            "theme": "商业航天+铝钛硼合金+六氟磷酸锂+股权激励"
+          },
+          "605255": {
+            "code": "605255",
+            "date": "20261127",
+            "reason": "",
+            "theme": "中昊芯英+汽车管路"
+          },
+          "603901": {
+            "code": "603901",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+智能包装+三季报增长"
+          },
+          "603688": {
+            "code": "603688",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体石英+存储芯片+高纯石英"
+          },
+          "002913": {
+            "code": "002913",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI服务器+高多层板HDI+南通智算项目"
+          },
+          "002885": {
+            "code": "002885",
+            "date": "20261127",
+            "reason": "",
+            "theme": "磁性元器件+算力中心+华为"
+          },
+          "000657": {
+            "code": "000657",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI+PCB微钻+钨全产业链+PCB钻针棒扩产"
+          },
+          "002364": {
+            "code": "002364",
+            "date": "20261127",
+            "reason": "",
+            "theme": "数据中心电源+800V直流+算力"
+          },
+          "600498": {
+            "code": "600498",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光通信+商业航天+星载路由+央企"
+          },
+          "002565": {
+            "code": "002565",
+            "date": "20261127",
+            "reason": "",
+            "theme": "太空算力+商业航天+特种防伪环保纸"
+          },
+          "603667": {
+            "code": "603667",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+丝杠+轴承"
+          },
+          "688788": {
+            "code": "688788",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+算力服务器+智能无人装备"
+          },
+          "603927": {
+            "code": "603927",
+            "date": "20261127",
+            "reason": "",
+            "theme": "保险IT+中科院国资+AI应用+软件"
+          },
+          "600114": {
+            "code": "600114",
+            "date": "20261127",
+            "reason": "",
+            "theme": "折叠屏铰链+机器人+粉末冶金"
+          },
+          "603322": {
+            "code": "603322",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+智算业务"
+          },
+          "688757": {
+            "code": "688757",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体检测+先进存储+光电子器件+定增获批"
+          },
+          "002213": {
+            "code": "002213",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体存储+存储芯片+年报扭亏"
+          },
+          "002851": {
+            "code": "002851",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI电源+增持回购+北美客户"
+          },
+          "603031": {
+            "code": "603031",
+            "date": "20261127",
+            "reason": "",
+            "theme": "CPO+半导体设备+南孚电池"
+          },
+          "000426": {
+            "code": "000426",
+            "date": "20261127",
+            "reason": "",
+            "theme": "白银+锡+银漫矿业复产"
+          },
+          "301421": {
+            "code": "301421",
+            "date": "20261127",
+            "reason": "",
+            "theme": "PCB微加工+光刻机+半导体光学"
+          },
+          "002253": {
+            "code": "002253",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+低空经济+航空空管"
+          },
+          "603337": {
+            "code": "603337",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+缝制机械"
+          },
+          "600071": {
+            "code": "600071",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人+光学元件+央企"
+          },
+          "002353": {
+            "code": "002353",
+            "date": "20261127",
+            "reason": "",
+            "theme": "燃气轮机+数据中心供电+回购"
+          },
+          "600460": {
+            "code": "600460",
+            "date": "20261127",
+            "reason": "",
+            "theme": "碳化硅+12英寸产线+半导体"
+          },
+          "000603": {
+            "code": "000603",
+            "date": "20261127",
+            "reason": "",
+            "theme": "白银采选+贵金属+拟购方鑫矿业+三季报高增"
+          },
+          "002921": {
+            "code": "002921",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人+精密零部件+回购完成"
+          },
+          "688515": {
+            "code": "688515",
+            "date": "20261127",
+            "reason": "",
+            "theme": "定增过会+车载芯片+人形机器人"
+          },
+          "002980": {
+            "code": "002980",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光通信测试+CPO+三季报增长"
+          },
+          "603015": {
+            "code": "603015",
+            "date": "20261127",
+            "reason": "",
+            "theme": "核聚变电源+机器人机械手+工业自动化"
+          },
+          "002636": {
+            "code": "002636",
+            "date": "20261127",
+            "reason": "",
+            "theme": "覆铜板+电子级玻纤布"
+          },
+          "688820": {
+            "code": "688820",
+            "date": "20261127",
+            "reason": "",
+            "theme": "先进封装+2.5D集成+半导体"
+          },
+          "603986": {
+            "code": "603986",
+            "date": "20261127",
+            "reason": "",
+            "theme": "存储芯片+回购注销+人形机器人MCU"
+          },
+          "300480": {
+            "code": "300480",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+CPO+半导体划片机"
+          },
+          "300672": {
+            "code": "300672",
+            "date": "20261127",
+            "reason": "",
+            "theme": "端侧AI+机器人芯片+回购"
+          },
+          "603661": {
+            "code": "603661",
+            "date": "20261127",
+            "reason": "",
+            "theme": "股份回购+智能家居+培育钻石"
+          },
+          "002649": {
+            "code": "002649",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为盘古+AI应用+金融科技"
+          },
+          "002943": {
+            "code": "002943",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+碳化硅设备+机器人+回购"
+          },
+          "688807": {
+            "code": "688807",
+            "date": "20261127",
+            "reason": "",
+            "theme": "CPO+光通信电芯片+单波100G送样"
+          },
+          "002903": {
+            "code": "002903",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人加工+碳化硅磨抛+数控磨床"
+          },
+          "600667": {
+            "code": "600667",
+            "date": "20261127",
+            "reason": "",
+            "theme": "存储芯片+半导体封测+SK海力士+日经指数收涨"
+          },
+          "002859": {
+            "code": "002859",
+            "date": "20261127",
+            "reason": "",
+            "theme": "MLCC离型膜+半导体+并购重组"
+          },
+          "002730": {
+            "code": "002730",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力服务+数据中心+矿用防爆电器"
+          },
+          "002975": {
+            "code": "002975",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI服务器测试+人形机器人测试+磷化铟衬底"
+          },
+          "600183": {
+            "code": "600183",
+            "date": "20261127",
+            "reason": "",
+            "theme": "覆铜板+AI算力+回购完成"
+          },
+          "688035": {
+            "code": "688035",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI散热+先进封装+人形机器人"
+          },
+          "603037": {
+            "code": "603037",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人零部件+拟收购拓盛+汽车减震"
+          },
+          "600487": {
+            "code": "600487",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光通信+CPO+增持回购"
+          },
+          "603679": {
+            "code": "603679",
+            "date": "20261127",
+            "reason": "",
+            "theme": "高德合作+华为超充+重卡超充+智慧路灯"
+          },
+          "301209": {
+            "code": "301209",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光刻胶+光刻机+有机颜料"
+          },
+          "603375": {
+            "code": "603375",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人芯片+电子雷管+模拟芯片"
+          },
+          "603407": {
+            "code": "603407",
+            "date": "20261127",
+            "reason": "",
+            "theme": "锆基材料+半导体材料+次新股"
+          },
+          "002979": {
+            "code": "002979",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+伺服系统+定增路演"
+          },
+          "688585": {
+            "code": "688585",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+启元量产+智元入主"
+          },
+          "002779": {
+            "code": "002779",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+关节模组+园林机械"
+          },
+          "301396": {
+            "code": "301396",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+推理算力+AI资产超跌反弹"
+          },
+          "003036": {
+            "code": "003036",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人+纺织机械+固态电池"
+          },
+          "002825": {
+            "code": "002825",
+            "date": "20261127",
+            "reason": "",
+            "theme": "硅碳负极+消费电子+汽车功能膜"
+          },
+          "600683": {
+            "code": "600683",
+            "date": "20261127",
+            "reason": "",
+            "theme": "TOD轨道物业+资产重组+北京国资"
+          },
+          "688521": {
+            "code": "688521",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI+ASIC+芯片定制+半导体IP"
+          },
+          "002164": {
+            "code": "002164",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+精密减速器+尼得科合作"
+          },
+          "603683": {
+            "code": "603683",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+柔性触觉传感器+胶粘材料"
+          },
+          "002527": {
+            "code": "002527",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+具身智能+海尔定增"
+          },
+          "003033": {
+            "code": "003033",
+            "date": "20261127",
+            "reason": "",
+            "theme": "灵巧手+人形机器人+拟收购酷尔芯"
+          },
+          "301172": {
+            "code": "301172",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+机器人+超募补流"
+          },
+          "688362": {
+            "code": "688362",
+            "date": "20261127",
+            "reason": "",
+            "theme": "先进封装+半导体封测+海外客户放量"
+          },
+          "603068": {
+            "code": "603068",
+            "date": "20261127",
+            "reason": "",
+            "theme": "端侧AI+无线芯片+AIoT"
+          },
+          "688432": {
+            "code": "688432",
+            "date": "20261127",
+            "reason": "",
+            "theme": "12英寸硅片+存储芯片+重大资产重组"
+          },
+          "600850": {
+            "code": "600850",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光刻机+算力租赁+AI算力+国企改革"
+          },
+          "000935": {
+            "code": "000935",
+            "date": "20261127",
+            "reason": "",
+            "theme": "创新药+GLP-1多肽+多肽产能扩建"
+          },
+          "001309": {
+            "code": "001309",
+            "date": "20261127",
+            "reason": "",
+            "theme": "存储模组+企业级存储+存储芯片涨价"
+          },
+          "600571": {
+            "code": "600571",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI金融+华为概念+猛禽大模型"
+          },
+          "001339": {
+            "code": "001339",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+智元供应链+三季报高增"
+          },
+          "603005": {
+            "code": "603005",
+            "date": "20261127",
+            "reason": "",
+            "theme": "先进封装+光学业务"
+          },
+          "002815": {
+            "code": "002815",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI服务器+PCB+海外算力客户+珠海二厂产能爬坡"
+          },
+          "605398": {
+            "code": "605398",
+            "date": "20261127",
+            "reason": "",
+            "theme": "数据中心运维+短剧营销+AI应用"
+          },
+          "000021": {
+            "code": "000021",
+            "date": "20261127",
+            "reason": "",
+            "theme": "存储封测+先进封装+存储芯片"
+          },
+          "688530": {
+            "code": "688530",
+            "date": "20261127",
+            "reason": "",
+            "theme": "溅射靶材+半导体材料+定增注册获批"
+          },
+          "603228": {
+            "code": "603228",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI算力PCB+CPO+回购完成"
+          },
+          "300192": {
+            "code": "300192",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI芯片+人形机器人+职业教育"
+          },
+          "002077": {
+            "code": "002077",
+            "date": "20261127",
+            "reason": "",
+            "theme": "集成电路测试+镇江国资"
+          },
+          "688200": {
+            "code": "688200",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+芯片概念+回购"
+          },
+          "001393": {
+            "code": "001393",
+            "date": "20261127",
+            "reason": "",
+            "theme": "数据中心电连接+电力电工+华为"
+          },
+          "688072": {
+            "code": "688072",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+并购重组+薄膜沉积"
+          },
+          "688636": {
+            "code": "688636",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+商业航天+无人装备"
+          },
+          "605289": {
+            "code": "605289",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI算力+液冷服务器+三季报增长"
+          },
+          "600206": {
+            "code": "600206",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体靶材+存储芯片+央企+有研亿金是长江存储"
+          },
+          "601869": {
+            "code": "601869",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光通信+CPO+空芯光纤"
+          },
+          "002290": {
+            "code": "002290",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力+芯片+家电复材"
+          },
+          "002963": {
+            "code": "002963",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为合作+数据中心+照明工程"
+          },
+          "603757": {
+            "code": "603757",
+            "date": "20261127",
+            "reason": "",
+            "theme": "液冷泵+算力服务+储能液冷"
+          },
+          "000510": {
+            "code": "000510",
+            "date": "20261127",
+            "reason": "",
+            "theme": "小金属资源+高纯石英砂+氯碱化工"
+          },
+          "688048": {
+            "code": "688048",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光通信芯片+高功率激光芯片+回购"
+          },
+          "603893": {
+            "code": "603893",
+            "date": "20261127",
+            "reason": "",
+            "theme": "端侧AI+机器人芯片+协处理器"
+          },
+          "002657": {
+            "code": "002657",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+银行AI+金融科技"
+          },
+          "600895": {
+            "code": "600895",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光刻机+上海微电子+集成电路+上海国资"
+          },
+          "603663": {
+            "code": "603663",
+            "date": "20261127",
+            "reason": "",
+            "theme": "锆铪分离+半导体材料+海绵锆"
+          },
+          "000818": {
+            "code": "000818",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+英伟达+武汉国资"
+          },
+          "688372": {
+            "code": "688372",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI算力芯片测试+半导体测试+算力客户放量"
+          },
+          "603773": {
+            "code": "603773",
+            "date": "20261127",
+            "reason": "",
+            "theme": "玻璃基板+CPO+先进封装"
+          },
+          "002655": {
+            "code": "002655",
+            "date": "20261127",
+            "reason": "",
+            "theme": "控股股东增持+算力租赁+声学元器件"
+          },
+          "300508": {
+            "code": "300508",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+灵巧手电机+数控系统"
+          },
+          "603626": {
+            "code": "603626",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人结构件+消费电子结构件+苹果供应链"
+          },
+          "688827": {
+            "code": "688827",
+            "date": "20261127",
+            "reason": "",
+            "theme": "全直驱数控机床+五轴机床+半导体设备"
+          },
+          "688037": {
+            "code": "688037",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+涂胶显影+化学清洗"
+          },
+          "603690": {
+            "code": "603690",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+存储芯片+HBM"
+          },
+          "300820": {
+            "code": "300820",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体电源+在手订单高增+光伏出海"
+          },
+          "605118": {
+            "code": "605118",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人视觉+光学镜头+回购"
+          },
+          "603459": {
+            "code": "603459",
+            "date": "20261127",
+            "reason": "",
+            "theme": "高速光模块+高阶HDI+AI服务器"
+          },
+          "002988": {
+            "code": "002988",
+            "date": "20261127",
+            "reason": "",
+            "theme": "回购贷款+机器人轻量化+汽车轻量化"
+          },
+          "002871": {
+            "code": "002871",
+            "date": "20261127",
+            "reason": "",
+            "theme": "数据中心液冷+液冷阀门+海外产能"
+          },
+          "603917": {
+            "code": "603917",
+            "date": "20261127",
+            "reason": "",
+            "theme": "小米汽车+一体化压铸+汽车模具"
+          },
+          "000636": {
+            "code": "000636",
+            "date": "20261127",
+            "reason": "",
+            "theme": "MLCC+商业航天+广东国资"
+          },
+          "603172": {
+            "code": "603172",
+            "date": "20261127",
+            "reason": "",
+            "theme": "回购提议+分散染料+业绩增长"
+          },
+          "002674": {
+            "code": "002674",
+            "date": "20261127",
+            "reason": "",
+            "theme": "磷化铟+半导体材料+汽车内饰皮革"
+          },
+          "002046": {
+            "code": "002046",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人轴承+金刚石散热+航天轴承"
+          },
+          "300377": {
+            "code": "300377",
+            "date": "20261127",
+            "reason": "",
+            "theme": "金融科技+资产托管+华为昇腾"
+          },
+          "603929": {
+            "code": "603929",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体洁净室+新加坡项目+华为+三季报增长"
+          },
+          "000962": {
+            "code": "000962",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体钽材+商业航天+国企改革"
+          },
+          "603256": {
+            "code": "603256",
+            "date": "20261127",
+            "reason": "",
+            "theme": "电子布+PCB概念+股份回购"
+          },
+          "601519": {
+            "code": "601519",
+            "date": "20261127",
+            "reason": "",
+            "theme": "金融信息服务+AI投研+并购重组"
+          },
+          "603052": {
+            "code": "603052",
+            "date": "20261127",
+            "reason": "",
+            "theme": "CPO+硅光芯片+功能性器件"
+          },
+          "688498": {
+            "code": "688498",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光芯片+CPO+17.44亿订单"
+          },
+          "001267": {
+            "code": "001267",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光模块+重大资产重组+算力"
+          },
+          "000938": {
+            "code": "000938",
+            "date": "20261127",
+            "reason": "",
+            "theme": "国产算力+超节点+CPO交换机"
+          },
+          "001373": {
+            "code": "001373",
+            "date": "20261127",
+            "reason": "",
+            "theme": "偏光片+光学膜片+MiniLED"
+          },
+          "002972": {
+            "code": "002972",
+            "date": "20261127",
+            "reason": "",
+            "theme": "回购+轨交装备+海外认证"
+          },
+          "688785": {
+            "code": "688785",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体射频电源+半导体设备+国产半导体"
+          },
+          "688797": {
+            "code": "688797",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备零部件+半导体设备+存储芯片"
+          },
+          "688702": {
+            "code": "688702",
+            "date": "20261127",
+            "reason": "",
+            "theme": "以太网交换芯片+高端芯片量产+算力网络"
+          },
+          "300473": {
+            "code": "300473",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人零部件+具身智能+固态电池"
+          },
+          "000571": {
+            "code": "000571",
+            "date": "20261127",
+            "reason": "",
+            "theme": "煤炭+长焰煤+海南自贸区"
+          },
+          "000555": {
+            "code": "000555",
+            "date": "20261127",
+            "reason": "",
+            "theme": "银行核心系统+AI应用+量子科技"
+          },
+          "600353": {
+            "code": "600353",
+            "date": "20261127",
+            "reason": "",
+            "theme": "真空灭弧室+氮化铝+人形机器人+可控核聚变"
+          },
+          "002957": {
+            "code": "002957",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光模块设备+CPO+人形机器人"
+          },
+          "688596": {
+            "code": "688596",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+电子特气+存储芯片"
+          },
+          "688120": {
+            "code": "688120",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+离子注入+存储芯片"
+          },
+          "003031": {
+            "code": "003031",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光通信陶瓷+CPO+央企"
+          },
+          "601133": {
+            "code": "601133",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体洁净室+在手订单新高+存储芯片"
+          },
+          "603038": {
+            "code": "603038",
+            "date": "20261127",
+            "reason": "",
+            "theme": "股份回购+实控人回归+智慧水务"
+          },
+          "603127": {
+            "code": "603127",
+            "date": "20261127",
+            "reason": "",
+            "theme": "创新药CRO+院企战略合作+实验猴"
+          },
+          "002768": {
+            "code": "002768",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+化工新材料+三季报增长"
+          },
+          "603739": {
+            "code": "603739",
+            "date": "20261127",
+            "reason": "",
+            "theme": "酶制剂+新兽药+动物保健"
+          },
+          "688552": {
+            "code": "688552",
+            "date": "20261127",
+            "reason": "",
+            "theme": "防空预警雷达+低空经济+军贸"
+          },
+          "000766": {
+            "code": "000766",
+            "date": "20261127",
+            "reason": "",
+            "theme": "阿尔茨海默病新药+创新药+医保目录"
+          },
+          "600095": {
+            "code": "600095",
+            "date": "20261127",
+            "reason": "",
+            "theme": "证券+吸收合并大智慧+金融科技"
+          },
+          "002787": {
+            "code": "002787",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+光模块+金属包装+回购"
+          },
+          "002156": {
+            "code": "002156",
+            "date": "20261127",
+            "reason": "",
+            "theme": "董事长提议回购+先进封装+AMD封测"
+          },
+          "001389": {
+            "code": "001389",
+            "date": "20261127",
+            "reason": "",
+            "theme": "服务器PCB+在手订单充裕+算力"
+          },
+          "600330": {
+            "code": "600330",
+            "date": "20261127",
+            "reason": "",
+            "theme": "铌酸锂+光通信上游+软磁材料"
+          },
+          "300598": {
+            "code": "300598",
+            "date": "20261127",
+            "reason": "",
+            "theme": "开源鸿蒙+信创电脑+AI应用"
+          },
+          "603629": {
+            "code": "603629",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+算力经销+英伟达概念"
+          },
+          "003021": {
+            "code": "003021",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+灵巧手+微型传动"
+          },
+          "688347": {
+            "code": "688347",
+            "date": "20261127",
+            "reason": "",
+            "theme": "晶圆代工+存储涨价+回购注销"
+          },
+          "601208": {
+            "code": "601208",
+            "date": "20261127",
+            "reason": "",
+            "theme": "高速电子树脂+PCB上游材料+光刻胶材料+回购"
+          },
+          "002008": {
+            "code": "002008",
+            "date": "20261127",
+            "reason": "",
+            "theme": "PCB+半导体设备+回购完成"
+          },
+          "002872": {
+            "code": "002872",
+            "date": "20261127",
+            "reason": "",
+            "theme": "摘帽+医药制造+流感+中成药"
+          },
+          "600666": {
+            "code": "600666",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力+蓝宝石+服务器"
+          },
+          "001225": {
+            "code": "001225",
+            "date": "20261127",
+            "reason": "",
+            "theme": "物料输送设备+输送链+海外拓展"
+          },
+          "603203": {
+            "code": "603203",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光模块检测+先进封装+三季报增长"
+          },
+          "001326": {
+            "code": "001326",
+            "date": "20261127",
+            "reason": "",
+            "theme": "硅光+薄膜铌酸锂+回购"
+          },
+          "603124": {
+            "code": "603124",
+            "date": "20261127",
+            "reason": "",
+            "theme": "铜基材料+PCB概念+液冷散热+高管增持"
+          },
+          "605111": {
+            "code": "605111",
+            "date": "20261127",
+            "reason": "",
+            "theme": "功率半导体+AI算力+回购"
+          },
+          "688343": {
+            "code": "688343",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+AI推理芯片+股份回购"
+          },
+          "603650": {
+            "code": "603650",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光刻胶+半导体材料+存储客户"
+          },
+          "603955": {
+            "code": "603955",
+            "date": "20261127",
+            "reason": "",
+            "theme": "羽毛球机器人+宠物经济+更名"
+          },
+          "300666": {
+            "code": "300666",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体材料+存储芯片+回购"
+          },
+          "600839": {
+            "code": "600839",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为欧拉+具身智能+AI家电"
+          },
+          "603171": {
+            "code": "603171",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI智能体+财税数字化+阿里云"
+          },
+          "001306": {
+            "code": "001306",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+丝杠模组+小模数齿轮"
+          },
+          "002484": {
+            "code": "002484",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力硬件+服务器电源+超级电容+国企改革"
+          },
+          "688143": {
+            "code": "688143",
+            "date": "20261127",
+            "reason": "",
+            "theme": "CPO+空芯光纤+无源光器件"
+          },
+          "603163": {
+            "code": "603163",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体洁净室+可转债发行落地+在手订单"
+          },
+          "603083": {
+            "code": "603083",
+            "date": "20261127",
+            "reason": "",
+            "theme": "高速光模块+英伟达算力链"
+          },
+          "605376": {
+            "code": "605376",
+            "date": "20261127",
+            "reason": "",
+            "theme": "MLCC镍粉+镍粉满产+光伏铜粉"
+          },
+          "603655": {
+            "code": "603655",
+            "date": "20261127",
+            "reason": "",
+            "theme": "汽车密封件+新能源热管理+细分领先"
+          },
+          "000988": {
+            "code": "000988",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光模块+NPO+算力装备"
+          },
+          "002837": {
+            "code": "002837",
+            "date": "20261127",
+            "reason": "",
+            "theme": "液冷服务器+英伟达生态+英特尔验证"
+          },
+          "601789": {
+            "code": "601789",
+            "date": "20261127",
+            "reason": "",
+            "theme": "数据中心+中经云+腾讯概念+宁波国资"
+          },
+          "603400": {
+            "code": "603400",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人+芯片+液冷+并购重组"
+          },
+          "002396": {
+            "code": "002396",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI资产超跌反弹+数据中心交换机+CPO+福建国资"
+          },
+          "603303": {
+            "code": "603303",
+            "date": "20261127",
+            "reason": "",
+            "theme": "智能车灯+车用照明+车载控制器+收购嘉利"
+          },
+          "603956": {
+            "code": "603956",
+            "date": "20261127",
+            "reason": "",
+            "theme": "PCB钻针+拟收购臻璟新材+智慧水务"
+          },
+          "000573": {
+            "code": "000573",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+精密传动+房地产+股权收购"
+          },
+          "605358": {
+            "code": "605358",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体硅片+12英寸轻掺满产+三季报扭亏"
+          },
+          "301717": {
+            "code": "301717",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+特殊涂层+在手订单充足"
+          },
+          "688629": {
+            "code": "688629",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力连接+高速线模组+产能扩张"
+          },
+          "688172": {
+            "code": "688172",
+            "date": "20261127",
+            "reason": "",
+            "theme": "硅光平台+12英寸产线+董事长提议回购"
+          },
+          "300604": {
+            "code": "300604",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+存储测试机+回购+业绩增长"
+          },
+          "603990": {
+            "code": "603990",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+康养机器人+控制权变更"
+          },
+          "002338": {
+            "code": "002338",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光栅传感器+机器人+商业航天"
+          },
+          "002384": {
+            "code": "002384",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI+PCB+光模块+光芯片"
+          },
+          "002081": {
+            "code": "002081",
+            "date": "20261127",
+            "reason": "",
+            "theme": "洁净室+半导体厂房配套+建筑装饰"
+          },
+          "600584": {
+            "code": "600584",
+            "date": "20261127",
+            "reason": "",
+            "theme": "先进封装+CPO+定增获国资委同意"
+          },
+          "688205": {
+            "code": "688205",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI算力光连接+OCS送样+泰国工厂投产"
+          },
+          "600246": {
+            "code": "600246",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力芯片+数渡科技+股权激励"
+          },
+          "300085": {
+            "code": "300085",
+            "date": "20261127",
+            "reason": "",
+            "theme": "金融科技+“开盘啦”+人工智能"
+          },
+          "003005": {
+            "code": "003005",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI教育+智慧招考+智慧轨道"
+          },
+          "688147": {
+            "code": "688147",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+存储芯片+先进封装"
+          },
+          "002723": {
+            "code": "002723",
+            "date": "20261127",
+            "reason": "",
+            "theme": "短剧游戏+电子烟+家电出口+液冷"
+          },
+          "603040": {
+            "code": "603040",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人丝杠+冷精密成形+汽车零部件"
+          },
+          "688809": {
+            "code": "688809",
+            "date": "20261127",
+            "reason": "",
+            "theme": "存储探针卡+AI算力测试+股份回购"
+          },
+          "003043": {
+            "code": "003043",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+精密金属结构件+洁净车间认证"
+          },
+          "000948": {
+            "code": "000948",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI应用+金融科技+云南国资+推动AI与业务场景"
+          },
+          "603297": {
+            "code": "603297",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+光刻机+精密光学"
+          },
+          "688409": {
+            "code": "688409",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+拟回购+半导体零部件"
+          },
+          "600641": {
+            "code": "600641",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+离子注入机+铟+SOFC"
+          },
+          "605588": {
+            "code": "605588",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体光掩膜版+55nm量产+回购"
+          },
+          "002281": {
+            "code": "002281",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光模块+CPO+三季报增长"
+          },
+          "301392": {
+            "code": "301392",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+TGV微孔镀膜+三季报增长"
+          },
+          "688361": {
+            "code": "688361",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体量检测+存储芯片+回购"
+          },
+          "688371": {
+            "code": "688371",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力服务器+纳米镀膜"
+          },
+          "603960": {
+            "code": "603960",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+工业机器人+电子控制板卡"
+          },
+          "688141": {
+            "code": "688141",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI服务器电源+DrMOS+模拟芯片"
+          },
+          "603950": {
+            "code": "603950",
+            "date": "20261127",
+            "reason": "",
+            "theme": "燃气轮机+发动机零部件+拟收购康豪机电+回购贷款"
+          },
+          "003026": {
+            "code": "003026",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体硅片+订单充足+三季报增长"
+          },
+          "688627": {
+            "code": "688627",
+            "date": "20261127",
+            "reason": "",
+            "theme": "存储测试设备+HBM测试+股份回购"
+          },
+          "002065": {
+            "code": "002065",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+华为昇腾+软件+增持计划"
+          },
+          "002409": {
+            "code": "002409",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体前驱体+存储芯片+HBM前驱体"
+          },
+          "600446": {
+            "code": "600446",
+            "date": "20261127",
+            "reason": "",
+            "theme": "金融科技+AI智能体+华为昇腾"
+          },
+          "300324": {
+            "code": "300324",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI芯片+算力中心"
+          },
+          "603119": {
+            "code": "603119",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+精密结构件+云母绝缘"
+          },
+          "002713": {
+            "code": "002713",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力运营+资产注入+AI家装"
+          },
+          "603800": {
+            "code": "603800",
+            "date": "20261127",
+            "reason": "",
+            "theme": "PCB电镀设备+特种机器人+电解铜箔"
+          },
+          "002947": {
+            "code": "002947",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力+精密零组件+氮化镓"
+          },
+          "002331": {
+            "code": "002331",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为合作+智慧交通"
+          },
+          "002371": {
+            "code": "002371",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+存储芯片+HBM设备"
+          },
+          "605318": {
+            "code": "605318",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI算力+词元服务+集成吊顶"
+          },
+          "002222": {
+            "code": "002222",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光通信+CPO+精密光学"
+          },
+          "300663": {
+            "code": "300663",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+算力租赁+AI机器人"
+          },
+          "603283": {
+            "code": "603283",
+            "date": "20261127",
+            "reason": "",
+            "theme": "HBM检测+半导体设备+三星供货"
+          },
+          "301236": {
+            "code": "301236",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+算力租赁+AI服务器"
+          },
+          "000026": {
+            "code": "000026",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+精密减速器+中航系"
+          },
+          "002123": {
+            "code": "002123",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+AI算力+云通信"
+          },
+          "300843": {
+            "code": "300843",
+            "date": "20261127",
+            "reason": "",
+            "theme": "液冷+高速连接器+机器人概念"
+          },
+          "688630": {
+            "code": "688630",
+            "date": "20261127",
+            "reason": "",
+            "theme": "拟回购+PCB直写光刻+先进封装"
+          },
+          "603936": {
+            "code": "603936",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI服务器PCB+光模块PCB+陶瓷衬板"
+          },
+          "603236": {
+            "code": "603236",
+            "date": "20261127",
+            "reason": "",
+            "theme": "端侧AI+人形机器人+物联网模组"
+          },
+          "603186": {
+            "code": "603186",
+            "date": "20261127",
+            "reason": "",
+            "theme": "高速覆铜板+AI服务器+定增注册+回购"
+          },
+          "002990": {
+            "code": "002990",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人+算力租赁+智算服务"
+          },
+          "002670": {
+            "code": "002670",
+            "date": "20261127",
+            "reason": "",
+            "theme": "证券业务+江西国资"
+          },
+          "002406": {
+            "code": "002406",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+参股黄河信产+机器人+传动轴"
+          },
+          "002025": {
+            "code": "002025",
+            "date": "20261127",
+            "reason": "",
+            "theme": "CPO+高速连接器+商业航天"
+          },
+          "002929": {
+            "code": "002929",
+            "date": "20261127",
+            "reason": "",
+            "theme": "词元工厂+AI产业创新+算力网络+出海"
+          },
+          "600186": {
+            "code": "600186",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+类ABF膜+调味品+回购"
+          },
+          "603305": {
+            "code": "603305",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+汽车轻量化+特斯拉概念+商业航天"
+          },
+          "000700": {
+            "code": "000700",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+汽车外饰件+机器人外覆盖件"
+          },
+          "002843": {
+            "code": "002843",
+            "date": "20261127",
+            "reason": "",
+            "theme": "服务器电源+商业航天+锯切龙头+回购"
+          },
+          "301391": {
+            "code": "301391",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+AI算力调度+LED显示控制"
+          },
+          "002916": {
+            "code": "002916",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI算力PCB+封装基板+算力订单饱满"
+          },
+          "002536": {
+            "code": "002536",
+            "date": "20261127",
+            "reason": "",
+            "theme": "液冷泵+服务器液冷+机器人液冷"
+          },
+          "002190": {
+            "code": "002190",
+            "date": "20261127",
+            "reason": "",
+            "theme": "无人飞行平台+航空零部件+军工央企"
+          },
+          "000628": {
+            "code": "000628",
+            "date": "20261127",
+            "reason": "",
+            "theme": "曾筹划收购华鲲振宇+成都国资+功率半导体+虚拟电厂"
+          },
+          "603636": {
+            "code": "603636",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+AI短剧+政务AI"
+          },
+          "001388": {
+            "code": "001388",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+物理AI+防冰机器人+电网设备"
+          },
+          "688691": {
+            "code": "688691",
+            "date": "20261127",
+            "reason": "",
+            "theme": "芯片定制+半导体+存算一体"
+          },
+          "300862": {
+            "code": "300862",
+            "date": "20261127",
+            "reason": "",
+            "theme": "拟收购岚创科技+光通信+精密光学薄膜"
+          },
+          "002757": {
+            "code": "002757",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+IDC+家具装备"
+          },
+          "688652": {
+            "code": "688652",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+存储芯片+北京国资"
+          },
+          "603080": {
+            "code": "603080",
+            "date": "20261127",
+            "reason": "",
+            "theme": "滚珠丝杠+燃气"
+          },
+          "300567": {
+            "code": "300567",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+存储芯片+回购"
+          },
+          "603138": {
+            "code": "603138",
+            "date": "20261127",
+            "reason": "",
+            "theme": "数据库+华为鲲鹏+信创"
+          },
+          "002436": {
+            "code": "002436",
+            "date": "20261127",
+            "reason": "",
+            "theme": "封装基板+光模块基板+PCB+回购"
+          },
+          "603680": {
+            "code": "603680",
+            "date": "20261127",
+            "reason": "",
+            "theme": "商业航天+轨道交通+章程修订"
+          },
+          "301316": {
+            "code": "301316",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+算力+重组推进"
+          },
+          "688535": {
+            "code": "688535",
+            "date": "20261127",
+            "reason": "",
+            "theme": "先进封装+存储芯片+环氧塑封料"
+          },
+          "600536": {
+            "code": "600536",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为欧拉+麒麟OS+央企"
+          },
+          "002119": {
+            "code": "002119",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体封装材料+存储芯片+产能扩建"
+          },
+          "603090": {
+            "code": "603090",
+            "date": "20261127",
+            "reason": "",
+            "theme": "数据中心液冷+铝制换热器+热管理"
+          },
+          "002480": {
+            "code": "002480",
+            "date": "20261127",
+            "reason": "",
+            "theme": "数据中心+清洁能源+重组审核+高管增持"
+          },
+          "688485": {
+            "code": "688485",
+            "date": "20261127",
+            "reason": "",
+            "theme": "金刚石芯片基板+半导体切割+回购提议"
+          },
+          "002199": {
+            "code": "002199",
+            "date": "20261127",
+            "reason": "",
+            "theme": "石英晶体元器件+碳酸锂"
+          },
+          "600162": {
+            "code": "600162",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力运维+商贸流通+城市发展"
+          },
+          "002708": {
+            "code": "002708",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人关节+PCB+黄山国资+“羊”字辈"
+          },
+          "301107": {
+            "code": "301107",
+            "date": "20261127",
+            "reason": "",
+            "theme": "收购光通信+机器人"
+          },
+          "603912": {
+            "code": "603912",
+            "date": "20261127",
+            "reason": "",
+            "theme": "液冷+算力租赁+移动集采"
+          },
+          "003007": {
+            "code": "003007",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+算力调度+华为昇腾"
+          },
+          "688195": {
+            "code": "688195",
+            "date": "20261127",
+            "reason": "",
+            "theme": "OCS+CPO+光通信"
+          },
+          "603061": {
+            "code": "603061",
+            "date": "20261127",
+            "reason": "",
+            "theme": "半导体设备+测试分选机+回购"
+          },
+          "002785": {
+            "code": "002785",
+            "date": "20261127",
+            "reason": "",
+            "theme": "铀资源+盐湖提锂+石材"
+          },
+          "002897": {
+            "code": "002897",
+            "date": "20261127",
+            "reason": "",
+            "theme": "高速连接器+液冷送样+CPO"
+          },
+          "002272": {
+            "code": "002272",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为算力+算力液冷+液冷定增"
+          },
+          "002144": {
+            "code": "002144",
+            "date": "20261127",
+            "reason": "",
+            "theme": "按摩机器人+超声诊断+碳纤维+汽车内饰"
+          },
+          "603306": {
+            "code": "603306",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光模块+回购+算力"
+          },
+          "603009": {
+            "code": "603009",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人丝杠+昆山基地投产+汽车零部件"
+          },
+          "603722": {
+            "code": "603722",
+            "date": "20261127",
+            "reason": "",
+            "theme": "控制权变更+COC+光学材料"
+          },
+          "300925": {
+            "code": "300925",
+            "date": "20261127",
+            "reason": "",
+            "theme": "AI应用+算力运维+鸿蒙生态"
+          },
+          "000859": {
+            "code": "000859",
+            "date": "20261127",
+            "reason": "",
+            "theme": "并购重组注册获批+金张科技+光刻胶"
+          },
+          "600619": {
+            "code": "600619",
+            "date": "20261127",
+            "reason": "",
+            "theme": "光刻机冷却+空调压缩机+上海国资"
+          },
+          "603687": {
+            "code": "603687",
+            "date": "20261127",
+            "reason": "",
+            "theme": "芯瞳半导体（GPU芯片）+纸包装+钙钛矿设备"
+          },
+          "600410": {
+            "code": "600410",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+算力服务+AI算力"
+          },
+          "605178": {
+            "code": "605178",
+            "date": "20261127",
+            "reason": "",
+            "theme": "存储芯片+拟收购嘉合劲威+智慧城市"
+          },
+          "002368": {
+            "code": "002368",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+数据要素+央企"
+          },
+          "300939": {
+            "code": "300939",
+            "date": "20261127",
+            "reason": "",
+            "theme": "机器人概念+电子纸+液晶光开关"
+          },
+          "000034": {
+            "code": "000034",
+            "date": "20261127",
+            "reason": "",
+            "theme": "超节点中标+算力租赁+AI应用"
+          },
+          "603496": {
+            "code": "603496",
+            "date": "20261127",
+            "reason": "",
+            "theme": "超节点+华为鲲鹏+AI应用"
+          },
+          "300339": {
+            "code": "300339",
+            "date": "20261127",
+            "reason": "",
+            "theme": "开源鸿蒙+AI智能体+算力"
+          },
+          "002122": {
+            "code": "002122",
+            "date": "20261127",
+            "reason": "",
+            "theme": "具身智能数据+大模型数据服务+物理AI+摘帽"
+          },
+          "603421": {
+            "code": "603421",
+            "date": "20261127",
+            "reason": "",
+            "theme": "智能电网+电能表芯片+配电自动化"
+          },
+          "002855": {
+            "code": "002855",
+            "date": "20261127",
+            "reason": "",
+            "theme": "消费电子+精密结构件+折叠屏+处罚落地"
+          },
+          "000062": {
+            "code": "000062",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+存储芯片+算力服务"
+          },
+          "002261": {
+            "code": "002261",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+算力+机器人"
+          },
+          "300047": {
+            "code": "300047",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+算力分销+AI智能体"
+          },
+          "002403": {
+            "code": "002403",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+数据采集+智元合作+工业机器人"
+          },
+          "301178": {
+            "code": "301178",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+词元出海+人形机器人"
+          },
+          "603608": {
+            "code": "603608",
+            "date": "20261127",
+            "reason": "",
+            "theme": "人形机器人+滚珠丝杠+股东增持"
+          },
+          "002642": {
+            "code": "002642",
+            "date": "20261127",
+            "reason": "",
+            "theme": "存储设备集采+算力服务+国企"
+          },
+          "603386": {
+            "code": "603386",
+            "date": "20261127",
+            "reason": "",
+            "theme": "PCB+高多层HDI+AI算力"
+          },
+          "600567": {
+            "code": "600567",
+            "date": "20261127",
+            "reason": "",
+            "theme": "要约收购+此前一度触及面值退市+包装纸"
+          },
+          "003040": {
+            "code": "003040",
+            "date": "20261127",
+            "reason": "",
+            "theme": "eSIM+数字人民币+AI政务"
+          },
+          "600825": {
+            "code": "600825",
+            "date": "20261127",
+            "reason": "",
+            "theme": "界面财联社重组+上海国资+图书发行"
+          },
+          "603213": {
+            "code": "603213",
+            "date": "20261127",
+            "reason": "",
+            "theme": "换股吸并+现金选择权+终止上市"
+          },
+          "002651": {
+            "code": "002651",
+            "date": "20261127",
+            "reason": "",
+            "theme": "商业航天+军工+机器人"
+          },
+          "603220": {
+            "code": "603220",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+智算业务+回购"
+          },
+          "000409": {
+            "code": "000409",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+AI应用+智能矿山"
+          },
+          "605168": {
+            "code": "605168",
+            "date": "20261127",
+            "reason": "",
+            "theme": "数据中心+字节生态+AI营销"
+          },
+          "600520": {
+            "code": "600520",
+            "date": "20261127",
+            "reason": "",
+            "theme": "先进封装+半导体封装装备+合肥国资"
+          },
+          "301259": {
+            "code": "301259",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+参股TPU芯片+环境治理"
+          },
+          "002298": {
+            "code": "002298",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力基础设施+智能输配电+并购重组"
+          },
+          "603373": {
+            "code": "603373",
+            "date": "20261127",
+            "reason": "",
+            "theme": "低空安全+巡防机器人+金融安全+国企改革"
+          },
+          "688069": {
+            "code": "688069",
+            "date": "20261127",
+            "reason": "",
+            "theme": "协议转让+蓝藻治理+湖泊生态医院"
+          },
+          "600589": {
+            "code": "600589",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+东数西算+数据中心"
+          },
+          "600797": {
+            "code": "600797",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+智算转型+AI应用"
+          },
+          "603030": {
+            "code": "603030",
+            "date": "20261127",
+            "reason": "",
+            "theme": "边缘AI算力+先进光源+智慧建筑"
+          },
+          "000889": {
+            "code": "000889",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力销售+通信网络维护+业绩扭亏"
+          },
+          "603051": {
+            "code": "603051",
+            "date": "20261127",
+            "reason": "",
+            "theme": "电子皮肤+太空光伏+光伏胶膜+回购"
+          },
+          "002930": {
+            "code": "002930",
+            "date": "20261127",
+            "reason": "",
+            "theme": "燧原经销+算力租赁+石化仓储"
+          },
+          "002344": {
+            "code": "002344",
+            "date": "20261127",
+            "reason": "",
+            "theme": "皮革市场+国企改革+光伏资产+主营皮革专业市场"
+          },
+          "002197": {
+            "code": "002197",
+            "date": "20261127",
+            "reason": "",
+            "theme": "算力租赁+数据中心+金融科技+股权激励"
+          },
+          "000158": {
+            "code": "000158",
+            "date": "20261127",
+            "reason": "",
+            "theme": "华为昇腾+算力+词元工厂"
+          }
+        },
+        "rejected_dates": 0,
+        "conflicts": [],
+        "retained_count": 0
+      },
+      "ths": {
+        "status": "permission_denied",
+        "records": {},
+        "retained_count": 0
+      },
+      "kpl": {
+        "status": "empty",
+        "records": {},
+        "rejected_dates": 0,
+        "conflicts": [],
+        "retained_count": 0
+      }
+    },
+    "coverage": {
+      "matched": 413,
+      "total": 417
+    }
+  }
+}
