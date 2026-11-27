@@ -134,9 +134,10 @@
     ],
     "watch": "下一交易日继续记录重合数；3/10 只是本页的低重合分组边界。"
   },
-  "generated_at": "2026-11-27 19:35:15 CST",
+  "generated_at": "2026-11-28 04:06:23 CST",
   "source": "eastmoney_concept_boards",
   "data_channel": "clist",
+  "note": "今日非交易日/数据停滞，未新增归档，以下为最近交易日的分析",
   "fallback_probe": {
     "ok": true,
     "checked_date": "2026-11-27",

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "asof": "2026-11-27",
-  "updated_at": "2026-11-27T19:09:47.363085+08:00",
+  "updated_at": "2026-11-28T03:41:07.661065+08:00",
   "source": "腾讯财经日线；区间涨幅采用同批前复权价格",
   "source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get",
   "series": {
@@ -20307,6 +20307,6 @@
     ]
   },
   "errors": [],
-  "checked_at": "2026-11-27T19:09:47.363085+08:00",
+  "checked_at": "2026-11-28T03:41:07.661065+08:00",
   "expected_date": "2026-11-27"
 }
