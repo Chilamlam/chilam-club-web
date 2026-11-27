@@ -67,8 +67,8 @@
     },
     {
       "rank": 6,
-      "code": "BK1709",
-      "name": "海外业务",
+      "code": "BK1737",
+      "name": "回购计划",
       "pct_chg": null,
       "pct_5d": 0.0,
       "pct_10d": 0.0,
@@ -89,8 +89,8 @@
     },
     {
       "rank": 8,
-      "code": "BK1729",
-      "name": "增发预案指数",
+      "code": "BK1709",
+      "name": "海外业务",
       "pct_chg": null,
       "pct_5d": 0.0,
       "pct_10d": 0.0,
@@ -100,8 +100,8 @@
     },
     {
       "rank": 9,
-      "code": "BK1737",
-      "name": "回购计划",
+      "code": "BK1734",
+      "name": "减持计划",
       "pct_chg": null,
       "pct_5d": 0.0,
       "pct_10d": 0.0,
@@ -111,8 +111,8 @@
     },
     {
       "rank": 10,
-      "code": "BK1734",
-      "name": "减持计划",
+      "code": "BK1729",
+      "name": "增发预案指数",
       "pct_chg": null,
       "pct_5d": 0.0,
       "pct_10d": 0.0,
@@ -134,7 +134,7 @@
     ],
     "watch": "下一交易日继续记录重合数；3/10 只是本页的低重合分组边界。"
   },
-  "generated_at": "2026-11-28 04:06:23 CST",
+  "generated_at": "2026-11-28 07:15:44 CST",
   "source": "eastmoney_concept_boards",
   "data_channel": "clist",
   "note": "今日非交易日/数据停滞，未新增归档，以下为最近交易日的分析",

@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-28 03:41:07",
+  "date": "2026-11-28 06:50:08",
   "cb_list": [
     {
       "ts_code": "127033.SZ",
@@ -243,19 +243,6 @@
       "nav_status": "同日净值"
     },
     {
-      "code": "588290.SH",
-      "name": "科创芯片ETF华安",
-      "price": 0.91,
-      "change": 20.05,
-      "vol_yi": 3.58,
-      "quote_date": "20261127",
-      "nav_date": "20261127",
-      "nav": 0.8932,
-      "premium_rate": 1.881,
-      "reference_gap": null,
-      "nav_status": "同日净值"
-    },
-    {
       "code": "588890.SH",
       "name": "科创芯片ETF南方",
       "price": 1.048,
@@ -265,6 +252,19 @@
       "nav_date": "20261127",
       "nav": 1.0269,
       "premium_rate": 2.055,
+      "reference_gap": null,
+      "nav_status": "同日净值"
+    },
+    {
+      "code": "588290.SH",
+      "name": "科创芯片ETF华安",
+      "price": 0.91,
+      "change": 20.05,
+      "vol_yi": 3.58,
+      "quote_date": "20261127",
+      "nav_date": "20261127",
+      "nav": 0.8932,
+      "premium_rate": 1.881,
       "reference_gap": null,
       "nav_status": "同日净值"
     },
@@ -321,15 +321,15 @@
       "nav_status": "同日净值"
     },
     {
-      "code": "588810.SH",
-      "name": "科创芯片ETF富国",
-      "price": 0.996,
+      "code": "588450.SH",
+      "name": "科创50增强ETF招商",
+      "price": 1.782,
       "change": 20.0,
-      "vol_yi": 1.53,
+      "vol_yi": 0.42,
       "quote_date": "20261127",
       "nav_date": "20261127",
-      "nav": 0.9762,
-      "premium_rate": 2.028,
+      "nav": 1.7266,
+      "premium_rate": 3.209,
       "reference_gap": null,
       "nav_status": "同日净值"
     },
@@ -360,15 +360,15 @@
       "nav_status": "同日净值"
     },
     {
-      "code": "588450.SH",
-      "name": "科创50增强ETF招商",
-      "price": 1.782,
+      "code": "588810.SH",
+      "name": "科创芯片ETF富国",
+      "price": 0.996,
       "change": 20.0,
-      "vol_yi": 0.42,
+      "vol_yi": 1.53,
       "quote_date": "20261127",
       "nav_date": "20261127",
-      "nav": 1.7266,
-      "premium_rate": 3.209,
+      "nav": 0.9762,
+      "premium_rate": 2.028,
       "reference_gap": null,
       "nav_status": "同日净值"
     },
@@ -412,19 +412,6 @@
       "nav_status": "同日净值"
     },
     {
-      "code": "588550.SH",
-      "name": "科创综指增强ETF易方达",
-      "price": 1.01,
-      "change": 19.95,
-      "vol_yi": 0.18,
-      "quote_date": "20261127",
-      "nav_date": "20261127",
-      "nav": 0.9706,
-      "premium_rate": 4.059,
-      "reference_gap": null,
-      "nav_status": "同日净值"
-    },
-    {
       "code": "588920.SH",
       "name": "科创芯片ETF鹏华",
       "price": 0.896,
@@ -434,6 +421,19 @@
       "nav_date": "20261127",
       "nav": 0.8783,
       "premium_rate": 2.015,
+      "reference_gap": null,
+      "nav_status": "同日净值"
+    },
+    {
+      "code": "588550.SH",
+      "name": "科创综指增强ETF易方达",
+      "price": 1.01,
+      "change": 19.95,
+      "vol_yi": 0.18,
+      "quote_date": "20261127",
+      "nav_date": "20261127",
+      "nav": 0.9706,
+      "premium_rate": 4.059,
       "reference_gap": null,
       "nav_status": "同日净值"
     },
